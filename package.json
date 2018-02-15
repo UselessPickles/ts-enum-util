@@ -1,0 +1,83 @@
+{
+  "name": "ts-enum-util",
+  "version": "0.0.0",
+  "description": "TypeScript Enum Utilities",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UselessPickles/ts-enum-util.git"
+  },
+  "homepage": "https://github.com/UselessPickles/ts-enum-util",
+  "bugs": {
+    "url": "https://github.com/UselessPickles/ts-enum-util/issues"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "dist/commonjs/index.js",
+  "jsnext:main": "dist/es/index.js",
+  "module": "dist/es/index.js",
+  "types": "dist/types/index.d.ts",
+  "scripts": {
+    "clean:dist": "rimraf dist",
+    "clean:coverage": "rimraf coverage",
+    "clean:pack": "rimraf ts-enum-util-*.tgz",
+    "compile": "tsc --project tsconfig.json --noEmit --pretty --noErrorTruncation",
+    "lint": "tslint --config tslint.json --project tsconfig.json",
+    "lint:fix": "npm run lint -- --fix",
+    "build:commonjs": "tsc --project src/tsconfig.json --pretty --noErrorTruncation",
+    "build:move-types-from-commonjs": "copyfiles --up 2 dist/commonjs/*.d.ts dist/types && rimraf dist/commonjs/*.d.ts",
+    "build:es": "tsc --project src/tsconfig.json --pretty --noErrorTruncation -m es6 --outDir dist/es --declaration false",
+    "build": "npm run clean:dist && run-p build:es build:commonjs && npm run build:move-types-from-commonjs",
+    "pack": "run-p clean:pack build && npm pack",
+    "jest": "jest --runInBand",
+    "jest:coverage": "npm run clean:coverage && jest --runInBand --coverage",
+    "test": "run-s compile lint jest",
+    "test:coverage": "run-s compile lint jest:coverage",
+    "build:travis": "run-p test:coverage build && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  },
+  "author": {
+    "name": "Jeff Lau",
+    "email": "jlau@uselesspickles.com",
+    "url": "http://www.uselesspickles.com"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "22.1.1",
+    "@types/node": "9.4.0",
+    "copyfiles": "1.2.0",
+    "coveralls": "3.0.0",
+    "jest": "22.1.4",
+    "npm-run-all": "4.1.2",
+    "rimraf": "2.6.2",
+    "ts-jest": "22.0.2",
+    "tslint": "5.9.1",
+    "typescript": "^2.7.1"
+  },
+  "peerDependencies": {
+    "typescript": ">= 2.4.1"
+  },
+  "keywords": [
+    "typescript",
+    "string",
+    "number",
+    "enum",
+    "util"
+  ],
+  "jest": {
+    "cacheDirectory": "./jest_cache",
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "src/**/*.{js,ts}",
+      "!**/node_modules/**"
+    ],
+    "mapCoverage": true,
+    "testRegex": "((\\.|/)(test|spec))\\.(ts|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ]
+  }
+}
