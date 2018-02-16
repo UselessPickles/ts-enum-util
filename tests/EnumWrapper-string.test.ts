@@ -7,11 +7,11 @@ enum TestEnum {
 }
 
 describe("EnumWrapper: string enum", () => {
-    const enumWrapper = EnumWrapper.createInstance(TestEnum);
+    const enumWrapper = EnumWrapper.createUncachedInstance(TestEnum);
 
-    test("getInstance()", () => {
-        const result1 = EnumWrapper.getInstance(TestEnum);
-        const result2 = EnumWrapper.getInstance(TestEnum);
+    test("getCachedInstance()", () => {
+        const result1 = EnumWrapper.getCachedInstance(TestEnum);
+        const result2 = EnumWrapper.getCachedInstance(TestEnum);
 
         expect(result1 instanceof EnumWrapper).toBe(true);
         // returns cached instance
