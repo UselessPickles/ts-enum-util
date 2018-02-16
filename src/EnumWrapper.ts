@@ -243,7 +243,7 @@ export class EnumWrapper<
 
     /**
      * Get an iterator for this enum's entries as [key, value] tuples.
-     * @return An iterator that iterates over this enum's values.
+     * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
     public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
         return this.entries();
