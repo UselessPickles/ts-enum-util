@@ -13,7 +13,7 @@ export type EnumLike<V extends number | string, K extends string> = {
  * Provides utilities for runtime processing of an enum's values and keys, with strict compile-time
  * type safety.
  *
- * Enum cannot be directly instantiated. Use one of the following to get/create an Enum
+ * EnumWrapper cannot be directly instantiated. Use one of the following to get/create an EnumWrapper
  * instance:
  * - {@link EnumWrapper.getInstance}
  * - {@link EnumWrapper.createInstance}
@@ -26,7 +26,7 @@ export class EnumWrapper<
     T extends EnumLike<V, keyof T> = any
 > implements Iterable<EnumWrapper.Entry<T>> {
     /**
-     * Map of enum object -> Enum instance.
+     * Map of enum object -> EnumWrapper instance.
      * Used as a cache for {@link EnumWrapper.getInstance}.
      */
     private static readonly instancesCache = new Map<object, EnumWrapper>();
@@ -48,102 +48,102 @@ export class EnumWrapper<
     private readonly keysByValueMap = new Map<V, keyof T>();
 
     /**
-     * Creates a new Enum for an enum-like object.
+     * Creates a new EnumWrapper for an enum-like object.
      * You probably want to use {@link EnumWrapper.getInstance} for any typical enums, because it will
      * cache the result.
-     * This method may be useful if you want an Enum for an enum-like object that is dynamically
+     * This method may be useful if you want an EnumWrapper for an enum-like object that is dynamically
      * built at runtime, is used only within a limited/tranient context in the application, and is likely
      * to clutter the cache without ever being reused.
      * @param enumObj - An enum-like object.
-     * @return A new instance of Enum for the provided enumObj.
+     * @return A new instance of EnumWrapper for the provided enumObj.
      */
     public static createInstance<T extends EnumLike<number, keyof T>>(
         enumObj: T
     ): EnumWrapper<number, T>;
     /**
-     * Creates a new Enum for an enum-like object.
+     * Creates a new EnumWrapper for an enum-like object.
      * You probably want to use {@link EnumWrapper.getInstance} for any typical enums, because it will
      * cache the result.
-     * This method may be useful if you want an Enum for an enum-like object that is dynamically
+     * This method may be useful if you want an EnumWrapper for an enum-like object that is dynamically
      * built at runtime, is used only within a limited/tranient context in the application, and is likely
      * to clutter the cache without ever being reused.
      * @param enumObj - An enum-like object.
-     * @return A new instance of Enum for the provided enumObj.
+     * @return A new instance of EnumWrapper for the provided enumObj.
      */
     public static createInstance<T extends EnumLike<string, keyof T>>(
         enumObj: T
     ): EnumWrapper<string, T>;
     /**
-     * Creates a new Enum for an enum-like object.
+     * Creates a new EnumWrapper for an enum-like object.
      * You probably want to use {@link EnumWrapper.getInstance} for any typical enums, because it will
      * cache the result.
-     * This method may be useful if you want an Enum for an enum-like object that is dynamically
+     * This method may be useful if you want an EnumWrapper for an enum-like object that is dynamically
      * built at runtime, is used only within a limited/tranient context in the application, and is likely
      * to clutter the cache without ever being reused.
      * @param enumObj - An enum-like object.
-     * @return A new instance of Enum for the provided enumObj.
+     * @return A new instance of EnumWrapper for the provided enumObj.
      */
     public static createInstance<T extends EnumLike<number | string, keyof T>>(
         enumObj: T
     ): EnumWrapper<number | string, T>;
     /**
-     * Creates a new Enum for an enum-like object.
+     * Creates a new EnumWrapper for an enum-like object.
      * You probably want to use {@link EnumWrapper.getInstance} for any typical enums, because it will
      * cache the result.
-     * This method may be useful if you want an Enum for an enum-like object that is dynamically
+     * This method may be useful if you want an EnumWrapper for an enum-like object that is dynamically
      * built at runtime, is used only within a limited/tranient context in the application, and is likely
      * to clutter the cache without ever being reused.
      * @param enumObj - An enum-like object.
-     * @return A new instance of Enum for the provided enumObj.
+     * @return A new instance of EnumWrapper for the provided enumObj.
      */
     public static createInstance(enumObj: any): EnumWrapper {
         return new EnumWrapper(enumObj);
     }
 
     /**
-     * Creates a new Enum, or returns a cached Enum if one has already been created for the same
+     * Creates a new EnumWrapper, or returns a cached EnumWrapper if one has already been created for the same
      * object via {@link EnumWrapper.getInstance}.
-     * This is most useful for typical enums that are statically defined, because the cached  Enum instance
+     * This is most useful for typical enums that are statically defined, because the cached  EnumWrapper instance
      * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
-     * Use {@link EnumWrapper.createInstance} if you don't want the Enum to be cached.
+     * Use {@link EnumWrapper.createInstance} if you don't want the EnumWrapper to be cached.
      * @param enumObj - An enum-like object.
-     * @return An instance of Enum for the provided enumObj.
+     * @return An instance of EnumWrapper for the provided enumObj.
      */
     public static getInstance<T extends EnumLike<number, keyof T>>(
         enumObj: T
     ): EnumWrapper<number, T>;
     /**
-     * Creates a new Enum, or returns a cached Enum if one has already been created for the same
+     * Creates a new EnumWrapper, or returns a cached EnumWrapper if one has already been created for the same
      * object via {@link EnumWrapper.getInstance}.
-     * This is most useful for typical enums that are statically defined, because the cached  Enum instance
+     * This is most useful for typical enums that are statically defined, because the cached  EnumWrapper instance
      * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
-     * Use {@link EnumWrapper.createInstance} if you don't want the Enum to be cached.
+     * Use {@link EnumWrapper.createInstance} if you don't want the EnumWrapper to be cached.
      * @param enumObj - An enum-like object.
-     * @return An instance of Enum for the provided enumObj.
+     * @return An instance of EnumWrapper for the provided enumObj.
      */
     public static getInstance<T extends EnumLike<string, keyof T>>(
         enumObj: T
     ): EnumWrapper<string, T>;
     /**
-     * Creates a new Enum, or returns a cached Enum if one has already been created for the same
+     * Creates a new EnumWrapper, or returns a cached EnumWrapper if one has already been created for the same
      * object via {@link EnumWrapper.getInstance}.
-     * This is most useful for typical enums that are statically defined, because the cached  Enum instance
+     * This is most useful for typical enums that are statically defined, because the cached  EnumWrapper instance
      * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
-     * Use {@link EnumWrapper.createInstance} if you don't want the Enum to be cached.
+     * Use {@link EnumWrapper.createInstance} if you don't want the EnumWrapper to be cached.
      * @param enumObj - An enum-like object.
-     * @return An instance of Enum for the provided enumObj.
+     * @return An instance of EnumWrapper for the provided enumObj.
      */
     public static getInstance<T extends EnumLike<number | string, keyof T>>(
         enumObj: T
     ): EnumWrapper<number | string, T>;
     /**
-     * Creates a new Enum, or returns a cached Enum if one has already been created for the same
+     * Creates a new EnumWrapper, or returns a cached EnumWrapper if one has already been created for the same
      * object via {@link EnumWrapper.getInstance}.
-     * This is most useful for typical enums that are statically defined, because the cached  Enum instance
+     * This is most useful for typical enums that are statically defined, because the cached  EnumWrapper instance
      * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
-     * Use {@link EnumWrapper.createInstance} if you don't want the Enum to be cached.
+     * Use {@link EnumWrapper.createInstance} if you don't want the EnumWrapper to be cached.
      * @param enumObj - An enum-like object.
-     * @return An instance of Enum for the provided enumObj.
+     * @return An instance of EnumWrapper for the provided enumObj.
      */
     public static getInstance(enumObj: any): EnumWrapper {
         let result = this.instancesCache.get(enumObj);
@@ -157,9 +157,9 @@ export class EnumWrapper<
     }
 
     /**
-     * Create a new Enum instance.
+     * Create a new EnumWrapper instance.
      * This is for internal use only.
-     * Use one of the following to publicly get/create an Enum
+     * Use one of the following to publicly get/create an EnumWrapper
      * instance:
      * - {@link EnumWrapper.getInstance}
      * - {@link EnumWrapper.createInstance}
