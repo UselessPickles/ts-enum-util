@@ -1,19 +1,19 @@
-import {Enum} from "../src";
+import {EnumWrapper} from "../src";
 
 enum TestEnum {
-    A,
-    B,
-    C
+    A = "a",
+    B = "b",
+    C = "c"
 }
 
-describe("Enum: string enum", () => {
-    const enumWrapper = Enum.create(TestEnum);
+describe("EnumWrapper: string enum", () => {
+    const enumWrapper = EnumWrapper.createInstance(TestEnum);
 
-    test("get()", () => {
-        const result1 = Enum.get(TestEnum);
-        const result2 = Enum.get(TestEnum);
+    test("getInstance()", () => {
+        const result1 = EnumWrapper.getInstance(TestEnum);
+        const result2 = EnumWrapper.getInstance(TestEnum);
 
-        expect(result1 instanceof Enum).toBe(true);
+        expect(result1 instanceof EnumWrapper).toBe(true);
         // returns cached instance
         expect(result1).toBe(result2);
     });
@@ -174,9 +174,9 @@ describe("Enum: string enum", () => {
             const result = enumWrapper.map(iterateeSpy);
 
             expect(result).toEqual([
-                "A0",
-                "B1",
-                "C2"
+                "Aa",
+                "Bb",
+                "Cc"
             ]);
 
             expect(iterateeSpy.mock.calls).toEqual([
@@ -199,9 +199,9 @@ describe("Enum: string enum", () => {
             const result = enumWrapper.map(iterateeSpy, context);
 
             expect(result).toEqual([
-                "A0",
-                "B1",
-                "C2"
+                "Aa",
+                "Bb",
+                "Cc"
             ]);
 
             expect(iterateeSpy.mock.calls).toEqual([
@@ -252,7 +252,7 @@ describe("Enum: string enum", () => {
         expect(enumWrapper.isValue(TestEnum.C)).toBe(true);
 
         expect(enumWrapper.isValue(undefined)).toBe(false);
-        expect(enumWrapper.isValue(-1)).toBe(false);
+        expect(enumWrapper.isValue("foo")).toBe(false);
     });
 
     test("asValue()", () => {
@@ -265,7 +265,7 @@ describe("Enum: string enum", () => {
         }).toThrow();
 
         expect(() => {
-            enumWrapper.asValue(-1);
+            enumWrapper.asValue("foo");
         }).toThrow();
     });
 
@@ -275,9 +275,9 @@ describe("Enum: string enum", () => {
         expect(enumWrapper.asValueOrDefault(TestEnum.C)).toBe(TestEnum.C);
 
         expect(enumWrapper.asValueOrDefault(undefined)).toBe(undefined);
-        expect(enumWrapper.asValueOrDefault(-1)).toBe(undefined);
-        expect(enumWrapper.asValueOrDefault(-1, TestEnum.A)).toBe(TestEnum.A);
-        expect(enumWrapper.asValueOrDefault(-1, -2)).toBe(-2);
+        expect(enumWrapper.asValueOrDefault("blah")).toBe(undefined);
+        expect(enumWrapper.asValueOrDefault("blah", TestEnum.A)).toBe(TestEnum.A);
+        expect(enumWrapper.asValueOrDefault("blah", "foo")).toBe("foo");
     });
 
     test("getKey()", () => {
@@ -290,7 +290,7 @@ describe("Enum: string enum", () => {
         }).toThrow();
 
         expect(() => {
-            enumWrapper.getKey(-1);
+            enumWrapper.getKey("foo");
         }).toThrow();
     });
 
@@ -300,9 +300,9 @@ describe("Enum: string enum", () => {
         expect(enumWrapper.getKeyOrDefault(TestEnum.C)).toBe("C");
 
         expect(enumWrapper.getKeyOrDefault(undefined)).toBe(undefined);
-        expect(enumWrapper.getKeyOrDefault(-1)).toBe(undefined);
-        expect(enumWrapper.getKeyOrDefault(-1, "A")).toBe("A");
-        expect(enumWrapper.getKeyOrDefault(-1, "foo")).toBe("foo");
+        expect(enumWrapper.getKeyOrDefault("blah")).toBe(undefined);
+        expect(enumWrapper.getKeyOrDefault("blah", "A")).toBe("A");
+        expect(enumWrapper.getKeyOrDefault("blah", "foo")).toBe("foo");
     });
 
     test("getValue()", () => {
@@ -327,6 +327,6 @@ describe("Enum: string enum", () => {
         expect(enumWrapper.getValueOrDefault(undefined)).toBe(undefined);
         expect(enumWrapper.getValueOrDefault("blah")).toBe(undefined);
         expect(enumWrapper.getValueOrDefault("blah", TestEnum.A)).toBe(TestEnum.A);
-        expect(enumWrapper.getValueOrDefault("blah", -1)).toBe(-1);
+        expect(enumWrapper.getValueOrDefault("blah", "foo")).toBe("foo");
     });
 });

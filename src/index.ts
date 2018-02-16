@@ -15,21 +15,21 @@ export type EnumLike<V extends number | string, K extends string> = {
  *
  * Enum cannot be directly instantiated. Use one of the following to get/create an Enum
  * instance:
- * - {@link Enum.get}
- * - {@link Enum.create}
+ * - {@link EnumWrapper.getInstance}
+ * - {@link EnumWrapper.createInstance}
  *
  * @template V - Type of the enum value.
  * @template T - Type of the enum-like object that is being wrapped.
  */
-export class Enum<
+export class EnumWrapper<
     V extends number | string = number | string,
     T extends EnumLike<V, keyof T> = any
-> implements Iterable<Enum.Entry<T>> {
+> implements Iterable<EnumWrapper.Entry<T>> {
     /**
      * Map of enum object -> Enum instance.
-     * Used as a cache for {@link Enum.get}.
+     * Used as a cache for {@link EnumWrapper.getInstance}.
      */
-    private static readonly instancesCache = new Map<object, Enum>();
+    private static readonly instancesCache = new Map<object, EnumWrapper>();
 
     /**
      * Set of all keys for this enum.
@@ -49,7 +49,7 @@ export class Enum<
 
     /**
      * Creates a new Enum for an enum-like object.
-     * You probably want to use {@link Enum.get} for any typical enums, because it will
+     * You probably want to use {@link EnumWrapper.getInstance} for any typical enums, because it will
      * cache the result.
      * This method may be useful if you want an Enum for an enum-like object that is dynamically
      * built at runtime, is used only within a limited/tranient context in the application, and is likely
@@ -57,10 +57,12 @@ export class Enum<
      * @param enumObj - An enum-like object.
      * @return A new instance of Enum for the provided enumObj.
      */
-    public static create<T extends EnumLike<number, keyof T>>(enumObj: T): Enum<number, T>;
+    public static createInstance<T extends EnumLike<number, keyof T>>(
+        enumObj: T
+    ): EnumWrapper<number, T>;
     /**
      * Creates a new Enum for an enum-like object.
-     * You probably want to use {@link Enum.get} for any typical enums, because it will
+     * You probably want to use {@link EnumWrapper.getInstance} for any typical enums, because it will
      * cache the result.
      * This method may be useful if you want an Enum for an enum-like object that is dynamically
      * built at runtime, is used only within a limited/tranient context in the application, and is likely
@@ -68,10 +70,12 @@ export class Enum<
      * @param enumObj - An enum-like object.
      * @return A new instance of Enum for the provided enumObj.
      */
-    public static create<T extends EnumLike<string, keyof T>>(enumObj: T): Enum<string, T>;
+    public static createInstance<T extends EnumLike<string, keyof T>>(
+        enumObj: T
+    ): EnumWrapper<string, T>;
     /**
      * Creates a new Enum for an enum-like object.
-     * You probably want to use {@link Enum.get} for any typical enums, because it will
+     * You probably want to use {@link EnumWrapper.getInstance} for any typical enums, because it will
      * cache the result.
      * This method may be useful if you want an Enum for an enum-like object that is dynamically
      * built at runtime, is used only within a limited/tranient context in the application, and is likely
@@ -79,10 +83,12 @@ export class Enum<
      * @param enumObj - An enum-like object.
      * @return A new instance of Enum for the provided enumObj.
      */
-    public static create<T extends EnumLike<number | string, keyof T>>(enumObj: T): Enum<number | string, T>;
+    public static createInstance<T extends EnumLike<number | string, keyof T>>(
+        enumObj: T
+    ): EnumWrapper<number | string, T>;
     /**
      * Creates a new Enum for an enum-like object.
-     * You probably want to use {@link Enum.get} for any typical enums, because it will
+     * You probably want to use {@link EnumWrapper.getInstance} for any typical enums, because it will
      * cache the result.
      * This method may be useful if you want an Enum for an enum-like object that is dynamically
      * built at runtime, is used only within a limited/tranient context in the application, and is likely
@@ -90,54 +96,60 @@ export class Enum<
      * @param enumObj - An enum-like object.
      * @return A new instance of Enum for the provided enumObj.
      */
-    public static create(enumObj: any): Enum {
-        return new Enum(enumObj);
+    public static createInstance(enumObj: any): EnumWrapper {
+        return new EnumWrapper(enumObj);
     }
 
     /**
      * Creates a new Enum, or returns a cached Enum if one has already been created for the same
-     * object via {@link Enum.get}.
+     * object via {@link EnumWrapper.getInstance}.
      * This is most useful for typical enums that are statically defined, because the cached  Enum instance
-     * will be quickly retrieved/reused on every sebsequent call to get() for the same enum object.
-     * Use {@link Enum.create} if you don't want the Enum to be cached.
+     * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
+     * Use {@link EnumWrapper.createInstance} if you don't want the Enum to be cached.
      * @param enumObj - An enum-like object.
      * @return An instance of Enum for the provided enumObj.
      */
-    public static get<T extends EnumLike<number, keyof T>>(enumObj: T): Enum<number, T>;
+    public static getInstance<T extends EnumLike<number, keyof T>>(
+        enumObj: T
+    ): EnumWrapper<number, T>;
     /**
      * Creates a new Enum, or returns a cached Enum if one has already been created for the same
-     * object via {@link Enum.get}.
+     * object via {@link EnumWrapper.getInstance}.
      * This is most useful for typical enums that are statically defined, because the cached  Enum instance
-     * will be quickly retrieved/reused on every sebsequent call to get() for the same enum object.
-     * Use {@link Enum.create} if you don't want the Enum to be cached.
+     * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
+     * Use {@link EnumWrapper.createInstance} if you don't want the Enum to be cached.
      * @param enumObj - An enum-like object.
      * @return An instance of Enum for the provided enumObj.
      */
-    public static get<T extends EnumLike<string, keyof T>>(enumObj: T): Enum<string, T>;
+    public static getInstance<T extends EnumLike<string, keyof T>>(
+        enumObj: T
+    ): EnumWrapper<string, T>;
     /**
      * Creates a new Enum, or returns a cached Enum if one has already been created for the same
-     * object via {@link Enum.get}.
+     * object via {@link EnumWrapper.getInstance}.
      * This is most useful for typical enums that are statically defined, because the cached  Enum instance
-     * will be quickly retrieved/reused on every sebsequent call to get() for the same enum object.
-     * Use {@link Enum.create} if you don't want the Enum to be cached.
+     * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
+     * Use {@link EnumWrapper.createInstance} if you don't want the Enum to be cached.
      * @param enumObj - An enum-like object.
      * @return An instance of Enum for the provided enumObj.
      */
-    public static get<T extends EnumLike<number | string, keyof T>>(enumObj: T): Enum<number | string, T>;
+    public static getInstance<T extends EnumLike<number | string, keyof T>>(
+        enumObj: T
+    ): EnumWrapper<number | string, T>;
     /**
      * Creates a new Enum, or returns a cached Enum if one has already been created for the same
-     * object via {@link Enum.get}.
+     * object via {@link EnumWrapper.getInstance}.
      * This is most useful for typical enums that are statically defined, because the cached  Enum instance
-     * will be quickly retrieved/reused on every sebsequent call to get() for the same enum object.
-     * Use {@link Enum.create} if you don't want the Enum to be cached.
+     * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
+     * Use {@link EnumWrapper.createInstance} if you don't want the Enum to be cached.
      * @param enumObj - An enum-like object.
      * @return An instance of Enum for the provided enumObj.
      */
-    public static get(enumObj: any): Enum {
+    public static getInstance(enumObj: any): EnumWrapper {
         let result = this.instancesCache.get(enumObj);
 
         if (!result) {
-            result = this.create(enumObj);
+            result = this.createInstance(enumObj);
             this.instancesCache.set(enumObj, result);
         }
 
@@ -149,8 +161,8 @@ export class Enum<
      * This is for internal use only.
      * Use one of the following to publicly get/create an Enum
      * instance:
-     * - {@link Enum.get}
-     * - {@link Enum.create}
+     * - {@link EnumWrapper.getInstance}
+     * - {@link EnumWrapper.createInstance}
      *
      * @param enumObj - An enum-like object. See the {@link EnumLike} type for more explanation.
      */
@@ -189,7 +201,7 @@ export class Enum<
     /**
      * Get a list of this enum's values.
      * NOTE: If this enum has any duplicate values, only unique values will be returned, and the
-     *       length of the list will be less than {@link Enum#size}.
+     *       length of the list will be less than {@link EnumWrapper#size}.
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
@@ -200,7 +212,7 @@ export class Enum<
      * Get a list of this enum's entries as [key, value] tuples.
      * @return A list of this enum's entries as [key, value] tuples.
      */
-    public getEntries(): Enum.Entry<T>[] {
+    public getEntries(): EnumWrapper.Entry<T>[] {
         return Array.from(this);
     }
 
@@ -215,7 +227,7 @@ export class Enum<
     /**
      * Get an iterator for this enum's values.
      * NOTE: If this enum has any duplicate values, only unique values will be iterated, and the
-     *       number of values iterated will be less than {@link Enum#size}.
+     *       number of values iterated will be less than {@link EnumWrapper#size}.
      * @return An iterator that iterates over this enum's values.
      */
     public values(): IterableIterator<T[keyof T]> {
@@ -226,11 +238,11 @@ export class Enum<
      * Get an iterator for this enum's entries as [key, value] tuples.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
-    public entries(): IterableIterator<Enum.Entry<T>> {
+    public entries(): IterableIterator<EnumWrapper.Entry<T>> {
         const keyIterator = this.keys();
 
         return {
-            next: (): IteratorResult<Enum.Entry<T>> => {
+            next: (): IteratorResult<EnumWrapper.Entry<T>> => {
                 const nextKey = keyIterator.next();
 
                 return {
@@ -241,7 +253,7 @@ export class Enum<
                 };
             },
 
-            [Symbol.iterator]: function(): IterableIterator<Enum.Entry<T>> {
+            [Symbol.iterator]: function(): IterableIterator<EnumWrapper.Entry<T>> {
                 return this;
             }
         };
@@ -251,18 +263,18 @@ export class Enum<
      * Get an iterator for this enum's entries as [key, value] tuples.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
-    public [Symbol.iterator](): IterableIterator<Enum.Entry<T>> {
+    public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
         return this.entries();
     }
 
     /**
      * Calls the provided iteratee on each item in this enum.
-     * See {@link Enum.Iteratee} for the signature of the iteratee.
+     * See {@link EnumWrapper.Iteratee} for the signature of the iteratee.
      * The return value of the iteratee is ignored.
      * @param iteratee - The iteratee.
      * @param context - If provided, then the iteratee will be called with the context as its "this" value.
      */
-    public forEach(iteratee: Enum.Iteratee<V, T, void>, context?: any): void {
+    public forEach(iteratee: EnumWrapper.Iteratee<V, T, void>, context?: any): void {
         this.keySet.forEach((key) => {
             iteratee.call(context, this.enumObj[key], key, this.enumObj);
         });
@@ -271,12 +283,12 @@ export class Enum<
     /**
      * Maps this enum's entries to a new list of values.
      * Builds a new array containing the results of calling the provided iteratee on each item in this enum.
-     * See {@link Enum.Iteratee} for the signature of the iteratee.
+     * See {@link EnumWrapper.Iteratee} for the signature of the iteratee.
      * @param iteratee - The iteratee.
      * @param context - If provided, then the iteratee will be called with the context as its "this" value.
      * @return A new array containg the results of the iteratee.
      */
-    public map<R>(iteratee: Enum.Iteratee<V, T, R>, context?: any): R[] {
+    public map<R>(iteratee: EnumWrapper.Iteratee<V, T, R>, context?: any): R[] {
         const result: R[] = [];
 
         this.keySet.forEach((key) => {
@@ -370,7 +382,7 @@ export class Enum<
     }
 }
 
-export namespace Enum {
+export namespace EnumWrapper {
     export type Entry<T> = [
         keyof T,
         T[keyof T]
@@ -381,4 +393,21 @@ export namespace Enum {
         T extends EnumLike<V, keyof T>,
         R
     > = (this: any, value: V, key: keyof T, enumObj: T) => R;
+}
+
+export function $enum<T extends EnumLike<number, keyof T>>(
+    enumObj: T, useCache?: boolean
+): EnumWrapper<number, T>;
+export function $enum<T extends EnumLike<string, keyof T>>(
+    enumObj: T, useCache?: boolean
+): EnumWrapper<string, T>;
+export function $enum<T extends EnumLike<number | string, keyof T>>(
+    enumObj: T, useCache?: boolean
+): EnumWrapper<number | string, T>;
+export function $enum(enumObj: any, useCache: boolean = true): EnumWrapper {
+    if (useCache) {
+        return EnumWrapper.getInstance(enumObj);
+    } else {
+        return EnumWrapper.createInstance(enumObj);
+    }
 }
