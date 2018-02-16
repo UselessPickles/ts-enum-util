@@ -288,7 +288,7 @@ export class EnumWrapper<
         if (this.isKey(key)) {
             return key;
         } else {
-            throw new Error(`Unexpected key: ${key}. Expected one of: ${this.keySet}`);
+            throw new Error(`Unexpected key: ${key}. Expected one of: ${Array.from(this.keySet)}`);
         }
     }
 
@@ -313,7 +313,7 @@ export class EnumWrapper<
         if (this.isValue(value)) {
             return value;
         } else {
-            throw new Error(`Unexpected value: ${value}. Expected one of: ${this.valueSet}`);
+            throw new Error(`Unexpected value: ${value}. Expected one of: ${Array.from(this.valueSet)}`);
         }
     }
 
