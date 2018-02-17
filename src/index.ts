@@ -38,11 +38,6 @@ export class EnumWrapper<
     private readonly keySet: Set<keyof T>;
 
     /**
-     * Set of all values for this enum.
-     */
-    private readonly valueSet = new Set<T[keyof T]>();
-
-    /**
      * Map of enum value -> enum key.
      * Used for reverse key lookups.
      */
@@ -191,7 +186,6 @@ export class EnumWrapper<
 
         this.keySet.forEach((key) => {
             const value = enumObj[key];
-            this.valueSet.add(value);
             this.keysByValueMap.set(value, key);
         });
     }
@@ -250,7 +244,7 @@ export class EnumWrapper<
      * @return An iterator that iterates over this enum's values.
      */
     public values(): IterableIterator<T[keyof T]> {
-        return this.valueSet.values();
+        return this.keysByValueMap.keys();
     }
 
     /**
@@ -324,7 +318,7 @@ export class EnumWrapper<
      * @return A list of this enum's keys.
      */
     public getKeys(): (keyof T)[] {
-        return Array.from(this.keySet.values());
+        return Array.from(this.keys());
     }
 
     /**
@@ -334,7 +328,7 @@ export class EnumWrapper<
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
-        return Array.from(this.valueSet.values());
+        return Array.from(this.values());
     }
 
     /**
@@ -366,7 +360,7 @@ export class EnumWrapper<
         if (this.isKey(key)) {
             return key;
         } else {
-            throw new Error(`Unexpected key: ${key}. Expected one of: ${Array.from(this.keySet)}`);
+            throw new Error(`Unexpected key: ${key}. Expected one of: ${this.getValues()}`);
         }
     }
 
@@ -424,7 +418,7 @@ export class EnumWrapper<
      * @return True if the provided value is valid for this enum.
      */
     public isValue(value: V): value is T[keyof T] {
-        return value !== undefined && this.valueSet.has(value);
+        return value !== undefined && this.keysByValueMap.has(value);
     }
 
     /**
@@ -438,7 +432,7 @@ export class EnumWrapper<
         if (this.isValue(value)) {
             return value;
         } else {
-            throw new Error(`Unexpected value: ${value}. Expected one of: ${Array.from(this.valueSet)}`);
+            throw new Error(`Unexpected value: ${value}. Expected one of: ${this.getValues()}`);
         }
     }
 
