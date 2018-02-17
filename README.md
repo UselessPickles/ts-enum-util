@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/UselessPickles/ts-enum-util/badge.svg?branch=master)](https://coveralls.io/github/UselessPickles/ts-enum-util?branch=master)
 
 # ts-enum-util
-Strictly typed utilities for workign with TypeScript enums.
+Strictly typed utilities for working with TypeScript enums.
 
 # Contents
 <!-- TOC depthFrom:2 -->
