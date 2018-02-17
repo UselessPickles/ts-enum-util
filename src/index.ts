@@ -44,6 +44,11 @@ export class EnumWrapper<
     private readonly keysByValueMap = new Map<V, keyof T>();
 
     /**
+     * The number of entries in this enum.
+     */
+    public readonly size: number;
+
+    /**
      * Creates a new EnumWrapper for an enum-like object with number values.
      * You probably want to use {@link EnumWrapper.getCachedInstance} for typical enums, because it will
      * cache the result.
@@ -188,6 +193,8 @@ export class EnumWrapper<
             const value = enumObj[key];
             this.keysByValueMap.set(value, key);
         });
+
+        this.size = this.keySet.size;
     }
 
     /**
@@ -195,13 +202,6 @@ export class EnumWrapper<
      */
     public toString(): string {
         return "[object EnumWrapper]";
-    }
-
-    /**
-     * The number of entries in this enum.
-     */
-    public get size(): number {
-        return this.keySet.size;
     }
 
     /**
