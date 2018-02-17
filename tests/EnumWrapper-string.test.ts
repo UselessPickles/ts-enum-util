@@ -9,6 +9,10 @@ enum TestEnum {
 describe("EnumWrapper: string enum", () => {
     const enumWrapper = EnumWrapper.createUncachedInstance(TestEnum);
 
+    test("toString()", () => {
+        expect(String(enumWrapper)).toBe("[object EnumWrapper]");
+    });
+
     test("createUncachedInstance()", () => {
         const result1 = EnumWrapper.createUncachedInstance(TestEnum);
         const result2 = EnumWrapper.createUncachedInstance(TestEnum);
@@ -29,6 +33,22 @@ describe("EnumWrapper: string enum", () => {
 
     test("size", () => {
         expect(enumWrapper.size).toBe(3);
+    });
+
+    test("get()", () => {
+        expect(enumWrapper.get("A")).toBe(TestEnum.A);
+        expect(enumWrapper.get("B")).toBe(TestEnum.B);
+        expect(enumWrapper.get("C")).toBe(TestEnum.C);
+
+        expect(enumWrapper.get("blah")).toBe(undefined);
+    });
+
+    test("has()", () => {
+        expect(enumWrapper.has("A")).toBe(true);
+        expect(enumWrapper.has("B")).toBe(true);
+        expect(enumWrapper.has("C")).toBe(true);
+
+        expect(enumWrapper.has("blah")).toBe(false);
     });
 
     test("getKeys()", () => {

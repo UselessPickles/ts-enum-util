@@ -197,6 +197,13 @@ export class EnumWrapper<
     }
 
     /**
+     * @return "[object EnumWrapper]"
+     */
+    public toString(): string {
+        return "[object EnumWrapper]";
+    }
+
+    /**
      * The number of entries in this enum.
      */
     public get size(): number {
@@ -204,29 +211,28 @@ export class EnumWrapper<
     }
 
     /**
-     * Get a list of this enum's keys.
-     * @return A list of this enum's keys.
+     * Gets the enum value for the provided key.
+     * Returns undefined if the provided key is invalid.
+     * This is an alias for {@link EnumWrapper#getValueOrDefault} for the purpose
+     * of implementing a Map-like interface.
+     * @param key - A potential key value for this enum.
+     * @return The enum value for the provided key.
+     *         Returns undefined if the provided key is invalid.
      */
-    public getKeys(): (keyof T)[] {
-        return Array.from(this.keySet.values());
+    public get(key: string): T[keyof T] | undefined {
+        return this.getValueOrDefault(key, undefined);
     }
 
     /**
-     * Get a list of this enum's values.
-     * NOTE: If this enum has any duplicate values, only unique values will be returned, and the
-     *       length of the list will be less than {@link EnumWrapper#size}.
-     * @return A list of this enum's values.
+     * Tests if the provided string is actually a valid key for this enum
+     * Acts as a type guard to confirm that the provided value is actually the enum key type.
+     * This is an alias for {@link EnumWrapper#isKey} for the purpose
+     * of implementing a Map-like interface.
+     * @param key - A potential key value for this enum.
+     * @return True if the provided key is a valid key for this enum.
      */
-    public getValues(): T[keyof T][] {
-        return Array.from(this.valueSet.values());
-    }
-
-    /**
-     * Get a list of this enum's entries as [key, value] tuples.
-     * @return A list of this enum's entries as [key, value] tuples.
-     */
-    public getEntries(): EnumWrapper.Entry<T>[] {
-        return Array.from(this);
+    public has(key: string): key is keyof T {
+        return this.isKey(key);
     }
 
     /**
@@ -311,6 +317,32 @@ export class EnumWrapper<
         });
 
         return result;
+    }
+
+    /**
+     * Get a list of this enum's keys.
+     * @return A list of this enum's keys.
+     */
+    public getKeys(): (keyof T)[] {
+        return Array.from(this.keySet.values());
+    }
+
+    /**
+     * Get a list of this enum's values.
+     * NOTE: If this enum has any duplicate values, only unique values will be returned, and the
+     *       length of the list will be less than {@link EnumWrapper#size}.
+     * @return A list of this enum's values.
+     */
+    public getValues(): T[keyof T][] {
+        return Array.from(this.valueSet.values());
+    }
+
+    /**
+     * Get a list of this enum's entries as [key, value] tuples.
+     * @return A list of this enum's entries as [key, value] tuples.
+     */
+    public getEntries(): EnumWrapper.Entry<T>[] {
+        return Array.from(this);
     }
 
     /**
