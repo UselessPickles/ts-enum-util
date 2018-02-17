@@ -479,7 +479,7 @@ export class EnumWrapper<
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
-    public getKeyOrDefault(value: V, defaultKey?: keyof T): keyof T | undefined;
+    public getKeyOrDefault(value: V, defaultKey: keyof T): keyof T;
     /**
      * Performs a reverse lookup from enum value to corresponding enum key.
      * Returns a default key if the provided value is invalid.
@@ -489,7 +489,7 @@ export class EnumWrapper<
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
-    public getKeyOrDefault(value: V, defaultKey: keyof T): keyof T;
+    public getKeyOrDefault(value: V, defaultKey?: keyof T): keyof T | undefined;
     /**
      * Performs a reverse lookup from enum value to corresponding enum key.
      * Returns a default key if the provided value is invalid.
@@ -545,7 +545,7 @@ export class EnumWrapper<
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
-    public getValueOrDefault(key: string, defaultValue?: T[keyof T]): T[keyof T] | undefined;
+    public getValueOrDefault(key: string, defaultValue: T[keyof T]): T[keyof T];
     /**
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
@@ -553,7 +553,7 @@ export class EnumWrapper<
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
-    public getValueOrDefault(key: string, defaultValue: T[keyof T]): T[keyof T];
+    public getValueOrDefault(key: string, defaultValue?: T[keyof T]): T[keyof T] | undefined;
     /**
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
