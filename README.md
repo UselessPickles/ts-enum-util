@@ -13,6 +13,15 @@ Strictly typed utilities for working with TypeScript enums.
 - [Quick Start](#quick-start)
     - [Installation](#installation)
     - [Usage Examples](#usage-examples)
+        - [Basic setup for all examples](#basic-setup-for-all-examples)
+        - [Get count of enum entries](#get-count-of-enum-entries)
+        - [Get lists of enum data](#get-lists-of-enum-data)
+        - [Lookup value by key](#lookup-value-by-key)
+        - [Reverse lookup key by value](#reverse-lookup-key-by-value)
+        - [Validate/convert enum keys](#validateconvert-enum-keys)
+        - [Validate/convert enum values](#validateconvert-enum-values)
+        - [Iteration and mapping](#iteration-and-mapping)
+        - [Wrapped enums are directly iterable like a Map!](#wrapped-enums-are-directly-iterable-like-a-map)
 - [Requirements](#requirements)
 - [General Concepts](#general-concepts)
     - [Enum-Like Object](#enum-like-object)
@@ -20,25 +29,40 @@ Strictly typed utilities for working with TypeScript enums.
     - [Specific Typing](#specific-typing)
     - [Map-Like Interface](#map-like-interface)
     - [Caching](#caching)
-- [Reference](#reference)
+- [API Reference](#api-reference)
     - [Terminology](#terminology)
     - [$enum](#enum)
     - [EnumWrapper](#enumwrapper-1)
+    - [EnumWrapper.Entry](#enumwrapperentry)
+    - [EnumWrapper.Iteratee](#enumwrapperiteratee)
     - [EnumWrapper.prototype.size](#enumwrapperprototypesize)
     - [EnumWrapper.prototype.get](#enumwrapperprototypeget)
     - [EnumWrapper.prototype.has](#enumwrapperprototypehas)
     - [EnumWrapper.prototype.keys](#enumwrapperprototypekeys)
     - [EnumWrapper.prototype.values](#enumwrapperprototypevalues)
     - [EnumWrapper.prototype.entries](#enumwrapperprototypeentries)
+    - [EnumWrapper.prototype.@@iterator](#enumwrapperprototypeiterator)
+    - [EnumWrapper.prototype.forEach](#enumwrapperprototypeforeach)
+    - [EnumWrapper.prototype.map](#enumwrapperprototypemap)
     - [EnumWrapper.prototype.getKeys](#enumwrapperprototypegetkeys)
     - [EnumWrapper.prototype.getValues](#enumwrapperprototypegetvalues)
     - [EnumWrapper.prototype.getEntries](#enumwrapperprototypegetentries)
+    - [EnumWrapper.prototype.isKey](#enumwrapperprototypeiskey)
+    - [EnumWrapper.prototype.asKey](#enumwrapperprototypeaskey)
+    - [EnumWrapper.prototype.asKeyOrDefault](#enumwrapperprototypeaskeyordefault)
+    - [EnumWrapper.prototype.isValue](#enumwrapperprototypeisvalue)
+    - [EnumWrapper.prototype.asValue](#enumwrapperprototypeasvalue)
+    - [EnumWrapper.prototype.asValueOrDefault](#enumwrapperprototypeasvalueordefault)
+    - [EnumWrapper.prototype.getKey](#enumwrapperprototypegetkey)
+    - [EnumWrapper.prototype.getKeyOrDefault](#enumwrapperprototypegetkeyordefault)
+    - [EnumWrapper.prototype.getValue](#enumwrapperprototypegetvalue)
+    - [EnumWrapper.prototype.getValueOrDefault](#enumwrapperprototypegetvalueordefault)
 - [Limitations](#limitations)
 
 <!-- /TOC -->
 
 ## What is it?
-`ts-enum-util` provides utilities to improve the usefulness of enums. Examples include getting a list of an enum's keys, values, or key/value pairs, reverse lookup of keys by value, run-time validation that a specified value or key is valid for a given enum, and more.
+`ts-enum-util` provides utilities to improve the usefulness of enums. Examples include getting a list of an enum's keys, values, or key/value pairs, reverse lookup of keys by value, run-time validation that a specified value or key is valid for a given enum (with corresponding compile-time type guards), and more. All of these utilities are very specifically typed for each enum via generics and type inference.
 
 ## Quick Start
 ### Installation
@@ -48,19 +72,36 @@ npm i -s ts-enum-util
 ```
 
 ### Usage Examples
-Several small examples `ts-enum-util`'s capabilities to give you a quick overview of what it can do.
+Several small examples `ts-enum-util`'s capabilities to give you a quick overview of what it can do, as well as an organized "by example" reference.
 
 Pay special attention to the comments indicating the compile-time type of various results. See [Specific Typing](#specific-typing) for more about data types.
 
+See [API Reference](#api-reference) for more details about method signatures and behaviors.
+
+#### Basic setup for all examples
 ```ts
+// import the $enum helper function
 import {$enum} from "ts-enum-util";
 
+// Example string enum
+// (basic numeric enums also supported)
+// (enums with a mix of numeric and string values also supported)
 enum RGB {
     R = "r",
     G = "g",
     B = "b"
 }
+```
 
+#### Get count of enum entries
+```ts
+// type: number
+// value: 3
+const count = $enum(RGB).size;
+```
+
+#### Get lists of enum data
+```ts
 // type: ("R" | "G" | "B")[]
 // value: ["R", "G", "B"]
 const keys = $enum(RGB).getKeys();
@@ -69,13 +110,39 @@ const keys = $enum(RGB).getKeys();
 // value: ["r", "g", "b"]
 const values = $enum(RGB).getValues();
 
+// List of key/value pair tuples
 // type: ["R" | "G" | "B", RGB][]
 // value: [["R", "r"], ["G", "g"], ["B", "b"]]
 const entries = $enum(RGB).getEntries();
+```
 
+#### Lookup value by key
+```ts
+// type: RGB
+// value: "g"
+const value1 = $enum(RGB).getValue("G");
+
+// throws: Error("Unexpected value: blah. Expected one of: R,G,B")
+const value2 = $enum(RGB).getValue("blah");
+
+// type: RGB | undefined
+// value: undefined
+const value3 = $enum(RGB).getValueOrDefault("blah");
+
+// type: RGB
+// value: "r"
+const value4 = $enum(RGB).getValueOrDefault("blah", "R");
+
+// type: string
+// value: "BLAH!"
+const value5 = $enum(RGB).getValueOrDefault("blah", "BLAH!");
+```
+
+#### Reverse lookup key by value
+```ts
 // type: "R" | "G" | "B"
 // value: "G"
-const key = $enum(RGB).getKey("g");
+const key1 = $enum(RGB).getKey("g");
 
 // throws: Error("Unexpected value: blah. Expected one of: r,g,b")
 const key2 = $enum(RGB).getKey("blah");
@@ -91,13 +158,11 @@ const key4 = $enum(RGB).getKeyOrDefault("blah", "R");
 // type: string
 // value: "BLAH!"
 const key4 = $enum(RGB).getKeyOrDefault("blah", "BLAH!");
+```
 
-// A wrapped enum is iterable!
-for (const [key, value] of $enum(RGB)) {
-    // type of key: "R" | "G" | "B"
-    // type of value: RGB
-}
-
+#### Validate/convert enum keys
+```ts
+// Some arbitrary string
 declare const str: string;
 
 // returns true if 'str' is a valid key of RGB
@@ -108,15 +173,21 @@ if($enum(RGB).isKey(str)) {
 
 // type: "R" | "G" | "B"
 // throws error if 'str' is not a valid key for RGB
-const key5 = $enum(RGB).asKey(str);
+const key1 = $enum(RGB).asKey(str);
 
 // type: "R" | "G" | "B" | undefined
 // value is undefined if 'str' is not a valid key for RGB
-const key6 = $enum(RGB).asKeyOrDefault(str);
+const key2 = $enum(RGB).asKeyOrDefault(str);
 
 // type: "R" | "G" | "B"
 // value is "G" if 'str' is not a valid key for RGB
-const key6 = $enum(RGB).asKeyOrDefault(str, "G");
+const key3 = $enum(RGB).asKeyOrDefault(str, "G");
+```
+
+#### Validate/convert enum values
+```ts
+// Some arbitrary string
+declare const str: string;
 
 // returns true if 'str' is a valid value of RGB
 if($enum(RGB).isValue(str)) {
@@ -126,7 +197,7 @@ if($enum(RGB).isValue(str)) {
 
 // type: RGB
 // throws error if 'str' is not a valid value for RGB
-const value = $enum(RGB).asValue(str);
+const value1 = $enum(RGB).asValue(str);
 
 // type: RGB | undefined
 // value is undefined if 'str' is not a valid value for RGB
@@ -135,12 +206,15 @@ const value2 = $enum(RGB).asValueOrDefault(str);
 // type: RGB | undefined
 // value is RGB.G if 'str' is not a valid value for RGB
 const value3 = $enum(RGB).asValueOrDefault(str, RGB.G);
+```
 
+#### Iteration and mapping
+```ts
 // iterate all entries in the enum
 $enum(RGB).forEach((value, key, rgbRef) => {
     // type of value is RGB
     // type of key is "R" | "G" | "B"
-    // rgbRef is a reference to RGB, type is typeof RBG
+    // rgbRef is a reference to RGB object, type is (typeof RBG)
 });
 
 // Convert all entries of the enum to an array of mapped values
@@ -148,9 +222,25 @@ $enum(RGB).forEach((value, key, rgbRef) => {
 const mapped = $enum(RGB).map((value, key, rgbRef) => {
     // type of value is RGB
     // type of key is "R" | "G" | "B"
-    // rgbRef is a reference to RGB, type is typeof RBG
+    // rgbRef is a reference to RGB object, type is (typeof RBG)
     return `${key}: ${value}`;
 });
+```
+
+#### Wrapped enums are directly iterable like a Map!
+```ts
+for (const [key, value] of $enum(RGB)) {
+    // type of key: "R" | "G" | "B"
+    // type of value: RGB
+}
+
+for (const key of $enum(RGB).keys()) {
+    // type of key: "R" | "G" | "B"
+}
+
+for (const value of $enum(RGB).values()) {
+    // type of value: RGB
+}
 ```
 
 ## Requirements
@@ -168,7 +258,7 @@ The bulk of `ts-enum-util`'s functionality is implemented via an `EnumWrapper` c
 You likely won't ever directly reference the `EnumWrapper` class because it's much more convenient to use the [$enum](#enum) function to obtain a reference to an `EnumWrapper` instance.
 
 ### Specific Typing
-The various methods of `ts-enum-util` are generic and overloaded to ensure that params and results are as specifically-typed as possible.
+The various methods of `ts-enum-util` are generic and overloaded to ensure that params and results are as specifically-typed as possible. This is acheived through generics, type inference, and overloading of the `$enum` function signature that is used to obtain an `EnumWrapper` instance for a particular enum.
 
 For example, when obtaining a key or keys from an `EnumWrapper`, the data type will be a string literal union containing only the specific key names that exist in the enum.
 
@@ -176,23 +266,25 @@ This helps maximize the usefulness of `ts-enum-util` by making it compatible wit
 
 ### Map-Like Interface
 A subset of `EnumWrapper`'s interface overlaps with much of the ES6 `Map` interface. `EnumWrapper` is effectively a read-only `Map` of enum values, keyed by the enum names. The following Map-like features are implemented:
-* `size` property.
-* `has` and `get` methods.
-* `keys`, `values`, and `entries` methods.
-* `forEach` method.
-* `@@iterator` method (`EnumWrapper` is iterable!).
+* [size](#enumwrapperprototypesize) property.
+* [has](#enumwrapperprototypehas) and [get](#enumwrapperprototypeget) methods.
+* [keys](#enumwrapperprototypekeys), [values](#enumwrapperprototypevalues), and [entries](#enumwrapperprototypeentries) methods.
+* [forEach](#enumwrapperprototypeforeach) method.
+* [@@iterator](#enumwrapperprototypeiterator) method (`EnumWrapper` is iterable!).
 
 ### Caching
-By default, `EnumWrapper` instances are cached for quick subsequent retrieval via the [$enum](#enum) function. This makes sense for typical enums.
+By default, `EnumWrapper` instances are cached for quick subsequent retrieval via the [$enum](#enum) function.
 
-The reasoning behind this is that enums are static constructs. A given project will have a relatively small finite number of enums that never change during execution. The combination of caching and the simple [$enum](#enum) function allows you to obtain an `EnumWrapper` instance conveniently whenever you need it, without maintaining a reference to it.
+The reasoning behind this is that enums are static constructs. A given project will have a relatively small finite number of enums that never change during execution. The combination of caching and the simple [$enum](#enum) function allows you to obtain an `EnumWrapper` instance conveniently whenever you need it, without worrying about maintaining a reference to it. Of course, it's still good practice to store a reference to the `EnumWrapper` within certain code context where you heavily a particular enum's wrapper for readability and to avoid unnecessary cache lookups.
 
-You may want to consider explicitly avoiding caching (via an optional param to `$enum`) if you are using `ts-enum-util` to work with an ad-hoc dynamically generated "enum-like" object. this is useful to avoid cluttering the cache and unnecessarily occupying memory with an `EnumWrapper` that will never be retrieved from the cache.
+You should consider explicitly avoiding caching (via an optional param to `$enum`) if you are using `ts-enum-util` to work with an ad-hoc dynamically generated "enum-like" object. This is useful to avoid cluttering the cache and unnecessarily occupying memory with an `EnumWrapper` that will never be retrieved from the cache.
 
-## Reference
+## API Reference
 !!! WORK IN PROGRESS / INCOMPLETE !!!
 
 See the source code or the distributed `index.d.ts` file for complete details of method signatures/overloads, detailed method/param documentation, etc.
+
+See [Usage Examples](#usage-examples) if you prefer a "by example" reference.
 
 ### Terminology
 
@@ -215,6 +307,16 @@ See [Caching](#caching) for more about caching of `EnumWrapper` instances.
 
 This is the class that implements all the enum utilities. It's a generic class that requires an overloaded helper function to properly instantiate, so the constructor is private. Use [$enum()](#enum) to get/create an instance of `EnumWrapper`.
 
+### EnumWrapper.Entry
+`type EnumWrapper.Entry = [KeyType, EnumType]`
+
+A generic type alias for a tuple containing a key and value pair, representing a complete "entry" in the enum.
+
+### EnumWrapper.Iteratee
+`type EnumWrapper.Iteratee = (value: EnumType, key: KeyType, enumObj: EnumLike) => R`
+
+A generic type alias for a function signature to be used in iteration methods.
+
 ### EnumWrapper.prototype.size
 `EnumWrapper.prototype.size: number`
 
@@ -233,7 +335,16 @@ A read-only property containing the number of entries (key/value pairs) in the e
 `EnumWrapper.prototype.values(): IterableIterator<EnumType>`
 
 ### EnumWrapper.prototype.entries
-`EnumWrapper.prototype.entries(): IterableIterator<[KeyType, EnumType]>`
+`EnumWrapper.prototype.entries(): IterableIterator<EnumWrapper.Entry>`
+
+### EnumWrapper.prototype.@@iterator
+`EnumWrapper.prototype.@@iterator(): IterableIterator<EnumWrapper.Entry>`
+
+### EnumWrapper.prototype.forEach
+`EnumWrapper.prototype.forEach(iteratee: EnumWrapper.Iteratee, context?: any): void`
+
+### EnumWrapper.prototype.map
+`EnumWrapper.prototype.map<R>(iteratee: EnumWrapper.Iteratee, context?: any): R[]`
 
 ### EnumWrapper.prototype.getKeys
 `EnumWrapper.prototype.getKeys(): KeyType[]`
@@ -242,7 +353,37 @@ A read-only property containing the number of entries (key/value pairs) in the e
 `EnumWrapper.prototype.getValues(): EnumType[]`
 
 ### EnumWrapper.prototype.getEntries
-`EnumWrapper.prototype.getEntries(): [KeyType, EnumType][]`
+`EnumWrapper.prototype.getEntries(): EnumWrapper.Entry[]`
+
+### EnumWrapper.prototype.isKey
+`EnumWrapper.prototype.isKey(key: string): key is KeyType`
+
+### EnumWrapper.prototype.asKey
+`EnumWrapper.prototype.asKey(key: string): KeyType`
+
+### EnumWrapper.prototype.asKeyOrDefault
+`EnumWrapper.prototype.asKeyOrDefault(key: string, defaultKey?: KeyType | string): KeyType | string | undefined`
+
+### EnumWrapper.prototype.isValue
+`EnumWrapper.prototype.isValue(value: ValueType): key is EnumType`
+
+### EnumWrapper.prototype.asValue
+`EnumWrapper.prototype.asValue(value: ValueType): EnumType`
+
+### EnumWrapper.prototype.asValueOrDefault
+`EnumWrapper.prototype.asValueOrDefault(value: ValueType, defaultValue?: EnumType | ValueType): EnumType | ValueType | undefined`
+
+### EnumWrapper.prototype.getKey
+`EnumWrapper.prototype.getKey(value: ValueType): KeyType`
+
+### EnumWrapper.prototype.getKeyOrDefault
+`EnumWrapper.prototype.getKeyOrDefault(value: ValueType, defaultKey?: KeyType | string): KeyType | string | undefined`
+
+### EnumWrapper.prototype.getValue
+`EnumWrapper.prototype.getValue(key: string): EnumType`
+
+### EnumWrapper.prototype.getValueOrDefault
+`EnumWrapper.prototype.getValueOrDefault(key: string, defaultValue?: EnumType | ValueType): EnumType | ValueType | undefined`
 
 ## Limitations
 Does not work with enums that are merged with a namespace containing values (variables, functions, etc.), or otherwise have any additional properties added to the enum's runtime object.
