@@ -275,9 +275,9 @@ A subset of `EnumWrapper`'s interface overlaps with much of the ES6 `Map` interf
 ### Caching
 By default, `EnumWrapper` instances are cached for quick subsequent retrieval via the [$enum](#enum) function.
 
-The reasoning behind this is that enums are static constructs. A given project will have a relatively small finite number of enums that never change during execution. The combination of caching and the simple [$enum](#enum) function allows you to obtain an `EnumWrapper` instance conveniently whenever you need it, without worrying about maintaining a reference to it. Of course, it's still good practice to store a reference to the `EnumWrapper` within certain code context where you heavily a particular enum's wrapper for readability and to avoid unnecessary cache lookups.
+The reasoning behind this is that enums are static constructs. A given project will have a relatively small finite number of enums that never change during execution. The combination of caching and the simple [$enum](#enum) function allows you to obtain an `EnumWrapper` instance conveniently whenever you need it, without worrying about maintaining a reference to it. Of course, it's still good practice to store a reference to the `EnumWrapper` within certain code contexts where you heavily use a particular enum's wrapper.
 
-You should consider explicitly avoiding caching (via an optional param to `$enum`) if you are using `ts-enum-util` to work with an ad-hoc dynamically generated "enum-like" object. This is useful to avoid cluttering the cache and unnecessarily occupying memory with an `EnumWrapper` that will never be retrieved from the cache.
+Consider explicitly avoiding caching (via an optional param to `$enum`) if you are using `ts-enum-util` to work with an ad-hoc dynamically generated "enum-like" object that is specific to a particular function execution, class instance, etc.. This is useful to avoid cluttering the cache and unnecessarily occupying memory with an `EnumWrapper` that will never be retrieved from the cache.
 
 ## API Reference
 !!! WORK IN PROGRESS / INCOMPLETE !!!
