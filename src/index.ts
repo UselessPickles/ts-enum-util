@@ -9,7 +9,7 @@ export type EnumLike<V extends number | string, K extends string> = {
 };
 
 /**
- * A generic wrapper for any enum-like value (see {@link EnumLike} type for more explanation).
+ * A generic wrapper for any enum-like object (see {@link EnumLike}).
  * Provides utilities for runtime processing of an enum's values and keys, with strict compile-time
  * type safety.
  *
@@ -272,7 +272,7 @@ export class EnumWrapper<
                 };
             },
 
-            [Symbol.iterator]: function(): IterableIterator<EnumWrapper.Entry<T>> {
+            [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
                 return this;
             }
         };
@@ -623,10 +623,7 @@ export namespace EnumWrapper {
      * A tuple containing the key and value of a single entry in an enum.
      * @template T - Type of an enum-like object.
      */
-    export type Entry<T> = [
-        keyof T,
-        T[keyof T]
-    ];
+    export type Entry<T> = [keyof T, T[keyof T]];
 
     /**
      * A function used in iterating all key/value entries in an enum.
