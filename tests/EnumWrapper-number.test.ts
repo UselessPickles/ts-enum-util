@@ -226,7 +226,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.isKey("B")).toBe(true);
         expect(enumWrapper.isKey("C")).toBe(true);
 
-        expect(enumWrapper.isKey(undefined)).toBe(false);
         expect(enumWrapper.isKey("blah")).toBe(false);
     });
 
@@ -234,10 +233,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.asKey("A")).toBe("A");
         expect(enumWrapper.asKey("B")).toBe("B");
         expect(enumWrapper.asKey("C")).toBe("C");
-
-        expect(() => {
-            enumWrapper.asKey(undefined);
-        }).toThrow();
 
         expect(() => {
             enumWrapper.asKey("blah");
@@ -249,7 +244,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.asKeyOrDefault("B")).toBe("B");
         expect(enumWrapper.asKeyOrDefault("C")).toBe("C");
 
-        expect(enumWrapper.asKeyOrDefault(undefined)).toBe(undefined);
         expect(enumWrapper.asKeyOrDefault("blah")).toBe(undefined);
         expect(enumWrapper.asKeyOrDefault("blah", "A")).toBe("A");
         expect(enumWrapper.asKeyOrDefault("blah", "foo")).toBe("foo");
@@ -260,7 +254,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.isValue(TestEnum.B)).toBe(true);
         expect(enumWrapper.isValue(TestEnum.C)).toBe(true);
 
-        expect(enumWrapper.isValue(undefined)).toBe(false);
         expect(enumWrapper.isValue(-1)).toBe(false);
     });
 
@@ -268,10 +261,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.asValue(TestEnum.A)).toBe(TestEnum.A);
         expect(enumWrapper.asValue(TestEnum.B)).toBe(TestEnum.B);
         expect(enumWrapper.asValue(TestEnum.C)).toBe(TestEnum.C);
-
-        expect(() => {
-            enumWrapper.asValue(undefined);
-        }).toThrow();
 
         expect(() => {
             enumWrapper.asValue(-1);
@@ -283,7 +272,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.asValueOrDefault(TestEnum.B)).toBe(TestEnum.B);
         expect(enumWrapper.asValueOrDefault(TestEnum.C)).toBe(TestEnum.C);
 
-        expect(enumWrapper.asValueOrDefault(undefined)).toBe(undefined);
         expect(enumWrapper.asValueOrDefault(-1)).toBe(undefined);
         expect(enumWrapper.asValueOrDefault(-1, TestEnum.A)).toBe(TestEnum.A);
         expect(enumWrapper.asValueOrDefault(-1, -2)).toBe(-2);
@@ -295,10 +283,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.getKey(TestEnum.C)).toBe("C");
 
         expect(() => {
-            enumWrapper.getKey(undefined);
-        }).toThrow();
-
-        expect(() => {
             enumWrapper.getKey(-1);
         }).toThrow();
     });
@@ -308,7 +292,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.getKeyOrDefault(TestEnum.B)).toBe("B");
         expect(enumWrapper.getKeyOrDefault(TestEnum.C)).toBe("C");
 
-        expect(enumWrapper.getKeyOrDefault(undefined)).toBe(undefined);
         expect(enumWrapper.getKeyOrDefault(-1)).toBe(undefined);
         expect(enumWrapper.getKeyOrDefault(-1, "A")).toBe("A");
         expect(enumWrapper.getKeyOrDefault(-1, "foo")).toBe("foo");
@@ -320,10 +303,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.getValue("C")).toBe(TestEnum.C);
 
         expect(() => {
-            enumWrapper.getValue(undefined);
-        }).toThrow();
-
-        expect(() => {
             enumWrapper.getValue("blah");
         }).toThrow();
     });
@@ -333,7 +312,6 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.getValueOrDefault("B")).toBe(TestEnum.B);
         expect(enumWrapper.getValueOrDefault("C")).toBe(TestEnum.C);
 
-        expect(enumWrapper.getValueOrDefault(undefined)).toBe(undefined);
         expect(enumWrapper.getValueOrDefault("blah")).toBe(undefined);
         expect(enumWrapper.getValueOrDefault("blah", TestEnum.A)).toBe(TestEnum.A);
         expect(enumWrapper.getValueOrDefault("blah", -1)).toBe(-1);
