@@ -12,7 +12,7 @@ Strictly typed utilities for working with TypeScript enums.
 - [What is it?](#what-is-it)
 - [Quick Start](#quick-start)
     - [Installation](#installation)
-    - [Usage Example](#usage-example)
+    - [Usage Examples](#usage-examples)
 - [Requirements](#requirements)
 - [General Concepts](#general-concepts)
     - [Enum-Like Object](#enum-like-object)
@@ -47,16 +47,18 @@ Install via [NPM](https://www.npmjs.com/package/ts-enum-util):
 npm i -s ts-enum-util
 ```
 
-### Usage Example
-A quick example of some of `ts-enum-util`'s capabilities.
+### Usage Examples
+Several small examples `ts-enum-util`'s capabilities to give you a quick overview of what it can do.
+
+Pay special attention to the comments indicating the compile-time type of various results. See [Specific Typing](#specific-typing) for more.
 
 ```ts
 import {$enum} from "ts-enum-util";
 
 enum RGB {
-    R,
-    G,
-    B
+    R = "r",
+    G = "g",
+    B = "b"
 }
 
 // type: ("R" | "G" | "B")[]
@@ -64,33 +66,91 @@ enum RGB {
 const keys = $enum(RGB).getKeys();
 
 // type: RGB[]
-// value: [0, 1, 2]
+// value: ["r", "g", "b"]
 const values = $enum(RGB).getValues();
+
+// type: ["R" | "G" | "B", RGB][]
+// value: [["R", "r"], ["G", "g"], ["B", "b"]]
+const entries = $enum(RGB).getEntries();
 
 // type: "R" | "G" | "B"
 // value: "G"
-const key = $enum(RGB).getKey(1);
+const key = $enum(RGB).getKey("g");
 
-// throws: Error("Unexpected value: 42. Expected one of: 0,1,2")
-const key2 = $enum(RGB).getKey(42);
+// throws: Error("Unexpected value: blah. Expected one of: r,g,b")
+const key2 = $enum(RGB).getKey("blah");
 
 // type: "R" | "G" | "B" | undefined
 // value: undefined
-const key3 = $enum(RGB).getKeyOrDefault(42);
+const key3 = $enum(RGB).getKeyOrDefault("blah");
 
 // type: "R" | "G" | "B"
 // value: "R"
-const key4 = $enum(RGB).getKeyOrDefault(42, "R");
+const key4 = $enum(RGB).getKeyOrDefault("blah", "R");
 
 // type: string
 // value: "BLAH!"
-const key4 = $enum(RGB).getKeyOrDefault(42, "BLAH!");
+const key4 = $enum(RGB).getKeyOrDefault("blah", "BLAH!");
 
 // A wrapped enum is iterable!
 for (const [key, value] of $enum(RGB)) {
     // type of key: "R" | "G" | "B"
     // type of value: RGB
 }
+
+declare const str: string;
+
+// returns true if 'str' is a valid key of RGB
+if($enum(RGB).isKey(str)) {
+    // isKey() is a type guard
+    // type of 'str' in here is ("R" | "G" | "B")
+}
+
+// type: "R" | "G" | "B"
+// throws error if 'str' is not a valid key for RGB
+const key5 = $enum(RGB).asKey(str);
+
+// type: "R" | "G" | "B" | undefined
+// value is undefined if 'str' is not a valid key for RGB
+const key6 = $enum(RGB).asKeyOrDefault(str);
+
+// type: "R" | "G" | "B"
+// value is "G" if 'str' is not a valid key for RGB
+const key6 = $enum(RGB).asKeyOrDefault(str, "G");
+
+// returns true if 'str' is a valid value of RGB
+if($enum(RGB).isValue(str)) {
+    // isValue() is a type guard
+    // type of 'str' in here is RGB
+}
+
+// type: RGB
+// throws error if 'str' is not a valid value for RGB
+const value = $enum(RGB).asValue(str);
+
+// type: RGB | undefined
+// value is undefined if 'str' is not a valid value for RGB
+const value2 = $enum(RGB).asValueOrDefault(str);
+
+// type: RGB | undefined
+// value is RGB.G if 'str' is not a valid value for RGB
+const value3 = $enum(RGB).asValueOrDefault(str, RGB.G);
+
+// iterate all entries in the enum
+$enum(RGB).forEach((value, key, rgbRef) => {
+    // type of value is RGB
+    // type of key is "R" | "G" | "B"
+    // rgbRef is a reference to RGB, type is typeof RBG
+});
+
+// Convert all entries of the enum to an array of mapped values
+// value: ["R: r", "G: g", "B: b"]
+const mapped = $enum(RGB).map((value, key, rgbRef) => {
+    // type of value is RGB
+    // type of key is "R" | "G" | "B"
+    // rgbRef is a reference to RGB, type is typeof RBG
+    return `${key}: ${value}`;
+});
 ```
 
 ## Requirements
@@ -130,13 +190,13 @@ The reasoning behind this is that enums are static constructs. A given project w
 You may want to consider explicitly avoiding caching (via an optional param to `$enum`) if you are using `ts-enum-util` to work with an ad-hoc dynamically generated "enum-like" object. this is useful to avoid cluttering the cache and unnecessarily occupying memory with an `EnumWrapper` that will never be retrieved from the cache.
 
 ## Reference
-See the source code or the distributed `index.d.ts` file for complete details of method signatures/overloads, detailed method/param documentation, etc.
+!!! WORK IN PROGRESS / INCOMPLETE !!!
 
-The following reference is a work in progress.
+See the source code or the distributed `index.d.ts` file for complete details of method signatures/overloads, detailed method/param documentation, etc.
 
 ### Terminology
 
-Throughout this references, the following aliases for types will be used:
+Throughout this reference, the following aliases for types will be used:
 * `EnumLike`: An enum-like object type. See [Enum-Like Object](#enum-like-object).
 * `KeyType`: The type of the enum's keys. This is usually a string literal union type of the enum's names, but may also simply be `string` if an `EnumWrapper` was created for an object whose possible property names are not known at compile time.
 * `EnumType`: The specific enum type of the enum values. This is usually the enum type itself, but may also simply be the same as `ValueType` (see below) if a `EnumWrapper` was created for an object that is not actually an enum, but is only "enum-like".
