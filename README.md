@@ -50,7 +50,7 @@ npm i -s ts-enum-util
 ### Usage Examples
 Several small examples `ts-enum-util`'s capabilities to give you a quick overview of what it can do.
 
-Pay special attention to the comments indicating the compile-time type of various results. See [Specific Typing](#specific-typing) for more.
+Pay special attention to the comments indicating the compile-time type of various results. See [Specific Typing](#specific-typing) for more about data types.
 
 ```ts
 import {$enum} from "ts-enum-util";
