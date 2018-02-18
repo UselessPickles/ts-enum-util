@@ -21,7 +21,8 @@ Strictly typed utilities for working with TypeScript enums.
         - [Validate/convert enum keys](#validateconvert-enum-keys)
         - [Validate/convert enum values](#validateconvert-enum-values)
         - [Iteration and mapping](#iteration-and-mapping)
-        - [Wrapped enums are directly iterable like a Map!](#wrapped-enums-are-directly-iterable-like-a-map)
+        - [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
+        - [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 - [Requirements](#requirements)
 - [General Concepts](#general-concepts)
     - [Enum-Like Object](#enum-like-object)
@@ -97,13 +98,24 @@ enum RGB {
 ```
 
 #### Get count of enum entries
+See also:
+- [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
+- [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 ```ts
 // type: number
 // value: 3
-const count = $enum(RGB).size;
+const size = $enum(RGB).size;
+
+// type: number
+// value: 3
+const length = $enum(RGB).length;
 ```
 
 #### Get lists of enum data
+See also:
+- [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
+- [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
+- [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 ```ts
 // type: ("R" | "G" | "B")[]
 // value: ["R", "G", "B"]
@@ -114,12 +126,14 @@ const keys = $enum(RGB).getKeys();
 const values = $enum(RGB).getValues();
 
 // List of key/value pair tuples
-// type: ["R" | "G" | "B", RGB][]
+// type: [("R" | "G" | "B"), RGB][]
 // value: [["R", "r"], ["G", "g"], ["B", "b"]]
 const entries = $enum(RGB).getEntries();
 ```
 
 #### Lookup value by key
+See also:
+- [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 ```ts
 // type: RGB
 // value: "g"
@@ -143,18 +157,18 @@ const value5 = $enum(RGB).getValueOrDefault("blah", "BLAH!");
 
 #### Reverse lookup key by value
 ```ts
-// type: "R" | "G" | "B"
+// type: ("R" | "G" | "B")
 // value: "G"
 const key1 = $enum(RGB).getKey("g");
 
 // throws: Error("Unexpected value: blah. Expected one of: r,g,b")
 const key2 = $enum(RGB).getKey("blah");
 
-// type: "R" | "G" | "B" | undefined
+// type: ("R" | "G" | "B") | undefined
 // value: undefined
 const key3 = $enum(RGB).getKeyOrDefault("blah");
 
-// type: "R" | "G" | "B"
+// type: ("R" | "G" | "B")
 // value: "R"
 const key4 = $enum(RGB).getKeyOrDefault("blah", "R");
 
@@ -174,15 +188,15 @@ if($enum(RGB).isKey(str)) {
     // type of 'str' in here is ("R" | "G" | "B")
 }
 
-// type: "R" | "G" | "B"
+// type: ("R" | "G" | "B")
 // throws error if 'str' is not a valid key for RGB
 const key1 = $enum(RGB).asKey(str);
 
-// type: "R" | "G" | "B" | undefined
+// type: ("R" | "G" | "B") | undefined
 // value is undefined if 'str' is not a valid key for RGB
 const key2 = $enum(RGB).asKeyOrDefault(str);
 
-// type: "R" | "G" | "B"
+// type: ("R" | "G" | "B")
 // value is "G" if 'str' is not a valid key for RGB
 const key3 = $enum(RGB).asKeyOrDefault(str, "G");
 ```
@@ -212,11 +226,13 @@ const value3 = $enum(RGB).asValueOrDefault(str, RGB.G);
 ```
 
 #### Iteration and mapping
+See also:
+- [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 ```ts
 // iterate all entries in the enum
 $enum(RGB).forEach((value, key, rgbRef) => {
     // type of value is RGB
-    // type of key is "R" | "G" | "B"
+    // type of key is ("R" | "G" | "B")
     // rgbRef is a reference to RGB object, type is (typeof RBG)
 });
 
@@ -224,24 +240,55 @@ $enum(RGB).forEach((value, key, rgbRef) => {
 // value: ["R: r", "G: g", "B: b"]
 const mapped = $enum(RGB).map((value, key, rgbRef) => {
     // type of value is RGB
-    // type of key is "R" | "G" | "B"
+    // type of key is ("R" | "G" | "B")
     // rgbRef is a reference to RGB object, type is (typeof RBG)
     return `${key}: ${value}`;
 });
 ```
 
-#### Wrapped enums are directly iterable like a Map!
+#### Wrapped enums are Array-Like
+A wrapped enum can be treated like an array of enum "entry" tuples.
+
+See also:
+- [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 ```ts
-for (const [key, value] of $enum(RGB)) {
-    // type of key: "R" | "G" | "B"
+const wrapped = $enum(RGB);
+
+// type: number
+// value: 3
+const length = wrapped.length;
+
+// type: [("R" | "G" | "B"), RGB]
+// value: ["G", "g"]
+const entry = wrapped[1];
+```
+
+#### Wrapped enums are Map-Like
+A wrapped enum is effectively a read-only `Map` of enum "entry" tuples.
+
+See also:
+- [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
+```ts
+const wrapped = $enum(RGB);
+
+// type: number
+// value: 3
+const size = wrapped.size;
+
+// type: RGB | undefined
+// value: "r"
+const value = wrapped.get("R");
+
+for (const [key, value] of wrapped) {
+    // type of key: ("R" | "G" | "B")
     // type of value: RGB
 }
 
-for (const key of $enum(RGB).keys()) {
-    // type of key: "R" | "G" | "B"
+for (const key of wrapped.keys()) {
+    // type of key: ("R" | "G" | "B")
 }
 
-for (const value of $enum(RGB).values()) {
+for (const value ofwrapped.values()) {
     // type of value: RGB
 }
 ```
