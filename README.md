@@ -376,103 +376,208 @@ See [Usage Examples](#usage-examples) if you prefer a "by example" reference.
 ### Terminology
 
 Throughout this reference, the following aliases for types will be used:
-* `EnumLike`: An enum-like object type. See [Enum-Like Object](#enum-like-object).
-* `KeyType`: The type of the enum's keys. This is usually a string literal union type of the enum's names, but may also simply be `string` if an `EnumWrapper` was created for an object whose possible property names are not known at compile time.
-* `EnumType`: The specific enum type of the enum values. This is usually the enum type itself, but may also simply be the same as `ValueType` (see below) if a `EnumWrapper` was created for an object that is not actually an enum, but is only "enum-like".
-* `ValueType`: The widened type of the enum's values. Will be `number`, `string`, or `number | string`, depending on whether the wrapped enum-like object contains only number, only string, or both number and string values.
+- `EnumLike`: An enum-like object type. See [Enum-Like Object](#enum-like-object).
+- `KeyType`: The type of the enum's keys. This is usually a string literal union type of the enum's names, but may also simply be `string` if an `EnumWrapper` was created for an object whose possible property names are not known at compile time.
+- `EnumType`: The specific enum type of the enum values. This is usually the enum type itself, but may also simply be the same as `ValueType` (see below) if a `EnumWrapper` was created for an object that is not actually an enum, but is only "enum-like".
+- `ValueType`: The widened type of the enum's values. Will be `number`, `string`, or `number | string`, depending on whether the wrapped enum-like object contains only number, only string, or both number and string values.
 
 ### $enum
-`function $enum(enumObj: EnumLike, useCache: boolean = true): EnumWrapper`
-* `useCache` - False to prevent caching of the result.
+```ts
+function $enum(
+    enumObj: EnumLike,
+    useCache: boolean = true
+): EnumWrapper
+```
+- `useCache` - False to prevent caching of the result.
 
 This is where it all begins. Pass an "enum-like" object to this method and it returns an [EnumWrapper](#enum-wrapper-1) instance that provides useful utilities for that "enum-like" object.
 
 See [Caching](#caching) for more about caching of `EnumWrapper` instances.
 
 ### EnumWrapper
-`class EnumWrapper`
+```ts
+class EnumWrapper
+```
 
 This is the class that implements all the enum utilities. It's a generic class that requires an overloaded helper function to properly instantiate, so the constructor is private. Use [$enum()](#enum) to get/create an instance of `EnumWrapper`.
 
 ### EnumWrapper.Entry
-`type EnumWrapper.Entry = Readonly<[KeyType, EnumType]>`
+```ts
+type EnumWrapper.Entry = Readonly<
+    [KeyType, EnumType]
+>
+```
 
 A generic type alias for a tuple containing a key and value pair, representing a complete "entry" in the enum. The tuple is defined as `Readonly` to prevent accidental corruption of the `EnumWrapper` instance's data.
 
 ### EnumWrapper.Iteratee
-`type EnumWrapper.Iteratee = (value: EnumType, key: KeyType, enumObj: EnumLike) => R`
+```ts
+type EnumWrapper.Iteratee = (
+    value: EnumType,
+    key: KeyType,
+    enumObj: EnumLike,
+    index: number
+) => R
+```
 
 A generic type alias for a function signature to be used in iteration methods.
 
 ### EnumWrapper.prototype.size
-`EnumWrapper.prototype.size: number`
+```ts
+EnumWrapper.prototype.size: number
+```
 
 A read-only property containing the number of entries (key/value pairs) in the enum.
 
 ### EnumWrapper.prototype.length
-`EnumWrapper.prototype.length: number`
+```ts
+EnumWrapper.prototype.length: number
+```
 
 A read-only property containing the number of entries (key/value pairs) in the enum.
 
 ### EnumWrapper.prototype.get
-`EnumWrapper.prototype.get(key: string): EnumType | undefined`
+```ts
+EnumWrapper.prototype.get(
+    key: string | null | undefined
+): EnumType | undefined
+```
 
 ### EnumWrapper.prototype.has
-`EnumWrapper.prototype.has(key: string): key is KeyType`
+```ts
+EnumWrapper.prototype.has(
+    key: string | null | undefined
+): key is KeyType
+```
 
 ### EnumWrapper.prototype.keys
-`EnumWrapper.prototype.keys(): IterableIterator<KeyType>`
+```ts
+EnumWrapper.prototype.keys(
+): IterableIterator<KeyType>
+```
 
 ### EnumWrapper.prototype.values
-`EnumWrapper.prototype.values(): IterableIterator<EnumType>`
+```ts
+EnumWrapper.prototype.values(
+): IterableIterator<EnumType>
+```
 
 ### EnumWrapper.prototype.entries
-`EnumWrapper.prototype.entries(): IterableIterator<EnumWrapper.Entry>`
+```ts
+EnumWrapper.prototype.entries(
+): IterableIterator<EnumWrapper.Entry>
+```
 
 ### EnumWrapper.prototype.@@iterator
-`EnumWrapper.prototype.@@iterator(): IterableIterator<EnumWrapper.Entry>`
+```ts
+EnumWrapper.prototype.@@iterator(
+): IterableIterator<EnumWrapper.Entry>
+```
 
 ### EnumWrapper.prototype.forEach
-`EnumWrapper.prototype.forEach(iteratee: EnumWrapper.Iteratee, context?: any): void`
+```ts
+EnumWrapper.prototype.forEach(
+    iteratee: EnumWrapper.Iteratee,
+    context?: any
+): void
+```
 
 ### EnumWrapper.prototype.map
-`EnumWrapper.prototype.map<R>(iteratee: EnumWrapper.Iteratee, context?: any): R[]`
+```ts
+EnumWrapper.prototype.map<R>(
+    iteratee: EnumWrapper.Iteratee,
+    context?: any
+): R[]
+```
 
 ### EnumWrapper.prototype.getKeys
-`EnumWrapper.prototype.getKeys(): KeyType[]`
+```ts
+EnumWrapper.prototype.getKeys(
+): KeyType[]
+```
 
 ### EnumWrapper.prototype.getValues
-`EnumWrapper.prototype.getValues(): EnumType[]`
+```ts
+EnumWrapper.prototype.getValues(
+): EnumType[]
+```
 
 ### EnumWrapper.prototype.getEntries
-`EnumWrapper.prototype.getEntries(): EnumWrapper.Entry[]`
+```ts
+EnumWrapper.prototype.getEntries(
+): EnumWrapper.Entry[]
+```
 
 ### EnumWrapper.prototype.isKey
-`EnumWrapper.prototype.isKey(key: string): key is KeyType`
+```ts
+EnumWrapper.prototype.isKey(
+    key: string | null | undefined
+): key is KeyType
+```
 
 ### EnumWrapper.prototype.asKey
-`EnumWrapper.prototype.asKey(key: string): KeyType`
+```ts
+EnumWrapper.prototype.asKey(
+    key: string | null | undefined
+): KeyType
+```
 
 ### EnumWrapper.prototype.asKeyOrDefault
-`EnumWrapper.prototype.asKeyOrDefault(key: string, defaultKey?: KeyType | string): KeyType | string | undefined`
+```ts
+EnumWrapper.prototype.asKeyOrDefault(
+    key: string | null | undefined,
+    defaultKey?: KeyType | string
+): KeyType | string | undefined
+```
 
 ### EnumWrapper.prototype.isValue
-`EnumWrapper.prototype.isValue(value: ValueType): key is EnumType`
+```ts
+EnumWrapper.prototype.isValue(
+    value: ValueType | null | undefined
+): key is EnumType
+```
 
 ### EnumWrapper.prototype.asValue
-`EnumWrapper.prototype.asValue(value: ValueType): EnumType`
+```ts
+EnumWrapper.prototype.asValue(
+    value: ValueType | null | undefined
+): EnumType
+```
 
 ### EnumWrapper.prototype.asValueOrDefault
-`EnumWrapper.prototype.asValueOrDefault(value: ValueType, defaultValue?: EnumType | ValueType): EnumType | ValueType | undefined`
+```ts
+EnumWrapper.prototype.asValueOrDefault(
+    value: ValueType | null | undefined,
+    defaultValue?: EnumType | ValueType
+): EnumType | ValueType | undefined
+```
 
 ### EnumWrapper.prototype.getKey
-`EnumWrapper.prototype.getKey(value: ValueType): KeyType`
+```ts
+EnumWrapper.prototype.getKey(
+    value: ValueType | null | undefined
+): KeyType
+```
 
 ### EnumWrapper.prototype.getKeyOrDefault
-`EnumWrapper.prototype.getKeyOrDefault(value: ValueType, defaultKey?: KeyType | string): KeyType | string | undefined`
+```ts
+EnumWrapper.prototype.getKeyOrDefault(
+    value: ValueType | null | undefined,
+    defaultKey?: KeyType | string
+): KeyType | string | undefined
+```
 
 ### EnumWrapper.prototype.getValue
-`EnumWrapper.prototype.getValue(key: string): EnumType`
+```ts
+EnumWrapper.prototype.getValue(
+    key: string | null | undefined
+): EnumType
+```
 
 ### EnumWrapper.prototype.getValueOrDefault
-`EnumWrapper.prototype.getValueOrDefault(key: string, defaultValue?: EnumType | ValueType): EnumType | ValueType | undefined`
+```ts
+EnumWrapper.prototype.getValueOrDefault(
+    key: string | null | undefined,
+    defaultValue?: EnumType | ValueType
+): EnumType | ValueType | undefined
+```
