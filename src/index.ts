@@ -341,7 +341,7 @@ export class EnumWrapper<
         Array.prototype.forEach.call(
             this,
             (entry: EnumWrapper.Entry<V, T>, index: number): void => {
-                iteratee.call(context, entry[1], entry[0], this.enumObj);
+                iteratee.call(context, entry[1], entry[0], this.enumObj, index);
             }
         );
     }
@@ -361,7 +361,7 @@ export class EnumWrapper<
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>, index: number): R => {
-                return iteratee.call(context, entry[1], entry[0], this.enumObj);
+                return iteratee.call(context, entry[1], entry[0], this.enumObj, index);
             }
         );
     }
@@ -695,6 +695,7 @@ export namespace EnumWrapper {
      * @param value - An enum value.
      * @param key - An enum key.
      * @param enumObj - The enum-like object that the key/value entrie belongs to.
+     * @param index - The index of the enum entry, based on sorted order of keys.
      * @return A result. The significance of the result depends on the type of iteration being performed.
      *
      * @template R - The type of the result.
@@ -705,7 +706,7 @@ export namespace EnumWrapper {
         R = any,
         V extends number | string = number | string,
         T extends EnumLike<V, keyof T> = any
-    > = (this: any, value: V, key: keyof T, enumObj: T) => R;
+    > = (this: any, value: V, key: keyof T, enumObj: T, index: number) => R;
 }
 
 /**

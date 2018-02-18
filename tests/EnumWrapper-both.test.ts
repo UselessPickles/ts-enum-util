@@ -155,10 +155,10 @@ describe("EnumWrapper: number+string enum", () => {
                 enumWrapper.forEach(iterateeSpy);
 
                 expect(iterateeSpy.mock.calls).toEqual([
-                    [TestEnum.A, "A", TestEnum],
-                    [TestEnum.B, "B", TestEnum],
-                    [TestEnum.C, "C", TestEnum],
-                    [TestEnum.D, "D", TestEnum]
+                    [TestEnum.A, "A", TestEnum, 0],
+                    [TestEnum.B, "B", TestEnum, 1],
+                    [TestEnum.C, "C", TestEnum, 2],
+                    [TestEnum.D, "D", TestEnum, 3]
                 ]);
             });
 
@@ -174,10 +174,10 @@ describe("EnumWrapper: number+string enum", () => {
                 enumWrapper.forEach(iterateeSpy, context);
 
                 expect(iterateeSpy.mock.calls).toEqual([
-                    [TestEnum.A, "A", TestEnum],
-                    [TestEnum.B, "B", TestEnum],
-                    [TestEnum.C, "C", TestEnum],
-                    [TestEnum.D, "D", TestEnum]
+                    [TestEnum.A, "A", TestEnum, 0],
+                    [TestEnum.B, "B", TestEnum, 1],
+                    [TestEnum.C, "C", TestEnum, 2],
+                    [TestEnum.D, "D", TestEnum, 3]
                 ]);
             });
         });
@@ -250,11 +250,11 @@ describe("EnumWrapper: number+string enum", () => {
             ]);
 
             expect(iterateeSpy.mock.calls).toEqual([
-                [TestEnum.A, "A", TestEnum],
-                [TestEnum.B, "B", TestEnum],
-                [TestEnum.C, "C", TestEnum],
-                [TestEnum.D, "D", TestEnum]
-            ]);
+                [TestEnum.A, "A", TestEnum, 0],
+                [TestEnum.B, "B", TestEnum, 1],
+                [TestEnum.C, "C", TestEnum, 2],
+                [TestEnum.D, "D", TestEnum, 3]
+        ]);
         });
 
         test("with context", () => {
@@ -277,11 +277,11 @@ describe("EnumWrapper: number+string enum", () => {
             ]);
 
             expect(iterateeSpy.mock.calls).toEqual([
-                [TestEnum.A, "A", TestEnum],
-                [TestEnum.B, "B", TestEnum],
-                [TestEnum.C, "C", TestEnum],
-                [TestEnum.D, "D", TestEnum]
-            ]);
+                [TestEnum.A, "A", TestEnum, 0],
+                [TestEnum.B, "B", TestEnum, 1],
+                [TestEnum.C, "C", TestEnum, 2],
+                [TestEnum.D, "D", TestEnum, 3]
+        ]);
         });
     });
 
