@@ -25,7 +25,7 @@ export type EnumLike<V extends number | string, K extends string> = {
 export class EnumWrapper<
     V extends number | string = number | string,
     T extends EnumLike<V, keyof T> = any
-> implements Iterable<EnumWrapper.Entry<T>> {
+> implements Iterable<EnumWrapper.Entry<T>>, ArrayLike<Readonly<EnumWrapper.Entry<T>>> {
     /**
      * Map of enum object -> EnumWrapper instance.
      * Used as a cache for {@link EnumWrapper.getCachedInstance}.
@@ -45,8 +45,21 @@ export class EnumWrapper<
 
     /**
      * The number of entries in this enum.
+     * Part of the Map-like interface.
      */
     public readonly size: number;
+
+    /**
+     * The number of entries in this enum.
+     * Part of the ArrayLike interface.
+     */
+    public readonly length: number;
+
+    /**
+     * Index signature.
+     * Part of the ArrayLike interface.
+     */
+    readonly [key: number]: EnumWrapper.Entry<T>;
 
     /**
      * Creates a new EnumWrapper for an enum-like object with number values.
@@ -181,20 +194,27 @@ export class EnumWrapper<
      */
     private constructor(private readonly enumObj: T) {
         this.keySet = new Set<keyof T>(
-            Object.keys(enumObj).filter(
+            Object.keys(enumObj)
                 // Exclude integer indexes.
                 // This is necessary to ignore the reverse-lookup entries that are automatically added
                 // by TypeScript to numeric enums.
-                (key) => !isIntegerIndex(key)
-            )
+                .filter(
+                    (key) => !isIntegerIndex(key)
+                )
+                // Order of Object.keys() is implementation-dependent, so sort the keys to guarantee
+                // a consistent order for iteration.
+                .sort()
         );
 
+        let index = 0;
         this.keySet.forEach((key) => {
             const value = enumObj[key];
             this.keysByValueMap.set(value, key);
+            (this as any as EnumWrapper.Entry<T>[])[index] = [key, value];
+            ++index;
         });
 
-        this.size = this.keySet.size;
+        this.size = this.length = this.keySet.size;
     }
 
     /**
@@ -231,6 +251,8 @@ export class EnumWrapper<
 
     /**
      * Get an iterator for this enum's keys.
+     * Iteration order is based on sorted order of keys.
+     * Part of the Map-like interface.
      * @return An iterator that iterates over this enum's keys.
      */
     public keys(): IterableIterator<keyof T> {
@@ -239,31 +261,57 @@ export class EnumWrapper<
 
     /**
      * Get an iterator for this enum's values.
-     * NOTE: If this enum has any duplicate values, only unique values will be iterated, and the
-     *       number of values iterated will be less than {@link EnumWrapper#size}.
+     * Iteration order is based on sorted order of keys.
+     * Part of the Map-like interface.
+     * NOTE: If there are duplicate values in the enum, then there will also be duplicate values
+     *       in the result.
      * @return An iterator that iterates over this enum's values.
      */
     public values(): IterableIterator<T[keyof T]> {
-        return this.keysByValueMap.keys();
+        let index = 0;
+
+        return {
+            next: (): IteratorResult<T[keyof T]> => {
+                const result = {
+                    done: index >= this.length,
+                    value: this[index] && this[index][1]
+                };
+
+                ++index;
+
+                return result;
+            },
+
+            [Symbol.iterator](): IterableIterator<T[keyof T]> {
+                return this;
+            }
+        };
     }
 
     /**
      * Get an iterator for this enum's entries as [key, value] tuples.
+     * Iteration order is based on sorted order of keys.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
     public entries(): IterableIterator<EnumWrapper.Entry<T>> {
-        const keyIterator = this.keys();
+        let index = 0;
 
         return {
-            next: (): IteratorResult<EnumWrapper.Entry<T>> => {
-                const nextKey = keyIterator.next();
+            next: () => {
+                const isDone = index >= this.length;
+                const entry = this[index];
 
-                return {
-                    done: nextKey.done,
+                const result: IteratorResult<EnumWrapper.Entry<T>> = {
+                    done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
-                    value: nextKey.done ? undefined as any : [nextKey.value, this.enumObj[nextKey.value]]
+                    // Creating a defensive copy of the entry
+                    value: isDone ? undefined as any : [entry[0], entry[1]]
                 };
+
+                ++index;
+
+                return result;
             },
 
             [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
@@ -274,6 +322,7 @@ export class EnumWrapper<
 
     /**
      * Get an iterator for this enum's entries as [key, value] tuples.
+     * Iteration order is based on sorted order of keys.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
     public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
@@ -282,6 +331,7 @@ export class EnumWrapper<
 
     /**
      * Calls the provided iteratee on each item in this enum.
+     * Iteration order is based on sorted order of keys.
      * See {@link EnumWrapper.Iteratee} for the signature of the iteratee.
      * The return value of the iteratee is ignored.
      * @param iteratee - The iteratee.
@@ -295,6 +345,7 @@ export class EnumWrapper<
 
     /**
      * Maps this enum's entries to a new list of values.
+     * Iteration order is based on sorted order of keys.
      * Builds a new array containing the results of calling the provided iteratee on each item in this enum.
      * See {@link EnumWrapper.Iteratee} for the signature of the iteratee.
      * @param iteratee - The iteratee.
@@ -315,6 +366,7 @@ export class EnumWrapper<
 
     /**
      * Get a list of this enum's keys.
+     * Order of items in the list is based on sorted order of keys.
      * @return A list of this enum's keys.
      */
     public getKeys(): (keyof T)[] {
@@ -323,8 +375,9 @@ export class EnumWrapper<
 
     /**
      * Get a list of this enum's values.
-     * NOTE: If this enum has any duplicate values, only unique values will be returned, and the
-     *       length of the list will be less than {@link EnumWrapper#size}.
+     * Order of items in the list is based on sorted order of keys.
+     * NOTE: If there are duplicate values in the enum, then there will also be duplicate values
+     *       in the result.
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
@@ -333,6 +386,7 @@ export class EnumWrapper<
 
     /**
      * Get a list of this enum's entries as [key, value] tuples.
+     * Order of items in the list is based on sorted order of keys.
      * @return A list of this enum's entries as [key, value] tuples.
      */
     public getEntries(): EnumWrapper.Entry<T>[] {
