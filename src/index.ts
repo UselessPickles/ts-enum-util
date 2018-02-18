@@ -182,10 +182,10 @@ export class EnumWrapper<
     private constructor(private readonly enumObj: T) {
         this.keySet = new Set<keyof T>(
             Object.keys(enumObj).filter(
-                // Need to include only keys that cannot be parsed as numbers.
+                // Exclude integer indexes.
                 // This is necessary to ignore the reverse-lookup entries that are automatically added
-                // to numeric enums.
-                (key) => isNaN(parseInt(key, 10))
+                // by TypeScript to numeric enums.
+                (key) => !isIntegerIndex(key)
             )
         );
 
@@ -690,4 +690,14 @@ export function $enum(enumObj: any, useCache: boolean = true): EnumWrapper {
     } else {
         return EnumWrapper.createUncachedInstance(enumObj);
     }
+}
+
+/**
+ * Test if an object key is an integer (array) index, according to ECMAScript specification
+ * section 15.4: http://www.ecma-international.org/ecma-262/5.1/#sec-15.4
+ * @param key - An object key.
+ * @return True of the key is an integer index.
+ */
+function isIntegerIndex(key: string): boolean {
+    return key === String(parseInt(key, 10));
 }
