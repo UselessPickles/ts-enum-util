@@ -302,12 +302,12 @@ for (const value ofwrapped.values()) {
 ```
 
 ## Requirements
-* *ES6 Features*: The following ES6 features are used by `ts-enum-util`, so they must exist (either natively or via polyfill) in the run-time environment: `Array.from()`, `Map`, `Set`, `Symbol.iterator`.
-* For certain `Iterable` features of `WrappedEnum` to work, you must either compile with a target of `es6` or higher, or enable the `downlevelIteration` compiler option.
+- *ES6 Features*: The following ES6 features are used by `ts-enum-util`, so they must exist (either natively or via polyfill) in the run-time environment: `Array.from()`, `Map`, `Set`, `Symbol.iterator`.
 
 ## Limitations
 - Does not work with enums that are merged with a namespace containing values (variables, functions, etc.), or otherwise have any additional properties added to the enum's runtime object.
 - Requires the `preserveConstEnums` TypeScript compiler option to work with `const enums`.
+- For certain `Iterable` features of `WrappedEnum` to work, you must either compile with a target of `es6` or higher, or enable the `downlevelIteration` compiler option.
 
 ## General Concepts
 ### Enum-Like Object
