@@ -25,7 +25,7 @@ export type EnumLike<V extends number | string, K extends string> = {
 export class EnumWrapper<
     V extends number | string = number | string,
     T extends EnumLike<V, keyof T> = any
-> implements Iterable<EnumWrapper.Entry<T>>, ArrayLike<Readonly<EnumWrapper.Entry<T>>> {
+> implements Iterable<EnumWrapper.Entry<V, T>>, ArrayLike<Readonly<EnumWrapper.Entry<V, T>>> {
     /**
      * Map of enum object -> EnumWrapper instance.
      * Used as a cache for {@link EnumWrapper.getCachedInstance}.
@@ -59,7 +59,7 @@ export class EnumWrapper<
      * Index signature.
      * Part of the ArrayLike interface.
      */
-    readonly [key: number]: EnumWrapper.Entry<T>;
+    readonly [key: number]: EnumWrapper.Entry<V, T>;
 
     /**
      * Creates a new EnumWrapper for an enum-like object with number values.
@@ -210,7 +210,7 @@ export class EnumWrapper<
         this.keySet.forEach((key) => {
             const value = enumObj[key];
             this.keysByValueMap.set(value, key);
-            (this as any as EnumWrapper.Entry<T>[])[index] = [key, value];
+            (this as any as EnumWrapper.Entry<V, T>[])[index] = [key, value];
             ++index;
         });
 
@@ -293,7 +293,7 @@ export class EnumWrapper<
      * Iteration order is based on sorted order of keys.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
-    public entries(): IterableIterator<EnumWrapper.Entry<T>> {
+    public entries(): IterableIterator<EnumWrapper.Entry<V, T>> {
         let index = 0;
 
         return {
@@ -301,7 +301,7 @@ export class EnumWrapper<
                 const isDone = index >= this.length;
                 const entry = this[index];
 
-                const result: IteratorResult<EnumWrapper.Entry<T>> = {
+                const result: IteratorResult<EnumWrapper.Entry<V, T>> = {
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
@@ -314,7 +314,7 @@ export class EnumWrapper<
                 return result;
             },
 
-            [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
+            [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<V, T>> {
                 return this;
             }
         };
@@ -325,7 +325,7 @@ export class EnumWrapper<
      * Iteration order is based on sorted order of keys.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
-    public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
+    public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<V, T>> {
         return this.entries();
     }
 
@@ -337,7 +337,7 @@ export class EnumWrapper<
      * @param iteratee - The iteratee.
      * @param context - If provided, then the iteratee will be called with the context as its "this" value.
      */
-    public forEach(iteratee: EnumWrapper.Iteratee<V, T, void>, context?: any): void {
+    public forEach(iteratee: EnumWrapper.Iteratee<void, V, T>, context?: any): void {
         this.keySet.forEach((key) => {
             iteratee.call(context, this.enumObj[key], key, this.enumObj);
         });
@@ -354,7 +354,7 @@ export class EnumWrapper<
      *
      * @template R - The of the mapped result for each entry.
      */
-    public map<R>(iteratee: EnumWrapper.Iteratee<V, T, R>, context?: any): R[] {
+    public map<R>(iteratee: EnumWrapper.Iteratee<R, V, T>, context?: any): R[] {
         const result: R[] = [];
 
         this.keySet.forEach((key) => {
@@ -389,7 +389,7 @@ export class EnumWrapper<
      * Order of items in the list is based on sorted order of keys.
      * @return A list of this enum's entries as [key, value] tuples.
      */
-    public getEntries(): EnumWrapper.Entry<T>[] {
+    public getEntries(): EnumWrapper.Entry<V, T>[] {
         return Array.from(this);
     }
 
@@ -669,9 +669,13 @@ export class EnumWrapper<
 export namespace EnumWrapper {
     /**
      * A tuple containing the key and value of a single entry in an enum.
+     * @template V - Type of the enum value.
      * @template T - Type of an enum-like object.
      */
-    export type Entry<T> = Readonly<[keyof T, T[keyof T]]>;
+    export type Entry<
+        V extends number | string = number | string,
+        T extends EnumLike<V, keyof T> = any,
+    > = Readonly<[keyof T, T[keyof T]]>;
 
     /**
      * A function used in iterating all key/value entries in an enum.
@@ -680,15 +684,111 @@ export namespace EnumWrapper {
      * @param enumObj - The enum-like object that the key/value entrie belongs to.
      * @return A result. The significance of the result depends on the type of iteration being performed.
      *
-     * @template V - Type of the enum value.
-     * @template T - Type of the enum-like object that is being wrapped.
      * @template R - The type of the result.
+     * @template V - Type of the enum value.
+     * @template T - Type of an enum-like object.
      */
     export type Iteratee<
-        V extends number | string,
-        T extends EnumLike<V, keyof T>,
-        R
+        R = any,
+        V extends number | string = number | string,
+        T extends EnumLike<V, keyof T> = any
     > = (this: any, value: V, key: keyof T, enumObj: T) => R;
+}
+
+/**
+ * Type alias for an {@link EnumWrapper} for any type of enum-like object that contains only number values.
+ *
+ * @template T - Type of an enum-like object that contains only number values.
+ */
+export type NumberEnumWrapper<
+    T extends EnumLike<number, keyof T> = any,
+> = EnumWrapper<number, any>;
+
+export namespace NumberEnumWrapper {
+    /**
+     * Type alias for an {@link EnumWrapper.Entry} for any type of enum-like object that contains only number values.
+     *
+     * @template T - Type of an enum-like object that contains only number values.
+     */
+    export type Entry<
+        T extends EnumLike<number, keyof T> = any,
+    > = EnumWrapper.Entry<number, T>;
+
+    /**
+     * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains only number values.
+     *
+     * @template R - The type of the result.
+     * @template T - Type of an enum-like object that contains only number values.
+     */
+    export type Iteratee<
+        R = any,
+        T extends EnumLike<number, keyof T> = any
+    > = EnumWrapper.Iteratee<R, number, T>;
+}
+
+/**
+ * Type alias for an {@link EnumWrapper} for any type of enum-like object that contains only string values.
+ *
+ * @template T - Type of an enum-like object that contains only string values.
+ */
+export type StringEnumWrapper<
+    T extends EnumLike<string, keyof T> = any,
+> = EnumWrapper<string, any>;
+
+export namespace StringEnumWrapper {
+    /**
+     * Type alias for an {@link EnumWrapper.Entry} for any type of enum-like object that contains only string values.
+     *
+     * @template T - Type of an enum-like object that contains only string values.
+     */
+    export type Entry<
+        T extends EnumLike<string, keyof T> = any,
+    > = EnumWrapper.Entry<string, T>;
+
+    /**
+     * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains only string values.
+     *
+     * @template R - The type of the result.
+     * @template T - Type of an enum-like object that contains only string values.
+     */
+    export type Iteratee<
+        R = any,
+        T extends EnumLike<string, keyof T> = any
+    > = EnumWrapper.Iteratee<R, string, T>;
+}
+
+/**
+ * Type alias for an {@link EnumWrapper} for any type of enum-like object that contains a mix of
+ * number and string values.
+ *
+ * @template T - Type of an enum-like object that contains a mix of number and string values.
+ */
+export type MixedEnumWrapper<
+    T extends EnumLike<number | string, keyof T> = any,
+> = EnumWrapper<number | string, any>;
+
+export namespace MixedEnumWrapper {
+    /**
+     * Type alias for an {@link EnumWrapper.Entry} for any type of enum-like object that contains a mix of
+     * number and string values.
+     *
+     * @template T - Type of an enum-like object that contains a mix of number and string values.
+     */
+    export type Entry<
+        T extends EnumLike<number | string, keyof T> = any,
+    > = EnumWrapper.Entry<number | string, T>;
+
+    /**
+     * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains a mix of
+     * number and string values.
+     *
+     * @template R - The type of the result.
+     * @template T - Type of an enum-like object that contains a mix of number and string values.
+     */
+    export type Iteratee<
+        R = any,
+        T extends EnumLike<number | string, keyof T> = any
+    > = EnumWrapper.Iteratee<R, number | string, T>;
 }
 
 /**
