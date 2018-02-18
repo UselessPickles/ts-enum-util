@@ -401,9 +401,7 @@ This is the class that implements all the enum utilities. It's a generic class t
 
 ### EnumWrapper.Entry
 ```ts
-type EnumWrapper.Entry = Readonly<
-    [KeyType, EnumType]
->
+type EnumWrapper.Entry = Readonly<[KeyType, EnumType]>
 ```
 
 A generic type alias for a tuple containing a key and value pair, representing a complete "entry" in the enum. The tuple is defined as `Readonly` to prevent accidental corruption of the `EnumWrapper` instance's data.
