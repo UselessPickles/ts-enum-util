@@ -24,6 +24,7 @@ Strictly typed utilities for working with TypeScript enums.
         - [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
         - [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 - [Requirements](#requirements)
+- [Limitations](#limitations)
 - [General Concepts](#general-concepts)
     - [Enum-Like Object](#enum-like-object)
     - [EnumWrapper](#enumwrapper)
@@ -61,7 +62,6 @@ Strictly typed utilities for working with TypeScript enums.
     - [EnumWrapper.prototype.getKeyOrDefault](#enumwrapperprototypegetkeyordefault)
     - [EnumWrapper.prototype.getValue](#enumwrapperprototypegetvalue)
     - [EnumWrapper.prototype.getValueOrDefault](#enumwrapperprototypegetvalueordefault)
-- [Limitations](#limitations)
 
 <!-- /TOC -->
 
@@ -305,6 +305,10 @@ for (const value ofwrapped.values()) {
 * *ES6 Features*: The following ES6 features are used by `ts-enum-util`, so they must exist (either natively or via polyfill) in the run-time environment: `Array.from()`, `Map`, `Set`, `Symbol.iterator`.
 * For certain `Iterable` features of `WrappedEnum` to work, you must either compile with a target of `es6` or higher, or enable the `downlevelIteration` compiler option.
 
+## Limitations
+- Does not work with enums that are merged with a namespace containing values (variables, functions, etc.), or otherwise have any additional properties added to the enum's runtime object.
+- Requires the `preserveConstEnums` TypeScript compiler option to work with `const enums`.
+
 ## General Concepts
 ### Enum-Like Object
 `ts-enum-util` technically works with any "enum-like" object, which is any object whose property values are of type `string` or `number`.
@@ -472,7 +476,3 @@ A read-only property containing the number of entries (key/value pairs) in the e
 
 ### EnumWrapper.prototype.getValueOrDefault
 `EnumWrapper.prototype.getValueOrDefault(key: string, defaultValue?: EnumType | ValueType): EnumType | ValueType | undefined`
-
-## Limitations
-- Does not work with enums that are merged with a namespace containing values (variables, functions, etc.), or otherwise have any additional properties added to the enum's runtime object.
-- Requires the `preserveConstEnums` TypeScript compiler option to work with `const enums`.
