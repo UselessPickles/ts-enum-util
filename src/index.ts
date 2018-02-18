@@ -671,7 +671,7 @@ export namespace EnumWrapper {
      * A tuple containing the key and value of a single entry in an enum.
      * @template T - Type of an enum-like object.
      */
-    export type Entry<T> = [keyof T, T[keyof T]];
+    export type Entry<T> = Readonly<[keyof T, T[keyof T]]>;
 
     /**
      * A function used in iterating all key/value entries in an enum.

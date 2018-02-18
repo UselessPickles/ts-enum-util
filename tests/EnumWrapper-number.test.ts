@@ -105,7 +105,8 @@ describe("EnumWrapper: string enum", () => {
         expect(result).toEqual(expected);
 
         // test for defensive copy
-        result[0][1] = TestEnum.C;
+        // "as any" required to bypass readonly
+        (result[0][1] as any) = TestEnum.C;
         expect(enumWrapper.getEntries()).toEqual(expected);
     });
 
