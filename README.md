@@ -28,6 +28,8 @@ Strictly typed utilities for working with TypeScript enums.
     - [EnumWrapper](#enumwrapper)
     - [Specific Typing](#specific-typing)
     - [Map-Like Interface](#map-like-interface)
+    - [ArrayLike Interface](#arraylike-interface)
+    - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
     - [Caching](#caching)
 - [API Reference](#api-reference)
     - [Terminology](#terminology)
@@ -36,6 +38,7 @@ Strictly typed utilities for working with TypeScript enums.
     - [EnumWrapper.Entry](#enumwrapperentry)
     - [EnumWrapper.Iteratee](#enumwrapperiteratee)
     - [EnumWrapper.prototype.size](#enumwrapperprototypesize)
+    - [EnumWrapper.prototype.length](#enumwrapperprototypelength)
     - [EnumWrapper.prototype.get](#enumwrapperprototypeget)
     - [EnumWrapper.prototype.has](#enumwrapperprototypehas)
     - [EnumWrapper.prototype.keys](#enumwrapperprototypekeys)
@@ -272,6 +275,30 @@ A subset of `EnumWrapper`'s interface overlaps with much of the ES6 `Map` interf
 * [forEach](#enumwrapperprototypeforeach) method.
 * [@@iterator](#enumwrapperprototypeiterator) method (`EnumWrapper` is iterable!).
 
+### ArrayLike Interface
+`EnumWrapper` implements the `ArrayLike`. It is usable as a readonly array of [EnumWrapper.Entry](#enumwrapperentry), which allows you to pass an `EnumWrapper` instance to any method that is designed read/iterate an array-like value, such as most of [lodash](#https://lodash.com/)'s methods for collections and arrays.
+
+### Guaranteed Order of Iteration
+ECMAScript does not guarantee a specific order when iterating properties/keys of objects. While many implementations do consistently iterate object properties/keys in the order in which they were added to the object, it is not safe to rely upon an assumption that al implementations will do the same.
+
+`EnumWrapper` sorts the keys of the enum and uses this sorted order to guarantee consistent ordering of all array/iterator results across all implementations. Just beware that the order may not be what you expect.
+
+Example:
+```ts
+// enum defined with keys alphabetically out of order
+enum ABC = {
+    B,
+    A,
+    C
+}
+
+// keys are sorted: ["A", "B", "C"]
+const values = $enum(ABC).getKeys();
+
+// values are ordered by sorted key order: [1, 0, 2]
+const values = $enum(ABC).getValues();
+```
+
 ### Caching
 By default, `EnumWrapper` instances are cached for quick subsequent retrieval via the [$enum](#enum) function.
 
@@ -308,9 +335,9 @@ See [Caching](#caching) for more about caching of `EnumWrapper` instances.
 This is the class that implements all the enum utilities. It's a generic class that requires an overloaded helper function to properly instantiate, so the constructor is private. Use [$enum()](#enum) to get/create an instance of `EnumWrapper`.
 
 ### EnumWrapper.Entry
-`type EnumWrapper.Entry = [KeyType, EnumType]`
+`type EnumWrapper.Entry = Readonly<[KeyType, EnumType]>`
 
-A generic type alias for a tuple containing a key and value pair, representing a complete "entry" in the enum.
+A generic type alias for a tuple containing a key and value pair, representing a complete "entry" in the enum. The tuple is defined as `Readonly` to prevent accidental corruption of the `EnumWrapper` instance's data.
 
 ### EnumWrapper.Iteratee
 `type EnumWrapper.Iteratee = (value: EnumType, key: KeyType, enumObj: EnumLike) => R`
@@ -319,6 +346,11 @@ A generic type alias for a function signature to be used in iteration methods.
 
 ### EnumWrapper.prototype.size
 `EnumWrapper.prototype.size: number`
+
+A read-only property containing the number of entries (key/value pairs) in the enum.
+
+### EnumWrapper.prototype.length
+`EnumWrapper.prototype.length: number`
 
 A read-only property containing the number of entries (key/value pairs) in the enum.
 
