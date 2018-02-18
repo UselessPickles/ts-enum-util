@@ -10,19 +10,18 @@ Strictly typed utilities for working with TypeScript enums.
 <!-- TOC depthFrom:2 -->
 
 - [What is it?](#what-is-it)
-- [Quick Start](#quick-start)
-    - [Installation](#installation)
-    - [Usage Examples](#usage-examples)
-        - [Basic setup for all examples](#basic-setup-for-all-examples)
-        - [Get count of enum entries](#get-count-of-enum-entries)
-        - [Get lists of enum data](#get-lists-of-enum-data)
-        - [Lookup value by key](#lookup-value-by-key)
-        - [Reverse lookup key by value](#reverse-lookup-key-by-value)
-        - [Validate/convert enum keys](#validateconvert-enum-keys)
-        - [Validate/convert enum values](#validateconvert-enum-values)
-        - [Iteration and mapping](#iteration-and-mapping)
-        - [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
-        - [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
+- [Installation](#installation)
+- [Usage Examples](#usage-examples)
+    - [Basic setup for all examples](#basic-setup-for-all-examples)
+    - [Get count of enum entries](#get-count-of-enum-entries)
+    - [Get lists of enum data](#get-lists-of-enum-data)
+    - [Lookup value by key](#lookup-value-by-key)
+    - [Reverse lookup key by value](#reverse-lookup-key-by-value)
+    - [Validate/convert enum keys](#validateconvert-enum-keys)
+    - [Validate/convert enum values](#validateconvert-enum-values)
+    - [Iteration and Mapping](#iteration-and-mapping)
+    - [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
+    - [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 - [Requirements](#requirements)
 - [Limitations](#limitations)
 - [General Concepts](#general-concepts)
@@ -30,7 +29,7 @@ Strictly typed utilities for working with TypeScript enums.
     - [EnumWrapper](#enumwrapper)
     - [Specific Typing](#specific-typing)
     - [Map-Like Interface](#map-like-interface)
-    - [ArrayLike Interface](#arraylike-interface)
+    - [Array-Like Interface](#array-like-interface)
     - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
     - [Caching](#caching)
 - [API Reference](#api-reference)
@@ -76,21 +75,20 @@ Strictly typed utilities for working with TypeScript enums.
 
 All of these utilities are very specifically typed for each enum via generics and type inference.
 
-## Quick Start
-### Installation
+## Installation
 Install via [NPM](https://www.npmjs.com/package/ts-enum-util):
 ```
 npm i -s ts-enum-util
 ```
 
-### Usage Examples
+## Usage Examples
 Several small examples `ts-enum-util`'s capabilities to give you a quick overview of what it can do, as well as an organized "by example" reference.
 
 Pay special attention to the comments indicating the compile-time type of various results. See [Specific Typing](#specific-typing) for more about data types.
 
 See [API Reference](#api-reference) for more details about method signatures and behaviors.
 
-#### Basic setup for all examples
+### Basic setup for all examples
 ```ts
 // import the $enum helper function
 import {$enum} from "ts-enum-util";
@@ -105,7 +103,7 @@ enum RGB {
 }
 ```
 
-#### Get count of enum entries
+### Get count of enum entries
 See also:
 - [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
 - [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
@@ -119,7 +117,7 @@ const size = $enum(RGB).size;
 const length = $enum(RGB).length;
 ```
 
-#### Get lists of enum data
+### Get lists of enum data
 See also:
 - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 - [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
@@ -139,7 +137,7 @@ const values = $enum(RGB).getValues();
 const entries = $enum(RGB).getEntries();
 ```
 
-#### Lookup value by key
+### Lookup value by key
 See also:
 - [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 ```ts
@@ -163,7 +161,7 @@ const value4 = $enum(RGB).getValueOrDefault("blah", "R");
 const value5 = $enum(RGB).getValueOrDefault("blah", "BLAH!");
 ```
 
-#### Reverse lookup key by value
+### Reverse lookup key by value
 ```ts
 // type: ("R" | "G" | "B")
 // value: "G"
@@ -185,7 +183,7 @@ const key4 = $enum(RGB).getKeyOrDefault("blah", "R");
 const key4 = $enum(RGB).getKeyOrDefault("blah", "BLAH!");
 ```
 
-#### Validate/convert enum keys
+### Validate/convert enum keys
 ```ts
 // Some arbitrary string
 declare const str: string;
@@ -209,7 +207,7 @@ const key2 = $enum(RGB).asKeyOrDefault(str);
 const key3 = $enum(RGB).asKeyOrDefault(str, "G");
 ```
 
-#### Validate/convert enum values
+### Validate/convert enum values
 ```ts
 // Some arbitrary string
 declare const str: string;
@@ -233,7 +231,7 @@ const value2 = $enum(RGB).asValueOrDefault(str);
 const value3 = $enum(RGB).asValueOrDefault(str, RGB.G);
 ```
 
-#### Iteration and mapping
+### Iteration and Mapping
 See also:
 - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 ```ts
@@ -254,7 +252,7 @@ const mapped = $enum(RGB).map((value, key, rgbRef) => {
 });
 ```
 
-#### Wrapped enums are Array-Like
+### Wrapped enums are Array-Like
 A wrapped enum can be treated like an array of enum "entry" tuples.
 
 See also:
@@ -271,7 +269,7 @@ const length = wrapped.length;
 const entry = wrapped[1];
 ```
 
-#### Wrapped enums are Map-Like
+### Wrapped enums are Map-Like
 A wrapped enum is effectively a read-only `Map` of enum "entry" tuples.
 
 See also:
@@ -335,8 +333,8 @@ A subset of `EnumWrapper`'s interface overlaps with much of the ES6 `Map` interf
 * [forEach](#enumwrapperprototypeforeach) method.
 * [@@iterator](#enumwrapperprototypeiterator) method (`EnumWrapper` is iterable!).
 
-### ArrayLike Interface
-`EnumWrapper` implements the `ArrayLike`. It is usable as a readonly array of [EnumWrapper.Entry](#enumwrapperentry), which allows you to pass an `EnumWrapper` instance to any method that is designed read/iterate an array-like value, such as most of [lodash](#https://lodash.com/)'s methods for collections and arrays.
+### Array-Like Interface
+`EnumWrapper` implements the `ArrayLike` interface. It is usable as a readonly array of [EnumWrapper.Entry](#enumwrapperentry). This allows you to pass an `EnumWrapper` instance to any method that is designed read/iterate an array-like value, such as most of [lodash](#https://lodash.com/)'s methods for collections and arrays.
 
 ### Guaranteed Order of Iteration
 ECMAScript does not guarantee a specific order when iterating properties/keys of objects. While many implementations do consistently iterate object properties/keys in the order in which they were added to the object, it is not safe to rely upon an assumption that al implementations will do the same.
