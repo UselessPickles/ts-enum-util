@@ -66,7 +66,15 @@ Strictly typed utilities for working with TypeScript enums.
 <!-- /TOC -->
 
 ## What is it?
-`ts-enum-util` provides utilities to improve the usefulness of enums. Examples include getting a list of an enum's keys, values, or key/value pairs, reverse lookup of keys by value, run-time validation that a specified value or key is valid for a given enum (with corresponding compile-time type guards), and more. All of these utilities are very specifically typed for each enum via generics and type inference.
+`ts-enum-util` provides utilities to improve the usefulness of enums. Examples include:
+- Get a list of an enum's keys, values, or key/value pairs.
+- Lookup values by key with run-time key validation and optional result defaulting.
+- Reverse lookup of keys by value (for string enums too!) with run-time value validation and optional result defaulting.
+- Run-time validation that a specified value or key is valid for a given enum, with compile-time type guards.
+- Treat an enum like an Array.
+- Treat an enum like a Map.
+
+All of these utilities are very specifically typed for each enum via generics and type inference.
 
 ## Quick Start
 ### Installation
