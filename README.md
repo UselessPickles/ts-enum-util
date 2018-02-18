@@ -474,5 +474,5 @@ A read-only property containing the number of entries (key/value pairs) in the e
 `EnumWrapper.prototype.getValueOrDefault(key: string, defaultValue?: EnumType | ValueType): EnumType | ValueType | undefined`
 
 ## Limitations
-Does not work with enums that are merged with a namespace containing values (variables, functions, etc.), or otherwise have any additional properties added to the enum's runtime object.
-
+- Does not work with enums that are merged with a namespace containing values (variables, functions, etc.), or otherwise have any additional properties added to the enum's runtime object.
+- Requires the `preserveConstEnums` TypeScript compiler option to work with `const enums`.
