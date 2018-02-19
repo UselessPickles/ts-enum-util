@@ -105,7 +105,7 @@ enum RGB {
 ```
 
 ### Get an `EnumWrapper` instance for an enum
-Use the [$eunum](#enum) function to get an `EnumWrapper` instance for a particular enum.
+Use the [$enum](#enum) function to get an `EnumWrapper` instance for a particular enum.
 Read about how `EnumWrapper` instances are cached: [Caching](#caching).
 
 ```ts
