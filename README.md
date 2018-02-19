@@ -543,7 +543,7 @@ EnumWrapper.prototype.forEach(
     context?: any
 ): void
 ```
-- `iteratee`: See [EnumWrapper.Iteratee](#enumwraperriteratee).
+- `iteratee`: See [EnumWrapper.Iteratee](#enumwraperriteratee). The return value of this function is ignored.
 - `context`: If provided, then the value will be used as the `this` context when executing `iteratee`.
 
 #### EnumWrapper.prototype.map
