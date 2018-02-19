@@ -371,7 +371,7 @@ A subset of `EnumWrapper`'s interface overlaps with much of the ES6 `Map` interf
 `EnumWrapper` implements the `ArrayLike` interface. It is usable as a readonly array of [EnumWrapper.Entry](#enumwrapperentry). This allows you to pass an `EnumWrapper` instance to any method that is designed read/iterate an array-like value, such as most of [lodash](#https://lodash.com/)'s methods for collections and arrays.
 
 ### Guaranteed Order of Iteration
-ECMAScript does not guarantee a specific order when iterating properties/keys of objects. While many implementations do consistently iterate object properties/keys in the order in which they were added to the object, it is not safe to rely upon an assumption that al implementations will do the same.
+ECMAScript does not guarantee a specific order when iterating properties/keys of objects. While many implementations do consistently iterate object properties/keys in the order in which they were added to the object, it is not safe to rely upon an assumption that all implementations will do the same.
 
 `EnumWrapper` sorts the keys of the enum and uses this sorted order to guarantee consistent ordering of all array/iterator results across all implementations. Just beware that the order may not be what you expect.
 
@@ -399,9 +399,7 @@ The reasoning behind this is that enums are static constructs. A given project w
 Consider explicitly avoiding caching (via an optional param to `$enum`) if you are using `ts-enum-util` to work with an ad-hoc dynamically generated "enum-like" object that is specific to a particular function execution, class instance, etc.. This is useful to avoid cluttering the cache and unnecessarily occupying memory with an `EnumWrapper` that will never be retrieved from the cache.
 
 ## API Reference
-!!! WORK IN PROGRESS / INCOMPLETE !!!
-
-See the source code or the distributed `index.d.ts` file for complete details of method signatures/overloads, detailed method/param documentation, etc.
+Also see the source code or the distributed `index.d.ts` file for complete details of method signatures/overloads, detailed method/param documentation, etc.
 
 See [Usage Examples](#usage-examples) if you prefer a "by example" reference.
 
@@ -413,268 +411,262 @@ Throughout this reference, the following aliases for types will be used:
 - `ValueType`: The widened type of the enum's values. Will be `number`, `string`, or `number | string`, depending on whether the wrapped enum-like object contains only number, only string, or both number and string values.
 
 ### $enum
+This is where it all begins. This method returns an [EnumWrapper](#enum-wrapper-1) instance that provides useful utilities for `enumObj`.
+
+See [Caching](#caching) for more about caching of `EnumWrapper` instances.
 ```ts
 function $enum(
     enumObj: EnumLike,
     useCache: boolean = true
 ): EnumWrapper
 ```
+- `enumObj` - An enum or "enum-like" object.
 - `useCache` - False to force a new instance of `EnumWrapper` to be created and returned without any caching.
-
-This is where it all begins. Pass an "enum-like" object to this method and it returns an [EnumWrapper](#enum-wrapper-1) instance that provides useful utilities for that "enum-like" object.
-
-See [Caching](#caching) for more about caching of `EnumWrapper` instances.
 
 ### Types
 #### EnumWrapper
+This is the class that implements all the enum utilities. It's a generic class that requires an overloaded helper function to properly instantiate, so the constructor is private. Use [$enum()](#enum) to get/create an instance of `EnumWrapper`.
 ```ts
 class EnumWrapper
 ```
-This is the class that implements all the enum utilities. It's a generic class that requires an overloaded helper function to properly instantiate, so the constructor is private. Use [$enum()](#enum) to get/create an instance of `EnumWrapper`.
 
 #### EnumWrapper.Entry
+A generic type alias for a tuple containing a key and value pair, representing a complete "entry" in the enum. The tuple is defined as `Readonly` to prevent accidental corruption of the `EnumWrapper` instance's data.
 ```ts
 type EnumWrapper.Entry = Readonly<[KeyType, EnumType]>
 ```
-A generic type alias for a tuple containing a key and value pair, representing a complete "entry" in the enum. The tuple is defined as `Readonly` to prevent accidental corruption of the `EnumWrapper` instance's data.
 
 #### EnumWrapper.Iteratee
+A generic type alias for a function signature to be used in iteration methods. This is compliant with the signature of an iteratee for a `Map<KeyType, EnumType>.forEach()` method, but also has an additional `index` param at the end of the parameter list.
+
+See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
 ```ts
-type EnumWrapper.Iteratee = (
+type EnumWrapper.Iteratee<R> = (
     value: EnumType,
     key: KeyType,
     enumWrapper: EnumWrapper,
     index: number
 ) => R
 ```
-A generic type alias for a function signature to be used in iteration methods. This is compliant with the signature of an iteratee for a `Map<KeyType, EnumType>.forEach()` method, but also has an additional `index` param at the end of the parameter list.
+- `R` - Generic type param for the return type of the function. The signifigance of the return type/value depends on teh context in which the iteratee is being used.
+- `value` - The value of the enum entry.
+- `key` - The key of the enum entry.
+- `enumWrapper` - A reference to the `EnumWrapper` instance that is being iterated.
+- `index` - The index of the enum entry
 
 ### Array-Like Interface
 See also: [Array-Like Interface](#array-like-interface)
 
 #### EnumWrapper.prototype.length
+A read-only property containing the number of entries in the enum.
 ```ts
 readonly EnumWrapper.prototype.length: number
 ```
-A read-only property containing the number of entries in the enum.
 
 #### EnumWrapper.prototype.[index]
-```ts
-readonly EnumWrapper.prototype.[index: number]: EnumWrapper.Entry
-```
 The index signature is implemented on `EnumWrapper` to allow you to access `[key, value]` tuples by index like an array. The values accessed by indexing are readonly.
 
 See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
+```ts
+readonly EnumWrapper.prototype.[index: number]: EnumWrapper.Entry
+```
 
 ### Map-Like Interface
 See also: [Map-Like Interface](#map-like-interface)
 
 #### EnumWrapper.prototype.size
+A read-only property containing the number of entries in the enum.
 ```ts
 readonly EnumWrapper.prototype.size: number
 ```
-A read-only property containing the number of entries in the enum.
 
 #### EnumWrapper.prototype.get
+Returns the enum value for the specified `key`.
+
+If the `key` is invalid for the enum, then `undefined` is returned.
 ```ts
 EnumWrapper.prototype.get(
     key: string | null | undefined
 ): EnumType | undefined
 ```
-Returns the enum value for the specified `key`.
-
-If the `key` is invalid for the enum, then `undefined` is returned.
 
 #### EnumWrapper.prototype.has
+Returns `true` if the provided `key` is a valid key for the enum.
+
+Also acts as a type guard to tell the compiler that the provided `key` is the more specific `KeyType` type.
 ```ts
 EnumWrapper.prototype.has(
     key: string | null | undefined
 ): key is KeyType
 ```
-Returns `true` if the provided `key` is a valid key for the enum.
-
-Also acts as a type guard to tell the compiler that the provided `key` is the more specific `KeyType` type.
 
 #### EnumWrapper.prototype.keys
-```ts
-EnumWrapper.prototype.keys(
-): IterableIterator<KeyType>
-```
 Returns an `Iterator` that will iterate all keys of the enum.
 
 See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
+```ts
+EnumWrapper.prototype.keys(): IterableIterator<KeyType>
+```
 
 #### EnumWrapper.prototype.values
-```ts
-EnumWrapper.prototype.values(
-): IterableIterator<EnumType>
-```
 Returns an `Iterator` that will iterate all values of the enum.
 
 See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
+```ts
+EnumWrapper.prototype.values(): IterableIterator<EnumType>
+```
 
 #### EnumWrapper.prototype.entries
-```ts
-EnumWrapper.prototype.entries(
-): IterableIterator<EnumWrapper.Entry>
-```
 Returns an `Iterator` that will iterate all [key, value] pairs of the enum.
 
 See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
+```ts
+EnumWrapper.prototype.entries(): IterableIterator<EnumWrapper.Entry>
+```
 
 #### EnumWrapper.prototype.@@iterator
-```ts
-EnumWrapper.prototype.@@iterator(
-): IterableIterator<EnumWrapper.Entry>
-```
 Same as [EnumWrapper.prototype.entries](#enumwrapperprototypeentries).
 
 Allows an `EnumWrapper` to be directly iterated as a collection of `[key, value]` tuples.
+```ts
+EnumWrapper.prototype.@@iterator(): IterableIterator<EnumWrapper.Entry>
+```
 
 ### Iteration
 #### EnumWrapper.prototype.forEach
+Iterates every entry in the enum and calls the provided `iteratee` function.
+
+See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
 ```ts
 EnumWrapper.prototype.forEach(
     iteratee: EnumWrapper.Iteratee,
     context?: any
 ): void
 ```
-Iterates every entry in the enum and calls the provided `iteratee` function.
 - `iteratee`: See [EnumWrapper.Iteratee](#enumwraperriteratee).
 - `context`: If provided, then the value will be used as the `this` context when executing `iteratee`.
 
-See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
-
 #### EnumWrapper.prototype.map
+Builds and returns a new array containing the results of calling the provided `iteratee` function on every entry in the enum.
+
+See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
 ```ts
 EnumWrapper.prototype.map<R>(
     iteratee: EnumWrapper.Iteratee,
     context?: any
 ): R[]
 ```
-Builds and returns a new array containing the results of calling the provided `iteratee` function on every entry in the enum.
 - `R`: Generic type param that indicates the type of entries in the resulting array. If not specified, then it will be inferred from the return type of `iteratee`.
 - `iteratee`: See [EnumWrapper.Iteratee](#enumwraperriteratee).
 - `context`: If provided, then the value will be used as the `this` context when executing `iteratee`.
 
-See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
-
 ### Get Arrays of Enum Data
 #### EnumWrapper.prototype.getKeys
-```ts
-EnumWrapper.prototype.getKeys(
-): KeyType[]
-```
 Returns an array of all keys in the enum.
 
 See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
+```ts
+EnumWrapper.prototype.getKeys(): KeyType[]
+```
 
 #### EnumWrapper.prototype.getValues
-```ts
-EnumWrapper.prototype.getValues(
-): EnumType[]
-```
 Returns an array of all values in the enum. If the enum contains any duplicate values, then so will the returned array.
 
 See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
+```ts
+EnumWrapper.prototype.getValues(): EnumType[]
+```
 
 #### EnumWrapper.prototype.getEntries
-```ts
-EnumWrapper.prototype.getEntries(
-): EnumWrapper.Entry[]
-```
 Returns a list of `[key, value]` tuples representing all entries in the enum.
 
 See [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) for details about the ordering.
+```ts
+EnumWrapper.prototype.getEntries(): EnumWrapper.Entry[]
+```
 
 ### Key Validation/Typecasting
 #### EnumWrapper.prototype.isKey
 ```ts
+Returns `true` if the provided `key` is a valid key for the enum.
+
+Also acts as a type guard to tell the compiler that the provided `key` is the more specific `KeyType` type.
 EnumWrapper.prototype.isKey(
     key: string | null | undefined
 ): key is KeyType
 ```
-Returns `true` if the provided `key` is a valid key for the enum.
-
-Also acts as a type guard to tell the compiler that the provided `key` is the more specific `KeyType` type.
 
 #### EnumWrapper.prototype.asKey
+If the provided `key` is a valid key for the enum, then the `key` is returned, but cast to the more specific `KeyType` type.
+
+If the provided `key` is NOT valid, then an `Error` is thrown.
 ```ts
 EnumWrapper.prototype.asKey(
     key: string | null | undefined
 ): KeyType
 ```
-If the provided `key` is a valid key for the enum, then the `key` is returned, but cast to the more specific `KeyType` type.
-
-If the provided `key` is NOT valid, then an `Error` is thrown.
 
 #### EnumWrapper.prototype.asKeyOrDefault
+If the provided `key` is a valid key for the enum, then the `key` is returned, but cast to the more specific `KeyType` type.
+
+If the provided `key` is NOT valid, then `defaultKey` is returned.
+
+This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultKey` param.
 ```ts
 EnumWrapper.prototype.asKeyOrDefault(
     key: string | null | undefined,
     defaultKey?: KeyType | string
 ): KeyType | string | undefined
 ```
-If the provided `key` is a valid key for the enum, then the `key` is returned, but cast to the more specific `KeyType` type.
-
-If the provided `key` is NOT valid, then `defaultKey` is returned.
-
-This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultKey` param.
 
 ### Value Validation/Typecasting
 #### EnumWrapper.prototype.isValue
+Returns `true` if the provided `value` is a valid value for the enum.
+
+Also acts as a type guard to tell the compiler that the provided `value` is the more specific `EnumType` type.
 ```ts
 EnumWrapper.prototype.isValue(
     value: ValueType | null | undefined
 ): key is EnumType
 ```
-Returns `true` if the provided `value` is a valid value for the enum.
-
-Also acts as a type guard to tell the compiler that the provided `value` is the more specific `EnumType` type.
 
 #### EnumWrapper.prototype.asValue
+If the provided `value` is a valid value for the enum, then the `value` is returned, but cast to the more specific `EnumType` type.
+
+If the provided `value` is NOT valid, then an `Error` is thrown.
 ```ts
 EnumWrapper.prototype.asValue(
     value: ValueType | null | undefined
 ): EnumType
 ```
-If the provided `value` is a valid value for the enum, then the `value` is returned, but cast to the more specific `EnumType` type.
-
-If the provided `value` is NOT valid, then an `Error` is thrown.
 
 #### EnumWrapper.prototype.asValueOrDefault
+If the provided `value` is a valid value for the enum, then the `value` is returned, but cast to the more specific `EnumType` type.
+
+If the provided `value` is NOT valid, then `defaultValue` is returned.
+
+This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultValue` param.
 ```ts
 EnumWrapper.prototype.asValueOrDefault(
     value: ValueType | null | undefined,
     defaultValue?: EnumType | ValueType
 ): EnumType | ValueType | undefined
 ```
-If the provided `value` is a valid value for the enum, then the `value` is returned, but cast to the more specific `EnumType` type.
-
-If the provided `value` is NOT valid, then `defaultValue` is returned.
-
-This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultValue` param.
 
 ### Lookup Key by Value
 #### EnumWrapper.prototype.getKey
-```ts
-EnumWrapper.prototype.getKey(
-    value: ValueType | null | undefined
-): KeyType
-```
 Performs a reverse lookup to get the key that corresponds to the provided `value`.
 
 If the enum has duplicate values matching the provided `value`, then the key for the last duplicate entry (in order specified by the [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) section) is returned.
 
 If the provided `value` is NOT valid, then an `Error` is thrown.
+```ts
+EnumWrapper.prototype.getKey(
+    value: ValueType | null | undefined
+): KeyType
+```
 
 #### EnumWrapper.prototype.getKeyOrDefault
-```ts
-EnumWrapper.prototype.getKeyOrDefault(
-    value: ValueType | null | undefined,
-    defaultKey?: KeyType | string
-): KeyType | string | undefined
-```
 Performs a reverse lookup to get the key that corresponds to the provided `value`.
 
 If the enum has duplicate values matching the provided `value`, then the key for the last duplicate entry (in order specified by the [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) section) is returned.
@@ -682,28 +674,34 @@ If the enum has duplicate values matching the provided `value`, then the key for
 If the provided `value` is NOT valid, then `defaultKey` is returned.
 
 This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultKey` param.
+```ts
+EnumWrapper.prototype.getKeyOrDefault(
+    value: ValueType | null | undefined,
+    defaultKey?: KeyType | string
+): KeyType | string | undefined
+```
 
 ### Lookup Value by Key
 #### EnumWrapper.prototype.getValue
+Returns the value corresponding to the provided `key`.
+
+If the provided `key` is NOT valid, then an `Error` is thrown.
 ```ts
 EnumWrapper.prototype.getValue(
     key: string | null | undefined
 ): EnumType
 ```
-Returns the value corresponding to the provided `key`.
-
-If the provided `key` is NOT valid, then an `Error` is thrown.
 
 #### EnumWrapper.prototype.getValueOrDefault
+Returns the value corresponding to the provided `key`.
+
+If the provided `key` is NOT valid, then `defaultValue` is returned.
+
+This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultValue` param.
 ```ts
 EnumWrapper.prototype.getValueOrDefault(
     key: string | null | undefined,
     defaultValue?: EnumType | ValueType
 ): EnumType | ValueType | undefined
 ```
-Returns the value corresponding to the provided `key`.
-
-If the provided `key` is NOT valid, then `defaultValue` is returned.
-
-This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultValue` param.
 
