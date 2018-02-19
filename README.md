@@ -331,7 +331,6 @@ for (const value ofwrapped.values()) {
 - *ES5/ES6 Features*: The following ES5/ES6 features are used by `ts-enum-util`, so they must exist (either natively or via polyfill) in the run-time environment:
     - `Array.prototype.forEach`
     - `Array.prototype.map`
-    - `Array.from()`
     - `Map`
     - `Set`
     - `Symbol.iterator`
