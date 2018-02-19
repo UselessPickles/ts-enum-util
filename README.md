@@ -78,7 +78,7 @@ Strictly typed utilities for working with TypeScript enums.
 All of these utilities are very specifically typed for each enum via generics and type inference.
 
 ## Other TypeScript Enum Projects
-- `ts-string-visitor` [[github](#https://github.com/UselessPickles/ts-string-visitor), [npm](#https://www.npmjs.com/package/ts-string-visitor)] - Generic TypeScript Visitor and Mapper for String Enums and String Literal Union Types
+- `ts-string-visitor` ([github](#https://github.com/UselessPickles/ts-string-visitor), [npm](#https://www.npmjs.com/package/ts-string-visitor)) - Generic TypeScript Visitor and Mapper for String Enums and String Literal Union Types
 
 ## Installation
 Install via [NPM](https://www.npmjs.com/package/ts-enum-util):
