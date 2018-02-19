@@ -314,7 +314,13 @@ for (const value ofwrapped.values()) {
 ```
 
 ## Requirements
-- *ES6 Features*: The following ES6 features are used by `ts-enum-util`, so they must exist (either natively or via polyfill) in the run-time environment: `Array.from()`, `Map`, `Set`, `Symbol.iterator`.
+- *ES5/ES6 Features*: The following ES6/ES6 features are used by `ts-enum-util`, so they must exist (either natively or via polyfill) in the run-time environment:
+    - `Array.prototype.forEach`
+    - `Array.prototype.map`
+    - `Array.from()`
+    - `Map`
+    - `Set`
+    - `Symbol.iterator`
 
 ## Limitations
 - Does not work with enums that are merged with a namespace containing values (variables, functions, etc.), or otherwise have any additional properties added to the enum's runtime object.
