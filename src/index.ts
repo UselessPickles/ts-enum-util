@@ -376,9 +376,12 @@ export class EnumWrapper<
      */
     public getKeys(): (keyof T)[] {
         // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>.
-        return Array.prototype.map.call(this, (entry: EnumWrapper.Entry<V, T>) => {
-            return entry[0];
-        });
+        return Array.prototype.map.call(
+            this,
+            (entry: EnumWrapper.Entry<V, T>): keyof T => {
+                return entry[0];
+            }
+        );
     }
 
     /**
@@ -389,7 +392,8 @@ export class EnumWrapper<
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
-        return Array.prototype.map.call(this,
+        return Array.prototype.map.call(
+            this,
             (entry: EnumWrapper.Entry<V, T>): T[keyof T] => {
                 return entry[1];
             }
@@ -402,7 +406,8 @@ export class EnumWrapper<
      * @return A list of this enum's entries as [key, value] tuples.
      */
     public getEntries(): EnumWrapper.Entry<V, T>[] {
-        return Array.prototype.map.call(this,
+        return Array.prototype.map.call(
+            this,
             (entry: EnumWrapper.Entry<V, T>): EnumWrapper.Entry<V, T> => {
                 return [entry[0], entry[1]];
             }
@@ -874,5 +879,7 @@ export function $enum(enumObj: any, useCache: boolean = true): EnumWrapper {
  * @return True of the key is an integer index.
  */
 function isIntegerIndex(key: string): boolean {
+    // If after converting the key to an integer, then back to a string, the result is still
+    // the same as the original key, then the key is an integer index.
     return key === String(parseInt(key, 10));
 }
