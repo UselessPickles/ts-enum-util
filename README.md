@@ -436,7 +436,7 @@ type EnumWrapper.Iteratee = (
 ) => R
 ```
 
-A generic type alias for a function signature to be used in iteration methods. This is compliant with the signature of an iteratee for a `Map<KeyType, EnumType>.forEach()` method, except that it has an additional `index` param at the end of the parameter list.
+A generic type alias for a function signature to be used in iteration methods. This is compliant with the signature of an iteratee for a `Map<KeyType, EnumType>.forEach()` method, but also has an additional `index` param at the end of the parameter list.
 
 ### EnumWrapper.prototype.size
 ```ts
