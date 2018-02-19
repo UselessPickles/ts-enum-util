@@ -13,6 +13,7 @@ Strictly typed utilities for working with TypeScript enums.
 - [Installation](#installation)
 - [Usage Examples](#usage-examples)
     - [Basic setup for all examples](#basic-setup-for-all-examples)
+    - [Get an `EnumWrapper` instance for an enum](#get-an-enumwrapper-instance-for-an-enum)
     - [Get count of enum entries](#get-count-of-enum-entries)
     - [Get lists of enum data](#get-lists-of-enum-data)
     - [Lookup value by key](#lookup-value-by-key)
@@ -101,6 +102,15 @@ enum RGB {
     G = "g",
     B = "b"
 }
+```
+
+### Get an `EnumWrapper` instance for an enum
+Use the [$eunum](#enum) function to get an `EnumWrapper` instance for a particular enum.
+Read about how `EnumWrapper` instances are cached: [Caching](#caching).
+
+```ts
+// type: EnumWrapper<string, RGB>
+const wrappedRgb = $enum(RGB);
 ```
 
 ### Get count of enum entries
@@ -360,7 +370,7 @@ const values = $enum(ABC).getValues();
 ### Caching
 By default, `EnumWrapper` instances are cached for quick subsequent retrieval via the [$enum](#enum) function.
 
-The reasoning behind this is that enums are static constructs. A given project will have a relatively small finite number of enums that never change during execution. The combination of caching and the simple [$enum](#enum) function allows you to obtain an `EnumWrapper` instance conveniently whenever you need it, without worrying about maintaining a reference to it. Of course, it's still good practice to store a reference to the `EnumWrapper` within certain code contexts where you heavily use a particular enum's wrapper.
+The reasoning behind this is that enums are static constructs. A given project will have a relatively small finite number of enums that never change during execution. The combination of caching and the simple [$enum](#enum) function allows you to obtain an `EnumWrapper` instance conveniently whenever you need it, without worrying about maintaining a global reference to it. Of course, it's still good practice to at least temporarily store a reference to the `EnumWrapper` instance within certain code contexts where you heavily use a particular enum's wrapper.
 
 Consider explicitly avoiding caching (via an optional param to `$enum`) if you are using `ts-enum-util` to work with an ad-hoc dynamically generated "enum-like" object that is specific to a particular function execution, class instance, etc.. This is useful to avoid cluttering the cache and unnecessarily occupying memory with an `EnumWrapper` that will never be retrieved from the cache.
 
@@ -386,7 +396,7 @@ function $enum(
     useCache: boolean = true
 ): EnumWrapper
 ```
-- `useCache` - False to prevent caching of the result.
+- `useCache` - False to force a new instance of `EnumWrapper` to be created and returned without any caching.
 
 This is where it all begins. Pass an "enum-like" object to this method and it returns an [EnumWrapper](#enum-wrapper-1) instance that provides useful utilities for that "enum-like" object.
 
