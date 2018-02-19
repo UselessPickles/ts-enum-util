@@ -210,6 +210,7 @@ export class EnumWrapper<
         this.keySet.forEach((key) => {
             const value = enumObj[key];
             this.keysByValueMap.set(value, key);
+            // type casting necessary to bypass readonly index signature for initialization
             (this as any as EnumWrapper.Entry<V, T>[])[index] = [key, value];
             ++index;
         });
@@ -272,9 +273,12 @@ export class EnumWrapper<
 
         return {
             next: (): IteratorResult<T[keyof T]> => {
+                const isDone = index >= this.length;
                 const result = {
-                    done: index >= this.length,
-                    value: this[index] && this[index][1]
+                    done: isDone,
+                    // "as any" cast is necessary to work around this bug:
+                    // https://github.com/Microsoft/TypeScript/issues/11375
+                    value: isDone ? undefined as any : this[index][1]
                 };
 
                 ++index;
@@ -300,7 +304,6 @@ export class EnumWrapper<
             next: () => {
                 const isDone = index >= this.length;
                 const entry = this[index];
-
                 const result: IteratorResult<EnumWrapper.Entry<V, T>> = {
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
@@ -386,9 +389,11 @@ export class EnumWrapper<
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
-        return Array.prototype.map.call(this, (entry: EnumWrapper.Entry<V, T>) => {
-            return entry[1];
-        });
+        return Array.prototype.map.call(this,
+            (entry: EnumWrapper.Entry<V, T>): T[keyof T] => {
+                return entry[1];
+            }
+        );
     }
 
     /**
@@ -397,9 +402,11 @@ export class EnumWrapper<
      * @return A list of this enum's entries as [key, value] tuples.
      */
     public getEntries(): EnumWrapper.Entry<V, T>[] {
-        return Array.prototype.map.call(this, (entry: EnumWrapper.Entry<V, T>) => {
-            return [entry[0], entry[1]];
-        });
+        return Array.prototype.map.call(this,
+            (entry: EnumWrapper.Entry<V, T>): EnumWrapper.Entry<V, T> => {
+                return [entry[0], entry[1]];
+            }
+        );
     }
 
     /**
@@ -468,7 +475,7 @@ export class EnumWrapper<
      */
     public asKeyOrDefault(key: string | null | undefined, defaultKey?: keyof T | string): string | undefined {
         if (this.isKey(key)) {
-            // type cast require to work around TypeScript bug:
+            // type cast required to work around TypeScript bug:
             // https://github.com/Microsoft/TypeScript/issues/21950
             return key as keyof T;
         } else {
@@ -670,7 +677,7 @@ export class EnumWrapper<
      */
     public getValueOrDefault(key: string | null | undefined, defaultValue?: T[keyof T] | V): V | undefined {
         if (this.isKey(key)) {
-            // type cast require to work around TypeScript bug:
+            // type cast required to work around TypeScript bug:
             // https://github.com/Microsoft/TypeScript/issues/21950
             return this.enumObj[key as keyof T];
         } else {
@@ -694,7 +701,7 @@ export namespace EnumWrapper {
      * A function used in iterating all key/value entries in an enum.
      * @param value - An enum value.
      * @param key - An enum key.
-     * @param enumObj - The enum-like object that the key/value entrie belongs to.
+     * @param enumWrapper - The EnumWrapper instance being iterated..
      * @param index - The index of the enum entry, based on sorted order of keys.
      * @return A result. The significance of the result depends on the type of iteration being performed.
      *
