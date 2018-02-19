@@ -245,19 +245,23 @@ const value3 = $enum(RGB).asValueOrDefault(str, RGB.G);
 See also:
 - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 ```ts
+const wrappedRgb = $enum(RGB);
+
 // iterate all entries in the enum
-$enum(RGB).forEach((value, key, rgbRef) => {
+wrappedRgb.forEach((value, key, wrappedEnum, index) => {
     // type of value is RGB
     // type of key is ("R" | "G" | "B")
-    // rgbRef is a reference to RGB object, type is (typeof RBG)
+    // wrappedEnum is a reference to wrappedRgb
+    // index is based on sorted key order
 });
 
 // Convert all entries of the enum to an array of mapped values
 // value: ["R: r", "G: g", "B: b"]
-const mapped = $enum(RGB).map((value, key, rgbRef) => {
+const mapped = wrappedRgb.map((value, key, wrappedEnum, index) => {
     // type of value is RGB
     // type of key is ("R" | "G" | "B")
-    // rgbRef is a reference to RGB object, type is (typeof RBG)
+    // wrappedEnum is a reference to wrappedRgb
+    // index is based on sorted key order
     return `${key}: ${value}`;
 });
 ```
@@ -421,12 +425,12 @@ A generic type alias for a tuple containing a key and value pair, representing a
 type EnumWrapper.Iteratee = (
     value: EnumType,
     key: KeyType,
-    enumObj: EnumLike,
+    enumWrapper: EnumWrapper,
     index: number
 ) => R
 ```
 
-A generic type alias for a function signature to be used in iteration methods.
+A generic type alias for a function signature to be used in iteration methods. This is compliant with the signature of an iteratee for a `Map<KeyType, EnumType>.forEach()` method, except that it has an additional `index` param at the end of the parameter list.
 
 ### EnumWrapper.prototype.size
 ```ts

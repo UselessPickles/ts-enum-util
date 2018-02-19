@@ -341,7 +341,7 @@ export class EnumWrapper<
         Array.prototype.forEach.call(
             this,
             (entry: EnumWrapper.Entry<V, T>, index: number): void => {
-                iteratee.call(context, entry[1], entry[0], this.enumObj, index);
+                iteratee.call(context, entry[1], entry[0], this, index);
             }
         );
     }
@@ -361,7 +361,7 @@ export class EnumWrapper<
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>, index: number): R => {
-                return iteratee.call(context, entry[1], entry[0], this.enumObj, index);
+                return iteratee.call(context, entry[1], entry[0], this, index);
             }
         );
     }
@@ -706,7 +706,7 @@ export namespace EnumWrapper {
         R = any,
         V extends number | string = number | string,
         T extends EnumLike<V, keyof T> = any
-    > = (this: any, value: V, key: keyof T, enumObj: T, index: number) => R;
+    > = (this: any, value: V, key: keyof T, enumWrapper: EnumWrapper<V, T>, index: number) => R;
 }
 
 /**
