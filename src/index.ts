@@ -713,7 +713,7 @@ export namespace EnumWrapper {
         R = any,
         V extends number | string = number | string,
         T extends EnumLike<V, keyof T> = any
-    > = (this: any, value: V, key: keyof T, enumWrapper: EnumWrapper<V, T>, index: number) => R;
+    > = (this: any, value: T[keyof T], key: keyof T, enumWrapper: EnumWrapper<V, T>, index: number) => R;
 }
 
 /**
