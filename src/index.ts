@@ -199,7 +199,10 @@ export class EnumWrapper<
                 // This is necessary to ignore the reverse-lookup entries that are automatically added
                 // by TypeScript to numeric enums.
                 .filter(
-                    (key) => !isIntegerIndex(key)
+                    // If after converting the key to an integer, then back to a string, the result is different
+                    // than the original key, then the key is NOT an integer index.
+                    // See ECMAScript spec section 15.4: http://www.ecma-international.org/ecma-262/5.1/#sec-15.4
+                    (key) => key !== String(parseInt(key, 10))
                 )
                 // Order of Object.keys() is implementation-dependent, so sort the keys to guarantee
                 // a consistent order for iteration.
@@ -865,16 +868,4 @@ export function $enum(enumObj: any, useCache: boolean = true): EnumWrapper {
     } else {
         return EnumWrapper.createUncachedInstance(enumObj);
     }
-}
-
-/**
- * Test if an object key is an integer (array) index, according to ECMAScript specification
- * section 15.4: http://www.ecma-international.org/ecma-262/5.1/#sec-15.4
- * @param key - An object key.
- * @return True of the key is an integer index.
- */
-function isIntegerIndex(key: string): boolean {
-    // If after converting the key to an integer, then back to a string, the result is still
-    // the same as the original key, then the key is an integer index.
-    return key === String(parseInt(key, 10));
 }
