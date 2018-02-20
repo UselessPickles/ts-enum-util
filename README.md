@@ -285,6 +285,7 @@ const mapped = wrappedRgb.map((value, key, wrappedEnum, index) => {
 A wrapped enum can be treated like an array of enum "entry" tuples.
 
 See also:
+- [Array-Like Interface](#array-like-interface)
 - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 ```ts
 const wrappedRgb = $enum(RGB);
@@ -299,9 +300,10 @@ const entry = wrappedRgb[1];
 ```
 
 ### Wrapped enums are Map-Like
-A wrapped enum is effectively a read-only `Map` of enum "entry" tuples.
+A wrapped enum is similar to a read-only `Map` of enum "entry" tuples.
 
 See also:
+- [Map-Like Interface](#map-like-interface)
 - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 ```ts
 const wrappedRgb = $enum(RGB);
