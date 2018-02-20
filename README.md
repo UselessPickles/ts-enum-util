@@ -179,7 +179,7 @@ const value3 = $enum(RGB).getValueOrDefault("blah");
 
 // type: RGB
 // value: "r"
-const value4 = $enum(RGB).getValueOrDefault("blah", "R");
+const value4 = $enum(RGB).getValueOrDefault("blah", RGB.R);
 
 // type: string
 // value: "BLAH!"
