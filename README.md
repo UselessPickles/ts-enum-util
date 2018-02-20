@@ -373,7 +373,7 @@ A subset of `EnumWrapper`'s interface overlaps with much of the ES6 `Map` interf
 * [forEach](#enumwrapperprototypeforeach) method.
 * [@@iterator](#enumwrapperprototypeiterator) method (`EnumWrapper` is iterable!).
 
-NOTE: The `Map` interface's `has()` and `get()` methods are intentionally NOT implemented in the interest of clarity and consistency of naming with respect to other `EnumWrapper`-specific methods. The equivalent methods are [isKey](#enumwrapperprototypeiskey) and [getValueOrDefault](#enumwrapperprototypeiskey) (with second param omitted).
+NOTE: The `Map` interface's `has()` and `get()` methods are intentionally NOT implemented in the interest of clarity and consistency of naming with respect to other `EnumWrapper`-specific methods. The equivalent methods are [isKey](#enumwrapperprototypeiskey) and [getValueOrDefault](#enumwrapperprototypegetvalueordefault) (with second param omitted).
 
 ### Array-Like Interface
 `EnumWrapper` implements the `ArrayLike` interface. It is usable as a readonly array of [EnumWrapper.Entry](#enumwrapperentry). This allows you to pass an `EnumWrapper` instance to any method that is designed read/iterate an array-like value, such as most of [lodash](#https://lodash.com/)'s methods for collections and arrays.
