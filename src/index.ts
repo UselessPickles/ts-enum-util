@@ -286,7 +286,7 @@ export class EnumWrapper<
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
-                    // Creating a defensive copy of the entry
+                    // Create a defensive copy of the entry
                     value: isDone ? undefined as any : [entry[0], entry[1]]
                 };
 
@@ -319,6 +319,8 @@ export class EnumWrapper<
      * @param context - If provided, then the iteratee will be called with the context as its "this" value.
      */
     public forEach(iteratee: EnumWrapper.Iteratee<void, V, T>, context?: any): void {
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         Array.prototype.forEach.call(
             this,
             (entry: EnumWrapper.Entry<V, T>, index: number): void => {
@@ -339,6 +341,8 @@ export class EnumWrapper<
      * @template R - The of the mapped result for each entry.
      */
     public map<R>(iteratee: EnumWrapper.Iteratee<R, V, T>, context?: any): R[] {
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>, index: number): R => {
@@ -353,7 +357,8 @@ export class EnumWrapper<
      * @return A list of this enum's keys.
      */
     public getKeys(): (keyof T)[] {
-        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>.
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>): keyof T => {
@@ -370,6 +375,8 @@ export class EnumWrapper<
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>): T[keyof T] => {
@@ -384,9 +391,12 @@ export class EnumWrapper<
      * @return A list of this enum's entries as [key, value] tuples.
      */
     public getEntries(): EnumWrapper.Entry<V, T>[] {
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>): EnumWrapper.Entry<V, T> => {
+                // Create a defensive copy of the entry
                 return [entry[0], entry[1]];
             }
         );
