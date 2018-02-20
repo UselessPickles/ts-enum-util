@@ -199,7 +199,10 @@ export class EnumWrapper<
                 // This is necessary to ignore the reverse-lookup entries that are automatically added
                 // by TypeScript to numeric enums.
                 .filter(
-                    (key) => !isIntegerIndex(key)
+                    // If after converting the key to an integer, then back to a string, the result is different
+                    // than the original key, then the key is NOT an integer index.
+                    // See ECMAScript spec section 15.4: http://www.ecma-international.org/ecma-262/5.1/#sec-15.4
+                    (key) => key !== String(parseInt(key, 10))
                 )
                 // Order of Object.keys() is implementation-dependent, so sort the keys to guarantee
                 // a consistent order for iteration.
@@ -223,31 +226,6 @@ export class EnumWrapper<
      */
     public toString(): string {
         return "[object EnumWrapper]";
-    }
-
-    /**
-     * Gets the enum value for the provided key.
-     * Returns undefined if the provided key is invalid.
-     * This is an alias for {@link EnumWrapper#getValueOrDefault} for the purpose
-     * of implementing a Map-like interface.
-     * @param key - A potential key value for this enum.
-     * @return The enum value for the provided key.
-     *         Returns undefined if the provided key is invalid.
-     */
-    public get(key: string | null | undefined): T[keyof T] | undefined {
-        return this.getValueOrDefault(key, undefined);
-    }
-
-    /**
-     * Tests if the provided string is actually a valid key for this enum
-     * Acts as a type guard to confirm that the provided value is actually the enum key type.
-     * This is an alias for {@link EnumWrapper#isKey} for the purpose
-     * of implementing a Map-like interface.
-     * @param key - A potential key value for this enum.
-     * @return True if the provided key is a valid key for this enum.
-     */
-    public has(key: string | null | undefined): key is keyof T {
-        return this.isKey(key);
     }
 
     /**
@@ -308,7 +286,7 @@ export class EnumWrapper<
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
-                    // Creating a defensive copy of the entry
+                    // Create a defensive copy of the entry
                     value: isDone ? undefined as any : [entry[0], entry[1]]
                 };
 
@@ -341,6 +319,8 @@ export class EnumWrapper<
      * @param context - If provided, then the iteratee will be called with the context as its "this" value.
      */
     public forEach(iteratee: EnumWrapper.Iteratee<void, V, T>, context?: any): void {
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         Array.prototype.forEach.call(
             this,
             (entry: EnumWrapper.Entry<V, T>, index: number): void => {
@@ -361,6 +341,8 @@ export class EnumWrapper<
      * @template R - The of the mapped result for each entry.
      */
     public map<R>(iteratee: EnumWrapper.Iteratee<R, V, T>, context?: any): R[] {
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>, index: number): R => {
@@ -375,7 +357,8 @@ export class EnumWrapper<
      * @return A list of this enum's keys.
      */
     public getKeys(): (keyof T)[] {
-        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>.
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>): keyof T => {
@@ -392,6 +375,8 @@ export class EnumWrapper<
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>): T[keyof T] => {
@@ -406,9 +391,12 @@ export class EnumWrapper<
      * @return A list of this enum's entries as [key, value] tuples.
      */
     public getEntries(): EnumWrapper.Entry<V, T>[] {
+        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
+        // non-mutating Array.prototype methods on it.
         return Array.prototype.map.call(
             this,
             (entry: EnumWrapper.Entry<V, T>): EnumWrapper.Entry<V, T> => {
+                // Create a defensive copy of the entry
                 return [entry[0], entry[1]];
             }
         );
@@ -431,7 +419,7 @@ export class EnumWrapper<
      * @return The provided key value, cast to the type of this enum's keys.
      * @throws {Error} if the provided string is not a valid key for this enum.
      */
-    public asKey(key: string | null | undefined): keyof T {
+    public asKeyOrThrow(key: string | null | undefined): keyof T {
         if (this.isKey(key)) {
             return key;
         } else {
@@ -443,6 +431,7 @@ export class EnumWrapper<
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultKey - The key to be returned if the provided key is invalid.
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
@@ -451,6 +440,7 @@ export class EnumWrapper<
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultKey - The key to be returned if the provided key is invalid.
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
@@ -459,6 +449,7 @@ export class EnumWrapper<
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultKey - The key to be returned if the provided key is invalid.
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
@@ -467,6 +458,7 @@ export class EnumWrapper<
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultKey - The key to be returned if the provided key is invalid.
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
@@ -475,6 +467,7 @@ export class EnumWrapper<
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultKey - The key to be returned if the provided key is invalid.
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
@@ -505,7 +498,7 @@ export class EnumWrapper<
      * @return The provided value, cast to the type of this enum's values.
      * @throws {Error} if the provided value is not a valid value for this enum.
      */
-    public asValue(value: V | null | undefined): T[keyof T] {
+    public asValueOrThrow(value: V | null | undefined): T[keyof T] {
         if (this.isValue(value)) {
             return value;
         } else {
@@ -517,6 +510,7 @@ export class EnumWrapper<
      * Casts a value to a properly-typed value for this enum.
      * Returns a default value if the provided value is invalid.
      * @param value - A potential value for this enum.
+     * @param defaultValue - The value to be returned if the provided value is invalid.
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
@@ -525,6 +519,7 @@ export class EnumWrapper<
      * Casts a value to a properly-typed value for this enum.
      * Returns a default value if the provided value is invalid.
      * @param value - A potential value for this enum.
+     * @param defaultValue - The value to be returned if the provided value is invalid.
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
@@ -533,6 +528,7 @@ export class EnumWrapper<
      * Casts a value to a properly-typed value for this enum.
      * Returns a default value if the provided value is invalid.
      * @param value - A potential value for this enum.
+     * @param defaultValue - The value to be returned if the provided value is invalid.
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
@@ -541,6 +537,7 @@ export class EnumWrapper<
      * Casts a value to a properly-typed value for this enum.
      * Returns a default value if the provided value is invalid.
      * @param value - A potential value for this enum.
+     * @param defaultValue - The value to be returned if the provided value is invalid.
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
@@ -549,6 +546,7 @@ export class EnumWrapper<
      * Casts a value to a properly-typed value for this enum.
      * Returns a default value if the provided value is invalid.
      * @param value - A potential value for this enum.
+     * @param defaultValue - The value to be returned if the provided value is invalid.
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
@@ -569,8 +567,8 @@ export class EnumWrapper<
      * @return The key for the provided value.
      * @throws {Error} if the provided value is not a valid value for this enum.
      */
-    public getKey(value: V | null | undefined): keyof T {
-        return this.keysByValueMap.get(this.asValue(value));
+    public getKeyOrThrow(value: V | null | undefined): keyof T {
+        return this.keysByValueMap.get(this.asValueOrThrow(value));
     }
 
     /**
@@ -579,6 +577,7 @@ export class EnumWrapper<
      * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
      *       arbitrarily returned.
      * @param value - A potential value for this enum.
+     * @param defaultKey - The key to be returned if the provided value is invalid.
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
@@ -589,6 +588,7 @@ export class EnumWrapper<
      * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
      *       arbitrarily returned.
      * @param value - A potential value for this enum.
+     * @param defaultKey - The key to be returned if the provided value is invalid.
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
@@ -599,6 +599,7 @@ export class EnumWrapper<
      * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
      *       arbitrarily returned.
      * @param value - A potential value for this enum.
+     * @param defaultKey - The key to be returned if the provided value is invalid.
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
@@ -609,6 +610,7 @@ export class EnumWrapper<
      * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
      *       arbitrarily returned.
      * @param value - A potential value for this enum.
+     * @param defaultKey - The key to be returned if the provided value is invalid.
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
@@ -619,6 +621,7 @@ export class EnumWrapper<
      * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
      *       arbitrarily returned.
      * @param value - A potential value for this enum.
+     * @param defaultKey - The key to be returned if the provided value is invalid.
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
@@ -637,14 +640,15 @@ export class EnumWrapper<
      * @return The enum value for the provided key.
      * @throws {Error} if the provided string is not a valid key for this enum.
      */
-    public getValue(key: string | null | undefined): T[keyof T] {
-        return this.enumObj[this.asKey(key)];
+    public getValueOrThrow(key: string | null | undefined): T[keyof T] {
+        return this.enumObj[this.asKeyOrThrow(key)];
     }
 
     /**
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultValue - The value to be returned if the provided key is invalid.
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
@@ -653,6 +657,7 @@ export class EnumWrapper<
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultValue - The value to be returned if the provided key is invalid.
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
@@ -661,6 +666,7 @@ export class EnumWrapper<
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultValue - The value to be returned if the provided key is invalid.
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
@@ -669,6 +675,7 @@ export class EnumWrapper<
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultValue - The value to be returned if the provided key is invalid.
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
@@ -677,6 +684,7 @@ export class EnumWrapper<
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
      * @param key - A potential key value for this enum.
+     * @param defaultValue - The value to be returned if the provided key is invalid.
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
@@ -699,7 +707,7 @@ export namespace EnumWrapper {
      */
     export type Entry<
         V extends number | string = number | string,
-        T extends EnumLike<V, keyof T> = any,
+        T extends EnumLike<V, keyof T> = any
     > = Readonly<[keyof T, T[keyof T]]>;
 
     /**
@@ -727,7 +735,7 @@ export namespace EnumWrapper {
  * @template T - Type of an enum-like object that contains only number values.
  */
 export type NumberEnumWrapper<
-    T extends EnumLike<number, keyof T> = any,
+    T extends EnumLike<number, keyof T> = any
 > = EnumWrapper<number, any>;
 
 export namespace NumberEnumWrapper {
@@ -737,7 +745,7 @@ export namespace NumberEnumWrapper {
      * @template T - Type of an enum-like object that contains only number values.
      */
     export type Entry<
-        T extends EnumLike<number, keyof T> = any,
+        T extends EnumLike<number, keyof T> = any
     > = EnumWrapper.Entry<number, T>;
 
     /**
@@ -758,7 +766,7 @@ export namespace NumberEnumWrapper {
  * @template T - Type of an enum-like object that contains only string values.
  */
 export type StringEnumWrapper<
-    T extends EnumLike<string, keyof T> = any,
+    T extends EnumLike<string, keyof T> = any
 > = EnumWrapper<string, any>;
 
 export namespace StringEnumWrapper {
@@ -768,7 +776,7 @@ export namespace StringEnumWrapper {
      * @template T - Type of an enum-like object that contains only string values.
      */
     export type Entry<
-        T extends EnumLike<string, keyof T> = any,
+        T extends EnumLike<string, keyof T> = any
     > = EnumWrapper.Entry<string, T>;
 
     /**
@@ -790,7 +798,7 @@ export namespace StringEnumWrapper {
  * @template T - Type of an enum-like object that contains a mix of number and string values.
  */
 export type MixedEnumWrapper<
-    T extends EnumLike<number | string, keyof T> = any,
+    T extends EnumLike<number | string, keyof T> = any
 > = EnumWrapper<number | string, any>;
 
 export namespace MixedEnumWrapper {
@@ -801,7 +809,7 @@ export namespace MixedEnumWrapper {
      * @template T - Type of an enum-like object that contains a mix of number and string values.
      */
     export type Entry<
-        T extends EnumLike<number | string, keyof T> = any,
+        T extends EnumLike<number | string, keyof T> = any
     > = EnumWrapper.Entry<number | string, T>;
 
     /**
@@ -820,7 +828,7 @@ export namespace MixedEnumWrapper {
 /**
  * Convenience function for getting/creating an {@link EnumWrapper} instance.
  * This is a short-hand way of calling {@link EnumWrapper.getCachedInstance}.
- * or {@link EnumWrapper.createUnachedInstance}.
+ * or {@link EnumWrapper.createUncachedInstance}.
  * @param enumObj - An enum-like object with number values.
  * @param useCache - If true, then a cached instance is created and/or returned.
  * @return A new or cached instance of EnumWrapper for the provided enumObj.
@@ -833,7 +841,7 @@ export function $enum<T extends EnumLike<number, keyof T>>(
 /**
  * Convenience function for getting/creating an {@link EnumWrapper} instance.
  * This is a short-hand way of calling {@link EnumWrapper.getCachedInstance}.
- * or {@link EnumWrapper.createUnachedInstance}.
+ * or {@link EnumWrapper.createUncachedInstance}.
  * @param enumObj - An enum-like object with string values.
  * @param useCache - If true, then a cached instance is created and/or returned.
  * @return A new or cached instance of EnumWrapper for the provided enumObj.
@@ -846,7 +854,7 @@ export function $enum<T extends EnumLike<string, keyof T>>(
 /**
  * Convenience function for getting/creating an {@link EnumWrapper} instance.
  * This is a short-hand way of calling {@link EnumWrapper.getCachedInstance}.
- * or {@link EnumWrapper.createUnachedInstance}.
+ * or {@link EnumWrapper.createUncachedInstance}.
  * @param enumObj - An enum-like object with a mixture of number and string values.
  * @param useCache - If true, then a cached instance is created and/or returned.
  * @return A new or cached instance of EnumWrapper for the provided enumObj.
@@ -859,7 +867,7 @@ export function $enum<T extends EnumLike<number | string, keyof T>>(
 /**
  * Convenience function for getting/creating an {@link EnumWrapper} instance.
  * This is a short-hand way of calling {@link EnumWrapper.getCachedInstance}.
- * or {@link EnumWrapper.createUnachedInstance}.
+ * or {@link EnumWrapper.createUncachedInstance}.
  * @param enumObj - An enum-like object.
  * @param useCache - If true, then a cached instance is created and/or returned.
  * @return A new or cached instance of EnumWrapper for the provided enumObj.
@@ -870,16 +878,4 @@ export function $enum(enumObj: any, useCache: boolean = true): EnumWrapper {
     } else {
         return EnumWrapper.createUncachedInstance(enumObj);
     }
-}
-
-/**
- * Test if an object key is an integer (array) index, according to ECMAScript specification
- * section 15.4: http://www.ecma-international.org/ecma-262/5.1/#sec-15.4
- * @param key - An object key.
- * @return True of the key is an integer index.
- */
-function isIntegerIndex(key: string): boolean {
-    // If after converting the key to an integer, then back to a string, the result is still
-    // the same as the original key, then the key is an integer index.
-    return key === String(parseInt(key, 10));
 }
