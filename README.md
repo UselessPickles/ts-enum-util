@@ -46,14 +46,13 @@ Strictly typed utilities for working with TypeScript enums.
         - [EnumWrapper.prototype.[index]](#enumwrapperprototypeindex)
     - [Map-Like Interface](#map-like-interface-1)
         - [EnumWrapper.prototype.size](#enumwrapperprototypesize)
-        - [EnumWrapper.prototype.get](#enumwrapperprototypeget)
-        - [EnumWrapper.prototype.has](#enumwrapperprototypehas)
         - [EnumWrapper.prototype.keys](#enumwrapperprototypekeys)
         - [EnumWrapper.prototype.values](#enumwrapperprototypevalues)
         - [EnumWrapper.prototype.entries](#enumwrapperprototypeentries)
         - [EnumWrapper.prototype.@@iterator](#enumwrapperprototypeiterator)
-    - [Iteration](#iteration)
         - [EnumWrapper.prototype.forEach](#enumwrapperprototypeforeach)
+    - [Iteration](#iteration)
+        - [EnumWrapper.prototype.forEach](#enumwrapperprototypeforeach-1)
         - [EnumWrapper.prototype.map](#enumwrapperprototypemap)
     - [Get Arrays of Enum Data](#get-arrays-of-enum-data)
         - [EnumWrapper.prototype.getKeys](#enumwrapperprototypegetkeys)
@@ -61,17 +60,17 @@ Strictly typed utilities for working with TypeScript enums.
         - [EnumWrapper.prototype.getEntries](#enumwrapperprototypegetentries)
     - [Key Validation/Typecasting](#key-validationtypecasting)
         - [EnumWrapper.prototype.isKey](#enumwrapperprototypeiskey)
-        - [EnumWrapper.prototype.asKey](#enumwrapperprototypeaskey)
+        - [EnumWrapper.prototype.asKeyOrThrow](#enumwrapperprototypeaskeyorthrow)
         - [EnumWrapper.prototype.asKeyOrDefault](#enumwrapperprototypeaskeyordefault)
     - [Value Validation/Typecasting](#value-validationtypecasting)
         - [EnumWrapper.prototype.isValue](#enumwrapperprototypeisvalue)
-        - [EnumWrapper.prototype.asValue](#enumwrapperprototypeasvalue)
+        - [EnumWrapper.prototype.asValueOrThrow](#enumwrapperprototypeasvalueorthrow)
         - [EnumWrapper.prototype.asValueOrDefault](#enumwrapperprototypeasvalueordefault)
     - [Lookup Key by Value](#lookup-key-by-value)
-        - [EnumWrapper.prototype.getKey](#enumwrapperprototypegetkey)
+        - [EnumWrapper.prototype.getKeyOrThrow](#enumwrapperprototypegetkeyorthrow)
         - [EnumWrapper.prototype.getKeyOrDefault](#enumwrapperprototypegetkeyordefault)
     - [Lookup Value by Key](#lookup-value-by-key)
-        - [EnumWrapper.prototype.getValue](#enumwrapperprototypegetvalue)
+        - [EnumWrapper.prototype.getValueOrThrow](#enumwrapperprototypegetvalueorthrow)
         - [EnumWrapper.prototype.getValueOrDefault](#enumwrapperprototypegetvalueordefault)
 
 <!-- /TOC -->
@@ -132,10 +131,12 @@ See also:
 - [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
 - [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 ```ts
+// Part of the Map-like interface implementation
 // type: number
 // value: 3
 const size = $enum(RGB).size;
 
+// Part of the Array-like interface implementation
 // type: number
 // value: 3
 const length = $enum(RGB).length;
@@ -167,10 +168,10 @@ See also:
 ```ts
 // type: RGB
 // value: "g"
-const value1 = $enum(RGB).getValue("G");
+const value1 = $enum(RGB).getValueOrThrow("G");
 
 // throws: Error("Unexpected value: blah. Expected one of: R,G,B")
-const value2 = $enum(RGB).getValue("blah");
+const value2 = $enum(RGB).getValueOrThrow("blah");
 
 // type: RGB | undefined
 // value: undefined
@@ -189,10 +190,10 @@ const value5 = $enum(RGB).getValueOrDefault("blah", "BLAH!");
 ```ts
 // type: ("R" | "G" | "B")
 // value: "G"
-const key1 = $enum(RGB).getKey("g");
+const key1 = $enum(RGB).getKeyOrThrow("g");
 
 // throws: Error("Unexpected value: blah. Expected one of: r,g,b")
-const key2 = $enum(RGB).getKey("blah");
+const key2 = $enum(RGB).getKeyOrThrow("blah");
 
 // type: ("R" | "G" | "B") | undefined
 // value: undefined
@@ -220,7 +221,7 @@ if($enum(RGB).isKey(str)) {
 
 // type: ("R" | "G" | "B")
 // throws error if 'str' is not a valid key for RGB
-const key1 = $enum(RGB).asKey(str);
+const key1 = $enum(RGB).asKeyOrThrow(str);
 
 // type: ("R" | "G" | "B") | undefined
 // value is undefined if 'str' is not a valid key for RGB
@@ -244,7 +245,7 @@ if($enum(RGB).isValue(str)) {
 
 // type: RGB
 // throws error if 'str' is not a valid value for RGB
-const value1 = $enum(RGB).asValue(str);
+const value1 = $enum(RGB).asValueOrThrow(str);
 
 // type: RGB | undefined
 // value is undefined if 'str' is not a valid value for RGB
@@ -286,15 +287,15 @@ A wrapped enum can be treated like an array of enum "entry" tuples.
 See also:
 - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 ```ts
-const wrapped = $enum(RGB);
+const wrappedRgb = $enum(RGB);
 
 // type: number
 // value: 3
-const length = wrapped.length;
+const length = wrappedRgb.length;
 
 // type: [("R" | "G" | "B"), RGB]
 // value: ["G", "g"]
-const entry = wrapped[1];
+const entry = wrappedRgb[1];
 ```
 
 ### Wrapped enums are Map-Like
@@ -303,28 +304,33 @@ A wrapped enum is effectively a read-only `Map` of enum "entry" tuples.
 See also:
 - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 ```ts
-const wrapped = $enum(RGB);
+const wrappedRgb = $enum(RGB);
 
 // type: number
 // value: 3
-const size = wrapped.size;
+const size = wrappedRgb.size;
 
-// type: RGB | undefined
-// value: "r"
-const value = wrapped.get("R");
-
-for (const [key, value] of wrapped) {
+// EnumWrapper is directly iterable like a Map
+for (const [key, value] of wrappedRgb) {
     // type of key: ("R" | "G" | "B")
     // type of value: RGB
 }
 
-for (const key of wrapped.keys()) {
+for (const key of wrappedRgb.keys()) {
     // type of key: ("R" | "G" | "B")
 }
 
-for (const value ofwrapped.values()) {
+for (const value of wrappedRgb.values()) {
     // type of value: RGB
 }
+
+wrappedRgb.forEach((value, key, wrappedEnum, index) => {
+    // type of value is RGB
+    // type of key is ("R" | "G" | "B")
+    // wrappedEnum is a reference to wrappedRgb
+    // index is based on sorted key order
+    // NOTE: index param is extra compared to Map's forEach
+});
 ```
 
 ## Requirements
@@ -359,12 +365,13 @@ For example, when obtaining a key or keys from an `EnumWrapper`, the data type w
 This helps maximize the usefulness of `ts-enum-util` by making it compatible with other strictly typed code related to enums.
 
 ### Map-Like Interface
-A subset of `EnumWrapper`'s interface overlaps with much of the ES6 `Map` interface. `EnumWrapper` is effectively a read-only `Map` of enum values, keyed by the enum names. The following Map-like features are implemented:
+A subset of `EnumWrapper`'s interface overlaps with much of the ES6 `Map` interface. `EnumWrapper` is similar to a read-only `Map` of enum values, keyed by the enum names. The following Map-like features are implemented:
 * [size](#enumwrapperprototypesize) property.
-* [has](#enumwrapperprototypehas) and [get](#enumwrapperprototypeget) methods.
 * [keys](#enumwrapperprototypekeys), [values](#enumwrapperprototypevalues), and [entries](#enumwrapperprototypeentries) methods.
 * [forEach](#enumwrapperprototypeforeach) method.
 * [@@iterator](#enumwrapperprototypeiterator) method (`EnumWrapper` is iterable!).
+
+NOTE: The `Map` interface's `has()` and `get()` methods are intentionally NOT implemented in the interest of clarity and consistency of naming with respect to other `EnumWrapper`-specific methods. The equivalent methods are [isKey](#enumwrapperprototypeiskey) and [getValueOrDefault](#enumwrapperprototypeiskey) (with second param omitted).
 
 ### Array-Like Interface
 `EnumWrapper` implements the `ArrayLike` interface. It is usable as a readonly array of [EnumWrapper.Entry](#enumwrapperentry). This allows you to pass an `EnumWrapper` instance to any method that is designed read/iterate an array-like value, such as most of [lodash](#https://lodash.com/)'s methods for collections and arrays.
@@ -479,26 +486,6 @@ A read-only property containing the number of entries in the enum.
 readonly EnumWrapper.prototype.size: number
 ```
 
-#### EnumWrapper.prototype.get
-Returns the enum value for the specified `key`.
-
-If the `key` is invalid for the enum, then `undefined` is returned.
-```ts
-EnumWrapper.prototype.get(
-    key: string | null | undefined
-): EnumType | undefined
-```
-
-#### EnumWrapper.prototype.has
-Returns `true` if the provided `key` is a valid key for the enum.
-
-Also acts as a type guard to tell the compiler that the provided `key` is the more specific `KeyType` type.
-```ts
-EnumWrapper.prototype.has(
-    key: string | null | undefined
-): key is KeyType
-```
-
 #### EnumWrapper.prototype.keys
 Returns an `Iterator` that will iterate all keys of the enum.
 
@@ -531,7 +518,6 @@ Allows an `EnumWrapper` to be directly iterated as a collection of `[key, value]
 EnumWrapper.prototype.@@iterator(): IterableIterator<EnumWrapper.Entry>
 ```
 
-### Iteration
 #### EnumWrapper.prototype.forEach
 Iterates every entry in the enum and calls the provided `iteratee` function.
 
@@ -544,6 +530,10 @@ EnumWrapper.prototype.forEach(
 ```
 - `iteratee`: See [EnumWrapper.Iteratee](#enumwraperriteratee). The return value of this function is ignored.
 - `context`: If provided, then the value will be used as the `this` context when executing `iteratee`.
+
+### Iteration
+#### EnumWrapper.prototype.forEach
+See [EnumWrapper.prototype.forEach](#enumwrapperprototypeforeach) in the [Map-Like Interface](#map-like-interface-1) section.
 
 #### EnumWrapper.prototype.map
 Builds and returns a new array containing the results of calling the provided `iteratee` function on every entry in the enum.
@@ -595,12 +585,12 @@ EnumWrapper.prototype.isKey(
 ): key is KeyType
 ```
 
-#### EnumWrapper.prototype.asKey
+#### EnumWrapper.prototype.asKeyOrThrow
 If the provided `key` is a valid key for the enum, then the `key` is returned, but cast to the more specific `KeyType` type.
 
 If the provided `key` is NOT valid, then an `Error` is thrown.
 ```ts
-EnumWrapper.prototype.asKey(
+EnumWrapper.prototype.asKeyOrThrow(
     key: string | null | undefined
 ): KeyType
 ```
@@ -629,12 +619,12 @@ EnumWrapper.prototype.isValue(
 ): key is EnumType
 ```
 
-#### EnumWrapper.prototype.asValue
+#### EnumWrapper.prototype.asValueOrThrow
 If the provided `value` is a valid value for the enum, then the `value` is returned, but cast to the more specific `EnumType` type.
 
 If the provided `value` is NOT valid, then an `Error` is thrown.
 ```ts
-EnumWrapper.prototype.asValue(
+EnumWrapper.prototype.asValueOrThrow(
     value: ValueType | null | undefined
 ): EnumType
 ```
@@ -653,14 +643,14 @@ EnumWrapper.prototype.asValueOrDefault(
 ```
 
 ### Lookup Key by Value
-#### EnumWrapper.prototype.getKey
+#### EnumWrapper.prototype.getKeyOrThrow
 Performs a reverse lookup to get the key that corresponds to the provided `value`.
 
 If the enum has duplicate values matching the provided `value`, then the key for the last duplicate entry (in order specified by the [Guaranteed Order of Iteration](#guaranteed-order-of-iteration) section) is returned.
 
 If the provided `value` is NOT valid, then an `Error` is thrown.
 ```ts
-EnumWrapper.prototype.getKey(
+EnumWrapper.prototype.getKeyOrThrow(
     value: ValueType | null | undefined
 ): KeyType
 ```
@@ -681,12 +671,12 @@ EnumWrapper.prototype.getKeyOrDefault(
 ```
 
 ### Lookup Value by Key
-#### EnumWrapper.prototype.getValue
+#### EnumWrapper.prototype.getValueOrThrow
 Returns the value corresponding to the provided `key`.
 
 If the provided `key` is NOT valid, then an `Error` is thrown.
 ```ts
-EnumWrapper.prototype.getValue(
+EnumWrapper.prototype.getValueOrThrow(
     key: string | null | undefined
 ): EnumType
 ```
