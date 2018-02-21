@@ -319,14 +319,12 @@ export class EnumWrapper<
      * @param context - If provided, then the iteratee will be called with the context as its "this" value.
      */
     public forEach(iteratee: EnumWrapper.Iteratee<void, V, T>, context?: any): void {
-        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
-        // non-mutating Array.prototype methods on it.
-        Array.prototype.forEach.call(
-            this,
-            (entry: EnumWrapper.Entry<V, T>, index: number): void => {
-                iteratee.call(context, entry[1], entry[0], this, index);
-            }
-        );
+        const length = this.length;
+
+        for (let index = 0; index < length; ++index) {
+            const entry = this[index];
+            iteratee.call(context, entry[1], entry[0], this, index);
+        }
     }
 
     /**
@@ -341,14 +339,15 @@ export class EnumWrapper<
      * @template R - The of the mapped result for each entry.
      */
     public map<R>(iteratee: EnumWrapper.Iteratee<R, V, T>, context?: any): R[] {
-        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
-        // non-mutating Array.prototype methods on it.
-        return Array.prototype.map.call(
-            this,
-            (entry: EnumWrapper.Entry<V, T>, index: number): R => {
-                return iteratee.call(context, entry[1], entry[0], this, index);
-            }
-        );
+        const length = this.length;
+        const result = new Array<R>(length);
+
+        for (let index = 0; index < length; ++index) {
+            const entry = this[index];
+            result[index] = iteratee.call(context, entry[1], entry[0], this, index);
+        }
+
+        return result;
     }
 
     /**
@@ -357,14 +356,14 @@ export class EnumWrapper<
      * @return A list of this enum's keys.
      */
     public getKeys(): (keyof T)[] {
-        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
-        // non-mutating Array.prototype methods on it.
-        return Array.prototype.map.call(
-            this,
-            (entry: EnumWrapper.Entry<V, T>): keyof T => {
-                return entry[0];
-            }
-        );
+        const length = this.length;
+        const result = new Array<keyof T>(length);
+
+        for (let index = 0; index < length; ++index) {
+            result[index] = this[index][0];
+        }
+
+        return result;
     }
 
     /**
@@ -375,14 +374,14 @@ export class EnumWrapper<
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
-        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
-        // non-mutating Array.prototype methods on it.
-        return Array.prototype.map.call(
-            this,
-            (entry: EnumWrapper.Entry<V, T>): T[keyof T] => {
-                return entry[1];
-            }
-        );
+        const length = this.length;
+        const result = new Array<T[keyof T]>(length);
+
+        for (let index = 0; index < length; ++index) {
+            result[index] = this[index][1];
+        }
+
+        return result;
     }
 
     /**
@@ -391,15 +390,16 @@ export class EnumWrapper<
      * @return A list of this enum's entries as [key, value] tuples.
      */
     public getEntries(): EnumWrapper.Entry<V, T>[] {
-        // Taking advantage of "this" being ArrayLike<EnumWrapper.Entry>, so we can call
-        // non-mutating Array.prototype methods on it.
-        return Array.prototype.map.call(
-            this,
-            (entry: EnumWrapper.Entry<V, T>): EnumWrapper.Entry<V, T> => {
-                // Create a defensive copy of the entry
-                return [entry[0], entry[1]];
-            }
-        );
+        const length = this.length;
+        const result = new Array<EnumWrapper.Entry<V, T>>(length);
+
+        for (let index = 0; index < length; ++index) {
+            const entry = this[index];
+            // Create a defensive copy of the entry
+            result[index] = [entry[0], entry[1]];
+        }
+
+        return result;
     }
 
     /**
