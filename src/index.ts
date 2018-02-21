@@ -578,7 +578,13 @@ export class EnumWrapper<
      * @throws {Error} if the provided value is not a valid value for this enum.
      */
     public getKeyOrThrow(value: V | null | undefined): keyof T {
-        return this.keysByValueMap.get(this.asValueOrThrow(value));
+        const result = (value != null) ? this.keysByValueMap.get(value) : undefined;
+
+        if (result != null) {
+            return result;
+        } else {
+            throw new Error(`Unexpected value: ${value}. Expected one of: ${this.getValues()}`);
+        }
     }
 
     /**
@@ -636,8 +642,10 @@ export class EnumWrapper<
      *         Returns `defaultKey` if the provided value is invalid.
      */
     public getKeyOrDefault(value: V | null | undefined, defaultKey?: keyof T | string): string | undefined {
-        if (this.isValue(value)) {
-            return this.keysByValueMap.get(value);
+        const result = (value != null) ? this.keysByValueMap.get(value) : undefined;
+
+        if (result != null) {
+            return result;
         } else {
             return defaultKey;
         }
