@@ -213,6 +213,7 @@ export class EnumWrapper<
         for (let index = 0; index < length; ++index) {
             const key = this.keysList[index];
             const value = enumObj[key];
+
             this.valuesList[index] = value;
             this.keysByValueMap.set(value, key);
             // type casting necessary to bypass readonly index signature for initialization
@@ -245,7 +246,6 @@ export class EnumWrapper<
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
-                    // Create a defensive copy of the entry
                     value: isDone ? undefined as any : this.keysList[index]
                 };
 
@@ -278,7 +278,6 @@ export class EnumWrapper<
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
-                    // Create a defensive copy of the entry
                     value: isDone ? undefined as any : this.valuesList[index]
                 };
 
