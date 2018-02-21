@@ -29,6 +29,11 @@ export class EnumWrapper<
     /**
      * Map of enum object -> EnumWrapper instance.
      * Used as a cache for {@link EnumWrapper.getCachedInstance}.
+     * NOTE: Performance tests show that object key lookups into a Map (even if it's a slow Polyfill) is plenty fast
+     *       for this use case of a relatively small number of items in the map, assuming you don't do something stupid
+     *       like lookup a cached instance within a tight loop. It's also an order of magnitude faster than building
+     *       a unique string key for each object and using a fast native Map with the generate string key:
+     *       {@link https://jsperf.com/map-with-object-keys}
      */
     private static readonly instancesCache = new Map<object, EnumWrapper>();
 
@@ -45,6 +50,9 @@ export class EnumWrapper<
     /**
      * Map of enum value -> enum key.
      * Used for reverse key lookups.
+     * NOTE: Performance tests show that using a Map (even if it's a slow polyfill) is faster than building a lookup
+     *       string key for values and using a plain Object:
+     *       {@link https://jsperf.com/polyfill-map-vs-es6-map-vs-object-with-string-key}
      */
     private readonly keysByValueMap = new Map<V, keyof T>();
 
@@ -210,6 +218,8 @@ export class EnumWrapper<
         const length = this.keysList.length;
         this.valuesList = new Array<T[keyof T]>(length);
 
+        // According to multiple tests found on jsperf.com, a plain for loop is faster than using
+        // Array.prototype.forEach
         for (let index = 0; index < length; ++index) {
             const key = this.keysList[index];
             const value = enumObj[key];
@@ -343,6 +353,8 @@ export class EnumWrapper<
     public forEach(iteratee: EnumWrapper.Iteratee<void, V, T>, context?: any): void {
         const length = this.length;
 
+        // According to multiple tests found on jsperf.com, a plain for loop is faster than using
+        // Array.prototype.forEach
         for (let index = 0; index < length; ++index) {
             const entry = this[index];
             iteratee.call(context, entry[1], entry[0], this, index);
@@ -364,6 +376,7 @@ export class EnumWrapper<
         const length = this.length;
         const result = new Array<R>(length);
 
+        // According to multiple tests found on jsperf.com, a plain for loop is faster than using Array.prototype.map
         for (let index = 0; index < length; ++index) {
             const entry = this[index];
             result[index] = iteratee.call(context, entry[1], entry[0], this, index);
@@ -403,6 +416,7 @@ export class EnumWrapper<
         const length = this.length;
         const result = new Array<EnumWrapper.Entry<V, T>>(length);
 
+        // According to multiple tests found on jsperf.com, a plain for loop is faster than using Array.prototype.map
         for (let index = 0; index < length; ++index) {
             const entry = this[index];
             // Create a defensive copy of the entry
@@ -578,6 +592,8 @@ export class EnumWrapper<
      * @throws {Error} if the provided value is not a valid value for this enum.
      */
     public getKeyOrThrow(value: V | null | undefined): keyof T {
+        // NOTE: Intentionally not using isValue() or asValueOrThrow() to avoid making two key lookups into the map
+        //       for successful lookups.
         const result = (value != null) ? this.keysByValueMap.get(value) : undefined;
 
         if (result != null) {
@@ -642,6 +658,7 @@ export class EnumWrapper<
      *         Returns `defaultKey` if the provided value is invalid.
      */
     public getKeyOrDefault(value: V | null | undefined, defaultKey?: keyof T | string): string | undefined {
+        // NOTE: Intentionally not using isValue() to avoid making two key lookups into the map for successful lookups.
         const result = (value != null) ? this.keysByValueMap.get(value) : undefined;
 
         if (result != null) {
@@ -659,6 +676,9 @@ export class EnumWrapper<
      * @throws {Error} if the provided string is not a valid key for this enum.
      */
     public getValueOrThrow(key: string | null | undefined): T[keyof T] {
+        // NOTE: The key MUST be separately validated before looking up the entry in enumObj to avoid false positive
+        //       lookups for keys that match properties on Object.prototype, or keys that match the index keys of
+        //       reverse lookups on numeric enums.
         return this.enumObj[this.asKeyOrThrow(key)];
     }
 
@@ -707,6 +727,9 @@ export class EnumWrapper<
      *         Returns `defaultValue` if the provided key is invalid.
      */
     public getValueOrDefault(key: string | null | undefined, defaultValue?: T[keyof T] | V): V | undefined {
+        // NOTE: The key MUST be separately validated before looking up the entry in enumObj to avoid false positive
+        //       lookups for keys that match properties on Object.prototype, or keys that match the index keys of
+        //       reverse lookups on numeric enums.
         if (this.isKey(key)) {
             // type cast required to work around TypeScript bug:
             // https://github.com/Microsoft/TypeScript/issues/21950
