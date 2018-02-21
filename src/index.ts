@@ -33,9 +33,9 @@ export class EnumWrapper<
     private static readonly instancesCache = new Map<object, EnumWrapper>();
 
     /**
-     * Set of all keys for this enum.
+     * List of all keys for this enum, in sorted order.
      */
-    private readonly keySet: Set<keyof T>;
+    private readonly keysList: (keyof T)[];
 
     /**
      * Map of enum value -> enum key.
@@ -193,32 +193,27 @@ export class EnumWrapper<
      * @param enumObj - An enum-like object. See the {@link EnumLike} type for more explanation.
      */
     private constructor(private readonly enumObj: T) {
-        this.keySet = new Set<keyof T>(
-            Object.keys(enumObj)
-                // Exclude integer indexes.
-                // This is necessary to ignore the reverse-lookup entries that are automatically added
-                // by TypeScript to numeric enums.
-                .filter(
-                    // If after converting the key to an integer, then back to a string, the result is different
-                    // than the original key, then the key is NOT an integer index.
-                    // See ECMAScript spec section 15.4: http://www.ecma-international.org/ecma-262/5.1/#sec-15.4
-                    (key) => key !== String(parseInt(key, 10))
-                )
-                // Order of Object.keys() is implementation-dependent, so sort the keys to guarantee
-                // a consistent order for iteration.
-                .sort()
-        );
+        const keys: (keyof T)[] = Object.keys(enumObj)
+            // Include only keys that are not index keys.
+            // This is necessary to ignore the reverse-lookup entries that are automatically added
+            // by TypeScript to numeric enums.
+            .filter(isNonIndexKey)
+            // Order of Object.keys() is implementation-dependent, so sort the keys to guarantee
+            // a consistent order for iteration.
+            .sort();
 
-        let index = 0;
-        this.keySet.forEach((key) => {
+        const length = keys.length;
+
+        for (let index = 0; index < length; ++index) {
+            const key = keys[index];
             const value = enumObj[key];
             this.keysByValueMap.set(value, key);
             // type casting necessary to bypass readonly index signature for initialization
             (this as any as EnumWrapper.Entry<V, T>[])[index] = [key, value];
-            ++index;
-        });
+        }
 
-        this.size = this.length = this.keySet.size;
+        this.keysList = keys;
+        this.size = this.length = length;
     }
 
     /**
@@ -235,7 +230,27 @@ export class EnumWrapper<
      * @return An iterator that iterates over this enum's keys.
      */
     public keys(): IterableIterator<keyof T> {
-        return this.keySet.values();
+        let index = 0;
+
+        return {
+            next: (): IteratorResult<keyof T> => {
+                const isDone = index >= this.length;
+                const result = {
+                    done: isDone,
+                    // "as any" cast is necessary to work around this bug:
+                    // https://github.com/Microsoft/TypeScript/issues/11375
+                    value: isDone ? undefined as any : this.keysList[index]
+                };
+
+                ++index;
+
+                return result;
+            },
+
+            [Symbol.iterator](): IterableIterator<keyof T> {
+                return this;
+            }
+        };
     }
 
     /**
@@ -356,14 +371,8 @@ export class EnumWrapper<
      * @return A list of this enum's keys.
      */
     public getKeys(): (keyof T)[] {
-        const length = this.length;
-        const result = new Array<keyof T>(length);
-
-        for (let index = 0; index < length; ++index) {
-            result[index] = this[index][0];
-        }
-
-        return result;
+        // return defensive copy
+        return this.keysList.slice();
     }
 
     /**
@@ -409,7 +418,7 @@ export class EnumWrapper<
      * @return True if the provided key is a valid key for this enum.
      */
     public isKey(key: string | null | undefined): key is keyof T {
-        return this.keySet.has(key);
+        return key != null && isNonIndexKey(key) && this.enumObj.hasOwnProperty(key);
     }
 
     /**
@@ -878,4 +887,16 @@ export function $enum(enumObj: any, useCache: boolean = true): EnumWrapper {
     } else {
         return EnumWrapper.createUncachedInstance(enumObj);
     }
+}
+
+/**
+ * Return true if the specified object key value is NOT an integer index key.
+ * @param key - An object key.
+ * @return true if the specified object key value is NOT an integer index key.
+ */
+function isNonIndexKey(key: string): boolean {
+    // If after converting the key to an integer, then back to a string, the result is different
+    // than the original key, then the key is NOT an integer index.
+    // See ECMAScript spec section 15.4: http://www.ecma-international.org/ecma-262/5.1/#sec-15.4
+    return key !== String(parseInt(key, 10));
 }
