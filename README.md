@@ -338,7 +338,6 @@ wrappedRgb.forEach((value, key, wrappedEnum, index) => {
 ## Requirements
 - *ES6 Features*: The following ES6 features are used by `ts-enum-util`, so they must exist (either natively or via polyfill) in the run-time environment:
     - `Map`
-    - `Set`
     - `Symbol.iterator`
 
 ## Limitations
