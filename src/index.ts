@@ -230,27 +230,7 @@ export class EnumWrapper<
      * @return An iterator that iterates over this enum's keys.
      */
     public keys(): IterableIterator<keyof T> {
-        let index = 0;
-
-        return {
-            next: (): IteratorResult<keyof T> => {
-                const isDone = index >= this.length;
-                const result = {
-                    done: isDone,
-                    // "as any" cast is necessary to work around this bug:
-                    // https://github.com/Microsoft/TypeScript/issues/11375
-                    value: isDone ? undefined as any : this.keysList[index]
-                };
-
-                ++index;
-
-                return result;
-            },
-
-            [Symbol.iterator](): IterableIterator<keyof T> {
-                return this;
-            }
-        };
+        return this.keysByValueMap.values();
     }
 
     /**
@@ -262,27 +242,7 @@ export class EnumWrapper<
      * @return An iterator that iterates over this enum's values.
      */
     public values(): IterableIterator<T[keyof T]> {
-        let index = 0;
-
-        return {
-            next: (): IteratorResult<T[keyof T]> => {
-                const isDone = index >= this.length;
-                const result = {
-                    done: isDone,
-                    // "as any" cast is necessary to work around this bug:
-                    // https://github.com/Microsoft/TypeScript/issues/11375
-                    value: isDone ? undefined as any : this[index][1]
-                };
-
-                ++index;
-
-                return result;
-            },
-
-            [Symbol.iterator](): IterableIterator<T[keyof T]> {
-                return this;
-            }
-        };
+        return this.keysByValueMap.keys();
     }
 
     /**
