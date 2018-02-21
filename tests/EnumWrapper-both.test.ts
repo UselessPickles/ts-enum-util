@@ -270,6 +270,8 @@ describe("EnumWrapper: number+string enum", () => {
         expect(enumWrapper.isKey("D")).toBe(true);
 
         expect(enumWrapper.isKey("blah")).toBe(false);
+        // Name of a property on Object.prototype
+        expect(enumWrapper.isKey("toString")).toBe(false);
         expect(enumWrapper.isKey(null)).toBe(false);
         expect(enumWrapper.isKey(undefined)).toBe(false);
     });
@@ -282,6 +284,11 @@ describe("EnumWrapper: number+string enum", () => {
 
         expect(() => {
             enumWrapper.asKeyOrThrow("blah");
+        }).toThrow();
+
+        expect(() => {
+            // Name of a property on Object.prototype
+            enumWrapper.asKeyOrThrow("toString");
         }).toThrow();
 
         expect(() => {
@@ -300,6 +307,8 @@ describe("EnumWrapper: number+string enum", () => {
         expect(enumWrapper.asKeyOrDefault("D")).toBe("D");
 
         expect(enumWrapper.asKeyOrDefault("blah")).toBe(undefined);
+        // Name of a property on Object.prototype
+        expect(enumWrapper.asKeyOrDefault("toString")).toBe(undefined);
         expect(enumWrapper.asKeyOrDefault(null, "A")).toBe("A");
         expect(enumWrapper.asKeyOrDefault(undefined, "foo")).toBe("foo");
     });
@@ -311,6 +320,9 @@ describe("EnumWrapper: number+string enum", () => {
         expect(enumWrapper.isValue(TestEnum.D)).toBe(true);
 
         expect(enumWrapper.isValue(-1)).toBe(false);
+        expect(enumWrapper.isValue("foo")).toBe(false);
+        // Name of a property on Object.prototype
+        expect(enumWrapper.isValue("toString")).toBe(false);
         expect(enumWrapper.isValue(null)).toBe(false);
         expect(enumWrapper.isValue(undefined)).toBe(false);
     });
@@ -323,6 +335,11 @@ describe("EnumWrapper: number+string enum", () => {
 
         expect(() => {
             enumWrapper.asValueOrThrow(-1);
+        }).toThrow();
+
+        expect(() => {
+            // Name of a property on Object.prototype
+            enumWrapper.asValueOrThrow("toString");
         }).toThrow();
 
         expect(() => {
@@ -341,6 +358,9 @@ describe("EnumWrapper: number+string enum", () => {
         expect(enumWrapper.asValueOrDefault(TestEnum.D)).toBe(TestEnum.D);
 
         expect(enumWrapper.asValueOrDefault(-1)).toBe(undefined);
+        expect(enumWrapper.asValueOrDefault("blah")).toBe(undefined);
+        // Name of a property on Object.prototype
+        expect(enumWrapper.asValueOrDefault("toString")).toBe(undefined);
         expect(enumWrapper.asValueOrDefault(null, TestEnum.A)).toBe(TestEnum.A);
         expect(enumWrapper.asValueOrDefault(undefined, -2)).toBe(-2);
         // duplicate of testEnum.A, except as a string instead of number
@@ -357,6 +377,15 @@ describe("EnumWrapper: number+string enum", () => {
 
         expect(() => {
             enumWrapper.getKeyOrThrow(-1);
+        }).toThrow();
+
+        expect(() => {
+            enumWrapper.getKeyOrThrow("blah");
+        }).toThrow();
+
+        expect(() => {
+            // Name of a property on Object.prototype
+            enumWrapper.getKeyOrThrow("toString");
         }).toThrow();
 
         expect(() => {
@@ -377,6 +406,9 @@ describe("EnumWrapper: number+string enum", () => {
         expect(enumWrapper.getKeyOrDefault(TestEnum.D)).toBe("D");
 
         expect(enumWrapper.getKeyOrDefault(-1)).toBe(undefined);
+        expect(enumWrapper.getKeyOrDefault("blah")).toBe(undefined);
+        // Name of a property on Object.prototype
+        expect(enumWrapper.getKeyOrDefault("toString")).toBe(undefined);
         expect(enumWrapper.getKeyOrDefault(null, "A")).toBe("A");
         expect(enumWrapper.getKeyOrDefault(undefined, "foo")).toBe("foo");
         // duplicate of testEnum.A, except as a string instead of number
@@ -391,6 +423,11 @@ describe("EnumWrapper: number+string enum", () => {
 
         expect(() => {
             enumWrapper.getValueOrThrow("blah");
+        }).toThrow();
+
+        expect(() => {
+            // Name of a property on Object.prototype
+            enumWrapper.getValueOrThrow("toString");
         }).toThrow();
 
         expect(() => {
@@ -409,6 +446,8 @@ describe("EnumWrapper: number+string enum", () => {
         expect(enumWrapper.getValueOrDefault("D")).toBe(TestEnum.D);
 
         expect(enumWrapper.getValueOrDefault("blah")).toBe(undefined);
+        // Name of a property on Object.prototype
+        expect(enumWrapper.getValueOrDefault("toString")).toBe(undefined);
         expect(enumWrapper.getValueOrDefault(null, TestEnum.A)).toBe(TestEnum.A);
         expect(enumWrapper.getValueOrDefault(undefined, -1)).toBe(-1);
     });

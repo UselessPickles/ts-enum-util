@@ -270,6 +270,8 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.isKey("D")).toBe(true);
 
         expect(enumWrapper.isKey("blah")).toBe(false);
+        // Name of a property on Object.prototype
+        expect(enumWrapper.isKey("toString")).toBe(false);
         expect(enumWrapper.isKey(null)).toBe(false);
         expect(enumWrapper.isKey(undefined)).toBe(false);
     });
@@ -282,6 +284,11 @@ describe("EnumWrapper: string enum", () => {
 
         expect(() => {
             enumWrapper.asKeyOrThrow("blah");
+        }).toThrow();
+
+        expect(() => {
+            // Name of a property on Object.prototype
+            enumWrapper.asKeyOrThrow("toString");
         }).toThrow();
 
         expect(() => {
@@ -300,6 +307,8 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.asKeyOrDefault("D")).toBe("D");
 
         expect(enumWrapper.asKeyOrDefault("blah")).toBe(undefined);
+        // Name of a property on Object.prototype
+        expect(enumWrapper.asKeyOrDefault("toString")).toBe(undefined);
         expect(enumWrapper.asKeyOrDefault(null, "A")).toBe("A");
         expect(enumWrapper.asKeyOrDefault(undefined, "foo")).toBe("foo");
     });
@@ -390,6 +399,11 @@ describe("EnumWrapper: string enum", () => {
         }).toThrow();
 
         expect(() => {
+            // Name of a property on Object.prototype
+            enumWrapper.getValueOrThrow("toString");
+        }).toThrow();
+
+        expect(() => {
             enumWrapper.getValueOrThrow(null);
         }).toThrow();
 
@@ -405,6 +419,8 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.getValueOrDefault("D")).toBe(TestEnum.D);
 
         expect(enumWrapper.getValueOrDefault("blah")).toBe(undefined);
+        // Name of a property on Object.prototype
+        expect(enumWrapper.getValueOrDefault("toString")).toBe(undefined);
         expect(enumWrapper.getValueOrDefault(null, TestEnum.A)).toBe(TestEnum.A);
         expect(enumWrapper.getValueOrDefault(undefined, -1)).toBe(-1);
     });
