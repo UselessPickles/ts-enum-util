@@ -163,8 +163,6 @@ const entries = $enum(RGB).getEntries();
 ```
 
 ### Lookup value by key
-See also:
-- [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 ```ts
 // type: RGB
 // value: "g"
