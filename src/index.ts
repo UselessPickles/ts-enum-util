@@ -38,6 +38,11 @@ export class EnumWrapper<
     private readonly keysList: (keyof T)[];
 
     /**
+     * List of all values for this enum, in sorted key order.
+     */
+    private readonly valuesList: T[keyof T][];
+
+    /**
      * Map of enum value -> enum key.
      * Used for reverse key lookups.
      */
@@ -193,7 +198,7 @@ export class EnumWrapper<
      * @param enumObj - An enum-like object. See the {@link EnumLike} type for more explanation.
      */
     private constructor(private readonly enumObj: T) {
-        const keys: (keyof T)[] = Object.keys(enumObj)
+        this.keysList = Object.keys(enumObj)
             // Include only keys that are not index keys.
             // This is necessary to ignore the reverse-lookup entries that are automatically added
             // by TypeScript to numeric enums.
@@ -202,17 +207,18 @@ export class EnumWrapper<
             // a consistent order for iteration.
             .sort();
 
-        const length = keys.length;
+        const length = this.keysList.length;
+        this.valuesList = new Array<T[keyof T]>(length);
 
         for (let index = 0; index < length; ++index) {
-            const key = keys[index];
+            const key = this.keysList[index];
             const value = enumObj[key];
+            this.valuesList[index] = value;
             this.keysByValueMap.set(value, key);
             // type casting necessary to bypass readonly index signature for initialization
             (this as any as EnumWrapper.Entry<V, T>[])[index] = [key, value];
         }
 
-        this.keysList = keys;
         this.size = this.length = length;
     }
 
@@ -230,7 +236,28 @@ export class EnumWrapper<
      * @return An iterator that iterates over this enum's keys.
      */
     public keys(): IterableIterator<keyof T> {
-        return this.keysByValueMap.values();
+        let index = 0;
+
+        return {
+            next: () => {
+                const isDone = index >= this.length;
+                const result: IteratorResult<keyof T> = {
+                    done: isDone,
+                    // "as any" cast is necessary to work around this bug:
+                    // https://github.com/Microsoft/TypeScript/issues/11375
+                    // Create a defensive copy of the entry
+                    value: isDone ? undefined as any : this.keysList[index]
+                };
+
+                ++index;
+
+                return result;
+            },
+
+            [Symbol.iterator](): IterableIterator<keyof T> {
+                return this;
+            }
+        };
     }
 
     /**
@@ -242,7 +269,28 @@ export class EnumWrapper<
      * @return An iterator that iterates over this enum's values.
      */
     public values(): IterableIterator<T[keyof T]> {
-        return this.keysByValueMap.keys();
+        let index = 0;
+
+        return {
+            next: () => {
+                const isDone = index >= this.length;
+                const result: IteratorResult<T[keyof T]> = {
+                    done: isDone,
+                    // "as any" cast is necessary to work around this bug:
+                    // https://github.com/Microsoft/TypeScript/issues/11375
+                    // Create a defensive copy of the entry
+                    value: isDone ? undefined as any : this.valuesList[index]
+                };
+
+                ++index;
+
+                return result;
+            },
+
+            [Symbol.iterator](): IterableIterator<T[keyof T]> {
+                return this;
+            }
+        };
     }
 
     /**
@@ -343,14 +391,8 @@ export class EnumWrapper<
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
-        const length = this.length;
-        const result = new Array<T[keyof T]>(length);
-
-        for (let index = 0; index < length; ++index) {
-            result[index] = this[index][1];
-        }
-
-        return result;
+        // return defensive copy
+        return this.valuesList.slice();
     }
 
     /**
