@@ -28,11 +28,11 @@ export class EnumWrapper<
 > implements Iterable<EnumWrapper.Entry<V, T>>, ArrayLike<Readonly<EnumWrapper.Entry<V, T>>> {
     /**
      * Map of enum object -> EnumWrapper instance.
-     * Used as a cache for {@link EnumWrapper.getCachedInstance}.
-     * NOTE: Performance tests show that object key lookups into a Map (even if it's a slow Polyfill) is plenty fast
+     * Used as a cache for {@link EnumWrapper.getCachedInstance} (and {@link $enum}).
+     * NOTE: Performance tests show that object key lookups into a Map (even if it's a slow polyfill) are plenty fast
      *       for this use case of a relatively small number of items in the map, assuming you don't do something stupid
      *       like lookup a cached instance within a tight loop. It's also an order of magnitude faster than building
-     *       a unique string key for each object and using a fast native Map with the generate string key:
+     *       a unique string key for each object and using a fast native Map with the generated string key:
      *       {@link https://jsperf.com/map-with-object-keys}
      */
     private static readonly instancesCache = new Map<object, EnumWrapper>();
