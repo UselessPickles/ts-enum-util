@@ -298,10 +298,10 @@ const entry = wrappedRgb[1];
 ```
 
 ### Wrapped enums are Map-Like
-A wrapped enum is similar to a read-only `Map` of enum "entry" tuples.
+A wrapped enum is similar to a read-only `Map` of enum name -> enum value.
 
 See also:
-- [Map-Like Interface](#map-like-interface)
+- [Map-Like Interface](#map-like-interface) (has explanation of why there's no `get()` or `has()` method)
 - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
 ```ts
 const wrappedRgb = $enum(RGB);
