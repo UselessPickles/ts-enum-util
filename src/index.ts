@@ -33,7 +33,7 @@ export class EnumWrapper<
      *       for this use case of a relatively small number of items in the map, assuming you don't do something stupid
      *       like lookup a cached instance within a tight loop. It's also an order of magnitude faster than building
      *       a unique string key for each object and using a fast native Map with the generated string key:
-     *       {@link https://jsperf.com/map-with-object-keys}
+     *       {@link https://www.measurethat.net/Benchmarks/Show/2513/4/map-keyed-by-object}
      */
     private static readonly instancesCache = new Map<object, EnumWrapper>();
 
@@ -52,7 +52,7 @@ export class EnumWrapper<
      * Used for reverse key lookups.
      * NOTE: Performance tests show that using a Map (even if it's a slow polyfill) is faster than building a lookup
      *       string key for values and using a plain Object:
-     *       {@link https://jsperf.com/polyfill-map-vs-es6-map-vs-object-with-string-key}
+     *       {@link https://www.measurethat.net/Benchmarks/Show/2514/1/map-keyed-by-string-or-number}
      */
     private readonly keysByValueMap = new Map<V, keyof T>();
 
