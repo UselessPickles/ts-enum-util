@@ -26,6 +26,8 @@ Strictly typed utilities for working with TypeScript enums.
     - [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
 - [Requirements](#requirements)
 - [Limitations](#limitations)
+- [Known Issues](#known-issues)
+    - [`WeakMap` Polyfill](#weakmap-polyfill)
 - [General Concepts](#general-concepts)
     - [Enum-Like Object](#enum-like-object)
     - [EnumWrapper](#enumwrapper)
@@ -336,12 +338,19 @@ wrappedRgb.forEach((value, key, wrappedEnum, index) => {
 ## Requirements
 - *ES6 Features*: The following ES6 features are used by `ts-enum-util`, so they must exist (either natively or via polyfill) in the run-time environment:
     - `Map`
+    - `WeakMap`
     - `Symbol.iterator`
 
 ## Limitations
 - Does not work with enums that are merged with a namespace containing values (variables, functions, etc.), or otherwise have any additional properties added to the enum's runtime object.
 - Requires the `preserveConstEnums` TypeScript compiler option to work with `const enums`.
 - For certain `Iterable` features of `WrappedEnum` to work, you must either compile with a target of `es6` or higher, or enable the `downlevelIteration` compiler option.
+
+## Known Issues
+### `WeakMap` Polyfill
+Some `WeakMap` polyfills store values directly on the "key" object (the run-time `enum` object, in this case) as a non-enumerable "secret" (randomly generated) property. This allows for quick O(1) constant time lookups and garbage collection of the value along with the key object, but does add a property to the object. The `WeakMap` secret property will NOT be iterated in `for ... in` loops, and will NOT be included in the results of `Object.keys()`, but it WILL be included in the result of `Object.getOwnPropertyNames()`. It's hard to imagine this actually causing any problems, so I have decided to go ahead with relying on `WeakMap`. If you run into a problem caused by this, please [report an issue on github](https://github.com/UselessPickles/ts-enum-util/issues).
+
+Read more about the use of `WeakMap` for caching `EnumWrapper` instances here: [Caching](#caching)
 
 ## General Concepts
 ### Enum-Like Object
@@ -395,11 +404,15 @@ const values = $enum(ABC).getValues();
 ```
 
 ### Caching
-By default, `EnumWrapper` instances are cached for quick subsequent retrieval via the [$enum](#enum) function.
+`EnumWrapper` instances are cached using an ES6 `WeakMap` for quick subsequent retrieval via the [$enum](#enum) function. This allows you to easily access the `EnumWrapper` functionality for a given enum via the `$enum` function throughout your codebase without worrying about storing a reference to an `EnumWrapper` that is accessible by all of the relevant code.
 
-The reasoning behind this is that enums are static constructs. A given project will have a relatively small finite number of enums that never change during execution. The combination of caching and the simple [$enum](#enum) function allows you to obtain an `EnumWrapper` instance conveniently whenever you need it, without worrying about maintaining a global reference to it. Of course, it's still good practice to at least temporarily store a reference to the `EnumWrapper` instance within certain code contexts where you heavily use a particular enum's wrapper.
+The use of the `WeakMap` means that even if you use `ts-enum-util` on temporary, dynamically-generated, enum-like objects, there will be no excessive cache bloat or memory leaks. A cached `EnumWrapper` instance will be garbage collected when the enum-like object it is mapped to is garbage collected.
 
-Consider explicitly avoiding caching (via an optional param to `$enum`) if you are using `ts-enum-util` to work with an ad-hoc dynamically generated "enum-like" object that is specific to a particular function execution, class instance, etc.. This is useful to avoid cluttering the cache and unnecessarily occupying memory with an `EnumWrapper` that will never be retrieved from the cache.
+Although `WeakMap` lookups can be extremely efficient (constant time lookups in typical implementations), beware that the ECMAScript specification only requires lookups to be "on average" less than O(n) linear time. As such, you should still excercise caution against needlessly obtaining cached references via `$enum` when making heavy use of `EnumWrapper` functionality. Consider storing the result of `$enum()` in a local variable before making multiple calls to its methods, especially if the `EnumWrapper`'s features are used within a loop.
+
+Despite the above warning, it is noteworthy that even the worst case implementation still produces extremely quick lookups for a relatively small number of items (like the number of enums that you are likely have in a project). For example, see [this performance test](https://www.measurethat.net/Benchmarks/Show/2513/5/map-keyed-by-object) of lookups into maps containing 500 entries, including a simple `Map` polyfill implementation.
+
+Read more about `WeakMap` on the [MDN website](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap).
 
 ## API Reference
 Also see the source code or the distributed `index.d.ts` file for complete details of method signatures/overloads, detailed method/param documentation, etc.
@@ -419,12 +432,10 @@ This is where it all begins. This method returns an [EnumWrapper](#enum-wrapper-
 See [Caching](#caching) for more about caching of `EnumWrapper` instances.
 ```ts
 function $enum(
-    enumObj: EnumLike,
-    useCache: boolean = true
+    enumObj: EnumLike
 ): EnumWrapper
 ```
 - `enumObj` - An enum or "enum-like" object.
-- `useCache` - False to force a new instance of `EnumWrapper` to be created and returned without any caching.
 
 ### Types
 #### EnumWrapper
