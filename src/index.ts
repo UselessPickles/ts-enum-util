@@ -29,13 +29,15 @@ export class EnumWrapper<
     /**
      * Map of enum object -> EnumWrapper instance.
      * Used as a cache for {@link EnumWrapper.getCachedInstance} (and {@link $enum}).
-     * NOTE: Performance tests show that object key lookups into a Map (even if it's a slow polyfill) are plenty fast
-     *       for this use case of a relatively small number of items in the map, assuming you don't do something stupid
-     *       like lookup a cached instance within a tight loop. It's also an order of magnitude faster than building
-     *       a unique string key for each object and using a fast native Map with the generated string key:
-     *       {@link https://www.measurethat.net/Benchmarks/Show/2513/4/map-keyed-by-object}
+     * NOTE: WeakMap has very fast lookups and avoids memory leaks if used on a temporary
+     *       enum-like object. Even if a WeakMap implementation is very naiive (like a Map polyfill),
+     *       lookups are plenty fast for this use case of a relatively small number of enums within
+     *       a project. Just don't perform cached lookups inside tight loops when
+     *       you could cache the result in a local variable, and you'll be fine :)
+     *       {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap}
+     *       {@link https://www.measurethat.net/Benchmarks/Show/2513/5/map-keyed-by-object}
      */
-    private static readonly instancesCache = new Map<object, EnumWrapper>();
+    private static readonly instancesCache = new WeakMap<object, EnumWrapper>();
 
     /**
      * List of all keys for this enum, in sorted order.
@@ -75,70 +77,8 @@ export class EnumWrapper<
     readonly [key: number]: EnumWrapper.Entry<V, T>;
 
     /**
-     * Creates a new EnumWrapper for an enum-like object with number values.
-     * You probably want to use {@link EnumWrapper.getCachedInstance} for typical enums, because it will
-     * cache the result.
-     * This method may be useful if you want an EnumWrapper for an enum-like object that is dynamically
-     * built at runtime, is used only within a limited/transient context in the application, and is likely
-     * to clutter the cache without ever being reused.
-     * @param enumObj - An enum-like object with number values.
-     * @return A new instance of EnumWrapper for the provided enumObj.
-     *
-     * @template T - Type of the enum-like object that is being wrapped.
-     */
-    public static createUncachedInstance<T extends EnumLike<number, keyof T>>(
-        enumObj: T
-    ): EnumWrapper<number, T>;
-    /**
-     * Creates a new EnumWrapper for an enum-like object with string values.
-     * You probably want to use {@link EnumWrapper.getCachedInstance} for typical enums, because it will
-     * cache the result.
-     * This method may be useful if you want an EnumWrapper for an enum-like object that is dynamically
-     * built at runtime, is used only within a limited/transient context in the application, and is likely
-     * to clutter the cache without ever being reused.
-     * @param enumObj - An enum-like object with string values.
-     * @return A new instance of EnumWrapper for the provided enumObj.
-     *
-     * @template T - Type of the enum-like object that is being wrapped.
-     */
-    public static createUncachedInstance<T extends EnumLike<string, keyof T>>(
-        enumObj: T
-    ): EnumWrapper<string, T>;
-    /**
-     * Creates a new EnumWrapper for an enum-like object with a mix of number and string values.
-     * You probably want to use {@link EnumWrapper.getCachedInstance} for typical enums, because it will
-     * cache the result.
-     * This method may be useful if you want an EnumWrapper for an enum-like object that is dynamically
-     * built at runtime, is used only within a limited/transient context in the application, and is likely
-     * to clutter the cache without ever being reused.
-     * @param enumObj - An enum-like object with a mix of number and string values.
-     * @return A new instance of EnumWrapper for the provided enumObj.
-     *
-     * @template T - Type of the enum-like object that is being wrapped.
-     */
-    public static createUncachedInstance<T extends EnumLike<number | string, keyof T>>(
-        enumObj: T
-    ): EnumWrapper<number | string, T>;
-    /**
-     * Creates a new EnumWrapper for an enum-like object.
-     * You probably want to use {@link EnumWrapper.getCachedInstance} for typical enums, because it will
-     * cache the result.
-     * This method may be useful if you want an EnumWrapper for an enum-like object that is dynamically
-     * built at runtime, is used only within a limited/transient context in the application, and is likely
-     * to clutter the cache without ever being reused.
-     * @param enumObj - An enum-like object.
-     * @return A new instance of EnumWrapper for the provided enumObj.
-     */
-    public static createUncachedInstance(enumObj: any): EnumWrapper {
-        return new EnumWrapper(enumObj);
-    }
-
-    /**
      * Gets a cached EnumWrapper for an enum-like object with number values.
      * Creates and caches a new EnumWrapper if one is not already cached.
-     * This is most useful for typical enums that are statically defined, because the cached  EnumWrapper instance
-     * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
-     * Use {@link EnumWrapper.createUncachedInstance} if you don't want the EnumWrapper to be cached.
      * @param enumObj - An enum-like object with number values.
      * @return An instance of EnumWrapper for the provided enumObj.
      *
@@ -150,9 +90,6 @@ export class EnumWrapper<
     /**
      * Gets a cached EnumWrapper for an enum-like object with string values.
      * Creates and caches a new EnumWrapper if one is not already cached.
-     * This is most useful for typical enums that are statically defined, because the cached  EnumWrapper instance
-     * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
-     * Use {@link EnumWrapper.createUncachedInstance} if you don't want the EnumWrapper to be cached.
      * @param enumObj - An enum-like object with string values.
      * @return An instance of EnumWrapper for the provided enumObj.
      *
@@ -164,9 +101,6 @@ export class EnumWrapper<
     /**
      * Gets a cached EnumWrapper for an enum-like object with a mixture of number and string values.
      * Creates and caches a new EnumWrapper if one is not already cached.
-     * This is most useful for typical enums that are statically defined, because the cached  EnumWrapper instance
-     * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
-     * Use {@link EnumWrapper.createUncachedInstance} if you don't want the EnumWrapper to be cached.
      * @param enumObj - An enum-like object with a mixture of number and string values.
      * @return An instance of EnumWrapper for the provided enumObj.
      *
@@ -178,18 +112,15 @@ export class EnumWrapper<
     /**
      * Gets a cached EnumWrapper for an enum-like object.
      * Creates and caches a new EnumWrapper if one is not already cached.
-     * This is most useful for typical enums that are statically defined, because the cached  EnumWrapper instance
-     * will be quickly retrieved/reused on every subsequent call to get() for the same enum object.
-     * Use {@link EnumWrapper.createUncachedInstance} if you don't want the EnumWrapper to be cached.
      * @param enumObj - An enum-like object.
      * @return An instance of EnumWrapper for the provided enumObj.
      */
     public static getCachedInstance(enumObj: any): EnumWrapper {
-        let result = this.instancesCache.get(enumObj);
+        let result = EnumWrapper.instancesCache.get(enumObj);
 
         if (!result) {
-            result = this.createUncachedInstance(enumObj);
-            this.instancesCache.set(enumObj, result);
+            result = new EnumWrapper(enumObj);
+            EnumWrapper.instancesCache.set(enumObj, result);
         }
 
         return result;
@@ -867,59 +798,13 @@ export namespace MixedEnumWrapper {
 }
 
 /**
- * Convenience function for getting/creating an {@link EnumWrapper} instance.
- * This is a short-hand way of calling {@link EnumWrapper.getCachedInstance}.
- * or {@link EnumWrapper.createUncachedInstance}.
- * @param enumObj - An enum-like object with number values.
- * @param useCache - If true, then a cached instance is created and/or returned.
- * @return A new or cached instance of EnumWrapper for the provided enumObj.
- *
- * @template T - Type of the enum-like object that is being wrapped.
- */
-export function $enum<T extends EnumLike<number, keyof T>>(
-    enumObj: T, useCache?: boolean
-): EnumWrapper<number, T>;
-/**
- * Convenience function for getting/creating an {@link EnumWrapper} instance.
- * This is a short-hand way of calling {@link EnumWrapper.getCachedInstance}.
- * or {@link EnumWrapper.createUncachedInstance}.
- * @param enumObj - An enum-like object with string values.
- * @param useCache - If true, then a cached instance is created and/or returned.
- * @return A new or cached instance of EnumWrapper for the provided enumObj.
- *
- * @template T - Type of the enum-like object that is being wrapped.
- */
-export function $enum<T extends EnumLike<string, keyof T>>(
-    enumObj: T, useCache?: boolean
-): EnumWrapper<string, T>;
-/**
- * Convenience function for getting/creating an {@link EnumWrapper} instance.
- * This is a short-hand way of calling {@link EnumWrapper.getCachedInstance}.
- * or {@link EnumWrapper.createUncachedInstance}.
- * @param enumObj - An enum-like object with a mixture of number and string values.
- * @param useCache - If true, then a cached instance is created and/or returned.
- * @return A new or cached instance of EnumWrapper for the provided enumObj.
- *
- * @template T - Type of the enum-like object that is being wrapped.
- */
-export function $enum<T extends EnumLike<number | string, keyof T>>(
-    enumObj: T, useCache?: boolean
-): EnumWrapper<number | string, T>;
-/**
- * Convenience function for getting/creating an {@link EnumWrapper} instance.
- * This is a short-hand way of calling {@link EnumWrapper.getCachedInstance}.
- * or {@link EnumWrapper.createUncachedInstance}.
+ * Alias of {@link EnumWrapper.getCachedInstance} for convenience.
+ * Gets a cached EnumWrapper for an enum-like object.
+ * Creates and caches a new EnumWrapper if one is not already cached.
  * @param enumObj - An enum-like object.
- * @param useCache - If true, then a cached instance is created and/or returned.
- * @return A new or cached instance of EnumWrapper for the provided enumObj.
+ * @return An instance of EnumWrapper for the provided enumObj.
  */
-export function $enum(enumObj: any, useCache: boolean = true): EnumWrapper {
-    if (useCache) {
-        return EnumWrapper.getCachedInstance(enumObj);
-    } else {
-        return EnumWrapper.createUncachedInstance(enumObj);
-    }
-}
+export const $enum = EnumWrapper.getCachedInstance;
 
 /**
  * Return true if the specified object key value is NOT an integer index key.
