@@ -348,7 +348,9 @@ wrappedRgb.forEach((value, key, wrappedEnum, index) => {
 
 ## Known Issues
 ### `WeakMap` Polyfill
-Some `WeakMap` polyfills store values directly on the "key" object (the run-time `enum` object, in this case) as a non-enumerable "secret" (randomly generated) property. This allows for quick O(1) constant time lookups and garbage collection of the value along with the key object, but does add a property to the object. The `WeakMap` secret property will NOT be iterated in `for ... in` loops, and will NOT be included in the results of `Object.keys()`, but it WILL be included in the result of `Object.getOwnPropertyNames()`. It's hard to imagine this actually causing any problems, so I have decided to go ahead with relying on `WeakMap`. If you run into a problem caused by this, please [report an issue on github](https://github.com/UselessPickles/ts-enum-util/issues).
+`WeakMap` polyfills typically store values directly on the "key" object (the run-time `enum` object, in this case) as a non-enumerable "secret" (randomly generated) property. This allows for quick O(1) constant time lookups and garbage collection of the value along with the key object, but does add a property to the object. The `WeakMap` secret property will NOT be iterated in `for ... in` loops, and will NOT be included in the results of `Object.keys()`, but it WILL be included in the result of `Object.getOwnPropertyNames()`.
+
+It's hard to imagine this actually causing any problems, and all mainstream browsers have natively supported `WeakMap` since about 2014-2015, so I have decided to go ahead with relying on `WeakMap`. If you run into a problem caused by this, please [report an issue on github](https://github.com/UselessPickles/ts-enum-util/issues).
 
 Read more about the use of `WeakMap` for caching `EnumWrapper` instances here: [Caching](#caching)
 
@@ -411,6 +413,8 @@ The use of the `WeakMap` means that even if you use `ts-enum-util` on temporary,
 Although `WeakMap` lookups can be extremely efficient (constant time lookups in typical implementations), beware that the ECMAScript specification only requires lookups to be "on average" less than O(n) linear time. As such, you should still excercise caution against needlessly obtaining cached references via `$enum` when making heavy use of `EnumWrapper` functionality. Consider storing the result of `$enum()` in a local variable before making multiple calls to its methods, especially if the `EnumWrapper`'s features are used within a loop.
 
 Despite the above warning, it is noteworthy that even the worst case implementation still produces extremely quick lookups for a relatively small number of items (like the number of enums that you are likely have in a project). For example, see [this performance test](https://www.measurethat.net/Benchmarks/Show/2513/5/map-keyed-by-object) of lookups into maps containing 500 entries, including a simple `Map` polyfill implementation.
+
+Read about a potential [`WeakMap` Polyfill issue](#weakmap-polyfill).
 
 Read more about `WeakMap` on the [MDN website](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap).
 
