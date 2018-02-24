@@ -10,19 +10,10 @@ enum TestEnum {
 }
 
 describe("EnumWrapper: string enum", () => {
-    const enumWrapper = EnumWrapper.createUncachedInstance(TestEnum);
+    const enumWrapper = EnumWrapper.getCachedInstance(TestEnum);
 
     test("toString()", () => {
         expect(String(enumWrapper)).toBe("[object EnumWrapper]");
-    });
-
-    test("createUncachedInstance()", () => {
-        const result1 = EnumWrapper.createUncachedInstance(TestEnum);
-        const result2 = EnumWrapper.createUncachedInstance(TestEnum);
-
-        expect(result1 instanceof EnumWrapper).toBe(true);
-        // returns new instance
-        expect(result1).not.toBe(result2);
     });
 
     test("getCachedInstance()", () => {
