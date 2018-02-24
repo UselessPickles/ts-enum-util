@@ -29,13 +29,12 @@ export class EnumWrapper<
     /**
      * Map of enum object -> EnumWrapper instance.
      * Used as a cache for {@link EnumWrapper.getCachedInstance} (and {@link $enum}).
-     * NOTE: Performance tests show that object key lookups into a Map (even if it's a slow polyfill) are plenty fast
-     *       for this use case of a relatively small number of items in the map, assuming you don't do something stupid
-     *       like lookup a cached instance within a tight loop. It's also an order of magnitude faster than building
-     *       a unique string key for each object and using a fast native Map with the generated string key:
-     *       {@link https://www.measurethat.net/Benchmarks/Show/2513/4/map-keyed-by-object}
+     * NOTE: WeakMap has very fast (constant time) lookups and avoids memory leaks if used on a temporary
+     *       enum-like object.
+     *       {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap}
+     *       {@link https://www.measurethat.net/Benchmarks/Show/2513/5/map-keyed-by-object}
      */
-    private static readonly instancesCache = new Map<object, EnumWrapper>();
+    private static readonly instancesCache = new WeakMap<object, EnumWrapper>();
 
     /**
      * List of all keys for this enum, in sorted order.

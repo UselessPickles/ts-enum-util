@@ -34,6 +34,23 @@ describe("EnumWrapper: string enum", () => {
         expect(result1).toBe(result2);
     });
 
+    test("does not observably alter the enum", () => {
+        // Wrap the enum, then confirm that there are no extra properties/keys available
+        EnumWrapper.getCachedInstance(TestEnum);
+
+        expect(Object.keys(TestEnum)).toEqual(["0", "1", "2", "D", "B", "A", "C"]);
+        expect(Object.getOwnPropertyNames(TestEnum)).toEqual(["0", "1", "2", "D", "B", "A", "C"]);
+
+        const result = [];
+        for (const key in TestEnum) {
+            if (true) { // bypass tslint error
+                result.push(key);
+            }
+        }
+
+        expect(result).toEqual(["0", "1", "2", "D", "B", "A", "C"]);
+    });
+
     describe("is Array-Like", () => {
         test("length", () => {
             expect(enumWrapper.length).toBe(4);
