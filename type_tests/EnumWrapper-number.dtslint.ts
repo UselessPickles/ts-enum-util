@@ -90,6 +90,21 @@ enumWrapper.isKey(strOrNull);
 // $ExpectType boolean
 enumWrapper.isKey(strOrUndefined);
 
+if (enumWrapper.isKey(str)) {
+    // $ExpectType "A" | "B" | "C"
+    str;
+}
+
+if (enumWrapper.isKey(strOrNull)) {
+    // $ExpectType "A" | "B" | "C"
+    strOrNull;
+}
+
+if (enumWrapper.isKey(strOrUndefined)) {
+    // $ExpectType "A" | "B" | "C"
+    strOrUndefined;
+}
+
 // $ExpectType "A" | "B" | "C"
 enumWrapper.asKeyOrThrow(str);
 // $ExpectType "A" | "B" | "C"
@@ -122,6 +137,21 @@ enumWrapper.isValue(numOrNull);
 enumWrapper.isValue(numOrUndefined);
 // $ExpectError
 enumWrapper.isValue(str);
+
+if (enumWrapper.isValue(num)) {
+    // $ExpectType TestEnum
+    num;
+}
+
+if (enumWrapper.isValue(numOrNull)) {
+    // $ExpectType TestEnum
+    numOrNull;
+}
+
+if (enumWrapper.isValue(numOrUndefined)) {
+    // $ExpectType TestEnum
+    numOrUndefined;
+}
 
 // $ExpectType TestEnum
 enumWrapper.asValueOrThrow(num);
