@@ -34,7 +34,7 @@
     "jest:coverage": "npm run clean:coverage && jest --coverage",
     "dtslint": "dtslint type_tests",
     "test": "run-s compile lint dtslint jest",
-    "test:coverage": "run-s compile lint jest:coverage",
+    "test:coverage": "run-s compile lint dtslint jest:coverage",
     "build:travis": "run-p test:coverage build && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "author": {
