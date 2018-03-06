@@ -17,7 +17,6 @@ export type EnumLike<V extends number | string, K extends string> = {
  * instance:
  * - {@link $enum}
  * - {@link EnumWrapper.getCachedInstance}
- * - {@link EnumWrapper.createUncachedInstance}
  *
  * @template V - Type of the enum value.
  * @template T - Type of the enum-like object that is being wrapped.
@@ -131,8 +130,8 @@ export class EnumWrapper<
      * This is for internal use only.
      * Use one of the following to publicly get/create an EnumWrapper
      * instance:
+     * - {@link $enum}
      * - {@link EnumWrapper.getCachedInstance}
-     * - {@link EnumWrapper.createUncachedInstance}
      *
      * @param enumObj - An enum-like object. See the {@link EnumLike} type for more explanation.
      */
@@ -182,7 +181,7 @@ export class EnumWrapper<
 
         return {
             next: () => {
-                const isDone = index >= this.length;
+                const isDone = (index >= this.length);
                 const result: IteratorResult<keyof T> = {
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
@@ -214,7 +213,7 @@ export class EnumWrapper<
 
         return {
             next: () => {
-                const isDone = index >= this.length;
+                const isDone = (index >= this.length);
                 const result: IteratorResult<T[keyof T]> = {
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
@@ -243,7 +242,7 @@ export class EnumWrapper<
 
         return {
             next: () => {
-                const isDone = index >= this.length;
+                const isDone = (index >= this.length);
                 const entry = this[index];
                 const result: IteratorResult<EnumWrapper.Entry<V, T>> = {
                     done: isDone,
