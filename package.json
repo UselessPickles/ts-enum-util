@@ -59,7 +59,7 @@
     "typescript": "2.7.2"
   },
   "peerDependencies": {
-    "typescript": ">= 2.4.1"
+    "typescript": ">= 2.3.1"
   },
   "keywords": [
     "typescript",
