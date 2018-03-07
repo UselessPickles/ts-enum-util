@@ -1,10 +1,10 @@
-import { $enum } from "../src";
+import { $enum } from "../../src";
 
-// Enum with number values
+// Enum with mix of number and string values
 enum TestEnum {
     A,
     B,
-    C
+    C = "c"
 }
 
 declare const str: string;
@@ -14,6 +14,10 @@ declare const strOrUndefined: string | undefined;
 declare const num: number;
 declare const numOrNull: number | null;
 declare const numOrUndefined: number | undefined;
+
+declare const numstr: number | string;
+declare const numstrOrNull: number | string | null;
+declare const numstrOrUndefined: number | string | undefined;
 
 declare const key: keyof typeof TestEnum;
 declare const keyOrNull: keyof typeof TestEnum | null;
@@ -25,7 +29,7 @@ declare const valueOrUndefined: TestEnum | undefined;
 
 const enumWrapper = $enum(TestEnum);
 
-// $ExpectType EnumWrapper<number, typeof TestEnum>
+// $ExpectType EnumWrapper<string | number, typeof TestEnum>
 enumWrapper;
 
 // $ExpectType number
@@ -52,7 +56,7 @@ enumWrapper.forEach((value, key, collection, index) => {
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<number, typeof TestEnum>
+    // $ExpectType EnumWrapper<string | number, typeof TestEnum>
     collection;
     // $ExpectType number
     index;
@@ -66,7 +70,7 @@ enumWrapper.map((value, key, collection, index) => {
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<number, typeof TestEnum>
+    // $ExpectType EnumWrapper<string | number, typeof TestEnum>
     collection;
     // $ExpectType number
     index;
@@ -130,86 +134,78 @@ enumWrapper.asKeyOrDefault(str, str);
 enumWrapper.asKeyOrDefault(str, strOrUndefined);
 
 // $ExpectType boolean
-enumWrapper.isValue(num);
+enumWrapper.isValue(numstr);
 // $ExpectType boolean
-enumWrapper.isValue(numOrNull);
+enumWrapper.isValue(numstrOrNull);
 // $ExpectType boolean
-enumWrapper.isValue(numOrUndefined);
-// $ExpectError
-enumWrapper.isValue(str);
+enumWrapper.isValue(numstrOrUndefined);
 
-if (enumWrapper.isValue(num)) {
+if (enumWrapper.isValue(numstr)) {
     // $ExpectType TestEnum
-    num;
+    numstr;
 }
 
-if (enumWrapper.isValue(numOrNull)) {
+if (enumWrapper.isValue(numstrOrNull)) {
     // $ExpectType TestEnum
-    numOrNull;
+    numstrOrNull;
 }
 
-if (enumWrapper.isValue(numOrUndefined)) {
+if (enumWrapper.isValue(numstrOrUndefined)) {
     // $ExpectType TestEnum
-    numOrUndefined;
+    numstrOrUndefined;
 }
 
 // $ExpectType TestEnum
-enumWrapper.asValueOrThrow(num);
+enumWrapper.asValueOrThrow(numstr);
 // $ExpectType TestEnum
-enumWrapper.asValueOrThrow(numOrNull);
+enumWrapper.asValueOrThrow(numstrOrNull);
 // $ExpectType TestEnum
-enumWrapper.asValueOrThrow(numOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrThrow(str);
+enumWrapper.asValueOrThrow(numstrOrUndefined);
 
 // $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(num);
+enumWrapper.asValueOrDefault(numstr);
 // $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(numOrNull);
+enumWrapper.asValueOrDefault(numstrOrNull);
 // $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(numOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrDefault(str);
+enumWrapper.asValueOrDefault(numstrOrUndefined);
 
 // $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(num, undefined);
+enumWrapper.asValueOrDefault(numstr, undefined);
 // $ExpectType TestEnum
-enumWrapper.asValueOrDefault(num, value);
+enumWrapper.asValueOrDefault(numstr, value);
 // $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(num, valueOrUndefined);
-// $ExpectType number
-enumWrapper.asValueOrDefault(num, num);
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(num, numOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrDefault(num, str);
+enumWrapper.asValueOrDefault(numstr, valueOrUndefined);
+// $ExpectType string | number
+enumWrapper.asValueOrDefault(numstr, num);
+// $ExpectType string | number
+enumWrapper.asValueOrDefault(numstr, str);
+// $ExpectType string | number
+enumWrapper.asValueOrDefault(numstr, numstr);
+// $ExpectType string | number | undefined
+enumWrapper.asValueOrDefault(num, numstrOrUndefined);
 
 // $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrThrow(num);
+enumWrapper.getKeyOrThrow(numstr);
 // $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrThrow(numOrNull);
+enumWrapper.getKeyOrThrow(numstrOrNull);
 // $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrThrow(numOrUndefined);
-// $ExpectError
-enumWrapper.getKeyOrThrow(str);
+enumWrapper.getKeyOrThrow(numstrOrUndefined);
 
 // $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(num);
+enumWrapper.getKeyOrDefault(numstr);
 // $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(numOrNull);
+enumWrapper.getKeyOrDefault(numstrOrNull);
 // $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(numOrUndefined);
-// $ExpectError
-enumWrapper.getKeyOrDefault(str);
+enumWrapper.getKeyOrDefault(numstrOrUndefined);
 
 // $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrDefault(num, key);
+enumWrapper.getKeyOrDefault(numstr, key);
 // $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(num, keyOrUndefined);
+enumWrapper.getKeyOrDefault(numstr, keyOrUndefined);
 // $ExpectType string
-enumWrapper.getKeyOrDefault(num, str);
+enumWrapper.getKeyOrDefault(numstr, str);
 // $ExpectType string | undefined
-enumWrapper.getKeyOrDefault(num, strOrUndefined);
+enumWrapper.getKeyOrDefault(numstr, strOrUndefined);
 
 // $ExpectType TestEnum
 enumWrapper.getValueOrThrow(key);
@@ -237,9 +233,11 @@ enumWrapper.getValueOrDefault(str, undefined);
 enumWrapper.getValueOrDefault(str, value);
 // $ExpectType TestEnum | undefined
 enumWrapper.getValueOrDefault(str, valueOrUndefined);
-// $ExpectType number
+// $ExpectType string | number
 enumWrapper.getValueOrDefault(str, num);
-// $ExpectType number | undefined
-enumWrapper.getValueOrDefault(str, numOrUndefined);
-// $ExpectError
+// $ExpectType string | number
 enumWrapper.getValueOrDefault(str, str);
+// $ExpectType string | number
+enumWrapper.getValueOrDefault(str, numstr);
+// $ExpectType string | number | undefined
+enumWrapper.getValueOrDefault(str, numstrOrUndefined);
