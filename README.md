@@ -336,7 +336,7 @@ wrappedRgb.forEach((value, key, wrappedEnum, index) => {
 ```
 
 ## Requirements
-- *TypeScript 2.3+*: Code that uses `ts-enum-util` will not compile properly with TypeScript versions prior to 2.3. You'll need TypeScript 2.4+ to take andvantage of string enums, but you can still use `ts-enum-util` with [Enum-Like Objects](#enum-like-object) containing string values if you are stuck with TypeScript 2.3.
+- *TypeScript 2.3+*: Code that uses `ts-enum-util` will not compile properly with TypeScript versions prior to 2.3. You'll need TypeScript 2.4+ to take advantage of string enums, but you can still use `ts-enum-util` with [Enum-Like Objects](#enum-like-object) containing string values if you are stuck with TypeScript 2.3.
 - *ES6 Features*: The following ES6 features are used by `ts-enum-util`, so they must exist (either natively or via polyfill) in the run-time environment:
     - `Map`
     - `WeakMap`
