@@ -5,7 +5,7 @@
  * @template K - String literal union of all keys of the enum-like type.
  */
 export type EnumLike<V extends number | string, K extends string> = {
-    [P in K]: V;
+    [P in K]: V
 };
 
 /**
@@ -24,7 +24,10 @@ export type EnumLike<V extends number | string, K extends string> = {
 export class EnumWrapper<
     V extends number | string = number | string,
     T extends EnumLike<V, keyof T> = any
-> implements Iterable<EnumWrapper.Entry<V, T>>, ArrayLike<Readonly<EnumWrapper.Entry<V, T>>> {
+>
+    implements
+        Iterable<EnumWrapper.Entry<V, T>>,
+        ArrayLike<Readonly<EnumWrapper.Entry<V, T>>> {
     /**
      * Map of enum object -> EnumWrapper instance.
      * Used as a cache for {@link EnumWrapper.getCachedInstance} (and {@link $enum}).
@@ -105,9 +108,9 @@ export class EnumWrapper<
      *
      * @template T - Type of the enum-like object that is being wrapped.
      */
-    public static getCachedInstance<T extends EnumLike<number | string, keyof T>>(
-        enumObj: T
-    ): EnumWrapper<number | string, T>;
+    public static getCachedInstance<
+        T extends EnumLike<number | string, keyof T>
+    >(enumObj: T): EnumWrapper<number | string, T>;
     /**
      * Gets a cached EnumWrapper for an enum-like object.
      * Creates and caches a new EnumWrapper if one is not already cached.
@@ -157,7 +160,7 @@ export class EnumWrapper<
             this.valuesList[index] = value;
             this.keysByValueMap.set(value, key);
             // type casting necessary to bypass readonly index signature for initialization
-            (this as any as EnumWrapper.Entry<V, T>[])[index] = [key, value];
+            ((this as any) as EnumWrapper.Entry<V, T>[])[index] = [key, value];
         }
 
         this.size = this.length = length;
@@ -181,12 +184,12 @@ export class EnumWrapper<
 
         return {
             next: () => {
-                const isDone = (index >= this.length);
+                const isDone = index >= this.length;
                 const result: IteratorResult<keyof T> = {
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
-                    value: isDone ? undefined as any : this.keysList[index]
+                    value: isDone ? (undefined as any) : this.keysList[index]
                 };
 
                 ++index;
@@ -213,12 +216,12 @@ export class EnumWrapper<
 
         return {
             next: () => {
-                const isDone = (index >= this.length);
+                const isDone = index >= this.length;
                 const result: IteratorResult<T[keyof T]> = {
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
-                    value: isDone ? undefined as any : this.valuesList[index]
+                    value: isDone ? (undefined as any) : this.valuesList[index]
                 };
 
                 ++index;
@@ -242,14 +245,14 @@ export class EnumWrapper<
 
         return {
             next: () => {
-                const isDone = (index >= this.length);
+                const isDone = index >= this.length;
                 const entry = this[index];
                 const result: IteratorResult<EnumWrapper.Entry<V, T>> = {
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
                     // Create a defensive copy of the entry
-                    value: isDone ? undefined as any : [entry[0], entry[1]]
+                    value: isDone ? (undefined as any) : [entry[0], entry[1]]
                 };
 
                 ++index;
@@ -280,7 +283,10 @@ export class EnumWrapper<
      * @param iteratee - The iteratee.
      * @param context - If provided, then the iteratee will be called with the context as its "this" value.
      */
-    public forEach(iteratee: EnumWrapper.Iteratee<void, V, T>, context?: any): void {
+    public forEach(
+        iteratee: EnumWrapper.Iteratee<void, V, T>,
+        context?: any
+    ): void {
         const length = this.length;
 
         // According to multiple tests found on jsperf.com, a plain for loop is faster than using
@@ -309,7 +315,13 @@ export class EnumWrapper<
         // According to multiple tests found on jsperf.com, a plain for loop is faster than using Array.prototype.map
         for (let index = 0; index < length; ++index) {
             const entry = this[index];
-            result[index] = iteratee.call(context, entry[1], entry[0], this, index);
+            result[index] = iteratee.call(
+                context,
+                entry[1],
+                entry[0],
+                this,
+                index
+            );
         }
 
         return result;
@@ -363,7 +375,11 @@ export class EnumWrapper<
      * @return True if the provided key is a valid key for this enum.
      */
     public isKey(key: string | null | undefined): key is keyof T {
-        return key != null && isNonIndexKey(key) && this.enumObj.hasOwnProperty(key);
+        return (
+            key != null &&
+            isNonIndexKey(key) &&
+            this.enumObj.hasOwnProperty(key)
+        );
     }
 
     /**
@@ -377,7 +393,9 @@ export class EnumWrapper<
         if (this.isKey(key)) {
             return key;
         } else {
-            throw new Error(`Unexpected key: ${key}. Expected one of: ${this.getValues()}`);
+            throw new Error(
+                `Unexpected key: ${key}. Expected one of: ${this.getValues()}`
+            );
         }
     }
 
@@ -389,7 +407,10 @@ export class EnumWrapper<
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
-    public asKeyOrDefault(key: string | null | undefined, defaultKey: keyof T): keyof T;
+    public asKeyOrDefault(
+        key: string | null | undefined,
+        defaultKey: keyof T
+    ): keyof T;
     /**
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
@@ -398,7 +419,10 @@ export class EnumWrapper<
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
-    public asKeyOrDefault(key: string | null | undefined, defaultKey?: keyof T): keyof T | undefined;
+    public asKeyOrDefault(
+        key: string | null | undefined,
+        defaultKey?: keyof T
+    ): keyof T | undefined;
     /**
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
@@ -407,7 +431,10 @@ export class EnumWrapper<
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
-    public asKeyOrDefault(key: string | null | undefined, defaultKey: string): string;
+    public asKeyOrDefault(
+        key: string | null | undefined,
+        defaultKey: string
+    ): string;
     /**
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
@@ -416,7 +443,10 @@ export class EnumWrapper<
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
-    public asKeyOrDefault(key: string | null | undefined, defaultKey: string | undefined): string | undefined;
+    public asKeyOrDefault(
+        key: string | null | undefined,
+        defaultKey: string | undefined
+    ): string | undefined;
     /**
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
@@ -425,7 +455,10 @@ export class EnumWrapper<
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
      */
-    public asKeyOrDefault(key: string | null | undefined, defaultKey?: keyof T | string): string | undefined {
+    public asKeyOrDefault(
+        key: string | null | undefined,
+        defaultKey?: keyof T | string
+    ): string | undefined {
         if (this.isKey(key)) {
             // type cast required to work around TypeScript bug:
             // https://github.com/Microsoft/TypeScript/issues/21950
@@ -456,7 +489,9 @@ export class EnumWrapper<
         if (this.isValue(value)) {
             return value;
         } else {
-            throw new Error(`Unexpected value: ${value}. Expected one of: ${this.getValues()}`);
+            throw new Error(
+                `Unexpected value: ${value}. Expected one of: ${this.getValues()}`
+            );
         }
     }
 
@@ -468,7 +503,10 @@ export class EnumWrapper<
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
-    public asValueOrDefault(value: V | null | undefined, defaultValue: T[keyof T]): T[keyof T];
+    public asValueOrDefault(
+        value: V | null | undefined,
+        defaultValue: T[keyof T]
+    ): T[keyof T];
     /**
      * Casts a value to a properly-typed value for this enum.
      * Returns a default value if the provided value is invalid.
@@ -477,7 +515,10 @@ export class EnumWrapper<
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
-    public asValueOrDefault(value: V | null | undefined, defaultValue?: T[keyof T]): T[keyof T] | undefined;
+    public asValueOrDefault(
+        value: V | null | undefined,
+        defaultValue?: T[keyof T]
+    ): T[keyof T] | undefined;
     /**
      * Casts a value to a properly-typed value for this enum.
      * Returns a default value if the provided value is invalid.
@@ -495,7 +536,10 @@ export class EnumWrapper<
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
-    public asValueOrDefault(value: V | null | undefined, defaultValue: V | undefined): V | undefined;
+    public asValueOrDefault(
+        value: V | null | undefined,
+        defaultValue: V | undefined
+    ): V | undefined;
     /**
      * Casts a value to a properly-typed value for this enum.
      * Returns a default value if the provided value is invalid.
@@ -504,7 +548,10 @@ export class EnumWrapper<
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
-    public asValueOrDefault(value: V | null | undefined, defaultValue?: T[keyof T] | V): V | undefined {
+    public asValueOrDefault(
+        value: V | null | undefined,
+        defaultValue?: T[keyof T] | V
+    ): V | undefined {
         if (this.isValue(value)) {
             return value;
         } else {
@@ -524,12 +571,15 @@ export class EnumWrapper<
     public getKeyOrThrow(value: V | null | undefined): keyof T {
         // NOTE: Intentionally not using isValue() or asValueOrThrow() to avoid making two key lookups into the map
         //       for successful lookups.
-        const result = (value != null) ? this.keysByValueMap.get(value) : undefined;
+        const result =
+            value != null ? this.keysByValueMap.get(value) : undefined;
 
         if (result != null) {
             return result;
         } else {
-            throw new Error(`Unexpected value: ${value}. Expected one of: ${this.getValues()}`);
+            throw new Error(
+                `Unexpected value: ${value}. Expected one of: ${this.getValues()}`
+            );
         }
     }
 
@@ -543,7 +593,10 @@ export class EnumWrapper<
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
-    public getKeyOrDefault(value: V | null | undefined, defaultKey: keyof T): keyof T;
+    public getKeyOrDefault(
+        value: V | null | undefined,
+        defaultKey: keyof T
+    ): keyof T;
     /**
      * Performs a reverse lookup from enum value to corresponding enum key.
      * Returns a default key if the provided value is invalid.
@@ -554,7 +607,10 @@ export class EnumWrapper<
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
-    public getKeyOrDefault(value: V | null | undefined, defaultKey?: keyof T): keyof T | undefined;
+    public getKeyOrDefault(
+        value: V | null | undefined,
+        defaultKey?: keyof T
+    ): keyof T | undefined;
     /**
      * Performs a reverse lookup from enum value to corresponding enum key.
      * Returns a default key if the provided value is invalid.
@@ -565,7 +621,10 @@ export class EnumWrapper<
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
-    public getKeyOrDefault(value: V | null | undefined, defaultKey: string): string;
+    public getKeyOrDefault(
+        value: V | null | undefined,
+        defaultKey: string
+    ): string;
     /**
      * Performs a reverse lookup from enum value to corresponding enum key.
      * Returns a default key if the provided value is invalid.
@@ -576,7 +635,10 @@ export class EnumWrapper<
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
-    public getKeyOrDefault(value: V | null | undefined, defaultKey: string | undefined): string | undefined;
+    public getKeyOrDefault(
+        value: V | null | undefined,
+        defaultKey: string | undefined
+    ): string | undefined;
     /**
      * Performs a reverse lookup from enum value to corresponding enum key.
      * Returns a default key if the provided value is invalid.
@@ -587,9 +649,13 @@ export class EnumWrapper<
      * @return The key for the provided value.
      *         Returns `defaultKey` if the provided value is invalid.
      */
-    public getKeyOrDefault(value: V | null | undefined, defaultKey?: keyof T | string): string | undefined {
+    public getKeyOrDefault(
+        value: V | null | undefined,
+        defaultKey?: keyof T | string
+    ): string | undefined {
         // NOTE: Intentionally not using isValue() to avoid making two key lookups into the map for successful lookups.
-        const result = (value != null) ? this.keysByValueMap.get(value) : undefined;
+        const result =
+            value != null ? this.keysByValueMap.get(value) : undefined;
 
         if (result != null) {
             return result;
@@ -620,7 +686,10 @@ export class EnumWrapper<
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
-    public getValueOrDefault(key: string | null | undefined, defaultValue: T[keyof T]): T[keyof T];
+    public getValueOrDefault(
+        key: string | null | undefined,
+        defaultValue: T[keyof T]
+    ): T[keyof T];
     /**
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
@@ -629,7 +698,10 @@ export class EnumWrapper<
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
-    public getValueOrDefault(key: string | null | undefined, defaultValue?: T[keyof T]): T[keyof T] | undefined;
+    public getValueOrDefault(
+        key: string | null | undefined,
+        defaultValue?: T[keyof T]
+    ): T[keyof T] | undefined;
     /**
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
@@ -638,7 +710,10 @@ export class EnumWrapper<
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
-    public getValueOrDefault(key: string | null | undefined, defaultValue: V): V;
+    public getValueOrDefault(
+        key: string | null | undefined,
+        defaultValue: V
+    ): V;
     /**
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
@@ -647,7 +722,10 @@ export class EnumWrapper<
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
-    public getValueOrDefault(key: string | null | undefined, defaultValue: V | undefined): V | undefined;
+    public getValueOrDefault(
+        key: string | null | undefined,
+        defaultValue: V | undefined
+    ): V | undefined;
     /**
      * Gets the enum value for the provided key.
      * Returns a default value if the provided key is invalid.
@@ -656,7 +734,10 @@ export class EnumWrapper<
      * @return The enum value for the provided key.
      *         Returns `defaultValue` if the provided key is invalid.
      */
-    public getValueOrDefault(key: string | null | undefined, defaultValue?: T[keyof T] | V): V | undefined {
+    public getValueOrDefault(
+        key: string | null | undefined,
+        defaultValue?: T[keyof T] | V
+    ): V | undefined {
         // NOTE: The key MUST be separately validated before looking up the entry in enumObj to avoid false positive
         //       lookups for keys that match properties on Object.prototype, or keys that match the index keys of
         //       reverse lookups on numeric enums.
@@ -697,7 +778,13 @@ export namespace EnumWrapper {
         R = any,
         V extends number | string = number | string,
         T extends EnumLike<V, keyof T> = any
-    > = (this: any, value: T[keyof T], key: keyof T, enumWrapper: EnumWrapper<V, T>, index: number) => R;
+    > = (
+        this: any,
+        value: T[keyof T],
+        key: keyof T,
+        enumWrapper: EnumWrapper<V, T>,
+        index: number
+    ) => R;
 }
 
 /**

@@ -1,10 +1,9 @@
 {
-    "extends": "tslint:recommended",
+    "extends": [
+        "tslint:recommended",
+        "tslint-config-prettier"
+    ],
     "rules": {
-        "max-line-length": {
-            "options": [120],
-            "severity": "warn"
-        },
         "typedef": [
             true,
             "call-signature",
@@ -24,17 +23,8 @@
             "timeEnd",
             "trace"
         ],
-        "trailing-comma": [
-            true,
-            {
-                "multiline": "never",
-                "singleline": "never"
-            }
-        ],
-        "object-literal-sort-keys": false,
         "array-type": [true, "array"],
         "ordered-imports": false,
-        "quotemark": [true, "double", "jsx-double", "avoid-escape"],
         "class-name": false,
         "interface-name": false,
         "no-namespace": false,
@@ -50,7 +40,6 @@
         "member-ordering": false,
         "forin": true,
         "no-for-in-array": true,
-        "no-invalid-template-strings": true,
-        "semicolon": [true, "always", "strict-bound-class-methods"]
+        "no-invalid-template-strings": true
     }
 }

@@ -1,4 +1,4 @@
-import {EnumWrapper, $enum} from "../src";
+import { EnumWrapper, $enum } from "../src";
 
 enum TestEnum {
     A = "a",

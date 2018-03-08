@@ -1,7 +1,7 @@
 import { $enum } from "../../src";
 
 // Dictionary object with string values
-declare const TestEnum: { [key: string]: string; };
+declare const TestEnum: { [key: string]: string };
 
 declare const str: string;
 declare const strOrNull: string | null;

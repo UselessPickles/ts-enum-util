@@ -1,4 +1,4 @@
-import {EnumWrapper} from "../src";
+import { EnumWrapper } from "../src";
 
 // NOTE: Intentionally out of order to test that EnumWrapper iteration is always based
 //       on sorted keys.
@@ -30,11 +30,17 @@ describe("EnumWrapper: string enum", () => {
         EnumWrapper.getCachedInstance(TestEnum);
 
         expect(Object.keys(TestEnum)).toEqual(["D", "B", "A", "C"]);
-        expect(Object.getOwnPropertyNames(TestEnum)).toEqual(["D", "B", "A", "C"]);
+        expect(Object.getOwnPropertyNames(TestEnum)).toEqual([
+            "D",
+            "B",
+            "A",
+            "C"
+        ]);
 
         const result = [];
         for (const key in TestEnum) {
-            if (true) { // bypass tslint error
+            if (true) {
+                // bypass tslint error
                 result.push(key);
             }
         }
@@ -67,12 +73,7 @@ describe("EnumWrapper: string enum", () => {
                 value: "A"
             });
 
-            const expected = [
-                "A",
-                "B",
-                "C",
-                "D"
-            ];
+            const expected = ["A", "B", "C", "D"];
             const result = Array.from(enumWrapper.keys());
             expect(result).toEqual(expected);
         });
@@ -84,12 +85,7 @@ describe("EnumWrapper: string enum", () => {
                 value: TestEnum.A
             });
 
-            const expected = [
-                TestEnum.A,
-                TestEnum.B,
-                TestEnum.C,
-                TestEnum.D
-            ];
+            const expected = [TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D];
             const result = Array.from(enumWrapper.values());
             expect(result).toEqual(expected);
         });
@@ -170,12 +166,7 @@ describe("EnumWrapper: string enum", () => {
     });
 
     test("getKeys()", () => {
-        const expected = [
-            "A",
-            "B",
-            "C",
-            "D"
-        ];
+        const expected = ["A", "B", "C", "D"];
         const result = enumWrapper.getKeys();
         expect(result).toEqual(expected);
 
@@ -185,12 +176,7 @@ describe("EnumWrapper: string enum", () => {
     });
 
     test("getValues()", () => {
-        const expected = [
-            TestEnum.A,
-            TestEnum.B,
-            TestEnum.C,
-            TestEnum.D
-        ];
+        const expected = [TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D];
         const result = enumWrapper.getValues();
         expect(result).toEqual(expected);
 
@@ -228,12 +214,7 @@ describe("EnumWrapper: string enum", () => {
 
             const result = enumWrapper.map(iterateeSpy);
 
-            expect(result).toEqual([
-                "Aa",
-                "Bb",
-                "Cc",
-                "Da"
-            ]);
+            expect(result).toEqual(["Aa", "Bb", "Cc", "Da"]);
 
             expect(iterateeSpy.mock.calls).toEqual([
                 [TestEnum.A, "A", enumWrapper, 0],
@@ -255,12 +236,7 @@ describe("EnumWrapper: string enum", () => {
 
             const result = enumWrapper.map(iterateeSpy, context);
 
-            expect(result).toEqual([
-                "Aa",
-                "Bb",
-                "Cc",
-                "Da"
-            ]);
+            expect(result).toEqual(["Aa", "Bb", "Cc", "Da"]);
 
             expect(iterateeSpy.mock.calls).toEqual([
                 [TestEnum.A, "A", enumWrapper, 0],
@@ -445,7 +421,9 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.getValueOrDefault("blah")).toBe(undefined);
         // Name of a property on Object.prototype
         expect(enumWrapper.getValueOrDefault("toString")).toBe(undefined);
-        expect(enumWrapper.getValueOrDefault(null, TestEnum.A)).toBe(TestEnum.A);
+        expect(enumWrapper.getValueOrDefault(null, TestEnum.A)).toBe(
+            TestEnum.A
+        );
         expect(enumWrapper.getValueOrDefault(undefined, "foo")).toBe("foo");
     });
 });
