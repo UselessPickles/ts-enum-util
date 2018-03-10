@@ -59,6 +59,36 @@ describe("EnumWrapper: string enum", () => {
         expect(result).toEqual(["0", "1", "2", "D", "B", "A", "C"]);
     });
 
+    describe("is immutable at run time", () => {
+        test("length", () => {
+            expect(() => {
+                (enumWrapper as any).length = 42;
+            }).toThrow();
+        });
+
+        test("size", () => {
+            expect(() => {
+                (enumWrapper as any).size = 42;
+            }).toThrow();
+        });
+
+        test("index signature", () => {
+            expect(() => {
+                (enumWrapper as any)[0] = ["D", TestEnum.D];
+            }).toThrow();
+        });
+
+        test("index signature entries", () => {
+            expect(() => {
+                (enumWrapper[0] as any)[0] = "BLAH!";
+            }).toThrow();
+
+            expect(() => {
+                (enumWrapper[0] as any)[1] = "FOO!";
+            }).toThrow();
+        });
+    });
+
     describe("is Array-Like", () => {
         test("length", () => {
             expect(enumWrapper.length).toBe(4);
@@ -77,62 +107,117 @@ describe("EnumWrapper: string enum", () => {
             expect(enumWrapper.size).toBe(4);
         });
 
-        test("keys()", () => {
-            // keys() returns an iterator
-            expect(enumWrapper.keys().next()).toEqual({
-                done: false,
-                value: "A"
+        describe("keys()", () => {
+            test("returns an iterator", () => {
+                const keys = enumWrapper.keys();
+                const next = keys.next();
+
+                expect(next).toEqual({
+                    done: false,
+                    value: "A"
+                });
             });
 
-            const expected = ["A", "B", "C", "D"];
-            const result = Array.from(enumWrapper.keys());
-            expect(result).toEqual(expected);
+            test("iterates all keys", () => {
+                const expected = ["A", "B", "C", "D"];
+                const result = Array.from(enumWrapper.keys());
+                expect(result).toEqual(expected);
+            });
         });
 
-        test("values()", () => {
-            // values() returns an iterator
-            expect(enumWrapper.values().next()).toEqual({
-                done: false,
-                value: TestEnum.A
+        describe("values()", () => {
+            test("returns an iterator", () => {
+                const values = enumWrapper.values();
+                const next = values.next();
+
+                expect(next).toEqual({
+                    done: false,
+                    value: TestEnum.A
+                });
             });
 
-            const expected = [TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D];
-            const result = Array.from(enumWrapper.values());
-            expect(result).toEqual(expected);
+            test("iterates all values", () => {
+                const expected = [
+                    TestEnum.A,
+                    TestEnum.B,
+                    TestEnum.C,
+                    TestEnum.D
+                ];
+                const result = Array.from(enumWrapper.values());
+                expect(result).toEqual(expected);
+            });
         });
 
-        test("entries()", () => {
-            // entries() returns an iterator
-            expect(enumWrapper.entries().next()).toEqual({
-                done: false,
-                value: ["A", TestEnum.A]
+        describe("entries()", () => {
+            test("returns an iterator", () => {
+                const entries = enumWrapper.entries();
+                const next = entries.next();
+
+                expect(next).toEqual({
+                    done: false,
+                    value: ["A", TestEnum.A]
+                });
             });
 
-            const expected = [
-                ["A", TestEnum.A],
-                ["B", TestEnum.B],
-                ["C", TestEnum.C],
-                ["D", TestEnum.D]
-            ];
-            const result = Array.from(enumWrapper.entries());
-            expect(result).toEqual(expected);
+            test("iterates all entries", () => {
+                const expected = [
+                    ["A", TestEnum.A],
+                    ["B", TestEnum.B],
+                    ["C", TestEnum.C],
+                    ["D", TestEnum.D]
+                ];
+                const result = Array.from(enumWrapper.entries());
+
+                expect(result).toEqual(expected);
+            });
+
+            test("iterated entries are immutable", () => {
+                const entry = enumWrapper.entries().next().value;
+
+                expect(() => {
+                    (entry[0] as any) = "C";
+                }).toThrow();
+
+                expect(() => {
+                    (entry[1] as any) = TestEnum.C;
+                }).toThrow();
+            });
         });
 
-        test("@@iterator()", () => {
-            // @@iterator() returns an iterator
-            expect(enumWrapper[Symbol.iterator]().next()).toEqual({
-                done: false,
-                value: ["A", TestEnum.A]
+        describe("@@iterator()", () => {
+            test("returns an iterator", () => {
+                const entries = enumWrapper[Symbol.iterator]();
+                const next = entries.next();
+
+                expect(next).toEqual({
+                    done: false,
+                    value: ["A", TestEnum.A]
+                });
             });
 
-            const expected = [
-                ["A", TestEnum.A],
-                ["B", TestEnum.B],
-                ["C", TestEnum.C],
-                ["D", TestEnum.D]
-            ];
-            const result = Array.from(enumWrapper[Symbol.iterator]());
-            expect(result).toEqual(expected);
+            test("iterates all entries", () => {
+                const expected = [
+                    ["A", TestEnum.A],
+                    ["B", TestEnum.B],
+                    ["C", TestEnum.C],
+                    ["D", TestEnum.D]
+                ];
+                const result = Array.from(enumWrapper[Symbol.iterator]());
+
+                expect(result).toEqual(expected);
+            });
+
+            test("iterated entries are immutable", () => {
+                const entry = enumWrapper[Symbol.iterator]().next().value;
+
+                expect(() => {
+                    (entry[0] as any) = "C";
+                }).toThrow();
+
+                expect(() => {
+                    (entry[1] as any) = TestEnum.C;
+                }).toThrow();
+            });
         });
 
         describe("forEach()", () => {
@@ -196,20 +281,33 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.getValues()).toEqual(expected);
     });
 
-    test("getEntries()", () => {
-        const expected = [
-            ["A", TestEnum.A],
-            ["B", TestEnum.B],
-            ["C", TestEnum.C],
-            ["D", TestEnum.D]
-        ];
-        const result = enumWrapper.getEntries();
-        expect(result).toEqual(expected);
+    describe("getEntries()", () => {
+        test("returns array of entries", () => {
+            const expected = [
+                ["A", TestEnum.A],
+                ["B", TestEnum.B],
+                ["C", TestEnum.C],
+                ["D", TestEnum.D]
+            ];
+            const result = enumWrapper.getEntries();
+            expect(result).toEqual(expected);
 
-        // test for defensive copy
-        // "as any" required to bypass readonly
-        (result[0][1] as any) = TestEnum.C;
-        expect(enumWrapper.getEntries()).toEqual(expected);
+            // test for defensive copy
+            result[0] = ["C", TestEnum.C];
+            expect(enumWrapper.getEntries()).toEqual(expected);
+        });
+
+        test("entries are immutable", () => {
+            const entry = enumWrapper.getEntries()[0];
+
+            expect(() => {
+                (entry[0] as any) = "C";
+            }).toThrow();
+
+            expect(() => {
+                (entry[1] as any) = TestEnum.C;
+            }).toThrow();
+        });
     });
 
     describe("map()", () => {

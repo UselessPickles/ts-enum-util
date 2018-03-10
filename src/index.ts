@@ -27,7 +27,7 @@ export class EnumWrapper<
 >
     implements
         Iterable<EnumWrapper.Entry<V, T>>,
-        ArrayLike<Readonly<EnumWrapper.Entry<V, T>>> {
+        ArrayLike<EnumWrapper.Entry<V, T>> {
     /**
      * Map of enum object -> EnumWrapper instance.
      * Used as a cache for {@link EnumWrapper.getCachedInstance} (and {@link $enum}).
@@ -44,12 +44,12 @@ export class EnumWrapper<
     /**
      * List of all keys for this enum, in sorted order.
      */
-    private readonly keysList: (keyof T)[];
+    private readonly keysList: ReadonlyArray<keyof T>;
 
     /**
      * List of all values for this enum, in sorted key order.
      */
-    private readonly valuesList: T[keyof T][];
+    private readonly valuesList: ReadonlyArray<T[keyof T]>;
 
     /**
      * Map of enum value -> enum key.
@@ -58,7 +58,7 @@ export class EnumWrapper<
      *       string key for values and using a plain Object:
      *       {@link https://www.measurethat.net/Benchmarks/Show/2514/1/map-keyed-by-string-or-number}
      */
-    private readonly keysByValueMap = new Map<V, keyof T>();
+    private readonly keysByValueMap: ReadonlyMap<V, keyof T>;
 
     /**
      * The number of entries in this enum.
@@ -139,17 +139,20 @@ export class EnumWrapper<
      * @param enumObj - An enum-like object. See the {@link EnumLike} type for more explanation.
      */
     private constructor(private readonly enumObj: T) {
-        this.keysList = Object.keys(enumObj)
-            // Include only keys that are not index keys.
-            // This is necessary to ignore the reverse-lookup entries that are automatically added
-            // by TypeScript to numeric enums.
-            .filter(isNonIndexKey)
-            // Order of Object.keys() is implementation-dependent, so sort the keys to guarantee
-            // a consistent order for iteration.
-            .sort();
+        this.keysList = Object.freeze(
+            Object.keys(enumObj)
+                // Include only keys that are not index keys.
+                // This is necessary to ignore the reverse-lookup entries that are automatically added
+                // by TypeScript to numeric enums.
+                .filter(isNonIndexKey)
+                // Order of Object.keys() is implementation-dependent, so sort the keys to guarantee
+                // a consistent order for iteration.
+                .sort()
+        );
 
         const length = this.keysList.length;
-        this.valuesList = new Array<T[keyof T]>(length);
+        const valuesList = new Array<T[keyof T]>(length);
+        const keysByValueMap = new Map<V, keyof T>();
 
         // According to multiple tests found on jsperf.com, a plain for loop is faster than using
         // Array.prototype.forEach
@@ -157,13 +160,20 @@ export class EnumWrapper<
             const key = this.keysList[index];
             const value = enumObj[key];
 
-            this.valuesList[index] = value;
-            this.keysByValueMap.set(value, key);
-            // type casting necessary to bypass readonly index signature for initialization
-            ((this as any) as EnumWrapper.Entry<V, T>[])[index] = [key, value];
+            valuesList[index] = value;
+            keysByValueMap.set(value, key);
+            // Type casting of "this" necessary to bypass readonly index signature for initialization.
+            ((this as any) as EnumWrapper.Entry<V, T>[])[index] = Object.freeze(
+                [key, value] as EnumWrapper.Entry<V, T>
+            );
         }
 
+        this.valuesList = Object.freeze(valuesList);
+        this.keysByValueMap = keysByValueMap;
         this.size = this.length = length;
+
+        // Make the EnumWrapper instance immutable
+        Object.freeze(this);
     }
 
     /**
@@ -246,13 +256,12 @@ export class EnumWrapper<
         return {
             next: () => {
                 const isDone = index >= this.length;
-                const entry = this[index];
                 const result: IteratorResult<EnumWrapper.Entry<V, T>> = {
                     done: isDone,
                     // "as any" cast is necessary to work around this bug:
                     // https://github.com/Microsoft/TypeScript/issues/11375
-                    // Create a defensive copy of the entry
-                    value: isDone ? (undefined as any) : [entry[0], entry[1]]
+                    // NOTE: defensive copy not necessary because entries are "frozen"
+                    value: isDone ? (undefined as any) : this[index]
                 };
 
                 ++index;
@@ -333,7 +342,7 @@ export class EnumWrapper<
      * @return A list of this enum's keys.
      */
     public getKeys(): (keyof T)[] {
-        // return defensive copy
+        // need to return a copy of this.keysList so it can be returned as Array instead of ReadonlyArray.
         return this.keysList.slice();
     }
 
@@ -345,7 +354,7 @@ export class EnumWrapper<
      * @return A list of this enum's values.
      */
     public getValues(): T[keyof T][] {
-        // return defensive copy
+        // need to return a copy of this.valuesList so it can be returned as Array instead of ReadonlyArray.
         return this.valuesList.slice();
     }
 
@@ -355,17 +364,9 @@ export class EnumWrapper<
      * @return A list of this enum's entries as [key, value] tuples.
      */
     public getEntries(): EnumWrapper.Entry<V, T>[] {
-        const length = this.length;
-        const result = new Array<EnumWrapper.Entry<V, T>>(length);
-
-        // According to multiple tests found on jsperf.com, a plain for loop is faster than using Array.prototype.map
-        for (let index = 0; index < length; ++index) {
-            const entry = this[index];
-            // Create a defensive copy of the entry
-            result[index] = [entry[0], entry[1]];
-        }
-
-        return result;
+        // Create an array from the indexed entries of "this".
+        // NOTE: no need for defensive copy of each entry because all entries are "frozen".
+        return Array.prototype.slice.call(this);
     }
 
     /**

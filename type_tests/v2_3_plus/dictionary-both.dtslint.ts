@@ -22,12 +22,22 @@ enumWrapper;
 
 // $ExpectType number
 enumWrapper.length;
+// $ExpectError
+enumWrapper.length = 0; // immutable
 
 // $ExpectType number
 enumWrapper.size;
+// $ExpectError
+enumWrapper.size = 0; // immutable
 
 // $ExpectType Readonly<[string, string | number]>
 enumWrapper[0];
+// $ExpectError
+enumWrapper[0] = ["A", TestEnum.A]; // immutable
+// $ExpectError
+enumWrapper[0][0] = "A"; // immutable
+// $ExpectError
+enumWrapper[0][1] = TestEnum.A; // immutable
 
 // $ExpectType IterableIterator<string>
 enumWrapper.keys();
@@ -37,6 +47,12 @@ enumWrapper.values();
 
 // $ExpectType IterableIterator<Readonly<[string, string | number]>>
 enumWrapper.entries();
+for (const entry of enumWrapper.entries()) {
+    // $ExpectError
+    entry[0] = "A"; // immutable
+    // $ExpectError
+    entry[1] = TestEnum.A; // immutable
+}
 
 // $ExpectType void
 enumWrapper.forEach((value, key, collection, index) => {
@@ -74,6 +90,11 @@ enumWrapper.getValues();
 
 // $ExpectType Readonly<[string, string | number]>[]
 enumWrapper.getEntries();
+const entry = enumWrapper.getEntries()[0];
+// $ExpectError
+entry[0] = "A"; // immutable
+// $ExpectError
+entry[1] = TestEnum.A; // immutable
 
 // $ExpectType boolean
 enumWrapper.isKey(str);
