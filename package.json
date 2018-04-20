@@ -1,95 +1,94 @@
 {
-  "name": "ts-enum-util",
-  "version": "2.0.2",
-  "description": "TypeScript Enum Utilities",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/UselessPickles/ts-enum-util.git"
-  },
-  "homepage": "https://github.com/UselessPickles/ts-enum-util",
-  "bugs": {
-    "url": "https://github.com/UselessPickles/ts-enum-util/issues"
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "main": "dist/commonjs/index.js",
-  "jsnext:main": "dist/es/index.js",
-  "module": "dist/es/index.js",
-  "types": "dist/types/index.d.ts",
-  "scripts": {
-    "clean:dist": "rimraf dist",
-    "clean:coverage": "rimraf coverage",
-    "clean:pack": "rimraf ts-enum-util-*.tgz",
-    "compile": "tsc --project tsconfig.json --noEmit --pretty --noErrorTruncation",
-    "lint": "tslint --config tslint.json --project tsconfig.json",
-    "lint:fix": "npm run lint -- --fix",
-    "prettier:test": "prettier --list-different \"{src,tests,type_tests}/**/*.ts\"",
-    "prettier:fix": "prettier --write \"{src,tests,type_tests}/**/*.ts\"",
-    "build:commonjs": "tsc --project src/tsconfig.json --pretty --noErrorTruncation",
-    "build:move-types-from-commonjs": "copyfiles --up 2 dist/commonjs/*.d.ts dist/types && rimraf dist/commonjs/*.d.ts",
-    "build:es": "tsc --project src/tsconfig.json --pretty --noErrorTruncation -m es6 --outDir dist/es --declaration false",
-    "build": "npm run clean:dist && run-p build:es build:commonjs && npm run build:move-types-from-commonjs",
-    "pack": "run-p clean:pack build && npm pack",
-    "jest": "jest",
-    "jest:coverage": "npm run clean:coverage && jest --coverage",
-    "dtslint:v2_3_plus": "dtslint type_tests/v2_3_plus",
-    "dtslint:v2_4_plus": "dtslint type_tests/v2_4_plus",
-    "dtslint": "run-s dtslint:v2_3_plus dtslint:v2_4_plus",
-    "test": "run-s compile prettier:test lint dtslint jest",
-    "test:coverage": "run-s compile prettier:test lint dtslint jest:coverage",
-    "build:travis": "run-p test:coverage build && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
-  },
-  "author": {
-    "name": "Jeff Lau",
-    "email": "jlau@uselesspickles.com",
-    "url": "http://www.uselesspickles.com"
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "@types/jest": "22.1.3",
-    "@types/node": "9.4.6",
-    "copyfiles": "1.2.0",
-    "coveralls": "3.0.0",
-    "dtslint": "0.2.0",
-    "jest": "22.3.0",
-    "npm-run-all": "4.1.2",
-    "prettier": "1.11.1",
-    "rimraf": "2.6.2",
-    "ts-jest": "22.0.4",
-    "tslint": "5.9.1",
-    "tslint-config-prettier": "1.9.0",
-    "typescript": "2.7.2"
-  },
-  "peerDependencies": {
-    "typescript": ">= 2.3.1"
-  },
-  "keywords": [
-    "typescript",
-    "string",
-    "number",
-    "enum",
-    "util"
-  ],
-  "jest": {
-    "cacheDirectory": "./jest_cache",
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
+    "name": "ts-enum-util",
+    "version": "2.0.2",
+    "description": "TypeScript Enum Utilities",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/UselessPickles/ts-enum-util.git"
     },
-    "collectCoverageFrom": [
-      "src/**/*.{js,ts}",
-      "!**/node_modules/**"
+    "homepage": "https://github.com/UselessPickles/ts-enum-util",
+    "bugs": {
+        "url": "https://github.com/UselessPickles/ts-enum-util/issues"
+    },
+    "files": [
+        "dist",
+        "src"
     ],
-    "coverageReporters": [
-      "text",
-      "lcov"
+    "main": "dist/commonjs/index.js",
+    "jsnext:main": "dist/es/index.js",
+    "module": "dist/es/index.js",
+    "types": "dist/types/index.d.ts",
+    "scripts": {
+        "clean:dist": "rimraf dist",
+        "clean:coverage": "rimraf coverage",
+        "clean:pack": "rimraf ts-enum-util-*.tgz",
+        "compile": "tsc --project tsconfig.json --noEmit --pretty --noErrorTruncation",
+        "lint": "tslint --config tslint.json --project tsconfig.json",
+        "lint:fix": "npm run lint -- --fix",
+        "prettier:test": "prettier --list-different \"{src,tests,type_tests}/**/*.ts\"",
+        "prettier:fix": "prettier --write \"{src,tests,type_tests}/**/*.ts\"",
+        "build:types": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --emitDeclarationOnly true --outDir dist/types",
+        "build:commonjs": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false --outDir dist/commonjs",
+        "build:es": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false -m es6 --outDir dist/es",
+        "build": "npm run clean:dist && run-p build:types build:es build:commonjs",
+        "pack": "run-p clean:pack build && npm pack",
+        "jest": "jest",
+        "jest:coverage": "npm run clean:coverage && jest --coverage",
+        "dtslint:v2_3_plus": "dtslint type_tests/v2_3_plus",
+        "dtslint:v2_4_plus": "dtslint type_tests/v2_4_plus",
+        "dtslint": "run-s dtslint:v2_3_plus dtslint:v2_4_plus",
+        "test": "run-s compile prettier:test lint dtslint jest",
+        "test:coverage": "run-s compile prettier:test lint dtslint jest:coverage",
+        "build:travis": "run-p test:coverage build && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    },
+    "author": {
+        "name": "Jeff Lau",
+        "email": "jlau@uselesspickles.com",
+        "url": "http://www.uselesspickles.com"
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "@types/jest": "22.1.3",
+        "@types/node": "9.4.6",
+        "coveralls": "3.0.0",
+        "dtslint": "0.2.0",
+        "jest": "22.3.0",
+        "npm-run-all": "4.1.2",
+        "prettier": "1.11.1",
+        "rimraf": "2.6.2",
+        "ts-jest": "22.0.4",
+        "tslint": "5.9.1",
+        "tslint-config-prettier": "1.9.0",
+        "typescript": "2.8.3"
+    },
+    "peerDependencies": {
+        "typescript": ">= 2.3.1"
+    },
+    "keywords": [
+        "typescript",
+        "string",
+        "number",
+        "enum",
+        "util"
     ],
-    "mapCoverage": true,
-    "testRegex": "((\\.|/)(test|spec))\\.(ts|js)$",
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ]
-  }
+    "jest": {
+        "cacheDirectory": "./jest_cache",
+        "transform": {
+            "^.+\\.ts$": "ts-jest"
+        },
+        "collectCoverageFrom": [
+            "src/**/*.{js,ts}",
+            "!**/node_modules/**"
+        ],
+        "coverageReporters": [
+            "text",
+            "lcov"
+        ],
+        "mapCoverage": true,
+        "testRegex": "((\\.|/)(test|spec))\\.(ts|js)$",
+        "moduleFileExtensions": [
+            "ts",
+            "js"
+        ]
+    }
 }
