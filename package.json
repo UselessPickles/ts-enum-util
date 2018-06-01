@@ -10,7 +10,10 @@
     "bugs": {
         "url": "https://github.com/UselessPickles/ts-enum-util/issues"
     },
-    "files": ["dist", "src"],
+    "files": [
+        "dist",
+        "src"
+    ],
     "main": "dist/commonjs/index.js",
     "jsnext:main": "dist/es/index.js",
     "module": "dist/es/index.js",
@@ -19,21 +22,15 @@
         "clean:dist": "rimraf dist",
         "clean:coverage": "rimraf coverage",
         "clean:pack": "rimraf ts-enum-util-*.tgz",
-        "compile":
-            "tsc --project tsconfig.json --noEmit --pretty --noErrorTruncation",
+        "compile": "tsc --project tsconfig.json --noEmit --pretty --noErrorTruncation",
         "lint": "tslint --config tslint.json --project tsconfig.json",
         "lint:fix": "npm run lint -- --fix",
-        "prettier:test":
-            "prettier --list-different \"{src,tests,type_tests}/**/*.ts\"",
+        "prettier:test": "prettier --list-different \"{src,tests,type_tests}/**/*.ts\"",
         "prettier:fix": "prettier --write \"{src,tests,type_tests}/**/*.ts\"",
-        "build:types":
-            "tsc --project src/tsconfig.json --pretty --noErrorTruncation --emitDeclarationOnly true --outDir dist/types",
-        "build:commonjs":
-            "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false --outDir dist/commonjs",
-        "build:es":
-            "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false -m es6 --outDir dist/es",
-        "build":
-            "npm run clean:dist && run-p build:types build:es build:commonjs",
+        "build:types": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --emitDeclarationOnly true --outDir dist/types",
+        "build:commonjs": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false --outDir dist/commonjs",
+        "build:es": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false -m es6 --outDir dist/es",
+        "build": "npm run clean:dist && run-p build:types build:es build:commonjs",
         "pack": "run-p clean:pack build && npm pack",
         "jest": "jest",
         "jest:coverage": "npm run clean:coverage && jest --coverage",
@@ -41,10 +38,8 @@
         "dtslint:v2_4_plus": "dtslint type_tests/v2_4_plus",
         "dtslint": "run-s dtslint:v2_3_plus dtslint:v2_4_plus",
         "test": "run-s compile prettier:test lint dtslint jest",
-        "test:coverage":
-            "run-s compile prettier:test lint dtslint jest:coverage",
-        "build:travis":
-            "run-p test:coverage build && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+        "test:coverage": "run-s compile prettier:test lint dtslint jest:coverage",
+        "build:travis": "run-p test:coverage build && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
     },
     "author": {
         "name": "Jeff Lau",
@@ -54,30 +49,45 @@
     "license": "MIT",
     "devDependencies": {
         "@types/jest": "22.2.3",
-        "@types/node": "9.6.6",
-        "coveralls": "3.0.0",
-        "dtslint": "0.2.0",
-        "jest": "22.4.3",
-        "npm-run-all": "4.1.2",
-        "prettier": "1.12.1",
+        "@types/node": "10.3.0",
+        "coveralls": "3.0.1",
+        "dtslint": "0.3.0",
+        "jest": "23.1.0",
+        "npm-run-all": "4.1.3",
+        "prettier": "1.13.3",
         "rimraf": "2.6.2",
-        "ts-jest": "22.4.4",
-        "tslint": "5.9.1",
-        "tslint-config-prettier": "1.12.0",
+        "ts-jest": "22.4.6",
+        "tslint": "5.10.0",
+        "tslint-config-prettier": "1.13.0",
         "typescript": "2.8.3"
     },
     "peerDependencies": {
-        "typescript": ">= 2.3.1"
+        "typescript": ">= 2.3.1 < 2.9"
     },
-    "keywords": ["typescript", "string", "number", "enum", "util"],
+    "keywords": [
+        "typescript",
+        "string",
+        "number",
+        "enum",
+        "util"
+    ],
     "jest": {
         "cacheDirectory": "./jest_cache",
         "transform": {
             "^.+\\.ts$": "ts-jest"
         },
-        "collectCoverageFrom": ["src/**/*.{js,ts}", "!**/node_modules/**"],
-        "coverageReporters": ["text", "lcov"],
+        "collectCoverageFrom": [
+            "src/**/*.{js,ts}",
+            "!**/node_modules/**"
+        ],
+        "coverageReporters": [
+            "text",
+            "lcov"
+        ],
         "testRegex": "((\\.|/)(test|spec))\\.(ts|js)$",
-        "moduleFileExtensions": ["ts", "js"]
+        "moduleFileExtensions": [
+            "ts",
+            "js"
+        ]
     }
 }
