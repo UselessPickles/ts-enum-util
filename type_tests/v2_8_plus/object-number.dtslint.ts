@@ -1,4 +1,4 @@
-import { $enum } from "../../src";
+import { $enum } from "../../dist/types";
 
 // Enum-like object with number values
 const TestEnum = {

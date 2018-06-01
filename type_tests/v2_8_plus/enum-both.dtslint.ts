@@ -1,4 +1,4 @@
-import { $enum } from "../../src";
+import { $enum } from "../../dist/types";
 
 // Enum with mix of number and string values
 enum TestEnum {
