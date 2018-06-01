@@ -36,7 +36,7 @@
         "jest:coverage": "npm run clean:coverage && jest --coverage",
         "dtslint:v2_3_plus": "dtslint type_tests/v2_3_plus",
         "dtslint:v2_4_plus": "dtslint type_tests/v2_4_plus",
-        "dtslint": "run-s dtslint:v2_3_plus dtslint:v2_4_plus",
+        "dtslint": "run-s clean:dist build:types dtslint:v2_3_plus dtslint:v2_4_plus",
         "test": "run-s compile prettier:test lint jest",
         "test:coverage": "run-s compile prettier:test lint jest:coverage",
         "build:travis": "run-p test:coverage build && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"

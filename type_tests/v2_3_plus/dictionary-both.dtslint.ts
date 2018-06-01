@@ -1,4 +1,4 @@
-import { $enum } from "../../src";
+import { $enum } from "../../dist/types";
 
 // Dictionary object with a mix of number and string values
 declare const TestEnum: { [key: string]: string | number };
