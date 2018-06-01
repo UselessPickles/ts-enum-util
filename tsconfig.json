@@ -17,5 +17,5 @@
         "moduleResolution": "node",
         "baseUrl": "./"
     },
-    "exclude": ["node_modules", "type_tests"]
+    "include": ["src", "tests"]
 }
