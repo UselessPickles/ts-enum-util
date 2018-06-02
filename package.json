@@ -27,7 +27,7 @@
         "lint:fix": "npm run lint -- --fix",
         "prettier:test": "prettier --list-different \"{src,tests,type_tests}/**/*.ts\"",
         "prettier:fix": "prettier --write \"{src,tests,type_tests}/**/*.ts\"",
-        "build:types": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --emitDeclarationOnly true --outDir dist/types",
+        "build:types": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --emitDeclarationOnly true --declarationMap true --outDir dist/types",
         "build:commonjs": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false --outDir dist/commonjs",
         "build:es": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false -m es6 --outDir dist/es",
         "build": "npm run clean:dist && run-p build:types build:es build:commonjs",
