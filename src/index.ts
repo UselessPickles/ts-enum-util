@@ -202,9 +202,7 @@ export class EnumWrapper<
                 const isDone = index >= this.length;
                 const result: IteratorResult<StringKeyOf<T>> = {
                     done: isDone,
-                    // "as any" cast is necessary to work around this bug:
-                    // https://github.com/Microsoft/TypeScript/issues/11375
-                    value: isDone ? (undefined as any) : this.keysList[index]
+                    value: this.keysList[index]
                 };
 
                 ++index;
@@ -234,9 +232,7 @@ export class EnumWrapper<
                 const isDone = index >= this.length;
                 const result: IteratorResult<T[StringKeyOf<T>]> = {
                     done: isDone,
-                    // "as any" cast is necessary to work around this bug:
-                    // https://github.com/Microsoft/TypeScript/issues/11375
-                    value: isDone ? (undefined as any) : this.valuesList[index]
+                    value: this.valuesList[index]
                 };
 
                 ++index;
@@ -263,10 +259,8 @@ export class EnumWrapper<
                 const isDone = index >= this.length;
                 const result: IteratorResult<EnumWrapper.Entry<V, T>> = {
                     done: isDone,
-                    // "as any" cast is necessary to work around this bug:
-                    // https://github.com/Microsoft/TypeScript/issues/11375
                     // NOTE: defensive copy not necessary because entries are "frozen"
-                    value: isDone ? (undefined as any) : this[index]
+                    value: this[index]
                 };
 
                 ++index;
