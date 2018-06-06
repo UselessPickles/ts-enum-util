@@ -124,7 +124,7 @@ export class EnumWrapper<
      * @param enumObj - An enum-like object.
      * @return An instance of EnumWrapper for the provided enumObj.
      */
-    public static getCachedInstance(enumObj: any): EnumWrapper {
+    public static getCachedInstance(enumObj: object): EnumWrapper {
         let result = EnumWrapper.instancesCache.get(enumObj);
 
         if (!result) {
@@ -794,7 +794,7 @@ export namespace EnumWrapper {
  */
 export type NumberEnumWrapper<
     T extends EnumLike<number, StringKeyOf<T>> = any
-> = EnumWrapper<number, any>;
+> = EnumWrapper<number, T>;
 
 export namespace NumberEnumWrapper {
     /**
@@ -825,7 +825,7 @@ export namespace NumberEnumWrapper {
  */
 export type StringEnumWrapper<
     T extends EnumLike<string, StringKeyOf<T>> = any
-> = EnumWrapper<string, any>;
+> = EnumWrapper<string, T>;
 
 export namespace StringEnumWrapper {
     /**
@@ -857,7 +857,7 @@ export namespace StringEnumWrapper {
  */
 export type MixedEnumWrapper<
     T extends EnumLike<number | string, StringKeyOf<T>> = any
-> = EnumWrapper<number | string, any>;
+> = EnumWrapper<number | string, T>;
 
 export namespace MixedEnumWrapper {
     /**
