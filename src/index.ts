@@ -176,10 +176,18 @@ export class EnumWrapper<
         Object.freeze(this);
     }
 
+    public get [Symbol.toStringTag](): string {
+        return "EnumWrapper";
+    }
+
     /**
      * @return "[object EnumWrapper]"
      */
     public toString(): string {
+        // NOTE: overriding toString in addition to Symbol.toStringTag
+        //       for maximum compatibility with older runtime environments
+        //       that do not implement Object.prototype.toString in terms
+        //       of Symbol.toStringTag
         return "[object EnumWrapper]";
     }
 

@@ -371,6 +371,7 @@ wrappedRgb.forEach((value, key, wrappedEnum, index) => {
     -   `Map`
     -   `WeakMap`
     -   `Symbol.iterator`
+    -   `Symbol.toStringTag`
 
 ## Limitations
 
