@@ -12,8 +12,14 @@ enum TestEnum {
 describe("EnumWrapper: string enum", () => {
     const enumWrapper = EnumWrapper.getCachedInstance(TestEnum);
 
+    test("@@toStringTag()", () => {
+        expect(Object.prototype.toString.call(enumWrapper)).toBe(
+            "[object EnumWrapper]"
+        );
+    });
+
     test("toString()", () => {
-        expect(String(enumWrapper)).toBe("[object EnumWrapper]");
+        expect(enumWrapper.toString()).toBe("[object EnumWrapper]");
     });
 
     test("getCachedInstance()", () => {
