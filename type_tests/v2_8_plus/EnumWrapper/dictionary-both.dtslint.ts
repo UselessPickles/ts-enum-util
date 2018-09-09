@@ -1,7 +1,7 @@
-import { $enum } from "../../dist/types";
+import { $enum } from "../../../dist/types";
 
-// Dictionary object with number values
-declare const TestEnum: { [key: string]: number };
+// Dictionary object with a mix of number and string values
+declare const TestEnum: { [key: string]: string | number };
 
 declare const str: string;
 declare const strOrNull: string | null;
@@ -11,9 +11,13 @@ declare const num: number;
 declare const numOrNull: number | null;
 declare const numOrUndefined: number | undefined;
 
+declare const numstr: number | string;
+declare const numstrOrNull: number | string | null;
+declare const numstrOrUndefined: number | string | undefined;
+
 const enumWrapper = $enum(TestEnum);
 
-// $ExpectType EnumWrapper<number, { [key: string]: number; }>
+// $ExpectType EnumWrapper<string | number, { [key: string]: string | number; }>
 enumWrapper;
 
 // $ExpectType number
@@ -26,8 +30,9 @@ enumWrapper.size;
 // $ExpectError
 enumWrapper.size = 0; // immutable
 
-// $ExpectType Readonly<[string, number]>
+// $ExpectType Readonly<[string, string | number]>
 enumWrapper[0];
+const foo = enumWrapper[0];
 // $ExpectError
 enumWrapper[0] = ["A", TestEnum.A]; // immutable
 // $ExpectError
@@ -38,10 +43,10 @@ enumWrapper[0][1] = TestEnum.A; // immutable
 // $ExpectType IterableIterator<string>
 enumWrapper.keys();
 
-// $ExpectType IterableIterator<number>
+// $ExpectType IterableIterator<string | number>
 enumWrapper.values();
 
-// $ExpectType IterableIterator<Readonly<[string, number]>>
+// $ExpectType IterableIterator<Readonly<[string, string | number]>>
 enumWrapper.entries();
 for (const entry of enumWrapper.entries()) {
     // $ExpectError
@@ -52,11 +57,11 @@ for (const entry of enumWrapper.entries()) {
 
 // $ExpectType void
 enumWrapper.forEach((value, key, collection, index) => {
-    // $ExpectType number
+    // $ExpectType string | number
     value;
     // $ExpectType string
     key;
-    // $ExpectType EnumWrapper<number, { [key: string]: number; }>
+    // $ExpectType EnumWrapper<string | number, { [key: string]: string | number; }>
     collection;
     // $ExpectType number
     index;
@@ -66,11 +71,11 @@ enumWrapper.forEach((value, key, collection, index) => {
 
 // $ExpectType number[]
 enumWrapper.map((value, key, collection, index) => {
-    // $ExpectType number
+    // $ExpectType string | number
     value;
     // $ExpectType string
     key;
-    // $ExpectType EnumWrapper<number, { [key: string]: number; }>
+    // $ExpectType EnumWrapper<string | number, { [key: string]: string | number; }>
     collection;
     // $ExpectType number
     index;
@@ -81,10 +86,10 @@ enumWrapper.map((value, key, collection, index) => {
 // $ExpectType string[]
 enumWrapper.getKeys();
 
-// $ExpectType number[]
+// $ExpectType (string | number)[]
 enumWrapper.getValues();
 
-// $ExpectType Readonly<[string, number]>[]
+// $ExpectType Readonly<[string, string | number]>[]
 enumWrapper.getEntries();
 const entry = enumWrapper.getEntries()[0];
 // $ExpectError
@@ -135,98 +140,92 @@ enumWrapper.asKeyOrDefault(str, str);
 enumWrapper.asKeyOrDefault(str, strOrUndefined);
 
 // $ExpectType boolean
-enumWrapper.isValue(num);
+enumWrapper.isValue(numstr);
 // $ExpectType boolean
-enumWrapper.isValue(numOrNull);
+enumWrapper.isValue(numstrOrNull);
 // $ExpectType boolean
-enumWrapper.isValue(numOrUndefined);
-// $ExpectError
-enumWrapper.isValue(str);
+enumWrapper.isValue(numstrOrUndefined);
 
-if (enumWrapper.isValue(num)) {
-    // $ExpectType number
-    num;
+if (enumWrapper.isValue(numstr)) {
+    // $ExpectType string | number
+    numstr;
 }
 
-if (enumWrapper.isValue(numOrNull)) {
-    // $ExpectType number
-    numOrNull;
+if (enumWrapper.isValue(numstrOrNull)) {
+    // $ExpectType string | number
+    numstrOrNull;
 }
 
-if (enumWrapper.isValue(numOrUndefined)) {
-    // $ExpectType number
-    numOrUndefined;
+if (enumWrapper.isValue(numstrOrUndefined)) {
+    // $ExpectType string | number
+    numstrOrUndefined;
 }
 
-// $ExpectType number
-enumWrapper.asValueOrThrow(num);
-// $ExpectType number
-enumWrapper.asValueOrThrow(numOrNull);
-// $ExpectType number
-enumWrapper.asValueOrThrow(numOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrThrow(str);
+// $ExpectType string | number
+enumWrapper.asValueOrThrow(numstr);
+// $ExpectType string | number
+enumWrapper.asValueOrThrow(numstrOrNull);
+// $ExpectType string | number
+enumWrapper.asValueOrThrow(numstrOrUndefined);
 
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(num);
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(numOrNull);
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(numOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrDefault(str);
+// $ExpectType string | number | undefined
+enumWrapper.asValueOrDefault(numstr);
+// $ExpectType string | number | undefined
+enumWrapper.asValueOrDefault(numstrOrNull);
+// $ExpectType string | number | undefined
+enumWrapper.asValueOrDefault(numstrOrUndefined);
 
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(num, undefined);
-// $ExpectType number
-enumWrapper.asValueOrDefault(num, num);
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(num, numOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrDefault(num, str);
+// $ExpectType string | number | undefined
+enumWrapper.asValueOrDefault(numstr, undefined);
+// $ExpectType string | number
+enumWrapper.asValueOrDefault(numstr, num);
+// $ExpectType string | number
+enumWrapper.asValueOrDefault(numstr, str);
+// $ExpectType string | number
+enumWrapper.asValueOrDefault(numstr, numstr);
+// $ExpectType string | number | undefined
+enumWrapper.asValueOrDefault(num, numstrOrUndefined);
 
 // $ExpectType string
-enumWrapper.getKeyOrThrow(num);
+enumWrapper.getKeyOrThrow(numstr);
 // $ExpectType string
-enumWrapper.getKeyOrThrow(numOrNull);
+enumWrapper.getKeyOrThrow(numstrOrNull);
 // $ExpectType string
-enumWrapper.getKeyOrThrow(numOrUndefined);
-// $ExpectError
-enumWrapper.getKeyOrThrow(str);
+enumWrapper.getKeyOrThrow(numstrOrUndefined);
 
 // $ExpectType string | undefined
-enumWrapper.getKeyOrDefault(num);
+enumWrapper.getKeyOrDefault(numstr);
 // $ExpectType string | undefined
-enumWrapper.getKeyOrDefault(numOrNull);
+enumWrapper.getKeyOrDefault(numstrOrNull);
 // $ExpectType string | undefined
-enumWrapper.getKeyOrDefault(numOrUndefined);
-// $ExpectError
-enumWrapper.getKeyOrDefault(str);
+enumWrapper.getKeyOrDefault(numstrOrUndefined);
 
 // $ExpectType string
-enumWrapper.getKeyOrDefault(num, str);
+enumWrapper.getKeyOrDefault(numstr, str);
 // $ExpectType string | undefined
-enumWrapper.getKeyOrDefault(num, strOrUndefined);
+enumWrapper.getKeyOrDefault(numstr, strOrUndefined);
 
-// $ExpectType number
+// $ExpectType string | number
 enumWrapper.getValueOrThrow(str);
-// $ExpectType number
+// $ExpectType string | number
 enumWrapper.getValueOrThrow(strOrNull);
-// $ExpectType number
+// $ExpectType string | number
 enumWrapper.getValueOrThrow(strOrUndefined);
 
-// $ExpectType number | undefined
+// $ExpectType string | number | undefined
 enumWrapper.getValueOrDefault(str);
-// $ExpectType number | undefined
+// $ExpectType string | number | undefined
 enumWrapper.getValueOrDefault(strOrNull);
-// $ExpectType number | undefined
+// $ExpectType string | number | undefined
 enumWrapper.getValueOrDefault(strOrUndefined);
 
-// $ExpectType number | undefined
+// $ExpectType string | number | undefined
 enumWrapper.getValueOrDefault(str, undefined);
-// $ExpectType number
+// $ExpectType string | number
 enumWrapper.getValueOrDefault(str, num);
-// $ExpectType number | undefined
-enumWrapper.getValueOrDefault(str, numOrUndefined);
-// $ExpectError
+// $ExpectType string | number
 enumWrapper.getValueOrDefault(str, str);
+// $ExpectType string | number
+enumWrapper.getValueOrDefault(str, numstr);
+// $ExpectType string | number | undefined
+enumWrapper.getValueOrDefault(str, numstrOrUndefined);

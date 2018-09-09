@@ -1,4 +1,4 @@
-import { EnumWrapper } from "../src";
+import { $enum, EnumWrapper } from "../src";
 
 // NOTE: Intentionally out of order to test that EnumWrapper iteration is always based
 //       on sorted keys.
@@ -10,7 +10,7 @@ enum TestEnum {
 }
 
 describe("EnumWrapper: number+string enum", () => {
-    const enumWrapper = EnumWrapper.getCachedInstance(TestEnum);
+    const enumWrapper = $enum(TestEnum);
 
     test("@@toStringTag()", () => {
         expect(Object.prototype.toString.call(enumWrapper)).toBe(
@@ -23,8 +23,8 @@ describe("EnumWrapper: number+string enum", () => {
     });
 
     test("getCachedInstance()", () => {
-        const result1 = EnumWrapper.getCachedInstance(TestEnum);
-        const result2 = EnumWrapper.getCachedInstance(TestEnum);
+        const result1 = $enum(TestEnum);
+        const result2 = $enum(TestEnum);
 
         expect(result1 instanceof EnumWrapper).toBe(true);
         // returns cached instance
@@ -33,7 +33,7 @@ describe("EnumWrapper: number+string enum", () => {
 
     test("does not observably alter the enum", () => {
         // Wrap the enum, then confirm that there are no extra properties/keys available
-        EnumWrapper.getCachedInstance(TestEnum);
+        $enum(TestEnum);
 
         expect(Object.keys(TestEnum)).toEqual(["0", "2", "D", "B", "A", "C"]);
         expect(Object.getOwnPropertyNames(TestEnum)).toEqual([
