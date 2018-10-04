@@ -15,10 +15,6 @@ export type EnumLike<V extends number | string, K extends string> = {
  */
 type StringKeyOf<T> = Extract<keyof T, string>;
 
-type WidenEnumType<V extends string | number> = V extends number
-    ? number
-    : string;
-
 /**
  * A generic wrapper for any enum-like object (see {@link EnumLike}).
  * Provides utilities for runtime processing of an enum's values and keys, with strict compile-time
