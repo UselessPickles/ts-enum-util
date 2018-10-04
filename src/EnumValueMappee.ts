@@ -1,11 +1,11 @@
 import { createUnhandledEntryError } from "./createUnhandledEntryError";
 import {
-    ValueMapperCore,
-    ValueMapper,
-    ValueMapperWithNull,
-    ValueMapperWithUndefined,
-    ValueMapperWithNullAndUndefined
-} from "./ValueMapper";
+    EnumValueMapperCore,
+    EnumValueMapper,
+    EnumValueMapperWithNull,
+    EnumValueMapperWithUndefined,
+    EnumValueMapperWithNullAndUndefined
+} from "./EnumValueMapper";
 import { Symbols } from "./Symbols";
 
 /**
@@ -15,7 +15,7 @@ import { Symbols } from "./Symbols";
  *
  * @template E - An enum or string/number literal type.
  */
-export class ValueMappee<E extends string | number> {
+export class EnumValueMappee<E extends string | number> {
     /**
      * Do not use this constructor directly. Use the {@link $enum.mapValue}
      * function to get an instance of this class.
@@ -34,10 +34,10 @@ export class ValueMappee<E extends string | number> {
      * @param mapper - A mapper implementation for type E that returns type T.
      * @returns The mapped value from the mapper.
      */
-    public with<T>(mapper: ValueMapper<E, T>): T {
+    public with<T>(mapper: EnumValueMapper<E, T>): T {
         if (mapper.hasOwnProperty(this.value)) {
             return processEntry<T>(
-                (mapper as ValueMapperCore<E, T>)[this.value],
+                (mapper as EnumValueMapperCore<E, T>)[this.value],
                 this.value
             );
         } else if (mapper.hasOwnProperty(Symbols.handleUnexpected)) {
@@ -56,12 +56,12 @@ export class ValueMappee<E extends string | number> {
  *
  * NOTE: At run time, this class is used by {@link $enum.mapValue} ONLY for
  *       handling null values.
- *       {@link ValueMappee} contains the core run time implementation that is
- *       applicable to all "ValueMappee" classes.
+ *       {@link EnumValueMappee} contains the core run time implementation that is
+ *       applicable to all "EnumValueMappee" classes.
  *
  * @template E - An enum or string/number literal type.
  */
-export class ValueMappeeWithNull<E extends string | number> {
+export class EnumValueMappeeWithNull<E extends string | number> {
     /**
      * Maps the wrapped value using the supplied mapper.
      * If the wrapped value is null, returns the mapper's
@@ -75,7 +75,7 @@ export class ValueMappeeWithNull<E extends string | number> {
      * @param mapper - A mapper implementation for type E that returns type T.
      * @returns The mapped value from the mapper.
      */
-    public with<T>(mapper: ValueMapperWithNull<E, T>): T {
+    public with<T>(mapper: EnumValueMapperWithNull<E, T>): T {
         // This class is used at run time for mapping null values regardless of
         // the compile time type being visited, so we actually have to check if
         // handleNull exists.
@@ -97,12 +97,12 @@ export class ValueMappeeWithNull<E extends string | number> {
  *
  * NOTE: At run time, this class is used by {@link $enum.mapValue} ONLY for
  *       handling undefined values.
- *       {@link ValueMappee} contains the core run time implementation that is
- *       applicable to all "ValueMappee" classes.
+ *       {@link EnumValueMappee} contains the core run time implementation that is
+ *       applicable to all "EnumValueMappee" classes.
  *
  * @template E - An enum or string/number literal type.
  */
-export class ValueMappeeWithUndefined<E extends string | number> {
+export class EnumValueMappeeWithUndefined<E extends string | number> {
     /**
      * Maps the wrapped value using the supplied mapper.
      * If the wrapped value is undefined, returns the mapper's
@@ -116,7 +116,7 @@ export class ValueMappeeWithUndefined<E extends string | number> {
      * @param mapper - A mapper implementation for type E that returns type T.
      * @returns The mapped value from the mapper.
      */
-    public with<T>(mapper: ValueMapperWithUndefined<E, T>): T {
+    public with<T>(mapper: EnumValueMapperWithUndefined<E, T>): T {
         // This class is used at run time for mapping undefined values
         // regardless of the compile time type being visited, so we actually
         // have to check if handleUndefined exists.
@@ -138,14 +138,14 @@ export class ValueMappeeWithUndefined<E extends string | number> {
  *
  * NOTE: No run time implementation of this class actually exists. This is only
  *       used for compile-time typing.
- *       {@link ValueMappee} contains the core run time implementation that is
- *       applicable to all "ValueMappee" classes, while
- *       {@link ValueMappeeWithNull} and {@link ValueMappeeWithUndefined}
+ *       {@link EnumValueMappee} contains the core run time implementation that is
+ *       applicable to all "EnumValueMappee" classes, while
+ *       {@link EnumValueMappeeWithNull} and {@link EnumValueMappeeWithUndefined}
  *       are used at run time to handle null and undefined values.
  *
  * @template E - An enum or string/number literal type.
  */
-export declare class ValueMappeeWithNullAndUndefined<
+export declare class EnumValueMappeeWithNullAndUndefined<
     E extends string | number
 > {
     /**
@@ -163,7 +163,7 @@ export declare class ValueMappeeWithNullAndUndefined<
      * @param mapper - A mapper implementation for type E that returns type T.
      * @returns The mapped value from the mapper.
      */
-    public with<T>(mapper: ValueMapperWithNullAndUndefined<E, T>): T;
+    public with<T>(mapper: EnumValueMapperWithNullAndUndefined<E, T>): T;
 }
 
 /**

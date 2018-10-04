@@ -1,5 +1,6 @@
 import { EnumWrapper, EnumLike } from "./EnumWrapper";
 import { Symbols } from "./Symbols";
+import { visitEnumValue } from "./visitEnumValue";
 import { mapEnumValue } from "./mapEnumValue";
 
 /**
@@ -86,6 +87,11 @@ export namespace $enum {
      */
     export const handleUnexpected: typeof Symbols.handleUnexpected =
         Symbols.handleUnexpected;
+
+    /**
+     * Convenient alias for {@link visitEnumValue}
+     */
+    export const visitValue = visitEnumValue;
 
     /**
      * Convenient alias for {@link mapEnumValue}

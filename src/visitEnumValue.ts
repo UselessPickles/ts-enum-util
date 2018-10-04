@@ -1,27 +1,27 @@
 import {
-    EnumValueMappee,
-    EnumValueMappeeWithNull,
-    EnumValueMappeeWithUndefined,
-    EnumValueMappeeWithNullAndUndefined
-} from "./EnumValueMappee";
+    EnumValueVisitee,
+    EnumValueVisiteeWithNull,
+    EnumValueVisiteeWithUndefined,
+    EnumValueVisiteeWithNullAndUndefined
+} from "./EnumValueVisitee";
 
 /**
- * Union of all "EnumValueMappee" types.
+ * Union of all "EnumValueVisitee" types.
  */
-type AnyEnumValueMappee<E extends string | number> =
-    | EnumValueMappee<E>
-    | EnumValueMappeeWithNull<E>
-    | EnumValueMappeeWithUndefined<E>
-    | EnumValueMappeeWithNullAndUndefined<E>;
+type AnyEnumValueVisitee<E extends string | number> =
+    | EnumValueVisitee<E>
+    | EnumValueVisiteeWithNull<E>
+    | EnumValueVisiteeWithUndefined<E>
+    | EnumValueVisiteeWithNullAndUndefined<E>;
 
 /**
  * The first step to mapping the value of an enum or string/number literal type.
  * This method creates a "mappee" wrapper object, whose "with()" method must be
  * called with a mapper implementation.
  *
- * Example: mapEnumValue(aStringEnumValue).with({ ... }).
+ * Example: visitEnumValue(aStringEnumValue).with({ ... }).
  *
- * See also, {@link EnumValueMappee#with} and {@link ValueMapper}.
+ * See also, {@link EnumValueVisitee#with} and {@link ValueMapper}.
  *
  * @template E - An enum or string/number literal type.
  *
@@ -29,17 +29,17 @@ type AnyEnumValueMappee<E extends string | number> =
  * @return A "mappee" wrapper around the provided value, whose "with()" method
  *         must be called with a mapper implementation.
  */
-export function mapEnumValue<E extends string | number>(
+export function visitEnumValue<E extends string | number>(
     value: E
-): EnumValueMappee<E>;
+): EnumValueVisitee<E>;
 /**
  * The first step to mapping the value of an enum or string/number literal type.
  * This method creates a "mappee" wrapper object, whose "with()" method must be
  * called with a mapper implementation.
  *
- * Example: mapEnumValue(aStringEnumValue).with({ ... }).
+ * Example: visitEnumValue(aStringEnumValue).with({ ... }).
  *
- * See also, {@link EnumValueMappeeWithNull#with} and {@link ValueMapperWithNull}.
+ * See also, {@link EnumValueVisiteeWithNull#with} and {@link ValueMapperWithNull}.
  *
  * @template E - An enum or string/number literal type.
  *
@@ -47,17 +47,17 @@ export function mapEnumValue<E extends string | number>(
  * @return A "mappee" wrapper around the provided value, whose "with()" method
  *         must be called with a mapper implementation.
  */
-export function mapEnumValue<E extends string | number>(
+export function visitEnumValue<E extends string | number>(
     value: E | null
-): EnumValueMappeeWithNull<E>;
+): EnumValueVisiteeWithNull<E>;
 /**
  * The first step to mapping the value of an enum or string/number literal type.
  * This method creates a "mappee" wrapper object, whose "with()" method must be
  * called with a mapper implementation.
  *
- * Example: mapEnumValue(aStringEnumValue).with({ ... }).
+ * Example: visitEnumValue(aStringEnumValue).with({ ... }).
  *
- * See also, {@link EnumValueMappeeWithUndefined#with} and
+ * See also, {@link EnumValueVisiteeWithUndefined#with} and
  * {@link ValueMapperWithUndefined}.
  *
  * @template E - An enum or string/number literal type.
@@ -66,16 +66,16 @@ export function mapEnumValue<E extends string | number>(
  * @return A "mappee" wrapper around the provided value, whose "with()" method
  *         must be called with a mapper implementation.
  */
-export function mapEnumValue<E extends string | number>(
+export function visitEnumValue<E extends string | number>(
     value: E | undefined
-): EnumValueMappeeWithUndefined<E>;
+): EnumValueVisiteeWithUndefined<E>;
 /**
  * The first step to mapping the value of an enum or string/number literal type.
  * This method creates a "mappee" wrapper object, whose "with()" method must be
  * called with a mapper implementation.
  *
- * Example: mapEnumValue(aStringEnumValue).with({ ... }).
- * See also, {@link EnumValueMappeeWithNullAndUndefined#with} and
+ * Example: visitEnumValue(aStringEnumValue).with({ ... }).
+ * See also, {@link EnumValueVisiteeWithNullAndUndefined#with} and
  * {@link ValueMapperWithNullAndUndefined}.
  *
  * @template E - An enum or string/number literal type.
@@ -84,21 +84,21 @@ export function mapEnumValue<E extends string | number>(
  * @return A "mappee" wrapper around the provided value, whose "with()" method
  *         must be called with a mapper implementation.
  */
-export function mapEnumValue<E extends string | number>(
+export function visitEnumValue<E extends string | number>(
     value: E | null | undefined
-): EnumValueMappeeWithNullAndUndefined<E>;
+): EnumValueVisiteeWithNullAndUndefined<E>;
 
-export function mapEnumValue<E extends string | number>(
+export function visitEnumValue<E extends string | number>(
     value: E | null | undefined
-): AnyEnumValueMappee<E> {
-    // NOTE: The run time type of EnumValueMappee created does not necessarily match
-    //       the compile-time type. This results in unusual EnumValueMappee.with()
+): AnyEnumValueVisitee<E> {
+    // NOTE: The run time type of EnumValueVisitee created does not necessarily match
+    //       the compile-time type. This results in unusual EnumValueVisitee.with()
     //       implementations.
     if (value === null) {
-        return new EnumValueMappeeWithNull<E>();
+        return new EnumValueVisiteeWithNull<E>();
     } else if (value === undefined) {
-        return new EnumValueMappeeWithUndefined<E>();
+        return new EnumValueVisiteeWithUndefined<E>();
     } else {
-        return new EnumValueMappee<E>(value);
+        return new EnumValueVisitee<E>(value);
     }
 }

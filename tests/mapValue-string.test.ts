@@ -1,9 +1,9 @@
 import {
     $enum,
-    ValueMapper,
-    ValueMapperWithNull,
-    ValueMapperWithUndefined,
-    ValueMapperWithNullAndUndefined
+    EnumValueMapper,
+    EnumValueMapperWithNull,
+    EnumValueMapperWithUndefined,
+    EnumValueMapperWithNullAndUndefined
 } from "../src";
 
 enum RGB {
@@ -56,7 +56,7 @@ describe("mapValue (string)", () => {
             }
         ];
 
-        const mappers: ValueMapper<RGB, string>[] = [
+        const mappers: EnumValueMapper<RGB, string>[] = [
             {
                 [RGB.R]: "Red!",
                 [RGB.G]: "Green!",
@@ -71,14 +71,16 @@ describe("mapValue (string)", () => {
             {
                 [RGB.R]: $enum.unhandled,
                 [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [RGB.B]: $enum.unhandled
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (mapper[RGB.R] === $enum.unhandled) {
+                if (
+                    mapper[RGB.R] === $enum.unhandled &&
+                    !testEntry.isUnexpected
+                ) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -154,7 +156,7 @@ describe("mapValue (string)", () => {
             }
         ];
 
-        const mappers: ValueMapperWithNull<RGB, string>[] = [
+        const mappers: EnumValueMapperWithNull<RGB, string>[] = [
             {
                 [RGB.R]: "Red!",
                 [RGB.G]: "Green!",
@@ -172,14 +174,16 @@ describe("mapValue (string)", () => {
                 [RGB.R]: $enum.unhandled,
                 [RGB.G]: $enum.unhandled,
                 [RGB.B]: $enum.unhandled,
-                [$enum.handleNull]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [$enum.handleNull]: $enum.unhandled
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (mapper[RGB.R] === $enum.unhandled) {
+                if (
+                    mapper[RGB.R] === $enum.unhandled &&
+                    !testEntry.isUnexpected
+                ) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -255,7 +259,7 @@ describe("mapValue (string)", () => {
             }
         ];
 
-        const mappers: ValueMapperWithUndefined<RGB, string>[] = [
+        const mappers: EnumValueMapperWithUndefined<RGB, string>[] = [
             {
                 [RGB.R]: "Red!",
                 [RGB.G]: "Green!",
@@ -273,14 +277,16 @@ describe("mapValue (string)", () => {
                 [RGB.R]: $enum.unhandled,
                 [RGB.G]: $enum.unhandled,
                 [RGB.B]: $enum.unhandled,
-                [$enum.handleUndefined]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [$enum.handleUndefined]: $enum.unhandled
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (mapper[RGB.R] === $enum.unhandled) {
+                if (
+                    mapper[RGB.R] === $enum.unhandled &&
+                    !testEntry.isUnexpected
+                ) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -355,7 +361,7 @@ describe("mapValue (string)", () => {
             }
         ];
 
-        const mappers: ValueMapperWithNullAndUndefined<RGB, string>[] = [
+        const mappers: EnumValueMapperWithNullAndUndefined<RGB, string>[] = [
             {
                 [RGB.R]: "Red!",
                 [RGB.G]: "Green!",
@@ -376,14 +382,16 @@ describe("mapValue (string)", () => {
                 [RGB.G]: $enum.unhandled,
                 [RGB.B]: $enum.unhandled,
                 [$enum.handleNull]: $enum.unhandled,
-                [$enum.handleUndefined]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [$enum.handleUndefined]: $enum.unhandled
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (mapper[RGB.R] === $enum.unhandled) {
+                if (
+                    mapper[RGB.R] === $enum.unhandled &&
+                    !testEntry.isUnexpected
+                ) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -415,9 +423,5 @@ describe("mapValue (string)", () => {
                 }
             }
         }
-    });
-
-    test("unhandled is an alias of $enum.unhandled", () => {
-        expect($enum.unhandled).toBe($enum.unhandled);
     });
 });

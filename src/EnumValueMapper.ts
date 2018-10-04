@@ -7,40 +7,40 @@ import { Symbols } from "./Symbols";
  * @template E - An enum type or string/number literal union type.
  * @template T - The type of the value that the enum value is mapped to.
  */
-export type ValueMapperCore<E extends string | number, T> = {
+export type EnumValueMapperCore<E extends string | number, T> = {
     [P in E]: T | typeof Symbols.unhandledEntry
 };
 
 /**
  * Interface for an object that optionally maps an unexpected value to a value
  * of type T.
- * This is never used by itself, but combined with {@link ValueMapperCore}.
+ * This is never used by itself, but combined with {@link EnumValueMapperCore}.
  *
  * @template T - The type of the value that the enum value is mapped to.
  */
-export interface UnexpectedValueMapper<T> {
-    [Symbols.handleUnexpected]?: T | typeof Symbols.unhandledEntry;
+export interface UnexpectedEnumValueMapper<T> {
+    [Symbols.handleUnexpected]?: T;
 }
 
 /**
  * Interface for an object that maps a null value to a value of type T.
- * This is never used by itself, but combined with {@link ValueMapper} as
+ * This is never used by itself, but combined with {@link EnumValueMapper} as
  * needed.
  *
  * @template T - The type of the value that the enum value is mapped to.
  */
-export interface NullValueMapper<T> {
+export interface NullEnumValueMapper<T> {
     [Symbols.handleNull]: T | typeof Symbols.unhandledEntry;
 }
 
 /**
  * Interface for an object that maps an undefined value to a value of type T.
- * This is never used by itself, but combined with {@link ValueMapper} as
+ * This is never used by itself, but combined with {@link EnumValueMapper} as
  * needed.
  *
  * @template T - The type of the value that the enum value is mapped to.
  */
-export interface UndefinedValueMapper<T> {
+export interface UndefinedEnumValueMapper<T> {
     [Symbols.handleUndefined]: T | typeof Symbols.unhandledEntry;
 }
 
@@ -51,48 +51,53 @@ export interface UndefinedValueMapper<T> {
  * @template E - An enum type or string/number literal union type.
  * @template T - The type of the value that the enum value is mapped to.
  */
-export type ValueMapper<E extends string | number, T> = ValueMapperCore<E, T> &
-    UnexpectedValueMapper<T>;
+export type EnumValueMapper<E extends string | number, T> = EnumValueMapperCore<
+    E,
+    T
+> &
+    UnexpectedEnumValueMapper<T>;
 
 /**
- * Combines {@link ValueMapper} with {@link NullValueMapper} for mapping an enum
+ * Combines {@link EnumValueMapper} with {@link NullEnumValueMapper} for mapping an enum
  * or string/number literal value that may be null.
  *
  * @template E - An enum type or string/number literal union type.
  * @template T - The type of the value that the enum value is mapped to.
  */
-export type ValueMapperWithNull<E extends string | number, T> = ValueMapper<
-    E,
+export type EnumValueMapperWithNull<
+    E extends string | number,
     T
-> &
-    NullValueMapper<T> &
-    UnexpectedValueMapper<T>;
+> = EnumValueMapper<E, T> &
+    NullEnumValueMapper<T> &
+    UnexpectedEnumValueMapper<T>;
 
 /**
- * Combines {@link ValueMapper} with {@link UndefinedValueMapper} for mapping an
+ * Combines {@link EnumValueMapper} with {@link UndefinedEnumValueMapper} for mapping an
  * enum or string/number literal value that may be undefined.
  *
  * @template E - An enum type or string/number literal union type.
  * @template T - The type of the value that the enum value is mapped to.
  */
-export type ValueMapperWithUndefined<
+export type EnumValueMapperWithUndefined<
     E extends string | number,
     T
-> = ValueMapper<E, T> & UndefinedValueMapper<T> & UnexpectedValueMapper<T>;
+> = EnumValueMapper<E, T> &
+    UndefinedEnumValueMapper<T> &
+    UnexpectedEnumValueMapper<T>;
 
 /**
- * Combines {@link ValueMapper} with {@link NullValueMapper} and
- * {@link UndefinedValueMapper}
+ * Combines {@link EnumValueMapper} with {@link NullEnumValueMapper} and
+ * {@link UndefinedEnumValueMapper}
  * for mapping an enum or string/number literal value that may be null or
  * undefined.
  *
  * @template E - An enum type or string/number literal union type.
  * @template T - The type of the value that the enum value is mapped to.
  */
-export type ValueMapperWithNullAndUndefined<
+export type EnumValueMapperWithNullAndUndefined<
     E extends string | number,
     T
-> = ValueMapper<E, T> &
-    NullValueMapper<T> &
-    UndefinedValueMapper<T> &
-    UnexpectedValueMapper<T>;
+> = EnumValueMapper<E, T> &
+    NullEnumValueMapper<T> &
+    UndefinedEnumValueMapper<T> &
+    UnexpectedEnumValueMapper<T>;
