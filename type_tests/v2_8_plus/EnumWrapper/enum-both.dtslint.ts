@@ -100,9 +100,8 @@ enumWrapper.map((value, key, collection, index) => {
 // $ExpectType ("A" | "B" | "C")[]
 enumWrapper.getKeys();
 
-// NOTE: Cannot use ExpectType assertion because of this bug:
-// https://github.com/Microsoft/TypeScript/issues/27566
-const testValues: TestEnum[] = enumWrapper.getValues();
+// $ExpectType TestEnum[]
+enumWrapper.getValues();
 
 // NOTE: Must test via assignability rather than ExpectType because of a change
 // in how Readonly tuple types work as of TS 3.1.
