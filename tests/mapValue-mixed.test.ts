@@ -416,4 +416,17 @@ describe("mapValue (string/number mix)", () => {
             }
         }
     });
+
+    test("Explicit undefined value for [$enum.handleUnexpected]", () => {
+        const result = $enum
+            .mapValue(("BLAH!" as any) as RGB)
+            .with<number | undefined>({
+                [RGB.R]: 1,
+                [RGB.G]: 2,
+                [RGB.B]: 3,
+                [$enum.handleUnexpected]: undefined
+            });
+
+        expect(result).toBe(undefined);
+    });
 });
