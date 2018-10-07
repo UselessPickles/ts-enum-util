@@ -7,9 +7,9 @@ import {
 } from "../src";
 
 enum RGB {
-    R = "0",
+    R = "r",
     G = 1,
-    B = "2"
+    B = "b"
 }
 
 describe("mapValue (string/number mix)", () => {
@@ -71,16 +71,14 @@ describe("mapValue (string/number mix)", () => {
             {
                 [RGB.R]: $enum.unhandled,
                 [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled
+                [RGB.B]: $enum.unhandled,
+                [$enum.handleUnexpected]: $enum.unhandled
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (
-                    mapper[RGB.R] === $enum.unhandled &&
-                    !testEntry.isUnexpected
-                ) {
+                if (mapper[RGB.R] === $enum.unhandled) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -174,16 +172,14 @@ describe("mapValue (string/number mix)", () => {
                 [RGB.R]: $enum.unhandled,
                 [RGB.G]: $enum.unhandled,
                 [RGB.B]: $enum.unhandled,
-                [$enum.handleNull]: $enum.unhandled
+                [$enum.handleNull]: $enum.unhandled,
+                [$enum.handleUnexpected]: $enum.unhandled
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (
-                    mapper[RGB.R] === $enum.unhandled &&
-                    !testEntry.isUnexpected
-                ) {
+                if (mapper[RGB.R] === $enum.unhandled) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -277,16 +273,14 @@ describe("mapValue (string/number mix)", () => {
                 [RGB.R]: $enum.unhandled,
                 [RGB.G]: $enum.unhandled,
                 [RGB.B]: $enum.unhandled,
-                [$enum.handleUndefined]: $enum.unhandled
+                [$enum.handleUndefined]: $enum.unhandled,
+                [$enum.handleUnexpected]: $enum.unhandled
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (
-                    mapper[RGB.R] === $enum.unhandled &&
-                    !testEntry.isUnexpected
-                ) {
+                if (mapper[RGB.R] === $enum.unhandled) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -382,16 +376,14 @@ describe("mapValue (string/number mix)", () => {
                 [RGB.G]: $enum.unhandled,
                 [RGB.B]: $enum.unhandled,
                 [$enum.handleNull]: $enum.unhandled,
-                [$enum.handleUndefined]: $enum.unhandled
+                [$enum.handleUndefined]: $enum.unhandled,
+                [$enum.handleUnexpected]: $enum.unhandled
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (
-                    mapper[RGB.R] === $enum.unhandled &&
-                    !testEntry.isUnexpected
-                ) {
+                if (mapper[RGB.R] === $enum.unhandled) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {

@@ -19,7 +19,7 @@ export type EnumValueMapperCore<E extends string | number, T> = {
  * @template T - The type of the value that the enum value is mapped to.
  */
 export interface UnexpectedEnumValueMapper<T> {
-    [Symbols.handleUnexpected]?: T;
+    [Symbols.handleUnexpected]?: T | typeof Symbols.unhandledEntry;
 }
 
 /**
