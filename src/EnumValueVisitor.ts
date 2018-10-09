@@ -1,6 +1,13 @@
 import { Symbols } from "./Symbols";
 
 /**
+ * Helper type to widen a number/string enum/literal type to plain string or number.
+ */
+export type WidenEnumType<E extends number | string> =
+    | (E extends number ? number : never)
+    | (E extends string ? string : never);
+
+/**
  * Generic method signature for a string visitor handler method.
  * @template E - The type of the parameter to the handler. Must be a string literal, null, or undefined.
  * @template R - The return type of the handler. Defaults to void.
@@ -58,7 +65,7 @@ export type EnumValueVisitor<
     R
 > = EnumValueVisitorCore<E, R> & {
     [Symbols.handleUnexpected]?:
-        | EnumValueVisitorHandler<string | number | null | undefined, R>
+        | EnumValueVisitorHandler<WidenEnumType<E> | null | undefined, R>
         | typeof Symbols.unhandledEntry;
 };
 
@@ -75,7 +82,7 @@ export type EnumValueVisitorWithNull<
 > = EnumValueVisitorCore<E, R> &
     NullEnumValueVisitor<R> & {
         [Symbols.handleUnexpected]?:
-            | EnumValueVisitorHandler<string | number | undefined, R>
+            | EnumValueVisitorHandler<WidenEnumType<E> | undefined, R>
             | typeof Symbols.unhandledEntry;
     };
 
@@ -92,7 +99,7 @@ export type EnumValueVisitorWithUndefined<
 > = EnumValueVisitorCore<E, R> &
     UndefinedEnumValueVisitor<R> & {
         [Symbols.handleUnexpected]?:
-            | EnumValueVisitorHandler<string | number | null, R>
+            | EnumValueVisitorHandler<WidenEnumType<E> | null, R>
             | typeof Symbols.unhandledEntry;
     };
 
@@ -110,6 +117,6 @@ export type EnumValueVisitorWithNullAndUndefined<
     NullEnumValueVisitor<R> &
     UndefinedEnumValueVisitor<R> & {
         [Symbols.handleUnexpected]?:
-            | EnumValueVisitorHandler<string | number, R>
+            | EnumValueVisitorHandler<WidenEnumType<E>, R>
             | typeof Symbols.unhandledEntry;
     };

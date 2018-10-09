@@ -167,7 +167,7 @@ export declare class EnumValueMappeeWithNullAndUndefined<
 }
 
 /**
- * Common implementation for processing an entry of a value mapper.
+ * Common implementation for processing an entry of an enum value mapper.
  * @param entry - Either the mapped value entry, or {@link Symbols.unhandledEntry}.
  * @param value - The value being mapped.
  * @return The provided entry, if it is not an unhandledEntry.

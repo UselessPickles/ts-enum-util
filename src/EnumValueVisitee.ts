@@ -1,6 +1,7 @@
 import { Symbols } from "./Symbols";
 import { createUnhandledEntryError } from "./createUnhandledEntryError";
 import {
+    WidenEnumType,
     EnumValueVisitorHandler,
     EnumValueVisitorCore,
     EnumValueVisitor,
@@ -36,7 +37,8 @@ export class EnumValueVisitee<E extends string | number> {
             const handler = (visitor as EnumValueVisitorCore<E, R>)[this.value];
             return processEntry(handler, this.value);
         } else if (visitor[Symbols.handleUnexpected]) {
-            return processEntry(visitor[Symbols.handleUnexpected]!, this.value);
+            return processEntry(visitor[Symbols.handleUnexpected]!, (this
+                .value as any) as WidenEnumType<E>);
         } else {
             throw new Error(`Unexpected value: ${this.value}`);
         }
@@ -72,8 +74,8 @@ export class EnumValueVisiteeWithNull<E extends string | number> {
             return processEntry(visitor[Symbols.handleNull], null);
         } else if (visitor[Symbols.handleUnexpected]) {
             return processEntry(
-                visitor[Symbols.handleUnexpected]!,
-                (null as any) as E
+                (visitor as EnumValueVisitor<E, R>)[Symbols.handleUnexpected]!,
+                null
             );
         } else {
             throw new Error(`Unexpected value: null`);
@@ -110,8 +112,8 @@ export class EnumValueVisiteeWithUndefined<E extends string | number> {
             return processEntry(visitor[Symbols.handleUndefined], undefined);
         } else if (visitor[Symbols.handleUnexpected]) {
             return processEntry(
-                visitor[Symbols.handleUnexpected]!,
-                (undefined as any) as E
+                (visitor as EnumValueVisitor<E, R>)[Symbols.handleUnexpected]!,
+                undefined
             );
         } else {
             throw new Error(`Unexpected value: undefined`);
@@ -149,7 +151,7 @@ export declare class EnumValueVisiteeWithNullAndUndefined<
 }
 
 /**
- * Common implementation for processing an entry of a string visitor.
+ * Common implementation for processing an entry of an enum value visitor.
  * @param entry - Either the visitor handler implementation for an entry, or an UnhandledEntry.
  * @param value - The value being mapped.
  * @return The result of executing the provided entry, if it is not an UnhandledEntry.
