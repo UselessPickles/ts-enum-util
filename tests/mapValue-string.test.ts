@@ -419,14 +419,72 @@ describe("mapValue (string)", () => {
 
     test("Explicit undefined value for [$enum.handleUnexpected]", () => {
         const result = $enum
-            .mapValue(("BLAH!" as any) as RGB)
+            .mapValue(("BLAH!" as any) as "foo")
             .with<number | undefined>({
-                [RGB.R]: 1,
-                [RGB.G]: 2,
-                [RGB.B]: 3,
+                foo: 1,
                 [$enum.handleUnexpected]: undefined
             });
 
         expect(result).toBe(undefined);
+    });
+
+    describe("Collisions with special symbols are impossible", () => {
+        test("special handler symbol name", () => {
+            const result1 = $enum
+                .mapValue("handleNull" as "handleNull" | null)
+                .with<number>({
+                    handleNull: 1,
+                    [$enum.handleNull]: 2
+                });
+
+            expect(result1).toBe(1);
+
+            const result2 = $enum
+                .mapValue(null as "handleNull" | null)
+                .with<number>({
+                    handleNull: 1,
+                    [$enum.handleNull]: 2
+                });
+
+            expect(result2).toBe(2);
+        });
+
+        test("special handler symbol description", () => {
+            const result1 = $enum
+                .mapValue("ts-enum-util:Symbols.handleNull" as
+                    | "ts-enum-util:Symbols.handleNull"
+                    | null)
+                .with<number>({
+                    "ts-enum-util:Symbols.handleNull": 1,
+                    [$enum.handleNull]: 2
+                });
+
+            expect(result1).toBe(1);
+
+            const result2 = $enum
+                .mapValue(null as "ts-enum-util:Symbols.handleNull" | null)
+                .with<number>({
+                    "ts-enum-util:Symbols.handleNull": 1,
+                    [$enum.handleNull]: 2
+                });
+
+            expect(result2).toBe(2);
+        });
+
+        test("unhandled entry symbol name", () => {
+            const result = $enum.mapValue("foo" as "foo").with<string>({
+                foo: "unhandledEntry"
+            });
+
+            expect(result).toBe("unhandledEntry");
+        });
+
+        test("unhandled entry symbol description", () => {
+            const result = $enum.mapValue("foo" as "foo").with<string>({
+                foo: "ts-enum-util:Symbols.unhandledEntry"
+            });
+
+            expect(result).toBe("ts-enum-util:Symbols.unhandledEntry");
+        });
     });
 });

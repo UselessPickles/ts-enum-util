@@ -429,4 +429,22 @@ describe("mapValue (number)", () => {
 
         expect(result).toBe(undefined);
     });
+
+    describe("Collisions with special symbols are impossible", () => {
+        test("unhandled entry symbol name", () => {
+            const result = $enum.mapValue(1).with<string>({
+                1: "unhandledEntry"
+            });
+
+            expect(result).toBe("unhandledEntry");
+        });
+
+        test("unhandled entry symbol description", () => {
+            const result = $enum.mapValue(1).with<string>({
+                1: "ts-enum-util:Symbols.unhandledEntry"
+            });
+
+            expect(result).toBe("ts-enum-util:Symbols.unhandledEntry");
+        });
+    });
 });
