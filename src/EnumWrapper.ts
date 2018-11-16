@@ -400,9 +400,7 @@ export class EnumWrapper<
         defaultKey?: StringKeyOf<T> | string
     ): string | undefined {
         if (this.isKey(key)) {
-            // type cast required to work around TypeScript bug:
-            // https://github.com/Microsoft/TypeScript/issues/21950
-            return key as StringKeyOf<T>;
+            return key;
         } else {
             return defaultKey;
         }
@@ -682,9 +680,7 @@ export class EnumWrapper<
         //       lookups for keys that match properties on Object.prototype, or keys that match the index keys of
         //       reverse lookups on numeric enums.
         if (this.isKey(key)) {
-            // type cast required to work around TypeScript bug:
-            // https://github.com/Microsoft/TypeScript/issues/21950
-            return this.enumObj[key as StringKeyOf<T>];
+            return this.enumObj[key];
         } else {
             return defaultValue;
         }
