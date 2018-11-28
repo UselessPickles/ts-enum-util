@@ -451,20 +451,20 @@ describe("mapValue (string)", () => {
 
         test("special handler symbol description", () => {
             const result1 = $enum
-                .mapValue("ts-enum-util:Symbols.handleNull" as
-                    | "ts-enum-util:Symbols.handleNull"
+                .mapValue("ts-enum-util:handleNull" as
+                    | "ts-enum-util:handleNull"
                     | null)
                 .with<number>({
-                    "ts-enum-util:Symbols.handleNull": 1,
+                    "ts-enum-util:handleNull": 1,
                     [$enum.handleNull]: 2
                 });
 
             expect(result1).toBe(1);
 
             const result2 = $enum
-                .mapValue(null as "ts-enum-util:Symbols.handleNull" | null)
+                .mapValue(null as "ts-enum-util:handleNull" | null)
                 .with<number>({
-                    "ts-enum-util:Symbols.handleNull": 1,
+                    "ts-enum-util:handleNull": 1,
                     [$enum.handleNull]: 2
                 });
 
@@ -481,10 +481,10 @@ describe("mapValue (string)", () => {
 
         test("unhandled entry symbol description", () => {
             const result = $enum.mapValue("foo" as "foo").with<string>({
-                foo: "ts-enum-util:Symbols.unhandledEntry"
+                foo: "ts-enum-util:unhandledEntry"
             });
 
-            expect(result).toBe("ts-enum-util:Symbols.unhandledEntry");
+            expect(result).toBe("ts-enum-util:unhandledEntry");
         });
     });
 });

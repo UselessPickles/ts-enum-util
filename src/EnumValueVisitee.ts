@@ -1,4 +1,9 @@
-import { Symbols } from "./Symbols";
+import {
+    handleUnexpected,
+    handleNull,
+    handleUndefined,
+    unhandledEntry
+} from "./symbols";
 import { createUnhandledEntryError } from "./createUnhandledEntryError";
 import {
     WidenEnumType,
@@ -36,8 +41,8 @@ export class EnumValueVisitee<E extends string | number> {
         if (visitor.hasOwnProperty(this.value)) {
             const handler = (visitor as EnumValueVisitorCore<E, R>)[this.value];
             return processEntry(handler, this.value);
-        } else if (visitor[Symbols.handleUnexpected]) {
-            return processEntry(visitor[Symbols.handleUnexpected]!, (this
+        } else if (visitor[handleUnexpected]) {
+            return processEntry(visitor[handleUnexpected]!, (this
                 .value as any) as WidenEnumType<E>);
         } else {
             throw new Error(`Unexpected value: ${this.value}`);
@@ -70,11 +75,11 @@ export class EnumValueVisiteeWithNull<E extends string | number> {
     public with<R>(visitor: EnumValueVisitorWithNull<E, R>): R {
         // This class is used at run time for visiting null values regardless of the compile time
         // type being visited, so we actually have to check if handleNull exists.
-        if (visitor[Symbols.handleNull]) {
-            return processEntry(visitor[Symbols.handleNull], null);
-        } else if (visitor[Symbols.handleUnexpected]) {
+        if (visitor[handleNull]) {
+            return processEntry(visitor[handleNull], null);
+        } else if (visitor[handleUnexpected]) {
             return processEntry(
-                (visitor as EnumValueVisitor<E, R>)[Symbols.handleUnexpected]!,
+                (visitor as EnumValueVisitor<E, R>)[handleUnexpected]!,
                 null
             );
         } else {
@@ -108,11 +113,11 @@ export class EnumValueVisiteeWithUndefined<E extends string | number> {
     public with<R>(visitor: EnumValueVisitorWithUndefined<E, R>): R {
         // This class is used at run time for visiting undefined values regardless of the compile time
         // type being visited, so we actually have to check if handleUndefined exists.
-        if (visitor[Symbols.handleUndefined]) {
-            return processEntry(visitor[Symbols.handleUndefined], undefined);
-        } else if (visitor[Symbols.handleUnexpected]) {
+        if (visitor[handleUndefined]) {
+            return processEntry(visitor[handleUndefined], undefined);
+        } else if (visitor[handleUnexpected]) {
             return processEntry(
-                (visitor as EnumValueVisitor<E, R>)[Symbols.handleUnexpected]!,
+                (visitor as EnumValueVisitor<E, R>)[handleUnexpected]!,
                 undefined
             );
         } else {
@@ -158,10 +163,10 @@ export declare class EnumValueVisiteeWithNullAndUndefined<
  * @throws {Error} If the provided entry is an UnhandledEntry.
  */
 function processEntry<E extends string | number | null | undefined, R>(
-    entry: EnumValueVisitorHandler<E, R> | typeof Symbols.unhandledEntry,
+    entry: EnumValueVisitorHandler<E, R> | typeof unhandledEntry,
     value: E
 ): R {
-    if (entry === Symbols.unhandledEntry) {
+    if (entry === unhandledEntry) {
         throw createUnhandledEntryError(value);
     } else {
         return entry(value);

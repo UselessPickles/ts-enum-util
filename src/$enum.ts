@@ -1,5 +1,5 @@
 import { EnumWrapper, EnumLike } from "./EnumWrapper";
-import { Symbols } from "./Symbols";
+import * as symbols from "./symbols";
 import { visitEnumValue } from "./visitEnumValue";
 import { mapEnumValue } from "./mapEnumValue";
 
@@ -66,27 +66,27 @@ export function $enum(enumObj: object): EnumWrapper {
 
 export namespace $enum {
     /**
-     * Convenient alias for {@link Symbols.unhandled}.
+     * Convenient alias for {@link unhandled}.
      */
-    export const unhandled: typeof Symbols.unhandledEntry =
-        Symbols.unhandledEntry;
+    export const unhandled: typeof symbols.unhandledEntry =
+        symbols.unhandledEntry;
 
     /**
-     * Convenient alias for {@link Symbols.handleNull}.
+     * Convenient alias for {@link handleNull}.
      */
-    export const handleNull: typeof Symbols.handleNull = Symbols.handleNull;
+    export const handleNull: typeof symbols.handleNull = symbols.handleNull;
 
     /**
-     * Convenient alias for {@link Symbols.handleUndefined}.
+     * Convenient alias for {@link handleUndefined}.
      */
-    export const handleUndefined: typeof Symbols.handleUndefined =
-        Symbols.handleUndefined;
+    export const handleUndefined: typeof symbols.handleUndefined =
+        symbols.handleUndefined;
 
     /**
-     * Convenient alias for {@link Symbols.handleUnexpected}.
+     * Convenient alias for {@link handleUnexpected}.
      */
-    export const handleUnexpected: typeof Symbols.handleUnexpected =
-        Symbols.handleUnexpected;
+    export const handleUnexpected: typeof symbols.handleUnexpected =
+        symbols.handleUnexpected;
 
     /**
      * Convenient alias for {@link visitEnumValue}

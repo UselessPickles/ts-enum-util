@@ -441,10 +441,10 @@ describe("mapValue (number)", () => {
 
         test("unhandled entry symbol description", () => {
             const result = $enum.mapValue(1).with<string>({
-                1: "ts-enum-util:Symbols.unhandledEntry"
+                1: "ts-enum-util:unhandledEntry"
             });
 
-            expect(result).toBe("ts-enum-util:Symbols.unhandledEntry");
+            expect(result).toBe("ts-enum-util:unhandledEntry");
         });
     });
 });

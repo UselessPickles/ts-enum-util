@@ -1,4 +1,9 @@
-import { Symbols } from "./Symbols";
+import {
+    handleUnexpected,
+    handleNull,
+    handleUndefined,
+    unhandledEntry
+} from "./symbols";
 
 /**
  * Helper type to widen a number/string enum/literal type to plain string or number.
@@ -27,7 +32,7 @@ export type EnumValueVisitorHandler<
  * @template R - The return type of the visitor methods.
  */
 export type EnumValueVisitorCore<E extends string | number, R> = {
-    [P in E]: EnumValueVisitorHandler<P, R> | typeof Symbols.unhandledEntry
+    [P in E]: EnumValueVisitorHandler<P, R> | typeof unhandledEntry
 };
 
 /**
@@ -37,9 +42,7 @@ export type EnumValueVisitorCore<E extends string | number, R> = {
  * @template R - The return type of the visitor method.
  */
 export interface NullEnumValueVisitor<R> {
-    [Symbols.handleNull]:
-        | EnumValueVisitorHandler<null, R>
-        | typeof Symbols.unhandledEntry;
+    [handleNull]: EnumValueVisitorHandler<null, R> | typeof unhandledEntry;
 }
 
 /**
@@ -49,9 +52,9 @@ export interface NullEnumValueVisitor<R> {
  * @template R - The return type of the visitor method.
  */
 export interface UndefinedEnumValueVisitor<R> {
-    [Symbols.handleUndefined]:
+    [handleUndefined]:
         | EnumValueVisitorHandler<undefined, R>
-        | typeof Symbols.unhandledEntry;
+        | typeof unhandledEntry;
 }
 
 /**
@@ -64,9 +67,9 @@ export type EnumValueVisitor<
     E extends string | number,
     R
 > = EnumValueVisitorCore<E, R> & {
-    [Symbols.handleUnexpected]?:
+    [handleUnexpected]?:
         | EnumValueVisitorHandler<WidenEnumType<E> | null | undefined, R>
-        | typeof Symbols.unhandledEntry;
+        | typeof unhandledEntry;
 };
 
 /**
@@ -81,9 +84,9 @@ export type EnumValueVisitorWithNull<
     R
 > = EnumValueVisitorCore<E, R> &
     NullEnumValueVisitor<R> & {
-        [Symbols.handleUnexpected]?:
+        [handleUnexpected]?:
             | EnumValueVisitorHandler<WidenEnumType<E> | undefined, R>
-            | typeof Symbols.unhandledEntry;
+            | typeof unhandledEntry;
     };
 
 /**
@@ -98,9 +101,9 @@ export type EnumValueVisitorWithUndefined<
     R
 > = EnumValueVisitorCore<E, R> &
     UndefinedEnumValueVisitor<R> & {
-        [Symbols.handleUnexpected]?:
+        [handleUnexpected]?:
             | EnumValueVisitorHandler<WidenEnumType<E> | null, R>
-            | typeof Symbols.unhandledEntry;
+            | typeof unhandledEntry;
     };
 
 /**
@@ -116,7 +119,7 @@ export type EnumValueVisitorWithNullAndUndefined<
 > = EnumValueVisitorCore<E, R> &
     NullEnumValueVisitor<R> &
     UndefinedEnumValueVisitor<R> & {
-        [Symbols.handleUnexpected]?:
+        [handleUnexpected]?:
             | EnumValueVisitorHandler<WidenEnumType<E>, R>
-            | typeof Symbols.unhandledEntry;
+            | typeof unhandledEntry;
     };

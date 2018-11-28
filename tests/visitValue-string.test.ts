@@ -12,7 +12,7 @@ enum RGB {
     B = "b"
 }
 
-describe("visitString", () => {
+describe("visitValue (string)", () => {
     const handlerMockR = jest.fn((value: RGB.R) => {
         return "Red!";
     });

@@ -1,4 +1,9 @@
-import { Symbols } from "./Symbols";
+import {
+    handleUnexpected,
+    handleNull,
+    handleUndefined,
+    unhandledEntry
+} from "./symbols";
 
 /**
  * Core definition of all enum value mapper interfaces.
@@ -8,7 +13,7 @@ import { Symbols } from "./Symbols";
  * @template T - The type of the value that the enum value is mapped to.
  */
 export type EnumValueMapperCore<E extends string | number, T> = {
-    [P in E]: T | typeof Symbols.unhandledEntry
+    [P in E]: T | typeof unhandledEntry
 };
 
 /**
@@ -19,7 +24,7 @@ export type EnumValueMapperCore<E extends string | number, T> = {
  * @template T - The type of the value that the enum value is mapped to.
  */
 export interface UnexpectedEnumValueMapper<T> {
-    [Symbols.handleUnexpected]?: T | typeof Symbols.unhandledEntry;
+    [handleUnexpected]?: T | typeof unhandledEntry;
 }
 
 /**
@@ -30,7 +35,7 @@ export interface UnexpectedEnumValueMapper<T> {
  * @template T - The type of the value that the enum value is mapped to.
  */
 export interface NullEnumValueMapper<T> {
-    [Symbols.handleNull]: T | typeof Symbols.unhandledEntry;
+    [handleNull]: T | typeof unhandledEntry;
 }
 
 /**
@@ -41,7 +46,7 @@ export interface NullEnumValueMapper<T> {
  * @template T - The type of the value that the enum value is mapped to.
  */
 export interface UndefinedEnumValueMapper<T> {
-    [Symbols.handleUndefined]: T | typeof Symbols.unhandledEntry;
+    [handleUndefined]: T | typeof unhandledEntry;
 }
 
 /**

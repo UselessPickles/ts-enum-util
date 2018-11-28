@@ -6,7 +6,12 @@ import {
     EnumValueMapperWithUndefined,
     EnumValueMapperWithNullAndUndefined
 } from "./EnumValueMapper";
-import { Symbols } from "./Symbols";
+import {
+    handleUnexpected,
+    handleNull,
+    handleUndefined,
+    unhandledEntry
+} from "./symbols";
 
 /**
  * A wrapper around an enum or string/number literal value to be mapped.
@@ -40,8 +45,8 @@ export class EnumValueMappee<E extends string | number> {
                 (mapper as EnumValueMapperCore<E, T>)[this.value],
                 this.value
             );
-        } else if (mapper.hasOwnProperty(Symbols.handleUnexpected)) {
-            return processEntry(mapper[Symbols.handleUnexpected]!, this.value);
+        } else if (mapper.hasOwnProperty(handleUnexpected)) {
+            return processEntry(mapper[handleUnexpected]!, this.value);
         } else {
             throw new Error(`Unexpected value: ${this.value}`);
         }
@@ -65,7 +70,7 @@ export class EnumValueMappeeWithNull<E extends string | number> {
     /**
      * Maps the wrapped value using the supplied mapper.
      * If the wrapped value is null, returns the mapper's
-     * {@link Symbols.handleNull} value.
+     * {@link handleNull} value.
      * Otherwise, returns the value of the mapper's property whose name matches
      * the wrapped value.
      *
@@ -79,10 +84,10 @@ export class EnumValueMappeeWithNull<E extends string | number> {
         // This class is used at run time for mapping null values regardless of
         // the compile time type being visited, so we actually have to check if
         // handleNull exists.
-        if (mapper.hasOwnProperty(Symbols.handleNull)) {
-            return processEntry(mapper[Symbols.handleNull], null);
-        } else if (mapper.hasOwnProperty(Symbols.handleUnexpected)) {
-            return processEntry(mapper[Symbols.handleUnexpected]!, null);
+        if (mapper.hasOwnProperty(handleNull)) {
+            return processEntry(mapper[handleNull], null);
+        } else if (mapper.hasOwnProperty(handleUnexpected)) {
+            return processEntry(mapper[handleUnexpected]!, null);
         } else {
             throw new Error(`Unexpected value: null`);
         }
@@ -106,7 +111,7 @@ export class EnumValueMappeeWithUndefined<E extends string | number> {
     /**
      * Maps the wrapped value using the supplied mapper.
      * If the wrapped value is undefined, returns the mapper's
-     * {@link Symbols.handleUndefined} value.
+     * {@link handleUndefined} value.
      * Otherwise, returns the value of the mapper's property whose name matches
      * the wrapped value.
      *
@@ -120,10 +125,10 @@ export class EnumValueMappeeWithUndefined<E extends string | number> {
         // This class is used at run time for mapping undefined values
         // regardless of the compile time type being visited, so we actually
         // have to check if handleUndefined exists.
-        if (mapper.hasOwnProperty(Symbols.handleUndefined)) {
-            return processEntry(mapper[Symbols.handleUndefined], undefined);
-        } else if (mapper.hasOwnProperty(Symbols.handleUnexpected)) {
-            return processEntry(mapper[Symbols.handleUnexpected]!, undefined);
+        if (mapper.hasOwnProperty(handleUndefined)) {
+            return processEntry(mapper[handleUndefined], undefined);
+        } else if (mapper.hasOwnProperty(handleUnexpected)) {
+            return processEntry(mapper[handleUnexpected]!, undefined);
         } else {
             throw new Error(`Unexpected value: undefined`);
         }
@@ -151,9 +156,9 @@ export declare class EnumValueMappeeWithNullAndUndefined<
     /**
      * Maps the wrapped value using the supplied mapper.
      * If the wrapped value is null, returns the mapper's
-     * {@link Symbols.handleNull} value.
+     * {@link handleNull} value.
      * If the wrapped value is undefined, returns the mapper's
-     * {@link Symbols.handleUndefined} value.
+     * {@link handleUndefined} value.
      * Otherwise, returns the value of the mapper's property whose name matches
      * the wrapped value.
      *
@@ -168,16 +173,16 @@ export declare class EnumValueMappeeWithNullAndUndefined<
 
 /**
  * Common implementation for processing an entry of an enum value mapper.
- * @param entry - Either the mapped value entry, or {@link Symbols.unhandledEntry}.
+ * @param entry - Either the mapped value entry, or {@link unhandledEntry}.
  * @param value - The value being mapped.
  * @return The provided entry, if it is not an unhandledEntry.
  * @throws {Error} If the provided entry is an unhandledEntry.
  */
 function processEntry<T>(
-    entry: T | typeof Symbols.unhandledEntry,
+    entry: T | typeof unhandledEntry,
     value: string | number | null | undefined
 ): T {
-    if (entry === Symbols.unhandledEntry) {
+    if (entry === unhandledEntry) {
         throw createUnhandledEntryError(value);
     } else {
         return entry;
