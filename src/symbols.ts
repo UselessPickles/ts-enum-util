@@ -26,7 +26,7 @@ export const handleUndefined = Symbol("ts-enum-util:handleUndefined");
 /**
  * Unique symbol used as a property name in value visitor/mapper
  * implementations to define a special "unexpected" value handler (handles
- * values at run-time that are unexpeced based on compile time type).
+ * values at run-time that are unexpected based on compile time type).
  * A symbol is used to avoid any possibility of a collision with an actual
  * string enum value.
  */
