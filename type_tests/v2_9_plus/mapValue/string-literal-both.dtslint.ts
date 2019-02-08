@@ -1,8 +1,8 @@
-import { $enum } from "../../../dist/types";
+import { $enum } from "ts-enum-util";
 
 type RGB = "r" | "g" | "b";
 
-declare const rgb: RGB | undefined;
+declare const rgb: RGB | null | undefined;
 
 // Return type is inferred
 // $ExpectType number
@@ -10,6 +10,7 @@ $enum.mapValue(rgb).with({
     r: 10,
     g: 20,
     b: 30,
+    [$enum.handleNull]: -1,
     [$enum.handleUndefined]: -1
 });
 // $ExpectType string
@@ -17,6 +18,7 @@ $enum.mapValue(rgb).with({
     r: "10",
     g: "20",
     b: "30",
+    [$enum.handleNull]: "-1",
     [$enum.handleUndefined]: "-1"
 });
 
@@ -26,6 +28,7 @@ $enum.mapValue(rgb).with({
     r: 10,
     g: $enum.unhandled,
     b: 30,
+    [$enum.handleNull]: -1,
     [$enum.handleUndefined]: -1
 });
 
@@ -35,6 +38,7 @@ $enum.mapValue(rgb).with({
     r: 10,
     g: 20,
     b: 30,
+    [$enum.handleNull]: -1,
     [$enum.handleUndefined]: -1,
     [$enum.handleUnexpected]: -1
 });
@@ -45,6 +49,7 @@ $enum.mapValue(rgb).with({
     r: 10,
     g: 20,
     b: 30,
+    [$enum.handleNull]: $enum.unhandled,
     [$enum.handleUndefined]: $enum.unhandled,
     [$enum.handleUnexpected]: $enum.unhandled
 });
@@ -54,6 +59,7 @@ $enum.mapValue(rgb).with({
 $enum.mapValue(rgb).with({
     r: 10,
     b: 30,
+    [$enum.handleNull]: -1,
     [$enum.handleUndefined]: -1
 });
 
@@ -64,6 +70,16 @@ $enum.mapValue(rgb).with({
     oops: 42,
     g: 20,
     b: 30,
+    [$enum.handleNull]: -1,
+    [$enum.handleUndefined]: -1
+});
+
+// missing null handler causes error
+// $ExpectError
+$enum.mapValue(rgb).with({
+    r: 10,
+    g: 20,
+    b: 30,
     [$enum.handleUndefined]: -1
 });
 
@@ -72,15 +88,6 @@ $enum.mapValue(rgb).with({
 $enum.mapValue(rgb).with({
     r: 10,
     g: 20,
-    b: 30
-});
-
-// Unnecessary null handler causes error
-$enum.mapValue(rgb).with({
-    r: 10,
-    g: 20,
     b: 30,
-    // $ExpectError
-    [$enum.handleNull]: -1,
-    [$enum.handleUndefined]: -1
+    [$enum.handleNull]: -1
 });

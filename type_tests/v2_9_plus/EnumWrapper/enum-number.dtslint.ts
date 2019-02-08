@@ -1,10 +1,10 @@
-import { $enum } from "../../../dist/types";
+import { $enum } from "ts-enum-util";
 
-// Enum with string values
+// Enum with number values
 enum TestEnum {
-    A = "a",
-    B = "b",
-    C = "c"
+    A,
+    B,
+    C
 }
 
 declare const str: string;
@@ -25,7 +25,7 @@ declare const valueOrUndefined: TestEnum | undefined;
 
 const enumWrapper = $enum(TestEnum);
 
-// $ExpectType EnumWrapper<string, typeof TestEnum>
+// $ExpectType EnumWrapper<number, typeof TestEnum>
 enumWrapper;
 
 // $ExpectType number
@@ -71,7 +71,7 @@ enumWrapper.forEach((value, key, collection, index) => {
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<string, typeof TestEnum>
+    // $ExpectType EnumWrapper<number, typeof TestEnum>
     collection;
     // $ExpectType number
     index;
@@ -85,7 +85,7 @@ enumWrapper.map((value, key, collection, index) => {
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<string, typeof TestEnum>
+    // $ExpectType EnumWrapper<number, typeof TestEnum>
     collection;
     // $ExpectType number
     index;
@@ -155,86 +155,86 @@ enumWrapper.asKeyOrDefault(str, str);
 enumWrapper.asKeyOrDefault(str, strOrUndefined);
 
 // $ExpectType boolean
-enumWrapper.isValue(str);
-// $ExpectType boolean
-enumWrapper.isValue(strOrNull);
-// $ExpectType boolean
-enumWrapper.isValue(strOrUndefined);
-// $ExpectError
 enumWrapper.isValue(num);
-
-if (enumWrapper.isValue(str)) {
-    // $ExpectType TestEnum
-    str;
-}
-
-if (enumWrapper.isValue(strOrNull)) {
-    // $ExpectType TestEnum
-    strOrNull;
-}
-
-if (enumWrapper.isValue(strOrUndefined)) {
-    // $ExpectType TestEnum
-    strOrUndefined;
-}
-
-// $ExpectType TestEnum
-enumWrapper.asValueOrThrow(str);
-// $ExpectType TestEnum
-enumWrapper.asValueOrThrow(strOrNull);
-// $ExpectType TestEnum
-enumWrapper.asValueOrThrow(strOrUndefined);
+// $ExpectType boolean
+enumWrapper.isValue(numOrNull);
+// $ExpectType boolean
+enumWrapper.isValue(numOrUndefined);
 // $ExpectError
+enumWrapper.isValue(str);
+
+if (enumWrapper.isValue(num)) {
+    // $ExpectType TestEnum
+    num;
+}
+
+if (enumWrapper.isValue(numOrNull)) {
+    // $ExpectType TestEnum
+    numOrNull;
+}
+
+if (enumWrapper.isValue(numOrUndefined)) {
+    // $ExpectType TestEnum
+    numOrUndefined;
+}
+
+// $ExpectType TestEnum
 enumWrapper.asValueOrThrow(num);
-
-// $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(str);
-// $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(strOrNull);
-// $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(strOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrDefault(num);
-
-// $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(str, undefined);
 // $ExpectType TestEnum
-enumWrapper.asValueOrDefault(str, value);
+enumWrapper.asValueOrThrow(numOrNull);
+// $ExpectType TestEnum
+enumWrapper.asValueOrThrow(numOrUndefined);
+// $ExpectError
+enumWrapper.asValueOrThrow(str);
+
 // $ExpectType TestEnum | undefined
-enumWrapper.asValueOrDefault(str, valueOrUndefined);
-// $ExpectType string
-enumWrapper.asValueOrDefault(str, str);
-// $ExpectType string | undefined
-enumWrapper.asValueOrDefault(str, strOrUndefined);
+enumWrapper.asValueOrDefault(num);
+// $ExpectType TestEnum | undefined
+enumWrapper.asValueOrDefault(numOrNull);
+// $ExpectType TestEnum | undefined
+enumWrapper.asValueOrDefault(numOrUndefined);
 // $ExpectError
-enumWrapper.asValueOrDefault(str, num);
+enumWrapper.asValueOrDefault(str);
+
+// $ExpectType TestEnum | undefined
+enumWrapper.asValueOrDefault(num, undefined);
+// $ExpectType TestEnum
+enumWrapper.asValueOrDefault(num, value);
+// $ExpectType TestEnum | undefined
+enumWrapper.asValueOrDefault(num, valueOrUndefined);
+// $ExpectType number
+enumWrapper.asValueOrDefault(num, num);
+// $ExpectType number | undefined
+enumWrapper.asValueOrDefault(num, numOrUndefined);
+// $ExpectError
+enumWrapper.asValueOrDefault(num, str);
 
 // $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrThrow(str);
-// $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrThrow(strOrNull);
-// $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrThrow(strOrUndefined);
-// $ExpectError
 enumWrapper.getKeyOrThrow(num);
+// $ExpectType "A" | "B" | "C"
+enumWrapper.getKeyOrThrow(numOrNull);
+// $ExpectType "A" | "B" | "C"
+enumWrapper.getKeyOrThrow(numOrUndefined);
+// $ExpectError
+enumWrapper.getKeyOrThrow(str);
 
 // $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(str);
-// $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(strOrNull);
-// $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(strOrUndefined);
-// $ExpectError
 enumWrapper.getKeyOrDefault(num);
+// $ExpectType "A" | "B" | "C" | undefined
+enumWrapper.getKeyOrDefault(numOrNull);
+// $ExpectType "A" | "B" | "C" | undefined
+enumWrapper.getKeyOrDefault(numOrUndefined);
+// $ExpectError
+enumWrapper.getKeyOrDefault(str);
 
 // $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrDefault(str, key);
+enumWrapper.getKeyOrDefault(num, key);
 // $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(str, keyOrUndefined);
+enumWrapper.getKeyOrDefault(num, keyOrUndefined);
 // $ExpectType string
-enumWrapper.getKeyOrDefault(str, str);
+enumWrapper.getKeyOrDefault(num, str);
 // $ExpectType string | undefined
-enumWrapper.getKeyOrDefault(str, strOrUndefined);
+enumWrapper.getKeyOrDefault(num, strOrUndefined);
 
 // $ExpectType TestEnum
 enumWrapper.getValueOrThrow(key);
@@ -262,9 +262,9 @@ enumWrapper.getValueOrDefault(str, undefined);
 enumWrapper.getValueOrDefault(str, value);
 // $ExpectType TestEnum | undefined
 enumWrapper.getValueOrDefault(str, valueOrUndefined);
-// $ExpectType string
-enumWrapper.getValueOrDefault(str, str);
-// $ExpectType string | undefined
-enumWrapper.getValueOrDefault(str, strOrUndefined);
-// $ExpectError
+// $ExpectType number
 enumWrapper.getValueOrDefault(str, num);
+// $ExpectType number | undefined
+enumWrapper.getValueOrDefault(str, numOrUndefined);
+// $ExpectError
+enumWrapper.getValueOrDefault(str, str);

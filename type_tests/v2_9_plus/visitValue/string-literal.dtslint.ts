@@ -1,25 +1,21 @@
-import { $enum } from "../../../dist/types";
+import { $enum } from "ts-enum-util";
 
-enum RGB {
-    R = "r",
-    G = "g",
-    B = "b"
-}
+type RGB = "r" | "g" | "b";
 
 declare const rgb: RGB;
 
 // Test param types
 $enum.visitValue(rgb).with({
-    [RGB.R]: (value) => {
-        // $ExpectType RGB.R
+    r: (value) => {
+        // $ExpectType "r"
         value;
     },
-    [RGB.G]: (value) => {
-        // $ExpectType RGB.G
+    g: (value) => {
+        // $ExpectType "g"
         value;
     },
-    [RGB.B]: (value) => {
-        // $ExpectType RGB.B
+    b: (value) => {
+        // $ExpectType "b"
         value;
     },
     [$enum.handleUnexpected]: (value) => {
@@ -30,72 +26,72 @@ $enum.visitValue(rgb).with({
 
 // handleUnexpected is optional
 $enum.visitValue(rgb).with({
-    [RGB.R]: (value) => {},
-    [RGB.G]: (value) => {},
-    [RGB.B]: (value) => {}
+    r: (value) => {},
+    g: (value) => {},
+    b: (value) => {}
 });
 
 // Return type is inferred
 // $ExpectType number
 $enum.visitValue(rgb).with({
-    [RGB.R]: (value) => 10,
-    [RGB.G]: (value) => 20,
-    [RGB.B]: (value) => 30
+    r: (value) => 10,
+    g: (value) => 20,
+    b: (value) => 30
 });
 // $ExpectType string
 $enum.visitValue(rgb).with({
-    [RGB.R]: (value) => "10",
-    [RGB.G]: (value) => "20",
-    [RGB.B]: (value) => "30"
+    r: (value) => "10",
+    g: (value) => "20",
+    b: (value) => "30"
 });
 
 // Return type is inferred when "unhandled" entries exist
 // $ExpectType number
 $enum.visitValue(rgb).with({
-    [RGB.R]: (value) => 10,
-    [RGB.G]: $enum.unhandled,
-    [RGB.B]: (value) => 30
+    r: (value) => 10,
+    g: $enum.unhandled,
+    b: (value) => 30
 });
 
 // special handlers can be unhandled
 // $ExpectType number
 $enum.visitValue(rgb).with({
-    [RGB.R]: (value) => 10,
-    [RGB.G]: (value) => 20,
-    [RGB.B]: (value) => 30,
+    r: (value) => 10,
+    g: (value) => 20,
+    b: (value) => 30,
     [$enum.handleUnexpected]: $enum.unhandled
 });
 
 // Missing value handler causes error
 // $ExpectError
 $enum.visitValue(rgb).with<void>({
-    [RGB.R]: (value) => {},
-    [RGB.B]: (value) => {}
+    r: (value) => {},
+    b: (value) => {}
 });
 
 // Unexpected value handler causes error
 $enum.visitValue(rgb).with<void>({
-    [RGB.R]: (value) => {},
+    r: (value) => {},
     // $ExpectError
     oops: (value) => {},
-    [RGB.G]: (value) => {},
-    [RGB.B]: (value) => {}
+    g: (value) => {},
+    b: (value) => {}
 });
 
 // Unnecessary null handler causes error
 $enum.visitValue(rgb).with<void>({
-    [RGB.R]: (value) => {},
-    [RGB.G]: (value) => {},
-    [RGB.B]: (value) => {},
+    r: (value) => {},
+    g: (value) => {},
+    b: (value) => {},
     // $ExpectError
     [$enum.handleNull]: (value) => {}
 });
 
 // Unnecessary undefined handler causes error
 $enum.visitValue(rgb).with<void>({
-    [RGB.R]: (value) => {},
-    [RGB.G]: (value) => {},
-    [RGB.B]: (value) => {},
+    r: (value) => {},
+    g: (value) => {},
+    b: (value) => {},
     // $ExpectError
     [$enum.handleUndefined]: (value) => {}
 });

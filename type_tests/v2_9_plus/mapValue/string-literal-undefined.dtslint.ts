@@ -1,21 +1,23 @@
-import { $enum } from "../../../dist/types";
+import { $enum } from "ts-enum-util";
 
 type RGB = "r" | "g" | "b";
 
-declare const rgb: RGB;
+declare const rgb: RGB | undefined;
 
 // Return type is inferred
 // $ExpectType number
 $enum.mapValue(rgb).with({
     r: 10,
     g: 20,
-    b: 30
+    b: 30,
+    [$enum.handleUndefined]: -1
 });
 // $ExpectType string
 $enum.mapValue(rgb).with({
     r: "10",
     g: "20",
-    b: "30"
+    b: "30",
+    [$enum.handleUndefined]: "-1"
 });
 
 // Return type is inferred when "unhandled" entries exist
@@ -23,7 +25,8 @@ $enum.mapValue(rgb).with({
 $enum.mapValue(rgb).with({
     r: 10,
     g: $enum.unhandled,
-    b: 30
+    b: 30,
+    [$enum.handleUndefined]: -1
 });
 
 // handleUnexpected is allowed
@@ -32,6 +35,7 @@ $enum.mapValue(rgb).with({
     r: 10,
     g: 20,
     b: 30,
+    [$enum.handleUndefined]: -1,
     [$enum.handleUnexpected]: -1
 });
 
@@ -41,6 +45,7 @@ $enum.mapValue(rgb).with({
     r: 10,
     g: 20,
     b: 30,
+    [$enum.handleUndefined]: $enum.unhandled,
     [$enum.handleUnexpected]: $enum.unhandled
 });
 
@@ -48,7 +53,8 @@ $enum.mapValue(rgb).with({
 // $ExpectError
 $enum.mapValue(rgb).with({
     r: 10,
-    b: 30
+    b: 30,
+    [$enum.handleUndefined]: -1
 });
 
 // Unexpected value handler causes error
@@ -56,6 +62,15 @@ $enum.mapValue(rgb).with({
     r: 10,
     // $ExpectError
     oops: 42,
+    g: 20,
+    b: 30,
+    [$enum.handleUndefined]: -1
+});
+
+// missing undefined handler causes error
+// $ExpectError
+$enum.mapValue(rgb).with({
+    r: 10,
     g: 20,
     b: 30
 });
@@ -66,14 +81,6 @@ $enum.mapValue(rgb).with({
     g: 20,
     b: 30,
     // $ExpectError
-    [$enum.handleNull]: -1
-});
-
-// Unnecessary undefined handler causes error
-$enum.mapValue(rgb).with({
-    r: 10,
-    g: 20,
-    b: 30,
-    // $ExpectError
+    [$enum.handleNull]: -1,
     [$enum.handleUndefined]: -1
 });

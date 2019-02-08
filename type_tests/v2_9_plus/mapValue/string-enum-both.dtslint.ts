@@ -1,4 +1,4 @@
-import { $enum } from "../../../dist/types";
+import { $enum } from "ts-enum-util";
 
 enum RGB {
     R = "r",
