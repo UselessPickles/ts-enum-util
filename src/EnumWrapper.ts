@@ -31,10 +31,7 @@ type StringKeyOf<T> = Extract<keyof T, string>;
 export class EnumWrapper<
     V extends number | string = number | string,
     T extends EnumLike<V, StringKeyOf<T>> = any
->
-    implements
-        Iterable<EnumWrapper.Entry<V, T>>,
-        ArrayLike<EnumWrapper.Entry<V, T>> {
+> implements Iterable<EnumWrapper.Entry<T>>, ArrayLike<EnumWrapper.Entry<T>> {
     /**
      * List of all keys for this enum, in sorted order.
      */
@@ -70,7 +67,7 @@ export class EnumWrapper<
      * Index signature.
      * Part of the ArrayLike interface.
      */
-    readonly [key: number]: EnumWrapper.Entry<V, T>;
+    readonly [key: number]: EnumWrapper.Entry<T>;
 
     /**
      * Create a new EnumWrapper instance.
@@ -191,13 +188,13 @@ export class EnumWrapper<
      * Iteration order is based on sorted order of keys.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
-    public entries(): IterableIterator<EnumWrapper.Entry<V, T>> {
+    public entries(): IterableIterator<EnumWrapper.Entry<T>> {
         let index = 0;
 
         return {
             next: () => {
                 const isDone = index >= this.length;
-                const result: IteratorResult<EnumWrapper.Entry<V, T>> = {
+                const result: IteratorResult<EnumWrapper.Entry<T>> = {
                     done: isDone,
                     // NOTE: defensive copy not necessary because entries are "frozen"
                     value: this[index]
@@ -208,7 +205,7 @@ export class EnumWrapper<
                 return result;
             },
 
-            [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<V, T>> {
+            [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
                 return this;
             }
         };
@@ -219,7 +216,7 @@ export class EnumWrapper<
      * Iteration order is based on sorted order of keys.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
-    public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<V, T>> {
+    public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
         return this.entries();
     }
 
@@ -302,7 +299,7 @@ export class EnumWrapper<
      * Order of items in the list is based on sorted order of keys.
      * @return A list of this enum's entries as [key, value] tuples.
      */
-    public getEntries(): EnumWrapper.Entry<V, T>[] {
+    public getEntries(): EnumWrapper.Entry<T>[] {
         // Create an array from the indexed entries of "this".
         // NOTE: no need for defensive copy of each entry because all entries are "frozen".
         return Array.prototype.slice.call(this);
@@ -690,12 +687,10 @@ export class EnumWrapper<
 export namespace EnumWrapper {
     /**
      * A tuple containing the key and value of a single entry in an enum.
-     * @template V - Type of the enum value.
      * @template T - Type of an enum-like object.
      */
     export type Entry<
-        V extends number | string = number | string,
-        T extends EnumLike<V, StringKeyOf<T>> = any
+        T extends EnumLike<number | string, StringKeyOf<T>> = any
     > = Readonly<[StringKeyOf<T>, T[StringKeyOf<T>]]>;
 
     /**
@@ -740,7 +735,7 @@ export namespace NumberEnumWrapper {
      */
     export type Entry<
         T extends EnumLike<number, StringKeyOf<T>> = any
-    > = EnumWrapper.Entry<number, T>;
+    > = EnumWrapper.Entry<T>;
 
     /**
      * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains only number values.
@@ -771,7 +766,7 @@ export namespace StringEnumWrapper {
      */
     export type Entry<
         T extends EnumLike<string, StringKeyOf<T>> = any
-    > = EnumWrapper.Entry<string, T>;
+    > = EnumWrapper.Entry<T>;
 
     /**
      * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains only string values.
@@ -804,7 +799,7 @@ export namespace MixedEnumWrapper {
      */
     export type Entry<
         T extends EnumLike<number | string, StringKeyOf<T>> = any
-    > = EnumWrapper.Entry<number | string, T>;
+    > = EnumWrapper.Entry<T>;
 
     /**
      * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains a mix of
