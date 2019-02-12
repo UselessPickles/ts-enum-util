@@ -69,16 +69,16 @@ describe("mapValue (string)", () => {
                 [$enum.handleUnexpected]: "Unexpected!"
             },
             {
-                [RGB.R]: $enum.unhandled,
-                [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [RGB.R]: $enum.unhandledEntry,
+                [RGB.G]: $enum.unhandledEntry,
+                [RGB.B]: $enum.unhandledEntry,
+                [$enum.handleUnexpected]: $enum.unhandledEntry
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (mapper[RGB.R] === $enum.unhandled) {
+                if (mapper[RGB.R] === $enum.unhandledEntry) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -169,17 +169,17 @@ describe("mapValue (string)", () => {
                 [$enum.handleUnexpected]: "Unexpected!"
             },
             {
-                [RGB.R]: $enum.unhandled,
-                [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled,
-                [$enum.handleNull]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [RGB.R]: $enum.unhandledEntry,
+                [RGB.G]: $enum.unhandledEntry,
+                [RGB.B]: $enum.unhandledEntry,
+                [$enum.handleNull]: $enum.unhandledEntry,
+                [$enum.handleUnexpected]: $enum.unhandledEntry
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (mapper[RGB.R] === $enum.unhandled) {
+                if (mapper[RGB.R] === $enum.unhandledEntry) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -270,17 +270,17 @@ describe("mapValue (string)", () => {
                 [$enum.handleUnexpected]: "Unexpected!"
             },
             {
-                [RGB.R]: $enum.unhandled,
-                [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled,
-                [$enum.handleUndefined]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [RGB.R]: $enum.unhandledEntry,
+                [RGB.G]: $enum.unhandledEntry,
+                [RGB.B]: $enum.unhandledEntry,
+                [$enum.handleUndefined]: $enum.unhandledEntry,
+                [$enum.handleUnexpected]: $enum.unhandledEntry
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (mapper[RGB.R] === $enum.unhandled) {
+                if (mapper[RGB.R] === $enum.unhandledEntry) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -372,18 +372,18 @@ describe("mapValue (string)", () => {
                 [$enum.handleUnexpected]: "Unexpected!"
             },
             {
-                [RGB.R]: $enum.unhandled,
-                [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled,
-                [$enum.handleNull]: $enum.unhandled,
-                [$enum.handleUndefined]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [RGB.R]: $enum.unhandledEntry,
+                [RGB.G]: $enum.unhandledEntry,
+                [RGB.B]: $enum.unhandledEntry,
+                [$enum.handleNull]: $enum.unhandledEntry,
+                [$enum.handleUndefined]: $enum.unhandledEntry,
+                [$enum.handleUnexpected]: $enum.unhandledEntry
             }
         ];
 
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
-                if (mapper[RGB.R] === $enum.unhandled) {
+                if (mapper[RGB.R] === $enum.unhandledEntry) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {

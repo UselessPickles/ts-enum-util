@@ -20,10 +20,8 @@ type StringKeyOf<T> = Extract<keyof T, string>;
  * Provides utilities for runtime processing of an enum's values and keys, with strict compile-time
  * type safety.
  *
- * EnumWrapper cannot be directly instantiated. Use one of the following to get/create an EnumWrapper
- * instance:
- * - {@link $enum}
- * - {@link EnumWrapper.getCachedInstance}
+ * EnumWrapper cannot be directly instantiated. Use {@link $enum} to get/create an EnumWrapper
+ * instance.
  *
  * @template V - Type of the enum value.
  * @template T - Type of the enum-like object that is being wrapped.

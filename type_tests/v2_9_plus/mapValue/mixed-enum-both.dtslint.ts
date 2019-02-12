@@ -30,7 +30,7 @@ $enum.mapValue(rgb).with({
 // $ExpectType number
 $enum.mapValue(rgb).with({
     [RGB.R]: 10,
-    [RGB.G]: $enum.unhandled,
+    [RGB.G]: $enum.unhandledEntry,
     [RGB.B]: 30,
     [$enum.handleNull]: -1,
     [$enum.handleUndefined]: -1
@@ -53,9 +53,9 @@ $enum.mapValue(rgb).with({
     [RGB.R]: 10,
     [RGB.G]: 20,
     [RGB.B]: 30,
-    [$enum.handleNull]: $enum.unhandled,
-    [$enum.handleUndefined]: $enum.unhandled,
-    [$enum.handleUnexpected]: $enum.unhandled
+    [$enum.handleNull]: $enum.unhandledEntry,
+    [$enum.handleUndefined]: $enum.unhandledEntry,
+    [$enum.handleUnexpected]: $enum.unhandledEntry
 });
 
 // Missing value handler causes error

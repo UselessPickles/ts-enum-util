@@ -53,7 +53,7 @@ $enum.visitValue(rgb).with({
 // $ExpectType number
 $enum.visitValue(rgb).with({
     [RGB.R]: (value) => 10,
-    [RGB.G]: $enum.unhandled,
+    [RGB.G]: $enum.unhandledEntry,
     [RGB.B]: (value) => 30
 });
 
@@ -63,7 +63,7 @@ $enum.visitValue(rgb).with({
     [RGB.R]: (value) => 10,
     [RGB.G]: (value) => 20,
     [RGB.B]: (value) => 30,
-    [$enum.handleUnexpected]: $enum.unhandled
+    [$enum.handleUnexpected]: $enum.unhandledEntry
 });
 
 // Missing value handler causes error

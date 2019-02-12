@@ -64,37 +64,9 @@ export function $enum(enumObj: object): EnumWrapper {
     return result;
 }
 
-export namespace $enum {
-    /**
-     * Convenient alias for {@link unhandled}.
-     */
-    export const unhandled: typeof symbols.unhandledEntry =
-        symbols.unhandledEntry;
-
-    /**
-     * Convenient alias for {@link handleNull}.
-     */
-    export const handleNull: typeof symbols.handleNull = symbols.handleNull;
-
-    /**
-     * Convenient alias for {@link handleUndefined}.
-     */
-    export const handleUndefined: typeof symbols.handleUndefined =
-        symbols.handleUndefined;
-
-    /**
-     * Convenient alias for {@link handleUnexpected}.
-     */
-    export const handleUnexpected: typeof symbols.handleUnexpected =
-        symbols.handleUnexpected;
-
-    /**
-     * Convenient alias for {@link visitEnumValue}
-     */
-    export const visitValue = visitEnumValue;
-
-    /**
-     * Convenient alias for {@link mapEnumValue}
-     */
-    export const mapValue = mapEnumValue;
-}
+$enum.handleNull = symbols.handleNull;
+$enum.handleUndefined = symbols.handleUndefined;
+$enum.handleUnexpected = symbols.handleUnexpected;
+$enum.unhandledEntry = symbols.unhandledEntry;
+$enum.visitValue = visitEnumValue;
+$enum.mapValue = mapEnumValue;

@@ -22,7 +22,7 @@ describe("EnumWrapper: string enum", () => {
         expect(enumWrapper.toString()).toBe("[object EnumWrapper]");
     });
 
-    test("getCachedInstance()", () => {
+    test("$enum()", () => {
         const result1 = $enum(TestEnum);
         const result2 = $enum(TestEnum);
 

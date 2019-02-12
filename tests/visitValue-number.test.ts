@@ -119,16 +119,16 @@ describe("visitValue (number)", () => {
                 [$enum.handleUnexpected]: handlerMockUnexpected
             },
             {
-                [RGB.R]: $enum.unhandled,
-                [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [RGB.R]: $enum.unhandledEntry,
+                [RGB.G]: $enum.unhandledEntry,
+                [RGB.B]: $enum.unhandledEntry,
+                [$enum.handleUnexpected]: $enum.unhandledEntry
             }
         ];
 
         for (const visitor of visitors) {
             for (const testEntry of TEST_ENTRIES) {
-                if (visitor[RGB.R] === $enum.unhandled) {
+                if (visitor[RGB.R] === $enum.unhandledEntry) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -264,17 +264,17 @@ describe("visitValue (number)", () => {
                 [$enum.handleUnexpected]: handlerMockUnexpected
             },
             {
-                [RGB.R]: $enum.unhandled,
-                [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled,
-                [$enum.handleNull]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [RGB.R]: $enum.unhandledEntry,
+                [RGB.G]: $enum.unhandledEntry,
+                [RGB.B]: $enum.unhandledEntry,
+                [$enum.handleNull]: $enum.unhandledEntry,
+                [$enum.handleUnexpected]: $enum.unhandledEntry
             }
         ];
 
         for (const visitor of visitors) {
             for (const testEntry of TEST_ENTRIES) {
-                if (visitor[RGB.R] === $enum.unhandled) {
+                if (visitor[RGB.R] === $enum.unhandledEntry) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -410,17 +410,17 @@ describe("visitValue (number)", () => {
                 [$enum.handleUnexpected]: handlerMockUnexpected
             },
             {
-                [RGB.R]: $enum.unhandled,
-                [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled,
-                [$enum.handleUndefined]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [RGB.R]: $enum.unhandledEntry,
+                [RGB.G]: $enum.unhandledEntry,
+                [RGB.B]: $enum.unhandledEntry,
+                [$enum.handleUndefined]: $enum.unhandledEntry,
+                [$enum.handleUnexpected]: $enum.unhandledEntry
             }
         ];
 
         for (const visitor of visitors) {
             for (const testEntry of TEST_ENTRIES) {
-                if (visitor[RGB.R] === $enum.unhandled) {
+                if (visitor[RGB.R] === $enum.unhandledEntry) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
@@ -557,18 +557,18 @@ describe("visitValue (number)", () => {
                 [$enum.handleUnexpected]: handlerMockUnexpected
             },
             {
-                [RGB.R]: $enum.unhandled,
-                [RGB.G]: $enum.unhandled,
-                [RGB.B]: $enum.unhandled,
-                [$enum.handleNull]: $enum.unhandled,
-                [$enum.handleUndefined]: $enum.unhandled,
-                [$enum.handleUnexpected]: $enum.unhandled
+                [RGB.R]: $enum.unhandledEntry,
+                [RGB.G]: $enum.unhandledEntry,
+                [RGB.B]: $enum.unhandledEntry,
+                [$enum.handleNull]: $enum.unhandledEntry,
+                [$enum.handleUndefined]: $enum.unhandledEntry,
+                [$enum.handleUnexpected]: $enum.unhandledEntry
             }
         ];
 
         for (const visitor of visitors) {
             for (const testEntry of TEST_ENTRIES) {
-                if (visitor[RGB.R] === $enum.unhandled) {
+                if (visitor[RGB.R] === $enum.unhandledEntry) {
                     test(`Unhandled entry throws error (${
                         testEntry.value
                     }`, () => {
