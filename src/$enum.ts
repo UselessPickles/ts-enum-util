@@ -1,4 +1,5 @@
-import { EnumWrapper, EnumLike } from "./EnumWrapper";
+import { EnumWrapper } from "./EnumWrapper";
+import { StringKeyOf } from "./types";
 import * as symbols from "./symbols";
 import { visitEnumValue } from "./visitEnumValue";
 import { mapEnumValue } from "./mapEnumValue";
@@ -27,7 +28,7 @@ const enumWrapperInstancesCache = new WeakMap<object, EnumWrapper>();
  */
 export function $enum<
     V extends number,
-    T extends EnumLike<number, Extract<keyof T, string>>
+    T extends Record<StringKeyOf<T>, number>
 >(enumObj: T): EnumWrapper<number, T>;
 /**
  * Gets a cached EnumWrapper for an enum-like object with string values.
@@ -37,7 +38,7 @@ export function $enum<
  *
  * @template T - Type of the enum-like object that is being wrapped.
  */
-export function $enum<T extends EnumLike<string, Extract<keyof T, string>>>(
+export function $enum<T extends Record<StringKeyOf<T>, string>>(
     enumObj: T
 ): EnumWrapper<string, T>;
 /**
@@ -50,9 +51,9 @@ export function $enum<T extends EnumLike<string, Extract<keyof T, string>>>(
  *
  * @template T - Type of the enum-like object that is being wrapped.
  */
-export function $enum<
-    T extends EnumLike<number | string, Extract<keyof T, string>>
->(enumObj: T): EnumWrapper<number | string, T>;
+export function $enum<T extends Record<StringKeyOf<T>, number | string>>(
+    enumObj: T
+): EnumWrapper<number | string, T>;
 export function $enum(enumObj: object): EnumWrapper {
     let result = enumWrapperInstancesCache.get(enumObj);
 

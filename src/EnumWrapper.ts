@@ -1,22 +1,7 @@
-/**
- * Used internally to verify that some type is enum-like.
- * A type is enum-like if all its properties are of type number or string.
- * @template V - Type of the enum value.
- * @template K - String literal union of all keys of the enum-like type.
- */
-export type EnumLike<V extends number | string, K extends string> = {
-    [P in K]: V
-};
+import { StringKeyOf } from "./types";
 
 /**
- * Extracts only keys of type T that are assignable to type `string`.
- * This is necessary starting with TypeScript 2.9 because keyof T can now
- * include `number` and `symbol` types.
- */
-type StringKeyOf<T> = Extract<keyof T, string>;
-
-/**
- * A generic wrapper for any enum-like object (see {@link EnumLike}).
+ * A generic wrapper for any enum-like object.
  * Provides utilities for runtime processing of an enum's values and keys, with strict compile-time
  * type safety.
  *
@@ -28,7 +13,7 @@ type StringKeyOf<T> = Extract<keyof T, string>;
  */
 export class EnumWrapper<
     V extends number | string = number | string,
-    T extends EnumLike<V, StringKeyOf<T>> = any
+    T extends Record<StringKeyOf<T>, V> = any
 > implements Iterable<EnumWrapper.Entry<T>>, ArrayLike<EnumWrapper.Entry<T>> {
     /**
      * List of all keys for this enum, in sorted order.
@@ -72,7 +57,7 @@ export class EnumWrapper<
      * This is for internal use only.
      * Use {@link $enum} to publicly get/create an EnumWrapper
      *
-     * @param enumObj - An enum-like object. See the {@link EnumLike} type for more explanation.
+     * @param enumObj - An enum-like object.
      */
     public constructor(private readonly enumObj: T) {
         this.keysList = Object.freeze(Object.keys(enumObj)
@@ -688,7 +673,7 @@ export namespace EnumWrapper {
      * @template T - Type of an enum-like object.
      */
     export type Entry<
-        T extends EnumLike<number | string, StringKeyOf<T>> = any
+        T extends Record<StringKeyOf<T>, number | string> = any
     > = Readonly<[StringKeyOf<T>, T[StringKeyOf<T>]]>;
 
     /**
@@ -706,7 +691,7 @@ export namespace EnumWrapper {
     export type Iteratee<
         R = any,
         V extends number | string = number | string,
-        T extends EnumLike<V, StringKeyOf<T>> = any
+        T extends Record<StringKeyOf<T>, V> = any
     > = (
         this: any,
         value: T[StringKeyOf<T>],
@@ -722,7 +707,7 @@ export namespace EnumWrapper {
  * @template T - Type of an enum-like object that contains only number values.
  */
 export type NumberEnumWrapper<
-    T extends EnumLike<number, StringKeyOf<T>> = any
+    T extends Record<StringKeyOf<T>, number> = any
 > = EnumWrapper<number, T>;
 
 export namespace NumberEnumWrapper {
@@ -732,7 +717,7 @@ export namespace NumberEnumWrapper {
      * @template T - Type of an enum-like object that contains only number values.
      */
     export type Entry<
-        T extends EnumLike<number, StringKeyOf<T>> = any
+        T extends Record<StringKeyOf<T>, number> = any
     > = EnumWrapper.Entry<T>;
 
     /**
@@ -743,7 +728,7 @@ export namespace NumberEnumWrapper {
      */
     export type Iteratee<
         R = any,
-        T extends EnumLike<number, StringKeyOf<T>> = any
+        T extends Record<StringKeyOf<T>, number> = any
     > = EnumWrapper.Iteratee<R, number, T>;
 }
 
@@ -753,7 +738,7 @@ export namespace NumberEnumWrapper {
  * @template T - Type of an enum-like object that contains only string values.
  */
 export type StringEnumWrapper<
-    T extends EnumLike<string, StringKeyOf<T>> = any
+    T extends Record<StringKeyOf<T>, string> = any
 > = EnumWrapper<string, T>;
 
 export namespace StringEnumWrapper {
@@ -763,7 +748,7 @@ export namespace StringEnumWrapper {
      * @template T - Type of an enum-like object that contains only string values.
      */
     export type Entry<
-        T extends EnumLike<string, StringKeyOf<T>> = any
+        T extends Record<StringKeyOf<T>, string> = any
     > = EnumWrapper.Entry<T>;
 
     /**
@@ -774,7 +759,7 @@ export namespace StringEnumWrapper {
      */
     export type Iteratee<
         R = any,
-        T extends EnumLike<string, StringKeyOf<T>> = any
+        T extends Record<StringKeyOf<T>, string> = any
     > = EnumWrapper.Iteratee<R, string, T>;
 }
 
@@ -785,7 +770,7 @@ export namespace StringEnumWrapper {
  * @template T - Type of an enum-like object that contains a mix of number and string values.
  */
 export type MixedEnumWrapper<
-    T extends EnumLike<number | string, StringKeyOf<T>> = any
+    T extends Record<StringKeyOf<T>, number | string> = any
 > = EnumWrapper<number | string, T>;
 
 export namespace MixedEnumWrapper {
@@ -796,7 +781,7 @@ export namespace MixedEnumWrapper {
      * @template T - Type of an enum-like object that contains a mix of number and string values.
      */
     export type Entry<
-        T extends EnumLike<number | string, StringKeyOf<T>> = any
+        T extends Record<StringKeyOf<T>, number | string> = any
     > = EnumWrapper.Entry<T>;
 
     /**
@@ -808,7 +793,7 @@ export namespace MixedEnumWrapper {
      */
     export type Iteratee<
         R = any,
-        T extends EnumLike<number | string, StringKeyOf<T>> = any
+        T extends Record<StringKeyOf<T>, number | string> = any
     > = EnumWrapper.Iteratee<R, number | string, T>;
 }
 
