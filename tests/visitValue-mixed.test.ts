@@ -34,7 +34,7 @@ describe("visitValue (string/number mix)", () => {
     });
 
     const handlerMockUnexpected = jest.fn(
-        (value: string | null | undefined) => {
+        (value: string | number | null | undefined) => {
             return `Unexpected! (${value})`;
         }
     );
