@@ -22,6 +22,7 @@
         "baseUrl": "./",
         "paths": {
             "ts-enum-util": ["../../dist/types"]
-        }
+        },
+        "types": []
     }
 }
