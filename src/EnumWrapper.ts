@@ -1,4 +1,8 @@
 import { StringKeyOf } from "./types";
+import {
+    isNonArrayIndexKey,
+    getOwnEnumerableNonArrayIndexKeys
+} from "./objectKeysUtil";
 
 /**
  * A generic wrapper for any enum-like object.
@@ -60,14 +64,12 @@ export class EnumWrapper<
      * @param enumObj - An enum-like object.
      */
     public constructor(private readonly enumObj: T) {
-        this.keysList = Object.freeze(Object.keys(enumObj)
-            // Include only keys that are not index keys.
-            // This is necessary to ignore the reverse-lookup entries that are automatically added
-            // by TypeScript to numeric enums.
-            .filter(isNonIndexKey)
-            // Order of Object.keys() is implementation-dependent, so sort the keys to guarantee
-            // a consistent order for iteration.
-            .sort() as StringKeyOf<T>[]);
+        // Include only own enumerable keys that are not array indexes.
+        // This is necessary to ignore the reverse-lookup entries that are automatically added
+        // by TypeScript to numeric enums.
+        this.keysList = Object.freeze(
+            getOwnEnumerableNonArrayIndexKeys(enumObj)
+        );
 
         const length = this.keysList.length;
         const valuesList = new Array<T[StringKeyOf<T>]>(length);
@@ -297,7 +299,7 @@ export class EnumWrapper<
     public isKey(key: string | null | undefined): key is StringKeyOf<T> {
         return (
             key != null &&
-            isNonIndexKey(key) &&
+            isNonArrayIndexKey(key) &&
             this.enumObj.hasOwnProperty(key)
         );
     }
@@ -795,16 +797,4 @@ export namespace MixedEnumWrapper {
         R = any,
         T extends Record<StringKeyOf<T>, number | string> = any
     > = EnumWrapper.Iteratee<R, number | string, T>;
-}
-
-/**
- * Return true if the specified object key value is NOT an integer index key.
- * @param key - An object key.
- * @return true if the specified object key value is NOT an integer index key.
- */
-function isNonIndexKey(key: string): boolean {
-    // If after converting the key to an integer, then back to a string, the result is different
-    // than the original key, then the key is NOT an integer index.
-    // See ECMAScript spec section 15.4: http://www.ecma-international.org/ecma-262/5.1/#sec-15.4
-    return key !== String(parseInt(key, 10));
 }
