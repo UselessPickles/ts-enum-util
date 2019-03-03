@@ -9,75 +9,7 @@ Strictly typed utilities for working with TypeScript enums.
 
 # Contents
 
-<!-- TOC depthFrom:2 -->
-
--   [What is it?](#what-is-it)
--   [Other TypeScript Enum Projects](#other-typescript-enum-projects)
--   [Installation](#installation)
--   [Usage Examples](#usage-examples)
-    -   [Basic setup for all examples](#basic-setup-for-all-examples)
-    -   [Get an `EnumWrapper` instance for an enum](#get-an-enumwrapper-instance-for-an-enum)
-    -   [Get count of enum entries](#get-count-of-enum-entries)
-    -   [Get lists of enum data](#get-lists-of-enum-data)
-    -   [Lookup value by key](#lookup-value-by-key)
-    -   [Reverse lookup key by value](#reverse-lookup-key-by-value)
-    -   [Validate/convert enum keys](#validateconvert-enum-keys)
-    -   [Validate/convert enum values](#validateconvert-enum-values)
-    -   [Iteration and Mapping](#iteration-and-mapping)
-    -   [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)
-    -   [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)
--   [Requirements](#requirements)
--   [Limitations](#limitations)
--   [Known Issues](#known-issues)
-    -   [`WeakMap` Polyfill](#weakmap-polyfill)
--   [General Concepts](#general-concepts)
-    -   [Enum-Like Object](#enum-like-object)
-    -   [EnumWrapper](#enumwrapper)
-    -   [Specific Typing](#specific-typing)
-    -   [Map-Like Interface](#map-like-interface)
-    -   [Array-Like Interface](#array-like-interface)
-    -   [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)
-    -   [Caching](#caching)
--   [API Reference](#api-reference)
-    -   [Terminology](#terminology)
-    -   [$enum](#enum)
-    -   [Types](#types)
-        -   [EnumWrapper](#enumwrapper-1)
-        -   [EnumWrapper.Entry](#enumwrapperentry)
-        -   [EnumWrapper.Iteratee](#enumwrapperiteratee)
-    -   [Array-Like Interface](#array-like-interface-1)
-        -   [EnumWrapper.prototype.length](#enumwrapperprototypelength)
-        -   [EnumWrapper.prototype.[index]](#enumwrapperprototypeindex)
-    -   [Map-Like Interface](#map-like-interface-1)
-        -   [EnumWrapper.prototype.size](#enumwrapperprototypesize)
-        -   [EnumWrapper.prototype.keys](#enumwrapperprototypekeys)
-        -   [EnumWrapper.prototype.values](#enumwrapperprototypevalues)
-        -   [EnumWrapper.prototype.entries](#enumwrapperprototypeentries)
-        -   [EnumWrapper.prototype.@@iterator](#enumwrapperprototypeiterator)
-        -   [EnumWrapper.prototype.forEach](#enumwrapperprototypeforeach)
-    -   [Iteration](#iteration)
-        -   [EnumWrapper.prototype.forEach](#enumwrapperprototypeforeach-1)
-        -   [EnumWrapper.prototype.map](#enumwrapperprototypemap)
-    -   [Get Arrays of Enum Data](#get-arrays-of-enum-data)
-        -   [EnumWrapper.prototype.getKeys](#enumwrapperprototypegetkeys)
-        -   [EnumWrapper.prototype.getValues](#enumwrapperprototypegetvalues)
-        -   [EnumWrapper.prototype.getEntries](#enumwrapperprototypegetentries)
-    -   [Key Validation/Typecasting](#key-validationtypecasting)
-        -   [EnumWrapper.prototype.isKey](#enumwrapperprototypeiskey)
-        -   [EnumWrapper.prototype.asKeyOrThrow](#enumwrapperprototypeaskeyorthrow)
-        -   [EnumWrapper.prototype.asKeyOrDefault](#enumwrapperprototypeaskeyordefault)
-    -   [Value Validation/Typecasting](#value-validationtypecasting)
-        -   [EnumWrapper.prototype.isValue](#enumwrapperprototypeisvalue)
-        -   [EnumWrapper.prototype.asValueOrThrow](#enumwrapperprototypeasvalueorthrow)
-        -   [EnumWrapper.prototype.asValueOrDefault](#enumwrapperprototypeasvalueordefault)
-    -   [Lookup Key by Value](#lookup-key-by-value)
-        -   [EnumWrapper.prototype.getKeyOrThrow](#enumwrapperprototypegetkeyorthrow)
-        -   [EnumWrapper.prototype.getKeyOrDefault](#enumwrapperprototypegetkeyordefault)
-    -   [Lookup Value by Key](#lookup-value-by-key)
-        -   [EnumWrapper.prototype.getValueOrThrow](#enumwrapperprototypegetvalueorthrow)
-        -   [EnumWrapper.prototype.getValueOrDefault](#enumwrapperprototypegetvalueordefault)
-
-<!-- /TOC -->
+<!-- TOC depthFrom:2 -->autoauto- [What is it?](#what-is-it)auto- [Other TypeScript Enum Projects](#other-typescript-enum-projects)auto- [Installation](#installation)auto- [Usage Examples](#usage-examples)auto    - [Basic setup for all examples](#basic-setup-for-all-examples)auto    - [Get an `EnumWrapper` instance for an enum](#get-an-enumwrapper-instance-for-an-enum)auto    - [Get count of enum entries](#get-count-of-enum-entries)auto    - [Get lists of enum data](#get-lists-of-enum-data)auto    - [Lookup value by key](#lookup-value-by-key)auto    - [Reverse lookup key by value](#reverse-lookup-key-by-value)auto    - [Validate/convert enum keys](#validateconvert-enum-keys)auto    - [Validate/convert enum values](#validateconvert-enum-values)auto    - [Iteration and Mapping](#iteration-and-mapping)auto    - [Wrapped enums are Array-Like](#wrapped-enums-are-array-like)auto    - [Wrapped enums are Map-Like](#wrapped-enums-are-map-like)auto- [Requirements](#requirements)auto- [Limitations](#limitations)auto- [Known Issues](#known-issues)auto    - [`WeakMap` Polyfill](#weakmap-polyfill)auto- [General Concepts](#general-concepts)auto    - [Enum-Like Object](#enum-like-object)auto    - [EnumWrapper](#enumwrapper)auto    - [Specific Typing](#specific-typing)auto    - [Map-Like Interface](#map-like-interface)auto    - [Array-Like Interface](#array-like-interface)auto    - [Guaranteed Order of Iteration](#guaranteed-order-of-iteration)auto    - [Caching](#caching)auto- [API Reference](#api-reference)auto    - [Terminology](#terminology)auto    - [$enum](#enum)auto    - [Types](#types)auto        - [EnumWrapper](#enumwrapper-1)auto        - [EnumWrapper.Entry](#enumwrapperentry)auto        - [EnumWrapper.Iteratee](#enumwrapperiteratee)auto    - [Array-Like Interface](#array-like-interface-1)auto        - [EnumWrapper.prototype.length](#enumwrapperprototypelength)auto        - [EnumWrapper.prototype.[index]](#enumwrapperprototypeindex)auto    - [Map-Like Interface](#map-like-interface-1)auto        - [EnumWrapper.prototype.size](#enumwrapperprototypesize)auto        - [EnumWrapper.prototype.keys](#enumwrapperprototypekeys)auto        - [EnumWrapper.prototype.values](#enumwrapperprototypevalues)auto        - [EnumWrapper.prototype.entries](#enumwrapperprototypeentries)auto        - [EnumWrapper.prototype.@@iterator](#enumwrapperprototypeiterator)auto        - [EnumWrapper.prototype.forEach](#enumwrapperprototypeforeach)auto    - [Iteration](#iteration)auto        - [EnumWrapper.prototype.forEach](#enumwrapperprototypeforeach-1)auto        - [EnumWrapper.prototype.map](#enumwrapperprototypemap)auto    - [Get Arrays of Enum Data](#get-arrays-of-enum-data)auto        - [EnumWrapper.prototype.getKeys](#enumwrapperprototypegetkeys)auto        - [EnumWrapper.prototype.getValues](#enumwrapperprototypegetvalues)auto        - [EnumWrapper.prototype.getEntries](#enumwrapperprototypegetentries)auto    - [Key Validation/Typecasting](#key-validationtypecasting)auto        - [EnumWrapper.prototype.isKey](#enumwrapperprototypeiskey)auto        - [EnumWrapper.prototype.asKeyOrThrow](#enumwrapperprototypeaskeyorthrow)auto        - [EnumWrapper.prototype.asKeyOrDefault](#enumwrapperprototypeaskeyordefault)auto    - [Value Validation/Typecasting](#value-validationtypecasting)auto        - [EnumWrapper.prototype.isValue](#enumwrapperprototypeisvalue)auto        - [EnumWrapper.prototype.asValueOrThrow](#enumwrapperprototypeasvalueorthrow)auto        - [EnumWrapper.prototype.asValueOrDefault](#enumwrapperprototypeasvalueordefault)auto    - [Lookup Key by Value](#lookup-key-by-value)auto        - [EnumWrapper.prototype.getKeyOrThrow](#enumwrapperprototypegetkeyorthrow)auto        - [EnumWrapper.prototype.getKeyOrDefault](#enumwrapperprototypegetkeyordefault)auto    - [Lookup Value by Key](#lookup-value-by-key)auto        - [EnumWrapper.prototype.getValueOrThrow](#enumwrapperprototypegetvalueorthrow)auto        - [EnumWrapper.prototype.getValueOrDefault](#enumwrapperprototypegetvalueordefault)autoauto<!-- /TOC -->
 
 ## What is it?
 
@@ -130,7 +62,7 @@ enum RGB {
 
 ### Get an `EnumWrapper` instance for an enum
 
-Use the [$enum](#enum) function to get an `EnumWrapper` instance for a particular enum.
+Use the [\$enum](#enum) function to get an `EnumWrapper` instance for a particular enum.
 Read about how `EnumWrapper` instances are cached: [Caching](#caching).
 
 ```ts
@@ -401,7 +333,7 @@ The most obvious example is a TypeScript `enum`. It can be a standard enum of nu
 
 The bulk of `ts-enum-util`'s functionality is implemented via an `EnumWrapper` class, which is instantiated with a reference to an enum-like object and implements all the useful utility methods for that enum.
 
-You likely won't ever directly reference the `EnumWrapper` class because it's much more convenient to use the [$enum](#enum) function to obtain a reference to an `EnumWrapper` instance.
+You likely won't ever directly reference the `EnumWrapper` class because it's much more convenient to use the [\$enum](#enum) function to obtain a reference to an `EnumWrapper` instance.
 
 ### Specific Typing
 
@@ -451,7 +383,7 @@ const values = $enum(ABC).getValues();
 
 ### Caching
 
-`EnumWrapper` instances are cached using an ES6 `WeakMap` for quick subsequent retrieval via the [$enum](#enum) function. This allows you to easily access the `EnumWrapper` functionality for a given enum via the `$enum` function throughout your codebase without worrying about storing a reference to an `EnumWrapper` that is accessible by all of the relevant code.
+`EnumWrapper` instances are cached using an ES6 `WeakMap` for quick subsequent retrieval via the [\$enum](#enum) function. This allows you to easily access the `EnumWrapper` functionality for a given enum via the `$enum` function throughout your codebase without worrying about storing a reference to an `EnumWrapper` that is accessible by all of the relevant code.
 
 The use of the `WeakMap` means that even if you use `ts-enum-util` on temporary, dynamically-generated, enum-like objects, there will be no excessive cache bloat or memory leaks. A cached `EnumWrapper` instance will be garbage collected when the enum-like object it is mapped to is garbage collected.
 
@@ -478,7 +410,7 @@ Throughout this reference, the following aliases for types will be used:
 -   `EnumType`: The specific enum type of the enum values. This is usually the enum type itself, but may also simply be the same as `ValueType` (see below) if a `EnumWrapper` was created for an object that is not actually an enum, but is only "enum-like".
 -   `ValueType`: The widened type of the enum's values. Will be `number`, `string`, or `number | string`, depending on whether the wrapped enum-like object contains only number, only string, or both number and string values.
 
-### $enum
+### \$enum
 
 This is where it all begins. This method returns an [EnumWrapper](#enum-wrapper-1) instance that provides useful utilities for `enumObj`.
 
@@ -494,7 +426,7 @@ function $enum(enumObj: EnumLike): EnumWrapper;
 
 #### EnumWrapper
 
-This is the class that implements all the enum utilities. It's a generic class that requires an overloaded helper function to properly instantiate, so the constructor is private. Use [$enum()](#enum) to get/create an instance of `EnumWrapper`.
+This is the class that implements all the enum utilities. It's a generic class that requires an overloaded helper function to properly instantiate, so the constructor is private. Use [\$enum()](#enum) to get/create an instance of `EnumWrapper`.
 
 ```ts
 class EnumWrapper
@@ -678,10 +610,11 @@ EnumWrapper.prototype.getEntries(): EnumWrapper.Entry[]
 
 #### EnumWrapper.prototype.isKey
 
-```ts
 Returns `true` if the provided `key` is a valid key for the enum.
 
 Also acts as a type guard to tell the compiler that the provided `key` is the more specific `KeyType` type.
+
+```ts
 EnumWrapper.prototype.isKey(
     key: string | null | undefined
 ): key is KeyType
