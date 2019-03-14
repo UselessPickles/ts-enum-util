@@ -247,6 +247,16 @@ describe("EnumWrapper: number+string enum", () => {
         });
     });
 
+    test("indexOfKey()", () => {
+        expect(enumWrapper.indexOfKey("B")).toBe(1);
+        expect(enumWrapper.indexOfKey("C")).toBe(3);
+    });
+
+    test("indexOfValue()", () => {
+        expect(enumWrapper.indexOfValue(TestEnum.B)).toBe(1);
+        expect(enumWrapper.indexOfValue(TestEnum.C)).toBe(3);
+    });
+
     test("getKeys()", () => {
         const expected = ["D", "B", "A", "C"];
         const result = enumWrapper.getKeys();

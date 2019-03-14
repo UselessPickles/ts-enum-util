@@ -20,12 +20,12 @@ export class EnumWrapper<
     T extends Record<StringKeyOf<T>, V> = any
 > implements Iterable<EnumWrapper.Entry<T>>, ArrayLike<EnumWrapper.Entry<T>> {
     /**
-     * List of all keys for this enum, in sorted order.
+     * List of all keys for this enum, in the original defined order of the enum.
      */
     private readonly keysList: ReadonlyArray<StringKeyOf<T>>;
 
     /**
-     * List of all values for this enum, in sorted key order.
+     * List of all values for this enum, in the original defined order of the enum.
      */
     private readonly valuesList: ReadonlyArray<T[StringKeyOf<T>]>;
 
@@ -112,7 +112,7 @@ export class EnumWrapper<
 
     /**
      * Get an iterator for this enum's keys.
-     * Iteration order is based on sorted order of keys.
+     * Iteration order is based on the original defined order of the enum.
      * Part of the Map-like interface.
      * @return An iterator that iterates over this enum's keys.
      */
@@ -140,7 +140,7 @@ export class EnumWrapper<
 
     /**
      * Get an iterator for this enum's values.
-     * Iteration order is based on sorted order of keys.
+     * Iteration order is based on the original defined order of the enum.
      * Part of the Map-like interface.
      * NOTE: If there are duplicate values in the enum, then there will also be duplicate values
      *       in the result.
@@ -170,7 +170,7 @@ export class EnumWrapper<
 
     /**
      * Get an iterator for this enum's entries as [key, value] tuples.
-     * Iteration order is based on sorted order of keys.
+     * Iteration order is based on the original defined order of the enum.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
     public entries(): IterableIterator<EnumWrapper.Entry<T>> {
@@ -198,7 +198,7 @@ export class EnumWrapper<
 
     /**
      * Get an iterator for this enum's entries as [key, value] tuples.
-     * Iteration order is based on sorted order of keys.
+     * Iteration order is based on the original defined order of the enum.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
     public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
@@ -207,7 +207,7 @@ export class EnumWrapper<
 
     /**
      * Calls the provided iteratee on each item in this enum.
-     * Iteration order is based on sorted order of keys.
+     * Iteration order is based on the original defined order of the enum.
      * See {@link EnumWrapper.Iteratee} for the signature of the iteratee.
      * The return value of the iteratee is ignored.
      * @param iteratee - The iteratee.
@@ -229,7 +229,7 @@ export class EnumWrapper<
 
     /**
      * Maps this enum's entries to a new list of values.
-     * Iteration order is based on sorted order of keys.
+     * Iteration order is based on the original defined order of the enum.
      * Builds a new array containing the results of calling the provided iteratee on each item in this enum.
      * See {@link EnumWrapper.Iteratee} for the signature of the iteratee.
      * @param iteratee - The iteratee.
@@ -259,7 +259,7 @@ export class EnumWrapper<
 
     /**
      * Get a list of this enum's keys.
-     * Order of items in the list is based on sorted order of keys.
+     * Order of items in the list is based on the original defined order of the enum.
      * @return A list of this enum's keys.
      */
     public getKeys(): (StringKeyOf<T>)[] {
@@ -269,7 +269,7 @@ export class EnumWrapper<
 
     /**
      * Get a list of this enum's values.
-     * Order of items in the list is based on sorted order of keys.
+     * Order of items in the list is based on the original defined order of the enum.
      * NOTE: If there are duplicate values in the enum, then there will also be duplicate values
      *       in the result.
      * @return A list of this enum's values.
@@ -281,13 +281,31 @@ export class EnumWrapper<
 
     /**
      * Get a list of this enum's entries as [key, value] tuples.
-     * Order of items in the list is based on sorted order of keys.
+     * Order of items in the list is based on the original defined order of the enum.
      * @return A list of this enum's entries as [key, value] tuples.
      */
     public getEntries(): EnumWrapper.Entry<T>[] {
         // Create an array from the indexed entries of "this".
         // NOTE: no need for defensive copy of each entry because all entries are "frozen".
         return Array.prototype.slice.call(this);
+    }
+
+    /**
+     * Get the index of a key based on the original defined order of this enum.
+     * @param key A valid key for this enum.
+     * @return The index of the key based on the original defined order of this enum.
+     */
+    public indexOfKey(key: StringKeyOf<T>): number {
+        return this.keysList.indexOf(key);
+    }
+
+    /**
+     * Get the index of a value based on the original defined order of this enum.
+     * @param value A valid value for this enum.
+     * @return The index of the value based on the original defined order of this enum.
+     */
+    public indexOfValue(value: T[StringKeyOf<T>]): number {
+        return this.valuesList.indexOf(value);
     }
 
     /**
@@ -683,7 +701,7 @@ export namespace EnumWrapper {
      * @param value - An enum value.
      * @param key - An enum key.
      * @param enumWrapper - The EnumWrapper instance being iterated..
-     * @param index - The index of the enum entry, based on sorted order of keys.
+     * @param index - The index of the enum entry, based on the original defined order of the enum.
      * @return A result. The significance of the result depends on the type of iteration being performed.
      *
      * @template R - The type of the result.
