@@ -6,8 +6,6 @@ Usage documentation for the `EnumWrapper` portion of `ts-enum-util`.
 
 <!-- TOC depthFrom:2 -->
 
--   [What is it?](#what-is-it)
--   [Installation](#installation)
 -   [Usage Examples](#usage-examples)
     -   [Basic setup for all examples](#basic-setup-for-all-examples)
     -   [Get an `EnumWrapper` instance for an enum](#get-an-enumwrapper-instance-for-an-enum)
