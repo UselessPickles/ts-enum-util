@@ -23,8 +23,8 @@ Strictly typed utilities for working with TypeScript enums.
 
 ## What is it?
 
-`ts-enum-util` provides utilities to improve the usefulness of enums. There
-are two major and distinct aspects to `ts-enum-util`.
+`ts-enum-util` provides type-safe utilities to improve the usefulness of TypeScript enums.
+There are two major and distinct aspects to `ts-enum-util`.
 
 ### Enum Wrapper Utilities
 
@@ -51,12 +51,13 @@ definition was updated with a new value and you forgot to update existing code t
 handle the new value.
 
 The more generalized "visit" functionallity has you associate a different function
-with each possible value of an enum parameter. The appropriate function is executed
-(and its return value returned) based on which value the argument is at run-time.
+with each possible value of an enum or string/number literal union.
+The appropriate function is executed (and its return value returned) based on
+which value the argument is at run-time.
 
 A streamlined "map" functionality has you simply associate values (of any type)
-with each possible value of an enum parameter. The appropriate mapped value is
-returned based on which value the argument is at run-time.
+with each possible value of an enum or string/number literal union.
+The appropriate mapped value is returned based on which value the argument is at run-time.
 
 ## Installation
 
