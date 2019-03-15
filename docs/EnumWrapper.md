@@ -583,7 +583,7 @@ See [Order of Iteration](#order-of-iteration) for details about the ordering.
 
 ```ts
 EnumWrapper.prototype.forEach(
-    iteratee: EnumWrapper.Iteratee,
+    iteratee: EnumWrapper.Iteratee<void>,
     context?: any
 ): void
 ```
@@ -605,7 +605,7 @@ See [Order of Iteration](#order-of-iteration) for details about the ordering.
 
 ```ts
 EnumWrapper.prototype.map<R>(
-    iteratee: EnumWrapper.Iteratee,
+    iteratee: EnumWrapper.Iteratee<R>,
     context?: any
 ): R[]
 ```
