@@ -240,7 +240,7 @@ const value1 = $enum(RGB).asValueOrThrow(str);
 // value is undefined if 'str' is not a valid value for RGB
 const value2 = $enum(RGB).asValueOrDefault(str);
 
-// type: RGB | undefined
+// type: RGB
 // value is RGB.G if 'str' is not a valid value for RGB
 const value3 = $enum(RGB).asValueOrDefault(str, RGB.G);
 ```
@@ -259,7 +259,7 @@ wrappedRgb.forEach((value, key, wrappedEnum, index) => {
     // type of value is RGB
     // type of key is ("R" | "G" | "B")
     // wrappedEnum is a reference to wrappedRgb
-    // index is based on sorted key order
+    // index is based on original defined order of the enum
 });
 
 // Convert all entries of the enum to an array of mapped values
@@ -268,14 +268,14 @@ const mapped = wrappedRgb.map((value, key, wrappedEnum, index) => {
     // type of value is RGB
     // type of key is ("R" | "G" | "B")
     // wrappedEnum is a reference to wrappedRgb
-    // index is based on sorted key order
+    // index is based on original defined order of the enum
     return `${key}: ${value}`;
 });
 ```
 
 ### Wrapped enums are Array-Like
 
-A wrapped enum can be treated like an array of enum "entry" tuples.
+A wrapped enum is simialr to a readonly array of enum "entry" tuples.
 
 See also:
 
@@ -328,7 +328,7 @@ wrappedRgb.forEach((value, key, wrappedEnum, index) => {
     // type of value is RGB
     // type of key is ("R" | "G" | "B")
     // wrappedEnum is a reference to wrappedRgb
-    // index is based on sorted key order
+    // index is based on original defined order of the enum
     // NOTE: index param is extra compared to Map's forEach
 });
 ```
