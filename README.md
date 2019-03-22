@@ -7,6 +7,8 @@
 
 Strictly typed utilities for working with TypeScript enums (and string/number literal union types).
 
+NOTE: Be sure to read about supported TypeScript versions in the [Requirements](#requirements) section.
+
 # Contents
 
 <!-- TOC depthFrom:2 -->
