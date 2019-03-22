@@ -1,6 +1,6 @@
 {
     "name": "ts-enum-util",
-    "version": "3.1.0",
+    "version": "4.0.0-alpha.20190310",
     "description": "TypeScript Enum Utilities",
     "repository": {
         "type": "git",
@@ -28,14 +28,14 @@
         "prettier:test": "prettier --list-different \"{src,tests,type_tests}/**/*.ts\"",
         "prettier:fix": "prettier --write \"{src,tests,type_tests}/**/*.ts\"",
         "build:types": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --emitDeclarationOnly true --declarationMap true --outDir dist/types",
-        "build:commonjs": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false --outDir dist/commonjs",
-        "build:es": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --declaration false -m es6 --outDir dist/es",
+        "build:commonjs": "tsc --project src/tsconfig.json --pretty --removeComments --noErrorTruncation --declaration false --outDir dist/commonjs",
+        "build:es": "tsc --project src/tsconfig.json --pretty --removeComments --noErrorTruncation --declaration false -m es6 --outDir dist/es",
         "build": "npm run clean:dist && run-p build:types build:es build:commonjs",
         "pack": "run-p clean:pack build && npm pack",
         "jest": "jest",
         "jest:coverage": "npm run clean:coverage && jest --coverage",
-        "dtslint:v2_8_plus": "dtslint type_tests/v2_8_plus",
-        "dtslint": "run-s clean:dist build:types dtslint:v2_8_plus",
+        "dtslint:v2_9_plus": "dtslint type_tests/v2_9_plus",
+        "dtslint": "run-s clean:dist build:types dtslint:v2_9_plus",
         "test": "run-s compile prettier:test lint dtslint jest",
         "test:coverage": "run-s compile prettier:test lint dtslint jest:coverage",
         "build:travis": "run-p test:coverage build && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
@@ -47,26 +47,28 @@
     },
     "license": "MIT",
     "devDependencies": {
-        "@types/jest": "23.0.0",
-        "@types/node": "10.3.0",
-        "coveralls": "3.0.1",
-        "dtslint": "0.3.0",
-        "jest": "23.1.0",
-        "npm-run-all": "4.1.3",
-        "prettier": "1.13.4",
-        "rimraf": "2.6.2",
-        "ts-jest": "22.4.6",
-        "tslint": "5.10.0",
-        "tslint-config-prettier": "1.13.0",
-        "typescript": "2.9.1"
+        "@types/jest": "24.0.9",
+        "@types/node": "10.12.18",
+        "coveralls": "3.0.3",
+        "dtslint": "0.5.3",
+        "jest": "24.1.0",
+        "npm-run-all": "4.1.5",
+        "prettier": "1.16.4",
+        "rimraf": "2.6.3",
+        "ts-jest": "24.0.0",
+        "tslint": "5.13.1",
+        "tslint-config-prettier": "1.18.0",
+        "typescript": "3.3.3333"
     },
     "peerDependencies": {
-        "typescript": ">= 2.8.1"
+        "typescript": ">= 2.9.1"
     },
     "keywords": [
         "typescript",
         "string",
         "number",
+        "literal",
+        "union",
         "enum",
         "util"
     ],

@@ -19,6 +19,10 @@
 
         /* Module Resolution Options */
         "moduleResolution": "node",
-        "baseUrl": "./"
+        "baseUrl": "./",
+        "paths": {
+            "ts-enum-util": ["../../dist/types"]
+        },
+        "types": []
     }
 }

@@ -1,10 +1,10 @@
-import { $enum } from "../../dist/types";
+import { $enum } from "ts-enum-util";
 
-// Enum-like object with number values
+// Enum-like object with string values
 const TestEnum = {
-    A: 1,
-    B: 2,
-    C: 3
+    A: "a",
+    B: "b",
+    C: "c"
 };
 
 declare const str: string;
@@ -21,7 +21,7 @@ declare const keyOrUndefined: keyof typeof TestEnum | undefined;
 
 const enumWrapper = $enum(TestEnum);
 
-// $ExpectType EnumWrapper<number, { A: number; B: number; C: number; }>
+// $ExpectType EnumWrapper<string, { A: string; B: string; C: string; }>
 enumWrapper;
 
 // $ExpectType number
@@ -34,37 +34,40 @@ enumWrapper.size;
 // $ExpectError
 enumWrapper.size = 0; // immutable
 
-// $ExpectType Readonly<["A" | "B" | "C", number]>
-enumWrapper[0];
+// NOTE: Must test via assignability rather than ExpectType because of a change
+// in how Readonly tuple types work as of TS 3.1.
+// Also cannot test for immutability of items within the entry tuple because of
+// this change.
+// see: https://github.com/Microsoft/TypeScript/issues/26864
+const testEntry: Readonly<["A" | "B" | "C", string]> = enumWrapper[0];
 // $ExpectError
 enumWrapper[0] = ["A", TestEnum.A]; // immutable
-// $ExpectError
-enumWrapper[0][0] = "A"; // immutable
-// $ExpectError
-enumWrapper[0][1] = TestEnum.A; // immutable
 
 // $ExpectType IterableIterator<"A" | "B" | "C">
 enumWrapper.keys();
 
-// $ExpectType IterableIterator<number>
+// $ExpectType IterableIterator<string>
 enumWrapper.values();
 
-// $ExpectType IterableIterator<Readonly<["A" | "B" | "C", number]>>
-enumWrapper.entries();
+// NOTE: Must test via assignability rather than ExpectType because of a change
+// in how Readonly tuple types work as of TS 3.1.
+// Also cannot test for immutability of items within the iterated entry tuples
+// because of this change.
+// see: https://github.com/Microsoft/TypeScript/issues/26864
+const testEntryIterator: IterableIterator<
+    Readonly<["A" | "B" | "C", string]>
+> = enumWrapper.entries();
 for (const entry of enumWrapper.entries()) {
-    // $ExpectError
-    entry[0] = "A"; // immutable
-    // $ExpectError
-    entry[1] = TestEnum.A; // immutable
+    const testIteratedEntry: Readonly<["A" | "B" | "C", string]> = entry;
 }
 
 // $ExpectType void
 enumWrapper.forEach((value, key, collection, index) => {
-    // $ExpectType number
+    // $ExpectType string
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<number, { A: number; B: number; C: number; }>
+    // $ExpectType EnumWrapper<string, { A: string; B: string; C: string; }>
     collection;
     // $ExpectType number
     index;
@@ -74,11 +77,11 @@ enumWrapper.forEach((value, key, collection, index) => {
 
 // $ExpectType number[]
 enumWrapper.map((value, key, collection, index) => {
-    // $ExpectType number
+    // $ExpectType string
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<number, { A: number; B: number; C: number; }>
+    // $ExpectType EnumWrapper<string, { A: string; B: string; C: string; }>
     collection;
     // $ExpectType number
     index;
@@ -89,16 +92,17 @@ enumWrapper.map((value, key, collection, index) => {
 // $ExpectType ("A" | "B" | "C")[]
 enumWrapper.getKeys();
 
-// $ExpectType number[]
+// $ExpectType string[]
 enumWrapper.getValues();
 
-// $ExpectType Readonly<["A" | "B" | "C", number]>[]
-enumWrapper.getEntries();
-const entry = enumWrapper.getEntries()[0];
-// $ExpectError
-entry[0] = "A"; // immutable
-// $ExpectError
-entry[1] = TestEnum.A; // immutable
+// NOTE: Must test via assignability rather than ExpectType because of a change
+// in how Readonly tuple types work as of TS 3.1.
+// Also cannot test for immutability of items within the entry tuple because of
+// this change.
+// see: https://github.com/Microsoft/TypeScript/issues/26864
+const testEntries: Readonly<
+    ["A" | "B" | "C", string]
+>[] = enumWrapper.getEntries();
 
 // $ExpectType boolean
 enumWrapper.isKey(str);
@@ -147,108 +151,108 @@ enumWrapper.asKeyOrDefault(str, str);
 enumWrapper.asKeyOrDefault(str, strOrUndefined);
 
 // $ExpectType boolean
-enumWrapper.isValue(num);
-// $ExpectType boolean
-enumWrapper.isValue(numOrNull);
-// $ExpectType boolean
-enumWrapper.isValue(numOrUndefined);
-// $ExpectError
 enumWrapper.isValue(str);
+// $ExpectType boolean
+enumWrapper.isValue(strOrNull);
+// $ExpectType boolean
+enumWrapper.isValue(strOrUndefined);
+// $ExpectError
+enumWrapper.isValue(num);
 
-if (enumWrapper.isValue(num)) {
-    // $ExpectType number
-    num;
+if (enumWrapper.isValue(str)) {
+    // $ExpectType string
+    str;
 }
 
-if (enumWrapper.isValue(numOrNull)) {
-    // $ExpectType number
-    numOrNull;
+if (enumWrapper.isValue(strOrNull)) {
+    // $ExpectType string
+    strOrNull;
 }
 
-if (enumWrapper.isValue(numOrUndefined)) {
-    // $ExpectType number
-    numOrUndefined;
+if (enumWrapper.isValue(strOrUndefined)) {
+    // $ExpectType string
+    strOrUndefined;
 }
 
-// $ExpectType number
-enumWrapper.asValueOrThrow(num);
-// $ExpectType number
-enumWrapper.asValueOrThrow(numOrNull);
-// $ExpectType number
-enumWrapper.asValueOrThrow(numOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrThrow(str);
-
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(num);
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(numOrNull);
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(numOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrDefault(str);
-
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(num, undefined);
-// $ExpectType number
-enumWrapper.asValueOrDefault(num, num);
-// $ExpectType number | undefined
-enumWrapper.asValueOrDefault(num, numOrUndefined);
-// $ExpectError
-enumWrapper.asValueOrDefault(num, str);
-
-// $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrThrow(num);
-// $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrThrow(numOrNull);
-// $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrThrow(numOrUndefined);
-// $ExpectError
-enumWrapper.getKeyOrThrow(str);
-
-// $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(num);
-// $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(numOrNull);
-// $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(numOrUndefined);
-// $ExpectError
-enumWrapper.getKeyOrDefault(str);
-
-// $ExpectType "A" | "B" | "C"
-enumWrapper.getKeyOrDefault(num, key);
-// $ExpectType "A" | "B" | "C" | undefined
-enumWrapper.getKeyOrDefault(num, keyOrUndefined);
 // $ExpectType string
-enumWrapper.getKeyOrDefault(num, str);
-// $ExpectType string | undefined
-enumWrapper.getKeyOrDefault(num, strOrUndefined);
+enumWrapper.asValueOrThrow(str);
+// $ExpectType string
+enumWrapper.asValueOrThrow(strOrNull);
+// $ExpectType string
+enumWrapper.asValueOrThrow(strOrUndefined);
+// $ExpectError
+enumWrapper.asValueOrThrow(num);
 
-// $ExpectType number
+// $ExpectType string | undefined
+enumWrapper.asValueOrDefault(str);
+// $ExpectType string | undefined
+enumWrapper.asValueOrDefault(strOrNull);
+// $ExpectType string | undefined
+enumWrapper.asValueOrDefault(strOrUndefined);
+// $ExpectError
+enumWrapper.asValueOrDefault(num);
+
+// $ExpectType string | undefined
+enumWrapper.asValueOrDefault(str, undefined);
+// $ExpectType string
+enumWrapper.asValueOrDefault(str, str);
+// $ExpectType string | undefined
+enumWrapper.asValueOrDefault(str, strOrUndefined);
+// $ExpectError
+enumWrapper.asValueOrDefault(str, num);
+
+// $ExpectType "A" | "B" | "C"
+enumWrapper.getKeyOrThrow(str);
+// $ExpectType "A" | "B" | "C"
+enumWrapper.getKeyOrThrow(strOrNull);
+// $ExpectType "A" | "B" | "C"
+enumWrapper.getKeyOrThrow(strOrUndefined);
+// $ExpectError
+enumWrapper.getKeyOrThrow(num);
+
+// $ExpectType "A" | "B" | "C" | undefined
+enumWrapper.getKeyOrDefault(str);
+// $ExpectType "A" | "B" | "C" | undefined
+enumWrapper.getKeyOrDefault(strOrNull);
+// $ExpectType "A" | "B" | "C" | undefined
+enumWrapper.getKeyOrDefault(strOrUndefined);
+// $ExpectError
+enumWrapper.getKeyOrDefault(num);
+
+// $ExpectType "A" | "B" | "C"
+enumWrapper.getKeyOrDefault(str, key);
+// $ExpectType "A" | "B" | "C" | undefined
+enumWrapper.getKeyOrDefault(str, keyOrUndefined);
+// $ExpectType string
+enumWrapper.getKeyOrDefault(str, str);
+// $ExpectType string | undefined
+enumWrapper.getKeyOrDefault(str, strOrUndefined);
+
+// $ExpectType string
 enumWrapper.getValueOrThrow(key);
-// $ExpectType number
+// $ExpectType string
 enumWrapper.getValueOrThrow(keyOrNull);
-// $ExpectType number
+// $ExpectType string
 enumWrapper.getValueOrThrow(keyOrUndefined);
-// $ExpectType number
+// $ExpectType string
 enumWrapper.getValueOrThrow(str);
-// $ExpectType number
+// $ExpectType string
 enumWrapper.getValueOrThrow(strOrNull);
-// $ExpectType number
+// $ExpectType string
 enumWrapper.getValueOrThrow(strOrUndefined);
 
-// $ExpectType number | undefined
+// $ExpectType string | undefined
 enumWrapper.getValueOrDefault(str);
-// $ExpectType number | undefined
+// $ExpectType string | undefined
 enumWrapper.getValueOrDefault(strOrNull);
-// $ExpectType number | undefined
+// $ExpectType string | undefined
 enumWrapper.getValueOrDefault(strOrUndefined);
 
-// $ExpectType number | undefined
+// $ExpectType string | undefined
 enumWrapper.getValueOrDefault(str, undefined);
-// $ExpectType number
-enumWrapper.getValueOrDefault(str, num);
-// $ExpectType number | undefined
-enumWrapper.getValueOrDefault(str, numOrUndefined);
-// $ExpectError
+// $ExpectType string
 enumWrapper.getValueOrDefault(str, str);
+// $ExpectType string | undefined
+enumWrapper.getValueOrDefault(str, strOrUndefined);
+// $ExpectError
+enumWrapper.getValueOrDefault(str, num);

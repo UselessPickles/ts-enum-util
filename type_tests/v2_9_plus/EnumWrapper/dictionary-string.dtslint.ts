@@ -1,4 +1,4 @@
-import { $enum } from "../../dist/types";
+import { $enum } from "ts-enum-util";
 
 // Dictionary object with string values
 declare const TestEnum: { [key: string]: string };
@@ -26,14 +26,14 @@ enumWrapper.size;
 // $ExpectError
 enumWrapper.size = 0; // immutable
 
-// $ExpectType Readonly<[string, string]>
-enumWrapper[0];
+// NOTE: Must test via assignability rather than ExpectType because of a change
+// in how Readonly tuple types work as of TS 3.1.
+// Also cannot test for immutability of items within the entry tuple because of
+// this change.
+// see: https://github.com/Microsoft/TypeScript/issues/26864
+const testEntry: Readonly<[string, string]> = enumWrapper[0];
 // $ExpectError
 enumWrapper[0] = ["A", TestEnum.A]; // immutable
-// $ExpectError
-enumWrapper[0][0] = "A"; // immutable
-// $ExpectError
-enumWrapper[0][1] = TestEnum.A; // immutable
 
 // $ExpectType IterableIterator<string>
 enumWrapper.keys();
@@ -41,13 +41,16 @@ enumWrapper.keys();
 // $ExpectType IterableIterator<string>
 enumWrapper.values();
 
-// $ExpectType IterableIterator<Readonly<[string, string]>>
-enumWrapper.entries();
+// NOTE: Must test via assignability rather than ExpectType because of a change
+// in how Readonly tuple types work as of TS 3.1.
+// Also cannot test for immutability of items within the iterated entry tuples
+// because of this change.
+// see: https://github.com/Microsoft/TypeScript/issues/26864
+const testEntryIterator: IterableIterator<
+    Readonly<[string, string]>
+> = enumWrapper.entries();
 for (const entry of enumWrapper.entries()) {
-    // $ExpectError
-    entry[0] = "A"; // immutable
-    // $ExpectError
-    entry[1] = TestEnum.A; // immutable
+    const testIteratedEntry: Readonly<[string, string]> = entry;
 }
 
 // $ExpectType void
@@ -84,13 +87,12 @@ enumWrapper.getKeys();
 // $ExpectType string[]
 enumWrapper.getValues();
 
-// $ExpectType Readonly<[string, string]>[]
-enumWrapper.getEntries();
-const entry = enumWrapper.getEntries()[0];
-// $ExpectError
-entry[0] = "A"; // immutable
-// $ExpectError
-entry[1] = TestEnum.A; // immutable
+// NOTE: Must test via assignability rather than ExpectType because of a change
+// in how Readonly tuple types work as of TS 3.1.
+// Also cannot test for immutability of items within the entry tuple because of
+// this change.
+// see: https://github.com/Microsoft/TypeScript/issues/26864
+const testEntries: Readonly<[string, string]>[] = enumWrapper.getEntries();
 
 // $ExpectType boolean
 enumWrapper.isKey(str);
