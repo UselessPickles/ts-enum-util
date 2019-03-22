@@ -30,6 +30,10 @@ Generic TypeScript Visitor and Mapper for Enums and String/Number Literal Type U
 
 <!-- /TOC -->
 
+## Migrating from `ts-string-visitor`
+
+See [Migration Guide: Upgrading From `ts-string-visitor`](./docs/migration_from_ts-string-visitor.md)
+
 ## Basic Usage Examples
 
 ### Visitor

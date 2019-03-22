@@ -5,7 +5,7 @@
 
 # ts-enum-util
 
-Strictly typed utilities for working with TypeScript enums.
+Strictly typed utilities for working with TypeScript enums (and string/number literal union types).
 
 # Contents
 
@@ -127,6 +127,7 @@ been split out to separate files:
 
 -   [Enum Wrapper Utilities](./docs/EnumWrapper.md)
 -   [Enum Value Visitor/Mapper](./docs/EnumValueVisitor.md)
+    -   [Migration Guide: from `ts-string-visitor`](./docs/migration_from_ts-string-visitor.md)
 
 ## Requirements
 
@@ -136,6 +137,13 @@ been split out to separate files:
     number literals as property names of object types, which is necessary for
     implementing some `ts-enum-util` functionality consistently for both string and
     number enum types.
+    -   _Stuck with an older version of TypeScript_?
+        -   For Value Visitor/Mapper functionality, check out `ts-string-visitor`
+            ([npm](https://www.npmjs.com/package/ts-string-visitor),
+            [github](https://github.com/UselessPickles/ts-string-visitor)). NOTE:
+            numeric value visiting/mapping not supported!
+        -   For Enum Wrapper
+            functionality, check out v3 or v2 of `ts-enum-util`.
 -   _ES6 Features_: The following ES6 features are used by `ts-enum-util`, so they
     must exist (either natively or via polyfill) in the run-time environment:
     -   `Map`
