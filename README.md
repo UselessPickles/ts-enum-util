@@ -20,6 +20,7 @@ NOTE: Be sure to read about supported TypeScript versions in the [Requirements](
 -   [Getting Started](#getting-started)
 -   [Usage Documentation/Examples](#usage-documentationexamples)
 -   [Requirements](#requirements)
+-   [Why is the export named `$enum`?](#why-is-the-export-named-enum)
 
 <!-- /TOC -->
 
@@ -153,3 +154,11 @@ been split out to separate files:
     -   `Symbol`
     -   `Symbol.iterator`
     -   `Symbol.toStringTag`
+
+## Why is the export named `$enum`?
+
+I wanted something short, simple, and easy to remember that was unlikely to conflict with anything else so that no one would have to alias it when importing it. By exporting a clear, memorable, and uniquely named "thing", this allows you to simply start writing code that uses `$enum` and most IDEs can take care of inserting the import { \$enum } from "ts-enum-util"; for you (either automatically, or with a quick keyboard shortcut).
+
+I ended up using inspiration from the naming of jquery's `$()` function. Many javascript developers are familiar with jquery, and the fact that `$()` gives you a wrapper around a raw DOM element to expose additional/simplified functionality around the DOM element.
+
+Similarly, `$enum()` gives you a wrapper around a raw enum to expose additional/simplified functionality around the enum.
