@@ -67,6 +67,8 @@
         "typescript",
         "string",
         "number",
+        "literal",
+        "union",
         "enum",
         "util"
     ],
