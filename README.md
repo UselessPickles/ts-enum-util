@@ -78,7 +78,7 @@ import { $enum } from "ts-enum-util";
 Define an `enum`:
 
 ```ts
-enum Colors {
+enum Color {
     R,
     G,
     B
@@ -88,9 +88,9 @@ enum Colors {
 Use `$enum()` as a function to access [Enum Wrapper Utilities](./docs/EnumWrapper.md) for your `enum`:
 
 ```ts
-// type of "values": Colors[]
+// type of "values": Color[]
 // value of "values": [0, 1, 2]
-const values = $enum(Colors).getValues();
+const values = $enum(Color).getValues();
 ```
 
 Use `$enum.visitValue()` or `$enum.mapValue()` to access [Enum Value Visitor/Mapper](./docs/EnumValueVisitor.md) functionality:
