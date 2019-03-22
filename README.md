@@ -148,5 +148,6 @@ been split out to separate files:
     must exist (either natively or via polyfill) in the run-time environment:
     -   `Map`
     -   `WeakMap`
+    -   `Symbol`
     -   `Symbol.iterator`
     -   `Symbol.toStringTag`
