@@ -20,7 +20,7 @@ NOTE: Be sure to read about supported TypeScript versions in the [Requirements](
 -   [Getting Started](#getting-started)
 -   [Usage Documentation/Examples](#usage-documentationexamples)
 -   [Requirements](#requirements)
--   [Why is the export named `$enum`?](#why-is-the-export-named-enum)
+-   [Why is the main export named `$enum`?](#why-is-the-main-export-named-enum)
 
 <!-- /TOC -->
 
@@ -155,7 +155,7 @@ been split out to separate files:
     -   `Symbol.iterator`
     -   `Symbol.toStringTag`
 
-## Why is the export named `$enum`?
+## Why is the main export named `$enum`?
 
 I wanted something short, simple, and easy to remember that was unlikely to conflict with anything else so that no one would have to alias it when importing it. By exporting a clear, memorable, and uniquely named "thing", this allows you to simply start writing code that uses `$enum` and most IDEs can take care of inserting the import { \$enum } from "ts-enum-util"; for you (either automatically, or with a quick keyboard shortcut).
 
