@@ -1,4 +1,7 @@
-import { createUnhandledEntryError } from "./createUnhandledEntryError";
+import {
+    createUnhandledEntryError,
+    createUnexpectedValueError
+} from "./errorUtil";
 import {
     EnumValueMapperCore,
     EnumValueMapper,
@@ -48,7 +51,7 @@ export class EnumValueMappee<E extends string | number> {
         } else if (mapper.hasOwnProperty(handleUnexpected)) {
             return processEntry(mapper[handleUnexpected]!, this.value);
         } else {
-            throw new Error(`Unexpected value: ${this.value}`);
+            throw createUnexpectedValueError(this.value);
         }
     }
 }
@@ -89,7 +92,7 @@ export class EnumValueMappeeWithNull<E extends string | number> {
         } else if (mapper.hasOwnProperty(handleUnexpected)) {
             return processEntry(mapper[handleUnexpected]!, null);
         } else {
-            throw new Error(`Unexpected value: null`);
+            throw createUnexpectedValueError(null);
         }
     }
 }
@@ -130,7 +133,7 @@ export class EnumValueMappeeWithUndefined<E extends string | number> {
         } else if (mapper.hasOwnProperty(handleUnexpected)) {
             return processEntry(mapper[handleUnexpected]!, undefined);
         } else {
-            throw new Error(`Unexpected value: undefined`);
+            throw createUnexpectedValueError(undefined);
         }
     }
 }

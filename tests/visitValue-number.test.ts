@@ -33,11 +33,9 @@ describe("visitValue (number)", () => {
         return "Undefined!";
     });
 
-    const handlerMockUnexpected = jest.fn(
-        (value: number | null | undefined) => {
-            return `Unexpected! (${value})`;
-        }
-    );
+    const handlerMockUnexpected = jest.fn((value: any) => {
+        return `Unexpected! (${value})`;
+    });
 
     const ALL_HANDLER_MOCKS = [
         handlerMockR,

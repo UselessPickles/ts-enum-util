@@ -33,11 +33,9 @@ describe("visitValue (string/number mix)", () => {
         return "Undefined!";
     });
 
-    const handlerMockUnexpected = jest.fn(
-        (value: string | number | null | undefined) => {
-            return `Unexpected! (${value})`;
-        }
-    );
+    const handlerMockUnexpected = jest.fn((value: any) => {
+        return `Unexpected! (${value})`;
+    });
 
     const ALL_HANDLER_MOCKS = [
         handlerMockR,

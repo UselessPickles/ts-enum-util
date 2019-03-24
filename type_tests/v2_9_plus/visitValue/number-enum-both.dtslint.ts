@@ -31,7 +31,7 @@ $enum.visitValue(rgb).with({
         value;
     },
     [$enum.handleUnexpected]: (value) => {
-        // $ExpectType number
+        // $ExpectType any
         value;
     }
 });

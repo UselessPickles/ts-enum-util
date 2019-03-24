@@ -4,9 +4,11 @@ import {
     handleUndefined,
     unhandledEntry
 } from "./symbols";
-import { createUnhandledEntryError } from "./createUnhandledEntryError";
 import {
-    WidenEnumType,
+    createUnhandledEntryError,
+    createUnexpectedValueError
+} from "./errorUtil";
+import {
     EnumValueVisitorHandler,
     EnumValueVisitorCore,
     EnumValueVisitor,
@@ -16,10 +18,10 @@ import {
 } from "./EnumValueVisitor";
 
 /**
- * A wrapper around a string literal or string enum value to be visited.
+ * A wrapper around an enum or string/number literal value to be visited.
  * Do not use this class directly. Use the {@link visitString} function to get an instance of this class.
  *
- * @template E - A string literal type or string enum type.
+ * @template E - An enum type or string/number literal union type.
  */
 export class EnumValueVisitee<E extends string | number> {
     /**
@@ -42,16 +44,15 @@ export class EnumValueVisitee<E extends string | number> {
             const handler = (visitor as EnumValueVisitorCore<E, R>)[this.value];
             return processEntry(handler, this.value);
         } else if (visitor[handleUnexpected]) {
-            return processEntry(visitor[handleUnexpected]!, (this
-                .value as any) as WidenEnumType<E>);
+            return processEntry(visitor[handleUnexpected]!, this.value);
         } else {
-            throw new Error(`Unexpected value: ${this.value}`);
+            throw createUnexpectedValueError(this.value);
         }
     }
 }
 
 /**
- * A wrapper around a string literal or string enum value to be visited.
+ * A wrapper around an enum or string/number literal value to be visited.
  * For values that may be null.
  * Do not use this class directly. Use the {@link visitString} function to get an instance of this class.
  *
@@ -59,7 +60,7 @@ export class EnumValueVisitee<E extends string | number> {
  *       {@link EnumValueVisitee} contains the core run time implementation that is applicable to all
  *       "EnumValueVisitee" classes.
  *
- * @template E - A string literal type or string enum type.
+ * @template E - An enum type or string/number literal union type.
  */
 export class EnumValueVisiteeWithNull<E extends string | number> {
     /**
@@ -83,13 +84,13 @@ export class EnumValueVisiteeWithNull<E extends string | number> {
                 null
             );
         } else {
-            throw new Error(`Unexpected value: null`);
+            throw createUnexpectedValueError(null);
         }
     }
 }
 
 /**
- * A wrapper around a string literal or string enum value to be visited.
+ * A wrapper around an enum or string/number literal value to be visited.
  * For values that may be undefined.
  * Do not use this class directly. Use the {@link visitString} function to get an instance of this class.
  *
@@ -97,7 +98,7 @@ export class EnumValueVisiteeWithNull<E extends string | number> {
  *       {@link EnumValueVisitee} contains the core run time implementation that is applicable to all
  *       "EnumValueVisitee" classes.
  *
- * @template E - A string literal type or string enum type.
+ * @template E - An enum type or string/number literal union type.
  */
 export class EnumValueVisiteeWithUndefined<E extends string | number> {
     /**
@@ -121,13 +122,13 @@ export class EnumValueVisiteeWithUndefined<E extends string | number> {
                 undefined
             );
         } else {
-            throw new Error(`Unexpected value: undefined`);
+            throw createUnexpectedValueError(undefined);
         }
     }
 }
 
 /**
- * A wrapper around a string literal or string enum value to be visited.
+ * A wrapper around an enum or string/number literal value to be visited.
  * For values that may be null and undefined.
  * Do not use this class directly. Use the {@link visitString} function to get an instance of this class.
  *
@@ -136,7 +137,7 @@ export class EnumValueVisiteeWithUndefined<E extends string | number> {
  *       "EnumValueVisitee" classes, while {@link EnumValueVisiteeWithNull} and {@link EnumValueVisiteeWithUndefined}
  *       are used at run time to handle null and undefined values.
  *
- * @template E - A string literal type or string enum type.
+ * @template E - An enum type or string/number literal union type.
  */
 export declare class EnumValueVisiteeWithNullAndUndefined<
     E extends string | number
