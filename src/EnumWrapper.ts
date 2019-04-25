@@ -1,7 +1,7 @@
 import { StringKeyOf } from "./types";
 import {
-    isNonArrayIndexKey,
-    getOwnEnumerableNonArrayIndexKeys
+    isNonNumericKey,
+    getOwnEnumerableNonNumericKeys
 } from "./objectKeysUtil";
 
 /**
@@ -64,12 +64,10 @@ export class EnumWrapper<
      * @param enumObj - An enum-like object.
      */
     public constructor(private readonly enumObj: T) {
-        // Include only own enumerable keys that are not array indexes.
+        // Include only own enumerable keys that are not numeric.
         // This is necessary to ignore the reverse-lookup entries that are automatically added
         // by TypeScript to numeric enums.
-        this.keysList = Object.freeze(
-            getOwnEnumerableNonArrayIndexKeys(enumObj)
-        );
+        this.keysList = Object.freeze(getOwnEnumerableNonNumericKeys(enumObj));
 
         const length = this.keysList.length;
         const valuesList = new Array<T[StringKeyOf<T>]>(length);
@@ -317,7 +315,7 @@ export class EnumWrapper<
     public isKey(key: string | null | undefined): key is StringKeyOf<T> {
         return (
             key != null &&
-            isNonArrayIndexKey(key) &&
+            isNonNumericKey(key) &&
             this.enumObj.hasOwnProperty(key)
         );
     }
