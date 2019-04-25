@@ -399,7 +399,11 @@ describe("EnumWrapper: string enum", () => {
         // Name of a property on Object.prototype
         expect(enumWrapper.asKeyOrDefault("toString")).toBe(undefined);
         expect(enumWrapper.asKeyOrDefault(null, "A")).toBe("A");
-        expect(enumWrapper.asKeyOrDefault(undefined, "foo")).toBe("foo");
+        expect(enumWrapper.asKeyOrDefault(undefined, "A")).toBe("A");
+
+        expect(() => {
+            enumWrapper.asKeyOrDefault(undefined, "invalid!" as any);
+        }).toThrow();
     });
 
     test("isValue()", () => {
@@ -449,86 +453,76 @@ describe("EnumWrapper: string enum", () => {
         // Name of a property on Object.prototype
         expect(enumWrapper.asValueOrDefault("toString")).toBe(undefined);
         expect(enumWrapper.asValueOrDefault(null, TestEnum.A)).toBe(TestEnum.A);
-        expect(enumWrapper.asValueOrDefault(undefined, "foo")).toBe("foo");
-    });
-
-    test("getKeyOrThrow()", () => {
-        // A and D have duplicate values, but A is ordered after D, and last duplicate entry wins,
-        // so A's key is returned when looking up the value of A or D.
-        expect(enumWrapper.getKeyOrThrow(TestEnum.A)).toBe("A");
-        expect(enumWrapper.getKeyOrThrow(TestEnum.B)).toBe("B");
-        expect(enumWrapper.getKeyOrThrow(TestEnum.C)).toBe("C");
-        expect(enumWrapper.getKeyOrThrow(TestEnum.D)).toBe("A");
-
-        expect(() => {
-            enumWrapper.getKeyOrThrow("foo");
-        }).toThrow();
-
-        expect(() => {
-            // Name of a property on Object.prototype
-            enumWrapper.getKeyOrThrow("toString");
-        }).toThrow();
-
-        expect(() => {
-            enumWrapper.getKeyOrThrow(null);
-        }).toThrow();
-
-        expect(() => {
-            enumWrapper.getKeyOrThrow(undefined);
-        }).toThrow();
-    });
-
-    test("getKeyOrDefault()", () => {
-        // A and D have duplicate values, but A is ordered after D, and last duplicate entry wins,
-        // so A's key is returned when looking up the value of A or D.
-        expect(enumWrapper.getKeyOrDefault(TestEnum.A)).toBe("A");
-        expect(enumWrapper.getKeyOrDefault(TestEnum.B)).toBe("B");
-        expect(enumWrapper.getKeyOrDefault(TestEnum.C)).toBe("C");
-        expect(enumWrapper.getKeyOrDefault(TestEnum.D)).toBe("A");
-
-        expect(enumWrapper.getKeyOrDefault("blah")).toBe(undefined);
-        // Name of a property on Object.prototype
-        expect(enumWrapper.getKeyOrDefault("toString")).toBe(undefined);
-        expect(enumWrapper.getKeyOrDefault(null, "A")).toBe("A");
-        expect(enumWrapper.getKeyOrDefault(undefined, "foo")).toBe("foo");
-    });
-
-    test("getValueOrThrow()", () => {
-        expect(enumWrapper.getValueOrThrow("A")).toBe(TestEnum.A);
-        expect(enumWrapper.getValueOrThrow("B")).toBe(TestEnum.B);
-        expect(enumWrapper.getValueOrThrow("C")).toBe(TestEnum.C);
-        expect(enumWrapper.getValueOrThrow("D")).toBe(TestEnum.D);
-
-        expect(() => {
-            enumWrapper.getValueOrThrow("blah");
-        }).toThrow();
-
-        expect(() => {
-            // Name of a property on Object.prototype
-            enumWrapper.getValueOrThrow("toString");
-        }).toThrow();
-
-        expect(() => {
-            enumWrapper.getValueOrThrow(null);
-        }).toThrow();
-
-        expect(() => {
-            enumWrapper.getValueOrThrow(undefined);
-        }).toThrow();
-    });
-
-    test("getValueOrDefault()", () => {
-        expect(enumWrapper.getValueOrDefault("A")).toBe(TestEnum.A);
-        expect(enumWrapper.getValueOrDefault("B")).toBe(TestEnum.B);
-        expect(enumWrapper.getValueOrDefault("C")).toBe(TestEnum.C);
-        expect(enumWrapper.getValueOrDefault("D")).toBe(TestEnum.D);
-
-        expect(enumWrapper.getValueOrDefault("blah")).toBe(undefined);
-        // Name of a property on Object.prototype
-        expect(enumWrapper.getValueOrDefault("toString")).toBe(undefined);
-        expect(enumWrapper.getValueOrDefault(null, TestEnum.A)).toBe(
+        expect(enumWrapper.asValueOrDefault(undefined, TestEnum.A)).toBe(
             TestEnum.A
         );
-        expect(enumWrapper.getValueOrDefault(undefined, "foo")).toBe("foo");
+    });
+
+    test("getKey()", () => {
+        // A and D have duplicate values, but A is ordered after D, and last duplicate entry wins,
+        // so A's key is returned when looking up the value of A or D.
+        expect(enumWrapper.getKey(TestEnum.A)).toBe("A");
+        expect(enumWrapper.getKey(TestEnum.B)).toBe("B");
+        expect(enumWrapper.getKey(TestEnum.C)).toBe("C");
+        expect(enumWrapper.getKey(TestEnum.D)).toBe("A");
+
+        // Invalid value causes error
+        expect(() => {
+            enumWrapper.getKey((-1 as unknown) as TestEnum);
+        }).toThrow();
+        expect(() => {
+            enumWrapper.getKey(("blah" as unknown) as TestEnum);
+        }).toThrow();
+
+        expect(() => {
+            // Name of a property on Object.prototype
+            enumWrapper.getKey(("toString" as unknown) as TestEnum);
+        }).toThrow();
+
+        expect(enumWrapper.getKey(null)).toBe(undefined);
+        expect(enumWrapper.getKey(null, "A")).toBe("A");
+
+        expect(enumWrapper.getKey(undefined)).toBe(undefined);
+        expect(enumWrapper.getKey(undefined, "A")).toBe("A");
+
+        // Invalid default key causes error
+        expect(() => {
+            enumWrapper.getKey(undefined, ("WRONG!" as unknown) as "A");
+        }).toThrow();
+        // Invalid default key causes error, even if the default won't be used
+        expect(() => {
+            enumWrapper.getKey(TestEnum.A, ("WRONG!" as unknown) as "A");
+        }).toThrow();
+    });
+
+    test("getValue()", () => {
+        expect(enumWrapper.getValue("A")).toBe(TestEnum.A);
+        expect(enumWrapper.getValue("B")).toBe(TestEnum.B);
+        expect(enumWrapper.getValue("C")).toBe(TestEnum.C);
+        expect(enumWrapper.getValue("D")).toBe(TestEnum.D);
+
+        // Invalid key causes error
+        expect(() => {
+            enumWrapper.getValue(("blah" as unknown) as "A");
+        }).toThrow();
+        expect(() => {
+            // Name of a property on Object.prototype
+            enumWrapper.getValue(("toString" as unknown) as "A");
+        }).toThrow();
+
+        expect(enumWrapper.getValue(null)).toBe(undefined);
+        expect(enumWrapper.getValue(null, TestEnum.A)).toBe(TestEnum.A);
+
+        expect(enumWrapper.getValue(undefined)).toBe(undefined);
+        expect(enumWrapper.getValue(undefined, TestEnum.A)).toBe(TestEnum.A);
+
+        // Invalid default value causes error
+        expect(() => {
+            enumWrapper.getValue(undefined, (-1 as unknown) as TestEnum);
+        }).toThrow();
+        // Invalid default value causes error, even if the default won't be used
+        expect(() => {
+            enumWrapper.getValue("A", (-1 as unknown) as TestEnum);
+        }).toThrow();
     });
 });

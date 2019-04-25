@@ -5,6 +5,50 @@ import {
 } from "./objectKeysUtil";
 
 /**
+ * Use StrictEnumParam to define the type of a function
+ * parameter that should be strictly assignable to a numeric enum
+ * type. This prevents arbitrary numbers from being passed in to
+ * the parameter, working around TypeScript's intentional decision
+ * to allow type `number` to be assignable to all numeric enum types.
+ *
+ * Instead of writing a function signature as:
+ *     function doSomething(value: MyEnum): void;
+ *
+ * Write it like this:
+ *     function doSomething<Value extends MyEnum>(
+ *         value: StrictEnumParam<MyEnum, Value>
+ *     ): void;
+ *
+ * StrictEnumParam<MyEnum, Value> will evaluate to `never`
+ * for any type `Value` that is not strictly assignable to `MyEnum`
+ * (e.g., type `number`, or any number literal type that is not one
+ * of the valid values for `MyEnum`), and will produce a compiler
+ * error such as:
+ *     "Argument of type `number` is not assignable to parameter of type `never`"
+ *
+ * LIMITATION:
+ * This only works for a special subset of numeric enums that are considered
+ * "Union Enums". For an enum to be compatible, it basically must be a simple
+ * numeric enum where every member has either an inferred value
+ * (previous enum member + 1), or a number literal (1, 42, -3, etc.).
+ *
+ * If the `Enum` type argument is not a "Union Enum", then this type resolves
+ * to simply type `Enum` and the use of StrictEnumParam is neither
+ * beneficial nor detrimental.
+ */
+export type StrictEnumParam<
+    Enum extends number | string,
+    Param extends Enum
+> = true extends ({ [key: number]: false } & { [P in Enum]: true })[Extract<
+    Enum,
+    number
+>]
+    ? (true extends ({ [key: number]: false } & { [P in Enum]: true })[Param]
+          ? Param
+          : never)
+    : Enum;
+
+/**
  * A generic wrapper for any enum-like object.
  * Provides utilities for runtime processing of an enum's values and keys, with strict compile-time
  * type safety.
@@ -304,7 +348,9 @@ export class EnumWrapper<
      * @param value A valid value for this enum.
      * @return The index of the value based on the original defined order of this enum.
      */
-    public indexOfValue(value: T[StringKeyOf<T>]): number {
+    public indexOfValue<Value extends T[StringKeyOf<T>]>(
+        value: StrictEnumParam<T[StringKeyOf<T>], Value>
+    ): number {
         return this.valuesList.indexOf(value);
     }
 
@@ -363,46 +409,16 @@ export class EnumWrapper<
         key: string | null | undefined,
         defaultKey?: StringKeyOf<T>
     ): StringKeyOf<T> | undefined;
-    /**
-     * Casts a string to a properly-typed key for this enum.
-     * Returns a default key if the provided key is invalid.
-     * @param key - A potential key value for this enum.
-     * @param defaultKey - The key to be returned if the provided key is invalid.
-     * @return The provided key value, cast to the type of this enum's keys.
-     *         Returns `defaultKey` if the provided key is invalid.
-     */
     public asKeyOrDefault(
         key: string | null | undefined,
-        defaultKey: string
-    ): string;
-    /**
-     * Casts a string to a properly-typed key for this enum.
-     * Returns a default key if the provided key is invalid.
-     * @param key - A potential key value for this enum.
-     * @param defaultKey - The key to be returned if the provided key is invalid.
-     * @return The provided key value, cast to the type of this enum's keys.
-     *         Returns `defaultKey` if the provided key is invalid.
-     */
-    public asKeyOrDefault(
-        key: string | null | undefined,
-        defaultKey: string | undefined
-    ): string | undefined;
-    /**
-     * Casts a string to a properly-typed key for this enum.
-     * Returns a default key if the provided key is invalid.
-     * @param key - A potential key value for this enum.
-     * @param defaultKey - The key to be returned if the provided key is invalid.
-     * @return The provided key value, cast to the type of this enum's keys.
-     *         Returns `defaultKey` if the provided key is invalid.
-     */
-    public asKeyOrDefault(
-        key: string | null | undefined,
-        defaultKey?: StringKeyOf<T> | string
-    ): string | undefined {
+        defaultKey?: StringKeyOf<T>
+    ): StringKeyOf<T> | undefined {
         if (this.isKey(key)) {
             return key;
+        } else if (defaultKey == null) {
+            return undefined;
         } else {
-            return defaultKey;
+            return this.asKeyOrThrow(defaultKey);
         }
     }
 
@@ -441,9 +457,9 @@ export class EnumWrapper<
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
-    public asValueOrDefault(
+    public asValueOrDefault<DefaultValue extends T[StringKeyOf<T>]>(
         value: V | null | undefined,
-        defaultValue: T[StringKeyOf<T>]
+        defaultValue: StrictEnumParam<T[StringKeyOf<T>], DefaultValue>
     ): T[StringKeyOf<T>];
     /**
      * Casts a value to a properly-typed value for this enum.
@@ -453,62 +469,84 @@ export class EnumWrapper<
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
      */
+    public asValueOrDefault<DefaultValue extends T[StringKeyOf<T>]>(
+        value: V | null | undefined,
+        defaultValue?: StrictEnumParam<T[StringKeyOf<T>], DefaultValue>
+    ): T[StringKeyOf<T>] | undefined;
     public asValueOrDefault(
         value: V | null | undefined,
         defaultValue?: T[StringKeyOf<T>]
-    ): T[StringKeyOf<T>] | undefined;
-    /**
-     * Casts a value to a properly-typed value for this enum.
-     * Returns a default value if the provided value is invalid.
-     * @param value - A potential value for this enum.
-     * @param defaultValue - The value to be returned if the provided value is invalid.
-     * @return The provided value, cast to the type of this enum's values.
-     *         Returns `defaultValue` if the provided value is invalid.
-     */
-    public asValueOrDefault(value: V | null | undefined, defaultValue: V): V;
-    /**
-     * Casts a value to a properly-typed value for this enum.
-     * Returns a default value if the provided value is invalid.
-     * @param value - A potential value for this enum.
-     * @param defaultValue - The value to be returned if the provided value is invalid.
-     * @return The provided value, cast to the type of this enum's values.
-     *         Returns `defaultValue` if the provided value is invalid.
-     */
-    public asValueOrDefault(
-        value: V | null | undefined,
-        defaultValue: V | undefined
-    ): V | undefined;
-    /**
-     * Casts a value to a properly-typed value for this enum.
-     * Returns a default value if the provided value is invalid.
-     * @param value - A potential value for this enum.
-     * @param defaultValue - The value to be returned if the provided value is invalid.
-     * @return The provided value, cast to the type of this enum's values.
-     *         Returns `defaultValue` if the provided value is invalid.
-     */
-    public asValueOrDefault(
-        value: V | null | undefined,
-        defaultValue?: T[StringKeyOf<T>] | V
-    ): V | undefined {
+    ): T[StringKeyOf<T>] | undefined {
         if (this.isValue(value)) {
             return value;
+        } else if (defaultValue == null) {
+            return undefined;
         } else {
-            return defaultValue;
+            return this.asValueOrThrow(defaultValue);
         }
     }
 
     /**
-     * Performs a reverse lookup from enum value to corresponding enum key.
-     * Throws an error if the value is invalid.
-     * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
-     *       arbitrarily returned.
-     * @param value - A potential value for this enum.
+     * Performs a strict reverse lookup from enum value to corresponding enum key.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid value that is
+     * guaranteed to return a valid key.
+     * NOTE: If this enum has any duplicate values, then one of the keys for the
+     *       duplicated value is arbitrarily returned.
+     * @param value - A valid value for this enum.
      * @return The key for the provided value.
-     * @throws {Error} if the provided value is not a valid value for this enum.
+     * @throws {Error} if the provided value is not valid for this enum.
      */
-    public getKeyOrThrow(value: V | null | undefined): StringKeyOf<T> {
-        // NOTE: Intentionally not using isValue() or asValueOrThrow() to avoid making two key lookups into the map
-        //       for successful lookups.
+    public getKey<Value extends T[StringKeyOf<T>]>(
+        value: StrictEnumParam<T[StringKeyOf<T>], Value>
+    ): StringKeyOf<T>;
+    /**
+     * Performs a strict reverse lookup from enum value to corresponding enum key,
+     * with a default key to be returned if the provided value is null/undefined.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid value that is
+     * guaranteed to return a valid key.
+     * NOTE: If this enum has any duplicate values, then one of the keys for the
+     *       duplicated value is arbitrarily returned.
+     * @param value - A valid value for this enum (or null/undefined).
+     * @param defaultKey - A valid key to be returned if the provided value is null/undefined.
+     * @return The key for the provided value, or the default key.
+     * @throws {Error} if the provided value or default key is not valid for this enum.
+     */
+    public getKey<Value extends T[StringKeyOf<T>]>(
+        value: StrictEnumParam<T[StringKeyOf<T>], Value> | null | undefined,
+        defaultKey: StringKeyOf<T>
+    ): StringKeyOf<T>;
+    /**
+     * Performs a strict reverse lookup from enum value to corresponding enum key,
+     * with a default key to be returned if the provided value is null/undefined.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid value that is
+     * guaranteed to return a valid key.
+     * NOTE: If this enum has any duplicate values, then one of the keys for the
+     *       duplicated value is arbitrarily returned.
+     * @param value - A valid value for this enum (or null/undefined).
+     * @param defaultKey - A valid key to be returned if the provided value is null/undefined.
+     * @return The key for the provided value, or the default key.
+     * @throws {Error} if the provided value or default key is not valid for this enum.
+     */
+    public getKey<Value extends T[StringKeyOf<T>]>(
+        value: StrictEnumParam<T[StringKeyOf<T>], Value> | null | undefined,
+        defaultKey?: StringKeyOf<T>
+    ): StringKeyOf<T> | undefined;
+    public getKey(
+        value: T[StringKeyOf<T>] | null | undefined,
+        defaultKey?: StringKeyOf<T>
+    ): StringKeyOf<T> | undefined {
+        const verifiedDefaultKey =
+            defaultKey != null ? this.asKeyOrThrow(defaultKey) : undefined;
+
+        if (value == null) {
+            return verifiedDefaultKey;
+        }
+
+        // NOTE: Intentionally not using isValue() or asValueOrThrow() to avoid
+        //       making two key lookups into the map for successful lookups.
         const result =
             value != null ? this.keysByValueMap.get(value) : undefined;
 
@@ -522,168 +560,64 @@ export class EnumWrapper<
     }
 
     /**
-     * Performs a reverse lookup from enum value to corresponding enum key.
-     * Returns a default key if the provided value is invalid.
-     * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
-     *       arbitrarily returned.
-     * @param value - A potential value for this enum.
-     * @param defaultKey - The key to be returned if the provided value is invalid.
-     * @return The key for the provided value.
-     *         Returns `defaultKey` if the provided value is invalid.
+     * Performs a strict lookup of enum value by key.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid key that is
+     * guaranteed to return a valid value.
+     * @param key - A valid key for this enum.
+     * @return The value for the provided key.
+     * @throws {Error} if the provided key is invalid for this enum.
      */
-    public getKeyOrDefault(
-        value: V | null | undefined,
-        defaultKey: StringKeyOf<T>
-    ): StringKeyOf<T>;
+    public getValue(key: StringKeyOf<T>): T[StringKeyOf<T>];
     /**
-     * Performs a reverse lookup from enum value to corresponding enum key.
-     * Returns a default key if the provided value is invalid.
-     * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
-     *       arbitrarily returned.
-     * @param value - A potential value for this enum.
-     * @param defaultKey - The key to be returned if the provided value is invalid.
-     * @return The key for the provided value.
-     *         Returns `defaultKey` if the provided value is invalid.
-     */
-    public getKeyOrDefault(
-        value: V | null | undefined,
-        defaultKey?: StringKeyOf<T>
-    ): StringKeyOf<T> | undefined;
-    /**
-     * Performs a reverse lookup from enum value to corresponding enum key.
-     * Returns a default key if the provided value is invalid.
-     * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
-     *       arbitrarily returned.
-     * @param value - A potential value for this enum.
-     * @param defaultKey - The key to be returned if the provided value is invalid.
-     * @return The key for the provided value.
-     *         Returns `defaultKey` if the provided value is invalid.
-     */
-    public getKeyOrDefault(
-        value: V | null | undefined,
-        defaultKey: string
-    ): string;
-    /**
-     * Performs a reverse lookup from enum value to corresponding enum key.
-     * Returns a default key if the provided value is invalid.
-     * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
-     *       arbitrarily returned.
-     * @param value - A potential value for this enum.
-     * @param defaultKey - The key to be returned if the provided value is invalid.
-     * @return The key for the provided value.
-     *         Returns `defaultKey` if the provided value is invalid.
-     */
-    public getKeyOrDefault(
-        value: V | null | undefined,
-        defaultKey: string | undefined
-    ): string | undefined;
-    /**
-     * Performs a reverse lookup from enum value to corresponding enum key.
-     * Returns a default key if the provided value is invalid.
-     * NOTE: If this enum has any duplicate values, then one of the keys for the duplicated value is
-     *       arbitrarily returned.
-     * @param value - A potential value for this enum.
-     * @param defaultKey - The key to be returned if the provided value is invalid.
-     * @return The key for the provided value.
-     *         Returns `defaultKey` if the provided value is invalid.
-     */
-    public getKeyOrDefault(
-        value: V | null | undefined,
-        defaultKey?: StringKeyOf<T> | string
-    ): string | undefined {
-        // NOTE: Intentionally not using isValue() to avoid making two key lookups into the map for successful lookups.
-        const result =
-            value != null ? this.keysByValueMap.get(value) : undefined;
-
-        if (result != null) {
-            return result;
-        } else {
-            return defaultKey;
-        }
-    }
-
-    /**
-     * Gets the enum value for the provided key.
+     * Performs a strict lookup of enum value by key, with a default value
+     * returned if the provided key is null/undefined.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid key that is
+     * guaranteed to return a valid value.
      * Throws an error if the provided key is invalid.
-     * @param key - A potential key value for this enum.
-     * @return The enum value for the provided key.
-     * @throws {Error} if the provided string is not a valid key for this enum.
+     * @param key - A valid key for this enum (or null/undefined).
+     * @param defaultValue - A valid value to be returned if the key is null/undefined.
+     * @return The value for the provided key, or the default value.
+     * @throws {Error} if the provided key is invalid for this enum.
      */
-    public getValueOrThrow(key: string | null | undefined): T[StringKeyOf<T>] {
+    public getValue<DefaultValue extends T[StringKeyOf<T>]>(
+        key: StringKeyOf<T> | null | undefined,
+        defaultValue: StrictEnumParam<T[StringKeyOf<T>], DefaultValue>
+    ): T[StringKeyOf<T>];
+    /**
+     * Performs a strict lookup of enum value by key, with a default value
+     * returned if the provided key is null/undefined.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid key that is
+     * guaranteed to return a valid value.
+     * Throws an error if the provided key is invalid.
+     * @param key - A valid key for this enum (or null/undefined).
+     * @param defaultValue - A valid value to be returned if the key is null/undefined.
+     * @return The value for the provided key, or the default value.
+     * @throws {Error} if the provided key is invalid for this enum.
+     */
+    public getValue<DefaultValue extends T[StringKeyOf<T>]>(
+        key: StringKeyOf<T> | null | undefined,
+        defaultValue?: StrictEnumParam<T[StringKeyOf<T>], DefaultValue>
+    ): T[StringKeyOf<T>] | undefined;
+    public getValue(
+        key: StringKeyOf<T> | null | undefined,
+        defaultValue?: T[StringKeyOf<T>]
+    ): T[StringKeyOf<T>] | undefined {
+        const verifiedDefaultValue =
+            defaultValue != null
+                ? this.asValueOrThrow(defaultValue)
+                : undefined;
+
+        if (key == null) {
+            return verifiedDefaultValue;
+        }
+
         // NOTE: The key MUST be separately validated before looking up the entry in enumObj to avoid false positive
         //       lookups for keys that match properties on Object.prototype, or keys that match the index keys of
         //       reverse lookups on numeric enums.
         return this.enumObj[this.asKeyOrThrow(key)];
-    }
-
-    /**
-     * Gets the enum value for the provided key.
-     * Returns a default value if the provided key is invalid.
-     * @param key - A potential key value for this enum.
-     * @param defaultValue - The value to be returned if the provided key is invalid.
-     * @return The enum value for the provided key.
-     *         Returns `defaultValue` if the provided key is invalid.
-     */
-    public getValueOrDefault(
-        key: string | null | undefined,
-        defaultValue: T[StringKeyOf<T>]
-    ): T[StringKeyOf<T>];
-    /**
-     * Gets the enum value for the provided key.
-     * Returns a default value if the provided key is invalid.
-     * @param key - A potential key value for this enum.
-     * @param defaultValue - The value to be returned if the provided key is invalid.
-     * @return The enum value for the provided key.
-     *         Returns `defaultValue` if the provided key is invalid.
-     */
-    public getValueOrDefault(
-        key: string | null | undefined,
-        defaultValue?: T[StringKeyOf<T>]
-    ): T[StringKeyOf<T>] | undefined;
-    /**
-     * Gets the enum value for the provided key.
-     * Returns a default value if the provided key is invalid.
-     * @param key - A potential key value for this enum.
-     * @param defaultValue - The value to be returned if the provided key is invalid.
-     * @return The enum value for the provided key.
-     *         Returns `defaultValue` if the provided key is invalid.
-     */
-    public getValueOrDefault(
-        key: string | null | undefined,
-        defaultValue: V
-    ): V;
-    /**
-     * Gets the enum value for the provided key.
-     * Returns a default value if the provided key is invalid.
-     * @param key - A potential key value for this enum.
-     * @param defaultValue - The value to be returned if the provided key is invalid.
-     * @return The enum value for the provided key.
-     *         Returns `defaultValue` if the provided key is invalid.
-     */
-    public getValueOrDefault(
-        key: string | null | undefined,
-        defaultValue: V | undefined
-    ): V | undefined;
-    /**
-     * Gets the enum value for the provided key.
-     * Returns a default value if the provided key is invalid.
-     * @param key - A potential key value for this enum.
-     * @param defaultValue - The value to be returned if the provided key is invalid.
-     * @return The enum value for the provided key.
-     *         Returns `defaultValue` if the provided key is invalid.
-     */
-    public getValueOrDefault(
-        key: string | null | undefined,
-        defaultValue?: T[StringKeyOf<T>] | V
-    ): V | undefined {
-        // NOTE: The key MUST be separately validated before looking up the entry in enumObj to avoid false positive
-        //       lookups for keys that match properties on Object.prototype, or keys that match the index keys of
-        //       reverse lookups on numeric enums.
-        if (this.isKey(key)) {
-            return this.enumObj[key];
-        } else {
-            return defaultValue;
-        }
     }
 }
 
