@@ -4,7 +4,7 @@ import { $enum } from "../src";
 //       defined order is retained
 enum TestEnum {
     D = 0, // duplicate of A
-    B = 1,
+    B = -1.7, // not a positive integer
     A = 0,
     C = 2
 }
@@ -28,19 +28,19 @@ describe("EnumWrapper: string enum", () => {
 
         expect(Object.keys(TestEnum)).toEqual([
             "0",
-            "1",
             "2",
             "D",
             "B",
+            "-1.7",
             "A",
             "C"
         ]);
         expect(Object.getOwnPropertyNames(TestEnum)).toEqual([
             "0",
-            "1",
             "2",
             "D",
             "B",
+            "-1.7",
             "A",
             "C"
         ]);
@@ -51,7 +51,7 @@ describe("EnumWrapper: string enum", () => {
             result.push(key);
         }
 
-        expect(result).toEqual(["0", "1", "2", "D", "B", "A", "C"]);
+        expect(result).toEqual(["0", "2", "D", "B", "-1.7", "A", "C"]);
     });
 
     describe("is immutable at run time", () => {
@@ -328,7 +328,7 @@ describe("EnumWrapper: string enum", () => {
 
             const result = enumWrapper.map(iterateeSpy);
 
-            expect(result).toEqual(["D0", "B1", "A0", "C2"]);
+            expect(result).toEqual(["D0", "B-1.7", "A0", "C2"]);
 
             expect(iterateeSpy.mock.calls).toEqual([
                 [TestEnum.D, "D", enumWrapper, 0],
@@ -350,7 +350,7 @@ describe("EnumWrapper: string enum", () => {
 
             const result = enumWrapper.map(iterateeSpy, context);
 
-            expect(result).toEqual(["D0", "B1", "A0", "C2"]);
+            expect(result).toEqual(["D0", "B-1.7", "A0", "C2"]);
 
             expect(iterateeSpy.mock.calls).toEqual([
                 [TestEnum.D, "D", enumWrapper, 0],
