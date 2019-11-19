@@ -122,10 +122,6 @@ export class EnumWrapper<
         Object.freeze(this);
     }
 
-    public get [Symbol.toStringTag](): string {
-        return "EnumWrapper";
-    }
-
     /**
      * @return "[object EnumWrapper]"
      */
@@ -612,6 +608,32 @@ export class EnumWrapper<
         }
     }
 }
+
+// HACK: Forcefully overriding the value of the [Symbol.toStringTag] property.
+//       This was originally implemented in the class as recommended by MDN
+//       Symbol.toStringTag documentation:
+//           public get [Symbol.toStringTag](): string { return "EnumWrapper"; }
+//
+//       However, after upgrading to TypeScript 3.7, this caused compiler errors
+//       when running dtslint due to the getter being emitted to the .d.ts file,
+//       but TSC complaining that getters aren't allowed in "ambient" contexts.
+//       This seems to be realated to a known breaking change:
+//           https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#class-field-mitigations
+//
+//       To avoid requiring TypeScript 3.6+ to use ts-enum-util, I no longer
+//       implement the getter on the class and instead simply set the value of
+//       the [Symbol.toStringTag] property on the class prototype to the desired
+//       string.
+//
+//       I also tried implementing it as:
+//           public readonly [Symbol.toStringTag] = "EnumWrapper";
+//       But this got emitted to the .d.ts file with the initializer,
+//       causing a compiler time error about initializers not allowed in an
+//       "ambient" context. So I had to omit the declaration of the
+//       [Symbol.toStringTag] in the class declaration and hackishly set its
+//       value here (not important to have it part of the class declaration
+//       as long as the value exists at runtime).
+(EnumWrapper.prototype as any)[Symbol.toStringTag] = "EnumWrapper";
 
 export namespace EnumWrapper {
     /**
