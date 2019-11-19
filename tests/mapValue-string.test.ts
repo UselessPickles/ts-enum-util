@@ -79,9 +79,7 @@ describe("mapValue (string)", () => {
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
                 if (mapper[RGB.R] === $enum.unhandledEntry) {
-                    test(`Unhandled entry throws error (${
-                        testEntry.value
-                    }`, () => {
+                    test(`Unhandled entry throws error (${testEntry.value}`, () => {
                         expect(() => {
                             $enum.mapValue(testEntry.value).with(mapper);
                         }).toThrowError(`Unhandled value: ${testEntry.value}`);
@@ -90,9 +88,7 @@ describe("mapValue (string)", () => {
                     mapper.hasOwnProperty($enum.handleUnexpected) ||
                     !testEntry.isUnexpected
                 ) {
-                    test(`Correct value is returned (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Correct value is returned (${testEntry.value})`, () => {
                         const result = $enum
                             .mapValue(testEntry.value)
                             .with(mapper);
@@ -100,9 +96,7 @@ describe("mapValue (string)", () => {
                         expect(result).toBe(testEntry.result);
                     });
                 } else {
-                    test(`Unhandled unexpected value throws error (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Unhandled unexpected value throws error (${testEntry.value})`, () => {
                         expect(() => {
                             $enum.mapValue(testEntry.value).with(mapper);
                         }).toThrowError(`Unexpected value: ${testEntry.value}`);
@@ -180,9 +174,7 @@ describe("mapValue (string)", () => {
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
                 if (mapper[RGB.R] === $enum.unhandledEntry) {
-                    test(`Unhandled entry throws error (${
-                        testEntry.value
-                    }`, () => {
+                    test(`Unhandled entry throws error (${testEntry.value}`, () => {
                         expect(() => {
                             $enum.mapValue(testEntry.value).with(mapper);
                         }).toThrowError(`Unhandled value: ${testEntry.value}`);
@@ -191,9 +183,7 @@ describe("mapValue (string)", () => {
                     mapper.hasOwnProperty($enum.handleUnexpected) ||
                     !testEntry.isUnexpected
                 ) {
-                    test(`Correct value is returned (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Correct value is returned (${testEntry.value})`, () => {
                         const result = $enum
                             .mapValue(testEntry.value)
                             .with(mapper);
@@ -201,9 +191,7 @@ describe("mapValue (string)", () => {
                         expect(result).toBe(testEntry.result);
                     });
                 } else {
-                    test(`Unhandled unexpected value throws error (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Unhandled unexpected value throws error (${testEntry.value})`, () => {
                         expect(() => {
                             $enum.mapValue(testEntry.value).with(mapper);
                         }).toThrowError(`Unexpected value: ${testEntry.value}`);
@@ -281,9 +269,7 @@ describe("mapValue (string)", () => {
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
                 if (mapper[RGB.R] === $enum.unhandledEntry) {
-                    test(`Unhandled entry throws error (${
-                        testEntry.value
-                    }`, () => {
+                    test(`Unhandled entry throws error (${testEntry.value}`, () => {
                         expect(() => {
                             $enum.mapValue(testEntry.value).with(mapper);
                         }).toThrowError(`Unhandled value: ${testEntry.value}`);
@@ -292,9 +278,7 @@ describe("mapValue (string)", () => {
                     mapper.hasOwnProperty($enum.handleUnexpected) ||
                     !testEntry.isUnexpected
                 ) {
-                    test(`Correct value is returned (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Correct value is returned (${testEntry.value})`, () => {
                         const result = $enum
                             .mapValue(testEntry.value)
                             .with(mapper);
@@ -302,9 +286,7 @@ describe("mapValue (string)", () => {
                         expect(result).toBe(testEntry.result);
                     });
                 } else {
-                    test(`Unhandled unexpected value throws error (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Unhandled unexpected value throws error (${testEntry.value})`, () => {
                         expect(() => {
                             $enum.mapValue(testEntry.value).with(mapper);
                         }).toThrowError(`Unexpected value: ${testEntry.value}`);
@@ -384,9 +366,7 @@ describe("mapValue (string)", () => {
         for (const mapper of mappers) {
             for (const testEntry of TEST_ENTRIES) {
                 if (mapper[RGB.R] === $enum.unhandledEntry) {
-                    test(`Unhandled entry throws error (${
-                        testEntry.value
-                    }`, () => {
+                    test(`Unhandled entry throws error (${testEntry.value}`, () => {
                         expect(() => {
                             $enum.mapValue(testEntry.value).with(mapper);
                         }).toThrowError(`Unhandled value: ${testEntry.value}`);
@@ -395,9 +375,7 @@ describe("mapValue (string)", () => {
                     mapper.hasOwnProperty($enum.handleUnexpected) ||
                     !testEntry.isUnexpected
                 ) {
-                    test(`Correct value is returned (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Correct value is returned (${testEntry.value})`, () => {
                         const result = $enum
                             .mapValue(testEntry.value)
                             .with(mapper);
@@ -405,9 +383,7 @@ describe("mapValue (string)", () => {
                         expect(result).toBe(testEntry.result);
                     });
                 } else {
-                    test(`Unhandled unexpected value throws error (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Unhandled unexpected value throws error (${testEntry.value})`, () => {
                         expect(() => {
                             $enum.mapValue(testEntry.value).with(mapper);
                         }).toThrowError(`Unexpected value: ${testEntry.value}`);
@@ -451,9 +427,11 @@ describe("mapValue (string)", () => {
 
         test("special handler symbol description", () => {
             const result1 = $enum
-                .mapValue("ts-enum-util:handleNull" as
-                    | "ts-enum-util:handleNull"
-                    | null)
+                .mapValue(
+                    "ts-enum-util:handleNull" as
+                        | "ts-enum-util:handleNull"
+                        | null
+                )
                 .with<number>({
                     "ts-enum-util:handleNull": 1,
                     [$enum.handleNull]: 2

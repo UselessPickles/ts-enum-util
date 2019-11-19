@@ -40,9 +40,9 @@ export type StrictEnumParam<
     Enum,
     number
 >]
-    ? (true extends ({ [key: number]: false } & { [P in Enum]: true })[Param]
-          ? Param
-          : never)
+    ? true extends ({ [key: number]: false } & { [P in Enum]: true })[Param]
+        ? Param
+        : never
     : Enum;
 
 /**
@@ -292,7 +292,7 @@ export class EnumWrapper<
      * Order of items in the list is based on the original defined order of the enum.
      * @return A list of this enum's keys.
      */
-    public getKeys(): (StringKeyOf<T>)[] {
+    public getKeys(): StringKeyOf<T>[] {
         // need to return a copy of this.keysList so it can be returned as Array instead of ReadonlyArray.
         return this.keysList.slice();
     }

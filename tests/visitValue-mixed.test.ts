@@ -127,9 +127,7 @@ describe("visitValue (string/number mix)", () => {
         for (const visitor of visitors) {
             for (const testEntry of TEST_ENTRIES) {
                 if (visitor[RGB.R] === $enum.unhandledEntry) {
-                    test(`Unhandled entry throws error (${
-                        testEntry.value
-                    }`, () => {
+                    test(`Unhandled entry throws error (${testEntry.value}`, () => {
                         expect(() => {
                             $enum.visitValue(testEntry.value).with(visitor);
                         }).toThrowError(`Unhandled value: ${testEntry.value}`);
@@ -138,9 +136,7 @@ describe("visitValue (string/number mix)", () => {
                     visitor[$enum.handleUnexpected] ||
                     !testEntry.isUnexpected
                 ) {
-                    test(`Correct visitor method is called (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Correct visitor method is called (${testEntry.value})`, () => {
                         $enum.visitValue(testEntry.value).with(visitor);
 
                         for (const handlerMock of ALL_HANDLER_MOCKS) {
@@ -152,9 +148,7 @@ describe("visitValue (string/number mix)", () => {
                         }
                     });
 
-                    test(`Value is passed to handler (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Value is passed to handler (${testEntry.value})`, () => {
                         $enum.visitValue(testEntry.value).with(visitor);
                         expect(testEntry.handlerMock.mock.calls.length).toBe(1);
                         const args = testEntry.handlerMock.mock.calls[0];
@@ -162,26 +156,20 @@ describe("visitValue (string/number mix)", () => {
                         expect(args[0]).toBe(testEntry.value);
                     });
 
-                    test(`Handler result is returned (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Handler result is returned (${testEntry.value})`, () => {
                         const result = $enum
                             .visitValue(testEntry.value)
                             .with(visitor);
                         expect(result).toBe(testEntry.result);
                     });
                 } else {
-                    test(`Unhandled unexpected value throws error (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Unhandled unexpected value throws error (${testEntry.value})`, () => {
                         expect(() => {
                             $enum.visitValue(testEntry.value).with(visitor);
                         }).toThrowError(`Unexpected value: ${testEntry.value}`);
                     });
 
-                    test(`No visitor method is called for unhandled unexpected value(${
-                        testEntry.value
-                    })`, () => {
+                    test(`No visitor method is called for unhandled unexpected value(${testEntry.value})`, () => {
                         try {
                             $enum.visitValue(testEntry.value).with(visitor);
                         } catch (error) {
@@ -273,9 +261,7 @@ describe("visitValue (string/number mix)", () => {
         for (const visitor of visitors) {
             for (const testEntry of TEST_ENTRIES) {
                 if (visitor[RGB.R] === $enum.unhandledEntry) {
-                    test(`Unhandled entry throws error (${
-                        testEntry.value
-                    }`, () => {
+                    test(`Unhandled entry throws error (${testEntry.value}`, () => {
                         expect(() => {
                             $enum.visitValue(testEntry.value).with(visitor);
                         }).toThrowError(`Unhandled value: ${testEntry.value}`);
@@ -284,9 +270,7 @@ describe("visitValue (string/number mix)", () => {
                     visitor[$enum.handleUnexpected] ||
                     !testEntry.isUnexpected
                 ) {
-                    test(`Correct visitor method is called (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Correct visitor method is called (${testEntry.value})`, () => {
                         $enum.visitValue(testEntry.value).with(visitor);
 
                         for (const handlerMock of ALL_HANDLER_MOCKS) {
@@ -298,9 +282,7 @@ describe("visitValue (string/number mix)", () => {
                         }
                     });
 
-                    test(`Value is passed to handler (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Value is passed to handler (${testEntry.value})`, () => {
                         $enum.visitValue(testEntry.value).with(visitor);
                         expect(testEntry.handlerMock.mock.calls.length).toBe(1);
                         const args = testEntry.handlerMock.mock.calls[0];
@@ -308,26 +290,20 @@ describe("visitValue (string/number mix)", () => {
                         expect(args[0]).toBe(testEntry.value);
                     });
 
-                    test(`Handler result is returned (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Handler result is returned (${testEntry.value})`, () => {
                         const result = $enum
                             .visitValue(testEntry.value)
                             .with(visitor);
                         expect(result).toBe(testEntry.result);
                     });
                 } else {
-                    test(`unhandled unexpected value throws error (${
-                        testEntry.value
-                    })`, () => {
+                    test(`unhandled unexpected value throws error (${testEntry.value})`, () => {
                         expect(() => {
                             $enum.visitValue(testEntry.value).with(visitor);
                         }).toThrowError(`Unexpected value: ${testEntry.value}`);
                     });
 
-                    test(`No visitor method is called for unhandled unexpected value(${
-                        testEntry.value
-                    })`, () => {
+                    test(`No visitor method is called for unhandled unexpected value(${testEntry.value})`, () => {
                         try {
                             $enum.visitValue(testEntry.value).with(visitor);
                         } catch (error) {
@@ -419,9 +395,7 @@ describe("visitValue (string/number mix)", () => {
         for (const visitor of visitors) {
             for (const testEntry of TEST_ENTRIES) {
                 if (visitor[RGB.R] === $enum.unhandledEntry) {
-                    test(`Unhandled entry throws error (${
-                        testEntry.value
-                    }`, () => {
+                    test(`Unhandled entry throws error (${testEntry.value}`, () => {
                         expect(() => {
                             $enum.visitValue(testEntry.value).with(visitor);
                         }).toThrowError(`Unhandled value: ${testEntry.value}`);
@@ -430,9 +404,7 @@ describe("visitValue (string/number mix)", () => {
                     visitor[$enum.handleUnexpected] ||
                     !testEntry.isUnexpected
                 ) {
-                    test(`Correct visitor method is called (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Correct visitor method is called (${testEntry.value})`, () => {
                         $enum.visitValue(testEntry.value).with(visitor);
 
                         for (const handlerMock of ALL_HANDLER_MOCKS) {
@@ -444,9 +416,7 @@ describe("visitValue (string/number mix)", () => {
                         }
                     });
 
-                    test(`Value is passed to handler (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Value is passed to handler (${testEntry.value})`, () => {
                         $enum.visitValue(testEntry.value).with(visitor);
                         expect(testEntry.handlerMock.mock.calls.length).toBe(1);
                         const args = testEntry.handlerMock.mock.calls[0];
@@ -454,26 +424,20 @@ describe("visitValue (string/number mix)", () => {
                         expect(args[0]).toBe(testEntry.value);
                     });
 
-                    test(`Handler result is returned (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Handler result is returned (${testEntry.value})`, () => {
                         const result = $enum
                             .visitValue(testEntry.value)
                             .with(visitor);
                         expect(result).toBe(testEntry.result);
                     });
                 } else {
-                    test(`Unhandled unexpected value throws error (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Unhandled unexpected value throws error (${testEntry.value})`, () => {
                         expect(() => {
                             $enum.visitValue(testEntry.value).with(visitor);
                         }).toThrowError(`Unexpected value: ${testEntry.value}`);
                     });
 
-                    test(`No visitor method is called for unhandled unexpected value(${
-                        testEntry.value
-                    })`, () => {
+                    test(`No visitor method is called for unhandled unexpected value(${testEntry.value})`, () => {
                         try {
                             $enum.visitValue(testEntry.value).with(visitor);
                         } catch (error) {
@@ -567,9 +531,7 @@ describe("visitValue (string/number mix)", () => {
         for (const visitor of visitors) {
             for (const testEntry of TEST_ENTRIES) {
                 if (visitor[RGB.R] === $enum.unhandledEntry) {
-                    test(`Unhandled entry throws error (${
-                        testEntry.value
-                    }`, () => {
+                    test(`Unhandled entry throws error (${testEntry.value}`, () => {
                         expect(() => {
                             $enum.visitValue(testEntry.value).with(visitor);
                         }).toThrowError(`Unhandled value: ${testEntry.value}`);
@@ -578,9 +540,7 @@ describe("visitValue (string/number mix)", () => {
                     visitor[$enum.handleUnexpected] ||
                     !testEntry.isUnexpected
                 ) {
-                    test(`Correct visitor method is called (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Correct visitor method is called (${testEntry.value})`, () => {
                         $enum.visitValue(testEntry.value).with(visitor);
 
                         for (const handlerMock of ALL_HANDLER_MOCKS) {
@@ -592,9 +552,7 @@ describe("visitValue (string/number mix)", () => {
                         }
                     });
 
-                    test(`Value is passed to handler (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Value is passed to handler (${testEntry.value})`, () => {
                         $enum.visitValue(testEntry.value).with(visitor);
                         expect(testEntry.handlerMock.mock.calls.length).toBe(1);
                         const args = testEntry.handlerMock.mock.calls[0];
@@ -602,26 +560,20 @@ describe("visitValue (string/number mix)", () => {
                         expect(args[0]).toBe(testEntry.value);
                     });
 
-                    test(`Handler result is returned (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Handler result is returned (${testEntry.value})`, () => {
                         const result = $enum
                             .visitValue(testEntry.value)
                             .with(visitor);
                         expect(result).toBe(testEntry.result);
                     });
                 } else {
-                    test(`Unhandled unexpected value throws error (${
-                        testEntry.value
-                    })`, () => {
+                    test(`Unhandled unexpected value throws error (${testEntry.value})`, () => {
                         expect(() => {
                             $enum.visitValue(testEntry.value).with(visitor);
                         }).toThrowError(`Unexpected value: ${testEntry.value}`);
                     });
 
-                    test(`No visitor method is called for unhandled unexpected value(${
-                        testEntry.value
-                    })`, () => {
+                    test(`No visitor method is called for unhandled unexpected value(${testEntry.value})`, () => {
                         try {
                             $enum.visitValue(testEntry.value).with(visitor);
                         } catch (error) {
