@@ -1,8 +1,5 @@
 import { StringKeyOf } from "./types";
-import {
-    isNonNumericKey,
-    getOwnEnumerableNonNumericKeys
-} from "./objectKeysUtil";
+import { getOwnEnumerableNonNumericKeys } from "./objectKeysUtil";
 
 /**
  * Use StrictEnumParam to define the type of a function
@@ -74,15 +71,6 @@ export class EnumWrapper<
     private readonly valuesList: ReadonlyArray<T[StringKeyOf<T>]>;
 
     /**
-     * Map of enum value -> enum key.
-     * Used for reverse key lookups.
-     * NOTE: Performance tests show that using a Map (even if it's a slow polyfill) is faster than building a lookup
-     *       string key for values and using a plain Object:
-     *       {@link https://www.measurethat.net/Benchmarks/Show/2514/1/map-keyed-by-string-or-number}
-     */
-    private readonly keysByValueMap: ReadonlyMap<V, StringKeyOf<T>>;
-
-    /**
      * The number of entries in this enum.
      * Part of the Map-like interface.
      */
@@ -107,7 +95,7 @@ export class EnumWrapper<
      *
      * @param enumObj - An enum-like object.
      */
-    public constructor(private readonly enumObj: T) {
+    public constructor(enumObj: T) {
         // Include only own enumerable keys that are not numeric.
         // This is necessary to ignore the reverse-lookup entries that are automatically added
         // by TypeScript to numeric enums.
@@ -115,7 +103,6 @@ export class EnumWrapper<
 
         const length = this.keysList.length;
         const valuesList = new Array<T[StringKeyOf<T>]>(length);
-        const keysByValueMap = new Map<V, StringKeyOf<T>>();
 
         // According to multiple tests found on jsperf.com, a plain for loop is faster than using
         // Array.prototype.forEach
@@ -124,13 +111,11 @@ export class EnumWrapper<
             const value = enumObj[key];
 
             valuesList[index] = value;
-            keysByValueMap.set(value, key);
             // Type casting of "this" necessary to bypass readonly index signature for initialization.
             (this as any)[index] = Object.freeze([key, value]);
         }
 
         this.valuesList = Object.freeze(valuesList);
-        this.keysByValueMap = keysByValueMap;
         this.size = this.length = length;
 
         // Make the EnumWrapper instance immutable
@@ -188,27 +173,30 @@ export class EnumWrapper<
      *       in the result.
      * @return An iterator that iterates over this enum's values.
      */
-    public values(): IterableIterator<T[StringKeyOf<T>]> {
-        let index = 0;
+    public readonly values: () => IterableIterator<T[StringKeyOf<T>]> =
+        Symbol.iterator in Array.prototype
+            ? () => this.valuesList[Symbol.iterator]()
+            : () => {
+                  let index = 0;
 
-        return {
-            next: () => {
-                const isDone = index >= this.length;
-                const result: IteratorResult<T[StringKeyOf<T>]> = {
-                    done: isDone,
-                    value: this.valuesList[index]
-                };
+                  return {
+                      next: () => {
+                          const isDone = index >= this.length;
+                          const result: IteratorResult<T[StringKeyOf<T>]> = {
+                              done: isDone,
+                              value: this.valuesList[index]
+                          };
 
-                ++index;
+                          ++index;
 
-                return result;
-            },
+                          return result;
+                      },
 
-            [Symbol.iterator](): IterableIterator<T[StringKeyOf<T>]> {
-                return this;
-            }
-        };
-    }
+                      [Symbol.iterator](): IterableIterator<T[StringKeyOf<T>]> {
+                          return this;
+                      }
+                  };
+              };
 
     /**
      * Get an iterator for this enum's entries as [key, value] tuples.
@@ -276,7 +264,7 @@ export class EnumWrapper<
      * See {@link EnumWrapper.Iteratee} for the signature of the iteratee.
      * @param iteratee - The iteratee.
      * @param context - If provided, then the iteratee will be called with the context as its "this" value.
-     * @return A new array containg the results of the iteratee.
+     * @return A new array containing the results of the iteratee.
      *
      * @template R - The of the mapped result for each entry.
      */
@@ -359,11 +347,7 @@ export class EnumWrapper<
      * @return True if the provided key is a valid key for this enum.
      */
     public isKey(key: string | null | undefined): key is StringKeyOf<T> {
-        return (
-            key != null &&
-            isNonNumericKey(key) &&
-            this.enumObj.hasOwnProperty(key)
-        );
+        return this.keysList.indexOf(key as any) !== -1;
     }
 
     /**
@@ -390,6 +374,7 @@ export class EnumWrapper<
      * @param defaultKey - The key to be returned if the provided key is invalid.
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
+     * @throws {Error} if `defaultKey` is not a valid key for this enum.
      */
     public asKeyOrDefault(
         key: string | null | undefined,
@@ -402,6 +387,7 @@ export class EnumWrapper<
      * @param defaultKey - The key to be returned if the provided key is invalid.
      * @return The provided key value, cast to the type of this enum's keys.
      *         Returns `defaultKey` if the provided key is invalid.
+     * @throws {Error} if `defaultKey` is not a valid key for this enum.
      */
     public asKeyOrDefault(
         key: string | null | undefined,
@@ -411,12 +397,13 @@ export class EnumWrapper<
         key: string | null | undefined,
         defaultKey?: StringKeyOf<T>
     ): StringKeyOf<T> | undefined {
+        const verifiedDefaultKey =
+            defaultKey != null ? this.asKeyOrThrow(defaultKey) : undefined;
+
         if (this.isKey(key)) {
             return key;
-        } else if (defaultKey == null) {
-            return undefined;
         } else {
-            return this.asKeyOrThrow(defaultKey);
+            return verifiedDefaultKey;
         }
     }
 
@@ -427,7 +414,7 @@ export class EnumWrapper<
      * @return True if the provided value is valid for this enum.
      */
     public isValue(value: V | null | undefined): value is T[StringKeyOf<T>] {
-        return value != null && this.keysByValueMap.has(value);
+        return this.valuesList.indexOf(value as any) !== -1;
     }
 
     /**
@@ -454,6 +441,7 @@ export class EnumWrapper<
      * @param defaultValue - The value to be returned if the provided value is invalid.
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
+     * @throws {Error} if `defaultValue` is not a valid value for this enum.
      */
     public asValueOrDefault<DefaultValue extends T[StringKeyOf<T>]>(
         value: V | null | undefined,
@@ -466,6 +454,7 @@ export class EnumWrapper<
      * @param defaultValue - The value to be returned if the provided value is invalid.
      * @return The provided value, cast to the type of this enum's values.
      *         Returns `defaultValue` if the provided value is invalid.
+     * @throws {Error} if `defaultValue` is not a valid value for this enum.
      */
     public asValueOrDefault<DefaultValue extends T[StringKeyOf<T>]>(
         value: V | null | undefined,
@@ -475,12 +464,15 @@ export class EnumWrapper<
         value: V | null | undefined,
         defaultValue?: T[StringKeyOf<T>]
     ): T[StringKeyOf<T>] | undefined {
+        const verifiedDefaultValue =
+            defaultValue != null
+                ? this.asValueOrThrow(defaultValue)
+                : undefined;
+
         if (this.isValue(value)) {
             return value;
-        } else if (defaultValue == null) {
-            return undefined;
         } else {
-            return this.asValueOrThrow(defaultValue);
+            return verifiedDefaultValue;
         }
     }
 
@@ -543,13 +535,10 @@ export class EnumWrapper<
             return verifiedDefaultKey;
         }
 
-        // NOTE: Intentionally not using isValue() or asValueOrThrow() to avoid
-        //       making two key lookups into the map for successful lookups.
-        const result =
-            value != null ? this.keysByValueMap.get(value) : undefined;
+        const index = this.valuesList.indexOf(value);
 
-        if (result != null) {
-            return result;
+        if (index !== -1) {
+            return this.keysList[index];
         } else {
             throw new Error(
                 `Unexpected value: ${value}. Expected one of: ${this.getValues()}`
@@ -612,10 +601,15 @@ export class EnumWrapper<
             return verifiedDefaultValue;
         }
 
-        // NOTE: The key MUST be separately validated before looking up the entry in enumObj to avoid false positive
-        //       lookups for keys that match properties on Object.prototype, or keys that match the index keys of
-        //       reverse lookups on numeric enums.
-        return this.enumObj[this.asKeyOrThrow(key)];
+        const index = this.keysList.indexOf(key);
+
+        if (index !== -1) {
+            return this.valuesList[index];
+        } else {
+            throw new Error(
+                `Unexpected key: ${key}. Expected one of: ${this.getKeys()}`
+            );
+        }
     }
 }
 

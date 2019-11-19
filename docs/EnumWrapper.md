@@ -65,11 +65,9 @@ Usage documentation for the `EnumWrapper` portion of `ts-enum-util`.
         -   [EnumWrapper.prototype.asValueOrThrow](#enumwrapperprototypeasvalueorthrow)
         -   [EnumWrapper.prototype.asValueOrDefault](#enumwrapperprototypeasvalueordefault)
     -   [Lookup Key by Value](#lookup-key-by-value)
-        -   [EnumWrapper.prototype.getKeyOrThrow](#enumwrapperprototypegetkeyorthrow)
-        -   [EnumWrapper.prototype.getKeyOrDefault](#enumwrapperprototypegetkeyordefault)
+        -   [EnumWrapper.prototype.getKey](#enumwrapperprototypegetkey)
     -   [Lookup Value by Key](#lookup-value-by-key)
-        -   [EnumWrapper.prototype.getValueOrThrow](#enumwrapperprototypegetvalueorthrow)
-        -   [EnumWrapper.prototype.getValueOrDefault](#enumwrapperprototypegetvalueordefault)
+        -   [EnumWrapper.prototype.getValue](#enumwrapperprototypegetvalue)
 
 <!-- /TOC -->
 
@@ -154,22 +152,21 @@ const entries = $enum(RGB).getEntries();
 ```ts
 // type: RGB
 // value: "g"
-const value1 = $enum(RGB).getValueOrThrow("G");
+const value1 = $enum(RGB).getValue("G");
 
-// throws: Error("Unexpected value: blah. Expected one of: R,G,B")
-const value2 = $enum(RGB).getValueOrThrow("blah");
-
-// type: RGB | undefined
-// value: undefined
-const value3 = $enum(RGB).getValueOrDefault("blah");
+// compiler error: type of key is invalid
+// (use asKeyOrThrow or asKeyOrDefault to test/convert
+//  untrustworthy key values first)
+const value2 = $enum(RGB).getValue("blah");
 
 // type: RGB
 // value: "r"
-const value4 = $enum(RGB).getValueOrDefault("blah", RGB.R);
+const value4 = $enum(RGB).getValue(undefined, RGB.R);
 
-// type: string
-// value: "BLAH!"
-const value5 = $enum(RGB).getValueOrDefault("blah", "BLAH!");
+// compiler error: type of default value is invalid
+// (use asValueOrThrow or asValueOrDefault to test/convert
+//  untrustworthy default values first)
+const value5 = $enum(RGB).getValue("blah", "BLAH!");
 ```
 
 ### Reverse lookup key by value
@@ -177,22 +174,21 @@ const value5 = $enum(RGB).getValueOrDefault("blah", "BLAH!");
 ```ts
 // type: ("R" | "G" | "B")
 // value: "G"
-const key1 = $enum(RGB).getKeyOrThrow("g");
+const key1 = $enum(RGB).getKey("g");
 
-// throws: Error("Unexpected value: blah. Expected one of: r,g,b")
-const key2 = $enum(RGB).getKeyOrThrow("blah");
-
-// type: ("R" | "G" | "B") | undefined
-// value: undefined
-const key3 = $enum(RGB).getKeyOrDefault("blah");
+// compiler error: type of value is invalid
+// (use asValueOrThrow or asValueOrDefault to test/convert
+//  untrustworthy values first)
+const key2 = $enum(RGB).getKey("blah");
 
 // type: ("R" | "G" | "B")
 // value: "R"
-const key4 = $enum(RGB).getKeyOrDefault("blah", "R");
+const key4 = $enum(RGB).getKey(undefined, "R");
 
-// type: string
-// value: "BLAH!"
-const key4 = $enum(RGB).getKeyOrDefault("blah", "BLAH!");
+// compiler error: type of default key is invalid
+// (use asKeyOrThrow or asKeyOrDefault to test/convert
+//  untrustworthy default key values first)
+const key4 = $enum(RGB).getKey(undefined, "BLAH!");
 ```
 
 ### Validate/convert enum keys
@@ -275,7 +271,7 @@ const mapped = wrappedRgb.map((value, key, wrappedEnum, index) => {
 
 ### Wrapped enums are Array-Like
 
-A wrapped enum is simialr to a readonly array of enum "entry" tuples.
+A wrapped enum is similar to a readonly array of enum "entry" tuples.
 
 See also:
 
@@ -380,7 +376,7 @@ A subset of `EnumWrapper`'s interface overlaps with much of the ES6 `Map` interf
 -   [forEach](#enumwrapperprototypeforeach) method.
 -   [@@iterator](#enumwrapperprototypeiterator) method (`EnumWrapper` is iterable!).
 
-NOTE: The `Map` interface's `has()` and `get()` methods are intentionally NOT implemented in the interest of clarity and consistency of naming with respect to other `EnumWrapper`-specific methods. The equivalent methods are [isKey](#enumwrapperprototypeiskey) and [getValueOrDefault](#enumwrapperprototypegetvalueordefault) (with second param omitted).
+NOTE: The `Map` interface's `has()` and `get()` methods are intentionally NOT implemented in the interest of clarity and consistency of naming with respect to other `EnumWrapper`-specific methods. The equivalent methods are [isKey](#enumwrapperprototypeiskey) and [getValue](#enumwrapperprototypegetvalue) (with second param omitted).
 
 ### Array-Like Interface
 
@@ -693,7 +689,6 @@ EnumWrapper.prototype.isKey(
 #### EnumWrapper.prototype.asKeyOrThrow
 
 If the provided `key` is a valid key for the enum, then the `key` is returned, but cast to the more specific `KeyType` type.
-
 If the provided `key` is NOT valid, then an `Error` is thrown.
 
 ```ts
@@ -705,16 +700,17 @@ EnumWrapper.prototype.asKeyOrThrow(
 #### EnumWrapper.prototype.asKeyOrDefault
 
 If the provided `key` is a valid key for the enum, then the `key` is returned, but cast to the more specific `KeyType` type.
-
 If the provided `key` is NOT valid, then `defaultKey` is returned.
+If the provided `defaultKey` is not valid, then an `Error` is thrown.
 
-This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultKey` param.
+This method is overloaded so that its return type is as specific as possible, depending on whether the
+`key` and `defaultKey` params are possibly undefined.
 
 ```ts
 EnumWrapper.prototype.asKeyOrDefault(
     key: string | null | undefined,
-    defaultKey?: KeyType | string
-): KeyType | string | undefined
+    defaultKey?: KeyType
+): KeyType | undefined
 ```
 
 ### Value Validation/Typecasting
@@ -734,7 +730,6 @@ EnumWrapper.prototype.isValue(
 #### EnumWrapper.prototype.asValueOrThrow
 
 If the provided `value` is a valid value for the enum, then the `value` is returned, but cast to the more specific `EnumType` type.
-
 If the provided `value` is NOT valid, then an `Error` is thrown.
 
 ```ts
@@ -746,76 +741,61 @@ EnumWrapper.prototype.asValueOrThrow(
 #### EnumWrapper.prototype.asValueOrDefault
 
 If the provided `value` is a valid value for the enum, then the `value` is returned, but cast to the more specific `EnumType` type.
-
 If the provided `value` is NOT valid, then `defaultValue` is returned.
+If the provided `defaultValue` is not valid, then an `Error` is thrown.
 
-This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultValue` param.
+This method is overloaded so that its return type is as specific as possible, depending on whether the
+`value` and `defaultValue` params are possibly undefined.
 
 ```ts
 EnumWrapper.prototype.asValueOrDefault(
     value: ValueType | null | undefined,
-    defaultValue?: EnumType | ValueType
-): EnumType | ValueType | undefined
+    defaultValue?: EnumType
+): EnumType | undefined
 ```
 
 ### Lookup Key by Value
 
-#### EnumWrapper.prototype.getKeyOrThrow
+#### EnumWrapper.prototype.getKey
 
 Performs a reverse lookup to get the key that corresponds to the provided `value`.
 
 If the enum has duplicate values matching the provided `value`, then the key for the last duplicate entry (in order specified by the [Order of Iteration](#order-of-iteration) section) is returned.
 
-If the provided `value` is NOT valid, then an `Error` is thrown.
+If the provided `value` is null/undefined, then `defaultKey` is returned.
+If either the provided `value` or `defaultKey` are invalid, then an `Error` is thrown.
+
+If you have an untrustworthy `value` and want a default key if `value` is invalid,
+then pass `value` through `asValueOrDefault` before passing it to `getKey`.
+
+This method is overloaded so that its return type is as specific as possible, depending on whether the
+`value` and `defaultKey` params are possibly undefined.
 
 ```ts
-EnumWrapper.prototype.getKeyOrThrow(
-    value: ValueType | null | undefined
-): KeyType
-```
-
-#### EnumWrapper.prototype.getKeyOrDefault
-
-Performs a reverse lookup to get the key that corresponds to the provided `value`.
-
-If the enum has duplicate values matching the provided `value`, then the key for the last duplicate entry (in order specified by the [Order of Iteration](#order-of-iteration) section) is returned.
-
-If the provided `value` is NOT valid, then `defaultKey` is returned.
-
-This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultKey` param.
-
-```ts
-EnumWrapper.prototype.getKeyOrDefault(
-    value: ValueType | null | undefined,
-    defaultKey?: KeyType | string
-): KeyType | string | undefined
+EnumWrapper.prototype.getKey(
+    value: EnumType | null | undefined,
+    defaultKey?: KeyType
+): KeyType | undefined
 ```
 
 ### Lookup Value by Key
 
-#### EnumWrapper.prototype.getValueOrThrow
+#### EnumWrapper.prototype.getValue
 
 Returns the value corresponding to the provided `key`.
 
-If the provided `key` is NOT valid, then an `Error` is thrown.
+If the provided `key` is null/undefined, then `defaultValue` is returned.
+If either the provided `key` or `defaultValue` are invalid, then an `Error` is thrown.
+
+If you have an untrustworthy `key` and want a default value if `key` is invalid,
+then pass `key` through `asKeyOrDefault` before passing it to `getValue`.
+
+This method is overloaded so that its return type is as specific as possible, depending on whether the
+`key` and `defaultValue` params are possibly undefined.
 
 ```ts
-EnumWrapper.prototype.getValueOrThrow(
-    key: string | null | undefined
-): EnumType
-```
-
-#### EnumWrapper.prototype.getValueOrDefault
-
-Returns the value corresponding to the provided `key`.
-
-If the provided `key` is NOT valid, then `defaultValue` is returned.
-
-This method is overloaded so that its return type is as specific as possible, depending on the type of the `defaultValue` param.
-
-```ts
-EnumWrapper.prototype.getValueOrDefault(
-    key: string | null | undefined,
-    defaultValue?: EnumType | ValueType
-): EnumType | ValueType | undefined
+EnumWrapper.prototype.getValue(
+    key: KeyType | null | undefined,
+    defaultValue?: EnumType
+): EnumType | undefined
 ```
