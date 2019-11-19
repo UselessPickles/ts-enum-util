@@ -459,12 +459,12 @@ describe("EnumWrapper: string enum", () => {
     });
 
     test("getKey()", () => {
-        // A and D have duplicate values, but A is ordered after D, and last duplicate entry wins,
-        // so A's key is returned when looking up the value of A or D.
-        expect(enumWrapper.getKey(TestEnum.A)).toBe("A");
+        // A and D have duplicate values, but D is ordered before D, and first duplicate entry wins,
+        // so D's key is returned when looking up the value of A or D.
+        expect(enumWrapper.getKey(TestEnum.A)).toBe("D");
         expect(enumWrapper.getKey(TestEnum.B)).toBe("B");
         expect(enumWrapper.getKey(TestEnum.C)).toBe("C");
-        expect(enumWrapper.getKey(TestEnum.D)).toBe("A");
+        expect(enumWrapper.getKey(TestEnum.D)).toBe("D");
 
         // Invalid value causes error
         expect(() => {

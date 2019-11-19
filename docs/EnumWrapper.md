@@ -392,7 +392,7 @@ When executed in an environment with an ES6-compliant implementation of
 the order in which the enum was originally defined in source code.
 
 If `Object.getOwnPropertyNames` is not available in the run-time environment, then
-there techincally is no official guarantee of the order in which the enum will be
+there technically is no official guarantee of the order in which the enum will be
 processed by `EnumWrapper`. However, a variety of de-facto standards of how various
 browsers and JS run-time environments have implemented object key/property ordering
 combined with limited subset of keys/properties processed by `EnumUtil`
@@ -760,7 +760,7 @@ EnumWrapper.prototype.asValueOrDefault(
 
 Performs a reverse lookup to get the key that corresponds to the provided `value`.
 
-If the enum has duplicate values matching the provided `value`, then the key for the last duplicate entry (in order specified by the [Order of Iteration](#order-of-iteration) section) is returned.
+If the enum has duplicate values matching the provided `value`, then the key for the first duplicate entry (in order specified by the [Order of Iteration](#order-of-iteration) section) is returned.
 
 If the provided `value` is null/undefined, then `defaultKey` is returned.
 If either the provided `value` or `defaultKey` are invalid, then an `Error` is thrown.

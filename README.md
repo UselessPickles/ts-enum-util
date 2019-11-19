@@ -149,7 +149,6 @@ been split out to separate files:
             functionality, check out v3 or v2 of `ts-enum-util`.
 -   _ES6 Features_: The following ES6 features are used by `ts-enum-util`, so they
     must exist (either natively or via polyfill) in the run-time environment:
-    -   `Map`
     -   `WeakMap`
     -   `Symbol`
     -   `Symbol.iterator`
