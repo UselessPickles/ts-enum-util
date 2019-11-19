@@ -58,9 +58,9 @@ enumWrapper.values();
 // Also cannot test for immutability of items within the iterated entry tuples
 // because of this change.
 // see: https://github.com/Microsoft/TypeScript/issues/26864
-const testEntryIterator: IterableIterator<
-    Readonly<["A" | "B" | "C", TestEnum]>
-> = enumWrapper.entries();
+const testEntryIterator: IterableIterator<Readonly<
+    ["A" | "B" | "C", TestEnum]
+>> = enumWrapper.entries();
 for (const entry of enumWrapper.entries()) {
     const testIteratedEntry: Readonly<["A" | "B" | "C", TestEnum]> = entry;
 }

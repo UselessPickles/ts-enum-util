@@ -13,7 +13,7 @@ import {
  * @template T - The type of the value that the enum value is mapped to.
  */
 export type EnumValueMapperCore<E extends string | number, T> = {
-    [P in E]: T | typeof unhandledEntry
+    [P in E]: T | typeof unhandledEntry;
 };
 
 /**

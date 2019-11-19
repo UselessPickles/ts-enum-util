@@ -42,8 +42,10 @@ export class EnumValueVisitee<E extends string | number> {
             const handler = (visitor as EnumValueVisitorCore<E, R>)[this.value];
             return processEntry(handler, this.value);
         } else if (visitor[handleUnexpected]) {
-            return processEntry(visitor[handleUnexpected]!, (this
-                .value as any) as WidenEnumType<E>);
+            return processEntry(
+                visitor[handleUnexpected]!,
+                (this.value as any) as WidenEnumType<E>
+            );
         } else {
             throw new Error(`Unexpected value: ${this.value}`);
         }

@@ -89,7 +89,7 @@ describe("objectKeysUtil", () => {
             ["ES6", getOwnEnumerableNonNumericKeysES6],
             ["ES5", getOwnEnumerableNonNumericKeysES5],
             ["ES3", getOwnEnumerableNonNumericKeysES3]
-        ])("getOwnEnumerableNonNumericKeys%s", (label, func) => {
+        ] as const)("getOwnEnumerableNonNumericKeys%s", (label, func) => {
             expect(func(obj)).toEqual(expected);
         });
     });

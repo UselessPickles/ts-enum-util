@@ -32,7 +32,7 @@ export type EnumValueVisitorHandler<
  * @template R - The return type of the visitor methods.
  */
 export type EnumValueVisitorCore<E extends string | number, R> = {
-    [P in E]: EnumValueVisitorHandler<P, R> | typeof unhandledEntry
+    [P in E]: EnumValueVisitorHandler<P, R> | typeof unhandledEntry;
 };
 
 /**
