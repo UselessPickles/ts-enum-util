@@ -1,6 +1,6 @@
 {
     "name": "ts-enum-util",
-    "version": "4.0.1",
+    "version": "5.0.0-beta.0",
     "description": "TypeScript Enum Utilities",
     "repository": {
         "type": "git",
