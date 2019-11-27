@@ -43,7 +43,7 @@ export type StrictEnumParam<
     ? true extends ({ [key: number]: false } & { [P in Enum]: true })[Param]
         ? Param
         : never
-    : Enum;
+    : Param;
 
 /**
  * Widens types that are assignable to number/string to the full number/string type.
@@ -503,23 +503,6 @@ export class EnumWrapper<
         value: Value & StrictEnumParam<V, Value>
     ): StringKeyOfType<E, Value>;
     /**
-     * Performs a strict reverse lookup from enum value to corresponding enum key,
-     * with a default key to be returned if the provided value is null/undefined.
-     * This method is as strict as possible with compile-time types and run-time
-     * validation for a lookup based on a (expected to be) valid value that is
-     * guaranteed to return a valid key.
-     * NOTE: If this enum has any duplicate values, then one of the keys for the
-     *       duplicated value is arbitrarily returned.
-     * @param value - A valid value for this enum (or null/undefined).
-     * @param defaultKey - A valid key to be returned if the provided value is null/undefined.
-     * @return The key for the provided value, or the default key.
-     * @throws {Error} if the provided value or default key is not valid for this enum.
-     */
-    public getKey<Value extends V, DefaultKey extends StringKeyOf<E>>(
-        value: (Value & StrictEnumParam<V, Value>) | null | undefined,
-        defaultKey: DefaultKey
-    ): StringKeyOfType<E, Value> | DefaultKey;
-    /**
      * Performs a strict reverse lookup from enum value to corresponding enum key.
      * This method is as strict as possible with compile-time types and run-time
      * validation for a lookup based on a (expected to be) valid value that is
@@ -551,6 +534,23 @@ export class EnumWrapper<
         // tslint:disable-next-line:unified-signatures
         defaultKey: undefined
     ): StringKeyOfType<E, Value> | undefined;
+    /**
+     * Performs a strict reverse lookup from enum value to corresponding enum key,
+     * with a default key to be returned if the provided value is null/undefined.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid value that is
+     * guaranteed to return a valid key.
+     * NOTE: If this enum has any duplicate values, then one of the keys for the
+     *       duplicated value is arbitrarily returned.
+     * @param value - A valid value for this enum (or null/undefined).
+     * @param defaultKey - A valid key to be returned if the provided value is null/undefined.
+     * @return The key for the provided value, or the default key.
+     * @throws {Error} if the provided value or default key is not valid for this enum.
+     */
+    public getKey<Value extends V, DefaultKey extends StringKeyOf<E>>(
+        value: (Value & StrictEnumParam<V, Value>) | null | undefined,
+        defaultKey: DefaultKey
+    ): StringKeyOfType<E, Value> | DefaultKey;
     /**
      * Performs a strict reverse lookup from enum value to corresponding enum key,
      * with a default key to be returned if the provided value is null/undefined.
@@ -606,22 +606,6 @@ export class EnumWrapper<
      * This method is as strict as possible with compile-time types and run-time
      * validation for a lookup based on a (expected to be) valid key that is
      * guaranteed to return a valid value.
-     * Throws an error if the provided key is invalid.
-     * @param key - A valid key for this enum (or null/undefined).
-     * @param defaultValue - A valid value to be returned if the key is null/undefined.
-     * @return The value for the provided key, or the default value.
-     * @throws {Error} if the provided key is invalid for this enum.
-     */
-    public getValue<K extends StringKeyOf<E>, DefaultValue extends V>(
-        key: K | null | undefined,
-        defaultValue: DefaultValue & StrictEnumParam<V, DefaultValue>
-    ): E[K] | DefaultValue;
-    /**
-     * Performs a strict lookup of enum value by key, with a default value
-     * returned if the provided key is null/undefined.
-     * This method is as strict as possible with compile-time types and run-time
-     * validation for a lookup based on a (expected to be) valid key that is
-     * guaranteed to return a valid value.
      * Throws an error if the provided key is non-null and invalid.
      * @param key - A valid key for this enum (or null/undefined).
      * @return The value for the provided key, or undefined.
@@ -647,6 +631,22 @@ export class EnumWrapper<
         // tslint:disable-next-line:unified-signatures
         defaultValue: undefined
     ): E[K] | undefined;
+    /**
+     * Performs a strict lookup of enum value by key, with a default value
+     * returned if the provided key is null/undefined.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid key that is
+     * guaranteed to return a valid value.
+     * Throws an error if the provided key is invalid.
+     * @param key - A valid key for this enum (or null/undefined).
+     * @param defaultValue - A valid value to be returned if the key is null/undefined.
+     * @return The value for the provided key, or the default value.
+     * @throws {Error} if the provided key is invalid for this enum.
+     */
+    public getValue<K extends StringKeyOf<E>, DefaultValue extends V>(
+        key: K | null | undefined,
+        defaultValue: DefaultValue & StrictEnumParam<V, DefaultValue>
+    ): E[K] | DefaultValue;
     /**
      * Performs a strict lookup of enum value by key, with a default value
      * returned if the provided key is null/undefined.
