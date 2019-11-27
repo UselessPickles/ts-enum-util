@@ -34,7 +34,7 @@
         "pack": "run-p clean:pack build && npm pack",
         "jest": "jest",
         "jest:coverage": "npm run clean:coverage && jest --coverage",
-        "dtslint:v2_9_plus": "dtslint type_tests/v2_9_plus",
+        "dtslint:v2_9_plus": "dtslint --expectOnly type_tests/v2_9_plus",
         "dtslint": "run-s clean:dist build:types dtslint:v2_9_plus",
         "test": "run-s compile prettier:test lint dtslint jest",
         "test:coverage": "run-s compile prettier:test lint dtslint jest:coverage",
