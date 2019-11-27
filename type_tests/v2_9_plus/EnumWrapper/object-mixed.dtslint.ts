@@ -25,7 +25,7 @@ declare const keyOrUndefined: keyof typeof TestEnum | undefined;
 
 const enumWrapper = $enum(TestEnum);
 
-// $ExpectType EnumWrapper<string | number, { A: number; B: number; C: string; }>
+// $ExpectType EnumWrapper<{ A: number; B: number; C: string; }, string | number>
 enumWrapper;
 
 // $ExpectType number
@@ -69,13 +69,13 @@ for (const entry of enumWrapper.entries()) {
 }
 
 // $ExpectType void
-enumWrapper.forEach((value, key, collection, index) => {
+enumWrapper.forEach((value, key, wrapper, index) => {
     // $ExpectType string | number
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<string | number, { A: number; B: number; C: string; }>
-    collection;
+    // $ExpectType EnumWrapper<{ A: number; B: number; C: string; }, string | number>
+    wrapper;
     // $ExpectType number
     index;
 
@@ -83,13 +83,13 @@ enumWrapper.forEach((value, key, collection, index) => {
 });
 
 // $ExpectType number[]
-enumWrapper.map((value, key, collection, index) => {
+enumWrapper.map((value, key, wrapper, index) => {
     // $ExpectType string | number
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<string | number, { A: number; B: number; C: string; }>
-    collection;
+    // $ExpectType EnumWrapper<{ A: number; B: number; C: string; }, string | number>
+    wrapper;
     // $ExpectType number
     index;
 

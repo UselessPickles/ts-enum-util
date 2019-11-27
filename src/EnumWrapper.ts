@@ -1,4 +1,4 @@
-import { StringKeyOf } from "./types";
+import { StringKeyOf, StringKeyOfType } from "./types";
 import { getOwnEnumerableNonNumericKeys } from "./objectKeysUtil";
 
 /**
@@ -46,29 +46,44 @@ export type StrictEnumParam<
     : Enum;
 
 /**
+ * Widens types that are assignable to number/string to the full number/string type.
+ */
+type Widen<T extends number | string> = T extends number
+    ? number
+    : T extends string
+    ? string
+    : T;
+
+/**
  * A generic wrapper for any enum-like object.
  * Provides utilities for runtime processing of an enum's values and keys, with strict compile-time
  * type safety.
  *
- * EnumWrapper cannot be directly instantiated. Use {@link $enum} to get/create an EnumWrapper
- * instance.
+ * EnumWrapper should generally not be directly instantiated.
+ * Use {@link $enum} to get/create an EnumWrapper instance.
  *
- * @template V - Type of the enum value.
- * @template T - Type of the enum-like object that is being wrapped.
+ * @template E - The type of the enum-like object that is wrapped by the EnumWrapper..
+ * @template V - The enum value type (always allow this to default!).
+ *               NOTE: This template param shouldn't need to exist. It is a workaround
+ *               to a TypeScript design limitation.
+ *               See: https://github.com/microsoft/TypeScript/issues/35322#issuecomment-558247434
  */
 export class EnumWrapper<
-    V extends number | string = number | string,
-    T extends Record<StringKeyOf<T>, V> = any
-> implements Iterable<EnumWrapper.Entry<T>>, ArrayLike<EnumWrapper.Entry<T>> {
+    E extends Record<StringKeyOf<E>, V>,
+    V extends string | number = E[StringKeyOf<E>]
+>
+    implements
+        Iterable<EnumWrapper.Entry<E, V>>,
+        ArrayLike<EnumWrapper.Entry<E, V>> {
     /**
      * List of all keys for this enum, in the original defined order of the enum.
      */
-    private readonly keysList: ReadonlyArray<StringKeyOf<T>>;
+    private readonly keysList: ReadonlyArray<StringKeyOf<E>>;
 
     /**
      * List of all values for this enum, in the original defined order of the enum.
      */
-    private readonly valuesList: ReadonlyArray<T[StringKeyOf<T>]>;
+    private readonly valuesList: ReadonlyArray<V>;
 
     /**
      * The number of entries in this enum.
@@ -86,7 +101,7 @@ export class EnumWrapper<
      * Index signature.
      * Part of the ArrayLike interface.
      */
-    readonly [key: number]: EnumWrapper.Entry<T>;
+    readonly [key: number]: EnumWrapper.Entry<E, V>;
 
     /**
      * Create a new EnumWrapper instance.
@@ -95,14 +110,14 @@ export class EnumWrapper<
      *
      * @param enumObj - An enum-like object.
      */
-    public constructor(enumObj: T) {
+    public constructor(enumObj: E) {
         // Include only own enumerable keys that are not numeric.
         // This is necessary to ignore the reverse-lookup entries that are automatically added
         // by TypeScript to numeric enums.
         this.keysList = Object.freeze(getOwnEnumerableNonNumericKeys(enumObj));
 
         const length = this.keysList.length;
-        const valuesList = new Array<T[StringKeyOf<T>]>(length);
+        const valuesList = new Array<V>(length);
 
         // According to multiple tests found on jsperf.com, a plain for loop is faster than using
         // Array.prototype.forEach
@@ -139,13 +154,13 @@ export class EnumWrapper<
      * Part of the Map-like interface.
      * @return An iterator that iterates over this enum's keys.
      */
-    public keys(): IterableIterator<StringKeyOf<T>> {
+    public keys(): IterableIterator<StringKeyOf<E>> {
         let index = 0;
 
         return {
             next: () => {
                 const isDone = index >= this.length;
-                const result: IteratorResult<StringKeyOf<T>> = {
+                const result: IteratorResult<StringKeyOf<E>> = {
                     done: isDone,
                     value: this.keysList[index]
                 };
@@ -155,7 +170,7 @@ export class EnumWrapper<
                 return result;
             },
 
-            [Symbol.iterator](): IterableIterator<StringKeyOf<T>> {
+            [Symbol.iterator](): IterableIterator<StringKeyOf<E>> {
                 return this;
             }
         };
@@ -169,7 +184,7 @@ export class EnumWrapper<
      *       in the result.
      * @return An iterator that iterates over this enum's values.
      */
-    public readonly values: () => IterableIterator<T[StringKeyOf<T>]> =
+    public readonly values: () => IterableIterator<V> =
         Symbol.iterator in Array.prototype
             ? () => this.valuesList[Symbol.iterator]()
             : () => {
@@ -178,7 +193,7 @@ export class EnumWrapper<
                   return {
                       next: () => {
                           const isDone = index >= this.length;
-                          const result: IteratorResult<T[StringKeyOf<T>]> = {
+                          const result: IteratorResult<V> = {
                               done: isDone,
                               value: this.valuesList[index]
                           };
@@ -188,7 +203,7 @@ export class EnumWrapper<
                           return result;
                       },
 
-                      [Symbol.iterator](): IterableIterator<T[StringKeyOf<T>]> {
+                      [Symbol.iterator](): IterableIterator<V> {
                           return this;
                       }
                   };
@@ -199,13 +214,13 @@ export class EnumWrapper<
      * Iteration order is based on the original defined order of the enum.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
-    public entries(): IterableIterator<EnumWrapper.Entry<T>> {
+    public entries(): IterableIterator<EnumWrapper.Entry<E, V>> {
         let index = 0;
 
         return {
             next: () => {
                 const isDone = index >= this.length;
-                const result: IteratorResult<EnumWrapper.Entry<T>> = {
+                const result: IteratorResult<EnumWrapper.Entry<E, V>> = {
                     done: isDone,
                     // NOTE: defensive copy not necessary because entries are "frozen"
                     value: this[index]
@@ -216,7 +231,7 @@ export class EnumWrapper<
                 return result;
             },
 
-            [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
+            [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<E, V>> {
                 return this;
             }
         };
@@ -227,7 +242,7 @@ export class EnumWrapper<
      * Iteration order is based on the original defined order of the enum.
      * @return An iterator that iterates over this enum's entries as [key, value] tuples.
      */
-    public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
+    public [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<E, V>> {
         return this.entries();
     }
 
@@ -240,7 +255,7 @@ export class EnumWrapper<
      * @param context - If provided, then the iteratee will be called with the context as its "this" value.
      */
     public forEach(
-        iteratee: EnumWrapper.Iteratee<void, V, T>,
+        iteratee: EnumWrapper.Iteratee<void, E, V>,
         context?: any
     ): void {
         const length = this.length;
@@ -264,7 +279,7 @@ export class EnumWrapper<
      *
      * @template R - The of the mapped result for each entry.
      */
-    public map<R>(iteratee: EnumWrapper.Iteratee<R, V, T>, context?: any): R[] {
+    public map<R>(iteratee: EnumWrapper.Iteratee<R, E, V>, context?: any): R[] {
         const length = this.length;
         const result = new Array<R>(length);
 
@@ -288,7 +303,7 @@ export class EnumWrapper<
      * Order of items in the list is based on the original defined order of the enum.
      * @return A list of this enum's keys.
      */
-    public getKeys(): StringKeyOf<T>[] {
+    public getKeys(): StringKeyOf<E>[] {
         // need to return a copy of this.keysList so it can be returned as Array instead of ReadonlyArray.
         return this.keysList.slice();
     }
@@ -300,7 +315,7 @@ export class EnumWrapper<
      *       in the result.
      * @return A list of this enum's values.
      */
-    public getValues(): T[StringKeyOf<T>][] {
+    public getValues(): V[] {
         // need to return a copy of this.valuesList so it can be returned as Array instead of ReadonlyArray.
         return this.valuesList.slice();
     }
@@ -310,7 +325,7 @@ export class EnumWrapper<
      * Order of items in the list is based on the original defined order of the enum.
      * @return A list of this enum's entries as [key, value] tuples.
      */
-    public getEntries(): EnumWrapper.Entry<T>[] {
+    public getEntries(): EnumWrapper.Entry<E, V>[] {
         // Create an array from the indexed entries of "this".
         // NOTE: no need for defensive copy of each entry because all entries are "frozen".
         return Array.prototype.slice.call(this);
@@ -321,7 +336,7 @@ export class EnumWrapper<
      * @param key A valid key for this enum.
      * @return The index of the key based on the original defined order of this enum.
      */
-    public indexOfKey(key: StringKeyOf<T>): number {
+    public indexOfKey(key: StringKeyOf<E>): number {
         return this.keysList.indexOf(key);
     }
 
@@ -330,8 +345,8 @@ export class EnumWrapper<
      * @param value A valid value for this enum.
      * @return The index of the value based on the original defined order of this enum.
      */
-    public indexOfValue<Value extends T[StringKeyOf<T>]>(
-        value: StrictEnumParam<T[StringKeyOf<T>], Value>
+    public indexOfValue<Value extends V>(
+        value: StrictEnumParam<V, Value>
     ): number {
         return this.valuesList.indexOf(value);
     }
@@ -342,8 +357,8 @@ export class EnumWrapper<
      * @param key - A potential key value for this enum.
      * @return True if the provided key is a valid key for this enum.
      */
-    public isKey(key: string | null | undefined): key is StringKeyOf<T> {
-        return this.keysList.indexOf(key as any) !== -1;
+    public isKey(key: string | null | undefined): key is StringKeyOf<E> {
+        return this.keysList.indexOf(key as StringKeyOf<E>) !== -1;
     }
 
     /**
@@ -353,7 +368,7 @@ export class EnumWrapper<
      * @return The provided key value, cast to the type of this enum's keys.
      * @throws {Error} if the provided string is not a valid key for this enum.
      */
-    public asKeyOrThrow(key: string | null | undefined): StringKeyOf<T> {
+    public asKeyOrThrow(key: string | null | undefined): StringKeyOf<E> {
         if (this.isKey(key)) {
             return key;
         } else {
@@ -374,8 +389,8 @@ export class EnumWrapper<
      */
     public asKeyOrDefault(
         key: string | null | undefined,
-        defaultKey: StringKeyOf<T>
-    ): StringKeyOf<T>;
+        defaultKey: StringKeyOf<E>
+    ): StringKeyOf<E>;
     /**
      * Casts a string to a properly-typed key for this enum.
      * Returns a default key if the provided key is invalid.
@@ -387,12 +402,12 @@ export class EnumWrapper<
      */
     public asKeyOrDefault(
         key: string | null | undefined,
-        defaultKey?: StringKeyOf<T>
-    ): StringKeyOf<T> | undefined;
+        defaultKey?: StringKeyOf<E>
+    ): StringKeyOf<E> | undefined;
     public asKeyOrDefault(
         key: string | null | undefined,
-        defaultKey?: StringKeyOf<T>
-    ): StringKeyOf<T> | undefined {
+        defaultKey?: StringKeyOf<E>
+    ): StringKeyOf<E> | undefined {
         const verifiedDefaultKey =
             defaultKey != null ? this.asKeyOrThrow(defaultKey) : undefined;
 
@@ -409,8 +424,12 @@ export class EnumWrapper<
      * @param value - A potential value for this enum.
      * @return True if the provided value is valid for this enum.
      */
-    public isValue(value: V | null | undefined): value is T[StringKeyOf<T>] {
-        return this.valuesList.indexOf(value as any) !== -1;
+    // HACK: The intersection in "value is Widen<V> & V" is a work around for a TS limitation.
+    //       See: https://github.com/microsoft/TypeScript/issues/35257#issuecomment-557100788
+    public isValue(
+        value: Widen<V> | V | null | undefined
+    ): value is Widen<V> & V {
+        return this.valuesList.indexOf(value as V) !== -1;
     }
 
     /**
@@ -420,7 +439,7 @@ export class EnumWrapper<
      * @return The provided value, cast to the type of this enum's values.
      * @throws {Error} if the provided value is not a valid value for this enum.
      */
-    public asValueOrThrow(value: V | null | undefined): T[StringKeyOf<T>] {
+    public asValueOrThrow(value: Widen<V> | V | null | undefined): V {
         if (this.isValue(value)) {
             return value;
         } else {
@@ -439,10 +458,10 @@ export class EnumWrapper<
      *         Returns `defaultValue` if the provided value is invalid.
      * @throws {Error} if `defaultValue` is not a valid value for this enum.
      */
-    public asValueOrDefault<DefaultValue extends T[StringKeyOf<T>]>(
-        value: V | null | undefined,
-        defaultValue: StrictEnumParam<T[StringKeyOf<T>], DefaultValue>
-    ): T[StringKeyOf<T>];
+    public asValueOrDefault<DefaultValue extends V>(
+        value: Widen<V> | V | null | undefined,
+        defaultValue: StrictEnumParam<V, DefaultValue>
+    ): V;
     /**
      * Casts a value to a properly-typed value for this enum.
      * Returns a default value if the provided value is invalid.
@@ -452,14 +471,11 @@ export class EnumWrapper<
      *         Returns `defaultValue` if the provided value is invalid.
      * @throws {Error} if `defaultValue` is not a valid value for this enum.
      */
-    public asValueOrDefault<DefaultValue extends T[StringKeyOf<T>]>(
-        value: V | null | undefined,
-        defaultValue?: StrictEnumParam<T[StringKeyOf<T>], DefaultValue>
-    ): T[StringKeyOf<T>] | undefined;
-    public asValueOrDefault(
-        value: V | null | undefined,
-        defaultValue?: T[StringKeyOf<T>]
-    ): T[StringKeyOf<T>] | undefined {
+    public asValueOrDefault<DefaultValue extends V>(
+        value: Widen<V> | V | null | undefined,
+        defaultValue?: StrictEnumParam<V, DefaultValue>
+    ): V | undefined;
+    public asValueOrDefault(value: Widen<V>, defaultValue?: V): V | undefined {
         const verifiedDefaultValue =
             defaultValue != null
                 ? this.asValueOrThrow(defaultValue)
@@ -483,9 +499,9 @@ export class EnumWrapper<
      * @return The key for the provided value.
      * @throws {Error} if the provided value is not valid for this enum.
      */
-    public getKey<Value extends T[StringKeyOf<T>]>(
-        value: StrictEnumParam<T[StringKeyOf<T>], Value>
-    ): StringKeyOf<T>;
+    public getKey<Value extends V>(
+        value: Value & StrictEnumParam<V, Value>
+    ): StringKeyOfType<E, Value>;
     /**
      * Performs a strict reverse lookup from enum value to corresponding enum key,
      * with a default key to be returned if the provided value is null/undefined.
@@ -499,10 +515,24 @@ export class EnumWrapper<
      * @return The key for the provided value, or the default key.
      * @throws {Error} if the provided value or default key is not valid for this enum.
      */
-    public getKey<Value extends T[StringKeyOf<T>]>(
-        value: StrictEnumParam<T[StringKeyOf<T>], Value> | null | undefined,
-        defaultKey: StringKeyOf<T>
-    ): StringKeyOf<T>;
+    public getKey<Value extends V, DefaultKey extends StringKeyOf<E>>(
+        value: (Value & StrictEnumParam<V, Value>) | null | undefined,
+        defaultKey: DefaultKey
+    ): StringKeyOfType<E, Value> | DefaultKey;
+    /**
+     * Performs a strict reverse lookup from enum value to corresponding enum key.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid value that is
+     * guaranteed to return a valid key.
+     * NOTE: If this enum has any duplicate values, then one of the keys for the
+     *       duplicated value is arbitrarily returned.
+     * @param value - A valid value for this enum.
+     * @return The key for the provided value.
+     * @throws {Error} if the provided value is not valid for this enum.
+     */
+    public getKey<Value extends V>(
+        value: (Value & StrictEnumParam<V, Value>) | null | undefined
+    ): StringKeyOfType<E, Value> | undefined;
     /**
      * Performs a strict reverse lookup from enum value to corresponding enum key,
      * with a default key to be returned if the provided value is null/undefined.
@@ -516,14 +546,32 @@ export class EnumWrapper<
      * @return The key for the provided value, or the default key.
      * @throws {Error} if the provided value or default key is not valid for this enum.
      */
-    public getKey<Value extends T[StringKeyOf<T>]>(
-        value: StrictEnumParam<T[StringKeyOf<T>], Value> | null | undefined,
-        defaultKey?: StringKeyOf<T>
-    ): StringKeyOf<T> | undefined;
+    public getKey<Value extends V>(
+        value: (Value & StrictEnumParam<V, Value>) | null | undefined,
+        // tslint:disable-next-line:unified-signatures
+        defaultKey: undefined
+    ): StringKeyOfType<E, Value> | undefined;
+    /**
+     * Performs a strict reverse lookup from enum value to corresponding enum key,
+     * with a default key to be returned if the provided value is null/undefined.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid value that is
+     * guaranteed to return a valid key.
+     * NOTE: If this enum has any duplicate values, then one of the keys for the
+     *       duplicated value is arbitrarily returned.
+     * @param value - A valid value for this enum (or null/undefined).
+     * @param defaultKey - A valid key to be returned if the provided value is null/undefined.
+     * @return The key for the provided value, or the default key.
+     * @throws {Error} if the provided value or default key is not valid for this enum.
+     */
+    public getKey<Value extends V, DefaultKey extends StringKeyOf<E>>(
+        value: (Value & StrictEnumParam<V, Value>) | null | undefined,
+        defaultKey?: DefaultKey
+    ): StringKeyOfType<E, Value> | DefaultKey | undefined;
     public getKey(
-        value: T[StringKeyOf<T>] | null | undefined,
-        defaultKey?: StringKeyOf<T>
-    ): StringKeyOf<T> | undefined {
+        value: V | null | undefined,
+        defaultKey?: StringKeyOf<E>
+    ): StringKeyOf<E> | undefined {
         const verifiedDefaultKey =
             defaultKey != null ? this.asKeyOrThrow(defaultKey) : undefined;
 
@@ -551,7 +599,7 @@ export class EnumWrapper<
      * @return The value for the provided key.
      * @throws {Error} if the provided key is invalid for this enum.
      */
-    public getValue(key: StringKeyOf<T>): T[StringKeyOf<T>];
+    public getValue<K extends StringKeyOf<E>>(key: K): E[K];
     /**
      * Performs a strict lookup of enum value by key, with a default value
      * returned if the provided key is null/undefined.
@@ -564,10 +612,24 @@ export class EnumWrapper<
      * @return The value for the provided key, or the default value.
      * @throws {Error} if the provided key is invalid for this enum.
      */
-    public getValue<DefaultValue extends T[StringKeyOf<T>]>(
-        key: StringKeyOf<T> | null | undefined,
-        defaultValue: StrictEnumParam<T[StringKeyOf<T>], DefaultValue>
-    ): T[StringKeyOf<T>];
+    public getValue<K extends StringKeyOf<E>, DefaultValue extends V>(
+        key: K | null | undefined,
+        defaultValue: DefaultValue & StrictEnumParam<V, DefaultValue>
+    ): E[K] | DefaultValue;
+    /**
+     * Performs a strict lookup of enum value by key, with a default value
+     * returned if the provided key is null/undefined.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid key that is
+     * guaranteed to return a valid value.
+     * Throws an error if the provided key is non-null and invalid.
+     * @param key - A valid key for this enum (or null/undefined).
+     * @return The value for the provided key, or undefined.
+     * @throws {Error} if the provided key is invalid for this enum.
+     */
+    public getValue<K extends StringKeyOf<E>>(
+        key: K | null | undefined
+    ): E[K] | undefined;
     /**
      * Performs a strict lookup of enum value by key, with a default value
      * returned if the provided key is null/undefined.
@@ -580,14 +642,31 @@ export class EnumWrapper<
      * @return The value for the provided key, or the default value.
      * @throws {Error} if the provided key is invalid for this enum.
      */
-    public getValue<DefaultValue extends T[StringKeyOf<T>]>(
-        key: StringKeyOf<T> | null | undefined,
-        defaultValue?: StrictEnumParam<T[StringKeyOf<T>], DefaultValue>
-    ): T[StringKeyOf<T>] | undefined;
+    public getValue<K extends StringKeyOf<E>>(
+        key: K | null | undefined,
+        // tslint:disable-next-line:unified-signatures
+        defaultValue: undefined
+    ): E[K] | undefined;
+    /**
+     * Performs a strict lookup of enum value by key, with a default value
+     * returned if the provided key is null/undefined.
+     * This method is as strict as possible with compile-time types and run-time
+     * validation for a lookup based on a (expected to be) valid key that is
+     * guaranteed to return a valid value.
+     * Throws an error if the provided key is invalid.
+     * @param key - A valid key for this enum (or null/undefined).
+     * @param defaultValue - A valid value to be returned if the key is null/undefined.
+     * @return The value for the provided key, or the default value.
+     * @throws {Error} if the provided key is invalid for this enum.
+     */
+    public getValue<K extends StringKeyOf<E>, DefaultValue extends V>(
+        key: K | null | undefined,
+        defaultValue?: DefaultValue & StrictEnumParam<V, DefaultValue>
+    ): E[K] | DefaultValue | undefined;
     public getValue(
-        key: StringKeyOf<T> | null | undefined,
-        defaultValue?: T[StringKeyOf<T>]
-    ): T[StringKeyOf<T>] | undefined {
+        key: StringKeyOf<E> | null | undefined,
+        defaultValue?: V
+    ): V | undefined {
         const verifiedDefaultValue =
             defaultValue != null
                 ? this.asValueOrThrow(defaultValue)
@@ -638,11 +717,32 @@ export class EnumWrapper<
 export namespace EnumWrapper {
     /**
      * A tuple containing the key and value of a single entry in an enum.
-     * @template T - Type of an enum-like object.
+     *
+     * @template E - The type of the enum-like object that is wrapped by the EnumWrapper..
+     * @template V - The enum value type (always allow this to default!).
+     *               NOTE: This template param shouldn't need to exist. It is a workaround
+     *               to a TypeScript design limitation.
+     *               See: https://github.com/microsoft/TypeScript/issues/35322#issuecomment-558247434
      */
     export type Entry<
-        T extends Record<StringKeyOf<T>, number | string> = any
-    > = Readonly<[StringKeyOf<T>, T[StringKeyOf<T>]]>;
+        E extends Record<StringKeyOf<E>, V>,
+        V extends number | string = E[StringKeyOf<E>]
+    > = Readonly<[StringKeyOf<E>, V]>;
+
+    export namespace Entry {
+        /**
+         * Helper type for defining a generalized EnumWrapper.Entry type for any kind
+         * of enum whose values are assignable to type T.
+         *
+         * Example:
+         *     // Function that works with an EnumWrapper.Entry for any numeric enum
+         *     function foo(entry: EnumWrapper.Entry.OfType<number>): void;
+         */
+        // tslint:disable-next-line:no-shadowed-variable
+        export type OfType<T extends number | string> = Entry<
+            EnumWrapper.OfType<T>
+        >;
+    }
 
     /**
      * A function used in iterating all key/value entries in an enum.
@@ -653,114 +753,50 @@ export namespace EnumWrapper {
      * @return A result. The significance of the result depends on the type of iteration being performed.
      *
      * @template R - The type of the result.
-     * @template V - Type of the enum value.
-     * @template T - Type of an enum-like object.
+     * @template E - The type of the enum-like object that is wrapped by the EnumWrapper..
+     * @template V - The enum value type (always allow this to default!).
+     *               NOTE: This template param shouldn't need to exist. It is a workaround
+     *               to a TypeScript design limitation.
+     *               See: https://github.com/microsoft/TypeScript/issues/35322#issuecomment-558247434
      */
     export type Iteratee<
-        R = any,
-        V extends number | string = number | string,
-        T extends Record<StringKeyOf<T>, V> = any
+        R,
+        E extends Record<StringKeyOf<E>, V>,
+        V extends number | string = E[StringKeyOf<E>]
     > = (
         this: any,
-        value: T[StringKeyOf<T>],
-        key: StringKeyOf<T>,
-        enumWrapper: EnumWrapper<V, T>,
+        value: V,
+        key: StringKeyOf<E>,
+        enumWrapper: EnumWrapper<E, V>,
         index: number
     ) => R;
-}
 
-/**
- * Type alias for an {@link EnumWrapper} for any type of enum-like object that contains only number values.
- *
- * @template T - Type of an enum-like object that contains only number values.
- */
-export type NumberEnumWrapper<
-    T extends Record<StringKeyOf<T>, number> = any
-> = EnumWrapper<number, T>;
-
-export namespace NumberEnumWrapper {
-    /**
-     * Type alias for an {@link EnumWrapper.Entry} for any type of enum-like object that contains only number values.
-     *
-     * @template T - Type of an enum-like object that contains only number values.
-     */
-    export type Entry<
-        T extends Record<StringKeyOf<T>, number> = any
-    > = EnumWrapper.Entry<T>;
+    export namespace Iteratee {
+        /**
+         * Helper type for defining a generalized EnumWrapper.Iteratee type that
+         * returns type R for any kind of enum whose values are assignable to type T.
+         *
+         * Example:
+         *     // Function that works with an EnumWrapper.Iteratee for any numeric enum
+         *     // and returns a boolean value.
+         *     function foo(iteratee: EnumWrapper.Entry.OfType<boolean, number>): void;
+         */
+        // tslint:disable-next-line:no-shadowed-variable
+        export type OfType<
+            R,
+            T extends number | string = number | string
+        > = Iteratee<R, EnumWrapper.OfType<T>>;
+    }
 
     /**
-     * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains only number values.
+     * Helper type for defining a generalized EnumWrapper type for any kind
+     * of enum whose values are assignable to type T.
      *
-     * @template R - The type of the result.
-     * @template T - Type of an enum-like object that contains only number values.
+     * Example:
+     *     // Function that works with an EnumWrapper for any numeric enum
+     *     function foo(enumWrapper: EnumWrapper.OfType<number>): void;
      */
-    export type Iteratee<
-        R = any,
-        T extends Record<StringKeyOf<T>, number> = any
-    > = EnumWrapper.Iteratee<R, number, T>;
-}
-
-/**
- * Type alias for an {@link EnumWrapper} for any type of enum-like object that contains only string values.
- *
- * @template T - Type of an enum-like object that contains only string values.
- */
-export type StringEnumWrapper<
-    T extends Record<StringKeyOf<T>, string> = any
-> = EnumWrapper<string, T>;
-
-export namespace StringEnumWrapper {
-    /**
-     * Type alias for an {@link EnumWrapper.Entry} for any type of enum-like object that contains only string values.
-     *
-     * @template T - Type of an enum-like object that contains only string values.
-     */
-    export type Entry<
-        T extends Record<StringKeyOf<T>, string> = any
-    > = EnumWrapper.Entry<T>;
-
-    /**
-     * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains only string values.
-     *
-     * @template R - The type of the result.
-     * @template T - Type of an enum-like object that contains only string values.
-     */
-    export type Iteratee<
-        R = any,
-        T extends Record<StringKeyOf<T>, string> = any
-    > = EnumWrapper.Iteratee<R, string, T>;
-}
-
-/**
- * Type alias for an {@link EnumWrapper} for any type of enum-like object that contains a mix of
- * number and string values.
- *
- * @template T - Type of an enum-like object that contains a mix of number and string values.
- */
-export type MixedEnumWrapper<
-    T extends Record<StringKeyOf<T>, number | string> = any
-> = EnumWrapper<number | string, T>;
-
-export namespace MixedEnumWrapper {
-    /**
-     * Type alias for an {@link EnumWrapper.Entry} for any type of enum-like object that contains a mix of
-     * number and string values.
-     *
-     * @template T - Type of an enum-like object that contains a mix of number and string values.
-     */
-    export type Entry<
-        T extends Record<StringKeyOf<T>, number | string> = any
-    > = EnumWrapper.Entry<T>;
-
-    /**
-     * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains a mix of
-     * number and string values.
-     *
-     * @template R - The type of the result.
-     * @template T - Type of an enum-like object that contains a mix of number and string values.
-     */
-    export type Iteratee<
-        R = any,
-        T extends Record<StringKeyOf<T>, number | string> = any
-    > = EnumWrapper.Iteratee<R, number | string, T>;
+    export type OfType<T extends number | string> = EnumWrapper<
+        Record<string, T>
+    >;
 }

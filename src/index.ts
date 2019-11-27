@@ -1,3 +1,4 @@
+export * from "./EnumObject";
 export * from "./EnumWrapper";
 export * from "./EnumValueVisitor";
 export * from "./EnumValueVisitee";

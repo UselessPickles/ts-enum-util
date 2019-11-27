@@ -21,7 +21,7 @@ declare const keyOrUndefined: keyof typeof TestEnum | undefined;
 
 const enumWrapper = $enum(TestEnum);
 
-// $ExpectType EnumWrapper<number, { A: number; B: number; C: number; }>
+// $ExpectType EnumWrapper<{ A: number; B: number; C: number; }, number>
 enumWrapper;
 
 // $ExpectType number
@@ -62,13 +62,13 @@ for (const entry of enumWrapper.entries()) {
 }
 
 // $ExpectType void
-enumWrapper.forEach((value, key, collection, index) => {
+enumWrapper.forEach((value, key, wrapper, index) => {
     // $ExpectType number
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<number, { A: number; B: number; C: number; }>
-    collection;
+    // $ExpectType EnumWrapper<{ A: number; B: number; C: number; }, number>
+    wrapper;
     // $ExpectType number
     index;
 
@@ -76,13 +76,13 @@ enumWrapper.forEach((value, key, collection, index) => {
 });
 
 // $ExpectType number[]
-enumWrapper.map((value, key, collection, index) => {
+enumWrapper.map((value, key, wrapper, index) => {
     // $ExpectType number
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<number, { A: number; B: number; C: number; }>
-    collection;
+    // $ExpectType EnumWrapper<{ A: number; B: number; C: number; }, number>
+    wrapper;
     // $ExpectType number
     index;
 

@@ -17,7 +17,7 @@ declare const numstrOrUndefined: number | string | undefined;
 
 const enumWrapper = $enum(TestEnum);
 
-// $ExpectType EnumWrapper<string | number, { [key: string]: string | number; }>
+// $ExpectType EnumWrapper<{ [key: string]: string | number; }, string | number>
 enumWrapper;
 
 // $ExpectType number
@@ -58,13 +58,13 @@ for (const entry of enumWrapper.entries()) {
 }
 
 // $ExpectType void
-enumWrapper.forEach((value, key, collection, index) => {
+enumWrapper.forEach((value, key, wrapper, index) => {
     // $ExpectType string | number
     value;
     // $ExpectType string
     key;
-    // $ExpectType EnumWrapper<string | number, { [key: string]: string | number; }>
-    collection;
+    // $ExpectType EnumWrapper<{ [key: string]: string | number; }, string | number>
+    wrapper;
     // $ExpectType number
     index;
 
@@ -72,13 +72,13 @@ enumWrapper.forEach((value, key, collection, index) => {
 });
 
 // $ExpectType number[]
-enumWrapper.map((value, key, collection, index) => {
+enumWrapper.map((value, key, wrapper, index) => {
     // $ExpectType string | number
     value;
     // $ExpectType string
     key;
-    // $ExpectType EnumWrapper<string | number, { [key: string]: string | number; }>
-    collection;
+    // $ExpectType EnumWrapper<{ [key: string]: string | number; }, string | number>
+    wrapper;
     // $ExpectType number
     index;
 

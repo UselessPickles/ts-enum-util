@@ -22,14 +22,20 @@ declare const numstrOrUndefined: number | string | undefined;
 declare const key: keyof typeof TestEnum;
 declare const keyOrNull: keyof typeof TestEnum | null;
 declare const keyOrUndefined: keyof typeof TestEnum | undefined;
+declare const keySubset: "C";
+declare const keySubsetOrNull: "C" | null;
+declare const keySubsetOrUndefined: "C" | undefined;
 
 declare const value: TestEnum;
 declare const valueOrNull: TestEnum | null;
 declare const valueOrUndefined: TestEnum | undefined;
+declare const valueSubset: TestEnum.A;
+declare const valueSubsetOrNull: TestEnum.A | null;
+declare const valueSubsetOrUndefined: TestEnum.A | undefined;
 
 const enumWrapper = $enum(TestEnum);
 
-// $ExpectType EnumWrapper<string | number, typeof TestEnum>
+// $ExpectType EnumWrapper<typeof TestEnum, TestEnum>
 enumWrapper;
 
 // $ExpectType number
@@ -70,13 +76,13 @@ for (const entry of enumWrapper.entries()) {
 }
 
 // $ExpectType void
-enumWrapper.forEach((value, key, collection, index) => {
+enumWrapper.forEach((value, key, wrapper, index) => {
     // $ExpectType TestEnum
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<string | number, typeof TestEnum>
-    collection;
+    // $ExpectType EnumWrapper<typeof TestEnum, TestEnum>
+    wrapper;
     // $ExpectType number
     index;
 
@@ -84,13 +90,13 @@ enumWrapper.forEach((value, key, collection, index) => {
 });
 
 // $ExpectType number[]
-enumWrapper.map((value, key, collection, index) => {
+enumWrapper.map((value, key, wrapper, index) => {
     // $ExpectType TestEnum
     value;
     // $ExpectType "A" | "B" | "C"
     key;
-    // $ExpectType EnumWrapper<string | number, typeof TestEnum>
-    collection;
+    // $ExpectType EnumWrapper<typeof TestEnum, TestEnum>
+    wrapper;
     // $ExpectType number
     index;
 
@@ -237,6 +243,12 @@ enumWrapper.getKey(value);
 enumWrapper.getKey(valueOrNull);
 // $ExpectType "A" | "B" | "C" | undefined
 enumWrapper.getKey(valueOrUndefined);
+// $ExpectType "A"
+enumWrapper.getKey(valueSubset);
+// $ExpectType "A" | undefined
+enumWrapper.getKey(valueSubsetOrNull);
+// $ExpectType "A" | undefined
+enumWrapper.getKey(valueSubsetOrUndefined);
 // $ExpectError
 enumWrapper.getKey(str);
 // $ExpectError
@@ -246,6 +258,14 @@ enumWrapper.getKey(numstr);
 enumWrapper.getKey(valueOrNull, key);
 // $ExpectType "A" | "B" | "C" | undefined
 enumWrapper.getKey(valueOrNull, keyOrUndefined);
+// $ExpectType "A" | undefined
+enumWrapper.getKey(valueSubsetOrNull, undefined);
+// $ExpectType "A" | "B" | "C"
+enumWrapper.getKey(valueSubsetOrNull, key);
+// $ExpectType "A" | "C"
+enumWrapper.getKey(valueSubsetOrNull, "C");
+// $ExpectType "A" | "C" | undefined
+enumWrapper.getKey(valueSubsetOrNull, keySubsetOrUndefined);
 // $ExpectError
 enumWrapper.getKey(valueOrNull, str);
 // $ExpectError
@@ -257,6 +277,12 @@ enumWrapper.getValue(key);
 enumWrapper.getValue(keyOrNull);
 // $ExpectType TestEnum | undefined
 enumWrapper.getValue(keyOrUndefined);
+// $ExpectType TestEnum.C
+enumWrapper.getValue(keySubset);
+// $ExpectType TestEnum.C | undefined
+enumWrapper.getValue(keySubsetOrNull);
+// $ExpectType TestEnum.C | undefined
+enumWrapper.getValue(keySubsetOrUndefined);
 // $ExpectError
 enumWrapper.getValue(str);
 
@@ -270,6 +296,14 @@ enumWrapper.getValue(keyOrNull, TestEnum.C);
 enumWrapper.getValue(keyOrNull, value);
 // $ExpectType TestEnum | undefined
 enumWrapper.getValue(keyOrNull, valueOrUndefined);
+// $ExpectType TestEnum.C | undefined
+enumWrapper.getValue(keySubsetOrNull, undefined);
+// $ExpectType TestEnum
+enumWrapper.getValue(keySubsetOrNull, value);
+// $ExpectType TestEnum.A | TestEnum.C
+enumWrapper.getValue(keySubsetOrNull, TestEnum.A);
+// $ExpectType TestEnum.A | TestEnum.C | undefined
+enumWrapper.getValue(keySubsetOrNull, valueSubsetOrUndefined);
 // $ExpectError
 enumWrapper.getValue(keyOrNull, str);
 // $ExpectError
