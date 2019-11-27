@@ -12,8 +12,8 @@ declare const strOrNull: string | null;
 declare const strOrUndefined: string | undefined;
 
 declare const num: number;
-declare const numOrNull: number | null;
-declare const numOrUndefined: number | undefined;
+
+declare const numstr: number | string;
 
 declare const key: keyof typeof TestEnum;
 declare const keyOrNull: keyof typeof TestEnum | null;
