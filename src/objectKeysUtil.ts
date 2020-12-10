@@ -81,8 +81,8 @@ export function getOwnEnumerableNonNumericKeysES3<
  * @param obj - An object.
  * @return A list of all the object's own enumerable string (non-numeric) keys.
  */
-export const getOwnEnumerableNonNumericKeys = Object.getOwnPropertyNames
+export const getOwnEnumerableNonNumericKeys = !!Object.getOwnPropertyNames
     ? getOwnEnumerableNonNumericKeysES6
-    : Object.keys
+    : !!Object.keys
     ? getOwnEnumerableNonNumericKeysES5
     : getOwnEnumerableNonNumericKeysES3;
