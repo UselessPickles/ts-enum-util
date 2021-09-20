@@ -22,11 +22,11 @@
         "clean:dist": "rimraf dist",
         "clean:coverage": "rimraf coverage",
         "clean:pack": "rimraf ts-enum-util-*.tgz",
-        "compile": "tsc --project tsconfig.json --noEmit --pretty --noErrorTruncation",
+        "typecheck": "tsc --project tsconfig.typecheck.json --noEmit --pretty --noErrorTruncation",
         "lint": "tslint --config tslint.json --project tsconfig.json",
         "lint:fix": "npm run lint -- --fix",
-        "prettier:test": "prettier --list-different \"{src,tests,type_tests}/**/*.ts\"",
-        "prettier:fix": "prettier --write \"{src,tests,type_tests}/**/*.ts\"",
+        "prettier:test": "prettier --list-different \"{src,tests,tsd_project}/**/*.ts\"",
+        "prettier:fix": "prettier --write \"{src,tests,tsd_project}/**/*.ts\"",
         "build:types": "tsc --project src/tsconfig.json --pretty --noErrorTruncation --emitDeclarationOnly true --declarationMap true --outDir dist/types",
         "build:commonjs": "tsc --project src/tsconfig.json --pretty --removeComments --noErrorTruncation --declaration false --outDir dist/commonjs",
         "build:es": "tsc --project src/tsconfig.json --pretty --removeComments --noErrorTruncation --declaration false -m es6 --outDir dist/es",
@@ -34,10 +34,9 @@
         "pack": "run-p clean:pack build && npm pack",
         "jest": "jest",
         "jest:coverage": "npm run clean:coverage && jest --coverage",
-        "dtslint:v2_9_plus": "dtslint --expectOnly --localTs node_modules/typescript/lib type_tests/v2_9_plus",
-        "dtslint": "run-s clean:dist build:types dtslint:v2_9_plus",
-        "test": "run-s compile prettier:test lint dtslint jest",
-        "test:coverage": "run-s compile prettier:test lint dtslint jest:coverage",
+        "tsd": "tsd tsd_project",
+        "test": "run-s typecheck prettier:test lint tsd jest",
+        "test:coverage": "run-s typecheck prettier:test lint tsd jest:coverage",
         "build:travis": "run-p test:coverage build && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
     },
     "author": {
@@ -49,15 +48,15 @@
     "devDependencies": {
         "@types/jest": "26.0.18",
         "coveralls": "3.1.0",
-        "dtslint": "4.0.7",
         "jest": "26.6.3",
         "npm-run-all": "4.1.5",
         "prettier": "1.19.1",
         "rimraf": "3.0.2",
         "ts-jest": "26.4.4",
+        "tsd": "0.17.0",
         "tslint": "5.20.1",
         "tslint-config-prettier": "1.18.0",
-        "typescript": "4.1.2"
+        "typescript": "4.4.2"
     },
     "keywords": [
         "typescript",

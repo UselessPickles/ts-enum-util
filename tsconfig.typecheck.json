@@ -1,0 +1,7 @@
+/* Config used for generally type-checking all code within the project (including unit tests, etc) to discover
+ * compiler errors, but not for actually building the project distribution.
+ * See tsconfig.json in the src/ directory for project distribution build config. */
+{
+    "extends": "./tsconfig.json",
+    "exclude": ["node_modules", "dist", "type_tests"]
+}
