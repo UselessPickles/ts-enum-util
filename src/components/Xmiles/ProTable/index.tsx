@@ -36,8 +36,10 @@ export default <
   actionRef,
   form,
   request,
+  manualRequest,
   ...props
 }: XmilesTableProps<T, U>) => {
+  const visCount = useRef(1);
   const [innerform] = Form.useForm(),
     col: XmilesCol[] = columns || [],
     tableRef = useRef(null),
@@ -56,15 +58,23 @@ export default <
 
   if (typeof request === 'function') {
     injectProps.request = (p, ...args) => {
+      if (visCount.current >= 1 && manualRequest) {
+        visCount.current--;
+        return Promise.resolve({
+          data: [],
+          success: true,
+          total: 0,
+          page: 1,
+        });
+      }
       const params = innerform?.getFieldsValue();
+
       return request({ ...params, ...p }, ...args);
     };
   }
 
   function reload() {
-    (
-      forwardActionRef as React.MutableRefObject<ProCoreActionType>
-    ).current?.reloadAndRest?.();
+    (forwardActionRef as React.MutableRefObject<ProCoreActionType>).current?.reloadAndRest?.();
   }
 
   function columnEmptyTextHOF(col: XmilesCol): XmilesCol['render'] {
@@ -86,12 +96,7 @@ export default <
     <Space>
       <XmilesSearch
         columns={col}
-        formProps={{
-          onFinish: reload,
-          onReset: reload,
-          ...form,
-          form: innerform,
-        }}
+        formProps={{ onFinish: reload, onReset: reload, ...form, form: innerform }}
       />
 
       <div
@@ -126,8 +131,7 @@ export default <
           // 分页注入， 是否应该允许重载？p
           pagination={{
             showQuickJumper: true,
-            showTotal: (total, range) =>
-              `共 ${total} 条记录 第 ${range?.[0]}/${range?.[1]} 条`,
+            showTotal: (total, range) => `共 ${total} 条记录 第 ${range?.[0]}/${range?.[1]} 条`,
             size: 'default',
           }}
           search={false}

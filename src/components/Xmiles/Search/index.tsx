@@ -1,16 +1,6 @@
 import theme from '@/../config/theme';
 import React, { createElement, ReactElement, useRef, useState } from 'react';
-import {
-  Button,
-  Card,
-  Col,
-  Dropdown,
-  Form,
-  Input,
-  Row,
-  Space,
-  ColProps,
-} from 'antd';
+import { Button, Card, Col, Dropdown, Form, Input, Row, Space, ColProps } from 'antd';
 import { FormInstance, FormProps } from 'antd/lib/form/Form';
 import SearchForm from '@/components/SearchForm';
 import valueTypeRegister from './valueTypeRegister';
@@ -43,8 +33,7 @@ export const FormItemActive = styled(FormItem)<{ bordered?: boolean }>`
 
   &.ant-form-item-has-error {
     border-color: red;
-    .ant-select:not(.ant-select-disabled):not(.ant-select-customize-input)
-      .ant-select-selector {
+    .ant-select:not(.ant-select-disabled):not(.ant-select-customize-input) .ant-select-selector {
       border-color: rgba(0, 0, 0, 0) !important;
     }
 
@@ -65,8 +54,8 @@ export const FormItemActive = styled(FormItem)<{ bordered?: boolean }>`
   .ant-form-item-explain,
   .ant-form-item-extra {
     position: absolute;
-    right: 10%;
     top: 20%;
+    right: 10%;
   }
 `;
 
@@ -80,12 +69,7 @@ interface XmilesSearchProps {
 /**
  * 带浮窗的SearchForm
  */
-export default ({
-  columns,
-  formProps,
-  colProps,
-  btnExtr,
-}: XmilesSearchProps) => {
+export default ({ columns, formProps, colProps, btnExtr }: XmilesSearchProps) => {
   const hasCollapsed = [...columns]?.some((col) => col.isCollapsed);
   const [dropdownVis, setDropdownVis] = useState(false);
   const wrapCard = useRef<HTMLElement>(null);
@@ -133,17 +117,8 @@ export default ({
             <FormItem shouldUpdate={(pre, next) => pre !== next} noStyle>
               {({ getFieldValue }) =>
                 [...columns]?.reduce((acc: JSX.Element[], cur, idx) => {
-                  const {
-                      hideInSearch,
-                      dataIndex,
-                      isCollapsed,
-                      order,
-                      colSpan,
-                      colSize,
-                    } = cur,
-                    validValue = isValidValue(
-                      dataIndex && getFieldValue?.(dataIndex),
-                    ),
+                  const { hideInSearch, dataIndex, isCollapsed, order, colSpan, colSize } = cur,
+                    validValue = isValidValue(dataIndex && getFieldValue?.(dataIndex)),
                     noValue = isCollapsed && !validValue,
                     style = isCollapsed ? { background: '#E8EAEC' } : {},
                     // 倍数 兼容 新旧api
@@ -210,46 +185,35 @@ export default ({
                         {/**
                          * 渲染逻辑类似上面，但是只渲染隐藏项
                          */}
-                        {[...columns]?.reduce(
-                          (acc: JSX.Element[], cur, idx) => {
-                            const {
-                                hideInSearch,
-                                dataIndex,
-                                isCollapsed,
-                                order,
-                                colSpan,
-                                colSize,
-                              } = cur,
-                              // 倍数 兼容 新旧api
-                              mulSpan = colSpan || colSize || 1;
-                            let mulColProp = { ...defaultCol };
-                            if (mulSpan !== 1) {
-                              for (const k in mulColProp) {
-                                if (typeof mulColProp[k] === 'number') {
-                                  const calc = mulColProp?.[k] * mulSpan;
-                                  mulColProp[k] = calc > 24 ? 24 : calc;
-                                }
+                        {[...columns]?.reduce((acc: JSX.Element[], cur, idx) => {
+                          const { hideInSearch, dataIndex, isCollapsed, order, colSpan, colSize } =
+                              cur,
+                            // 倍数 兼容 新旧api
+                            mulSpan = colSpan || colSize || 1;
+                          let mulColProp = { ...defaultCol };
+                          if (mulSpan !== 1) {
+                            for (const k in mulColProp) {
+                              if (typeof mulColProp[k] === 'number') {
+                                const calc = mulColProp?.[k] * mulSpan;
+                                mulColProp[k] = calc > 24 ? 24 : calc;
                               }
                             }
+                          }
 
-                            const colProp = {
-                              order: order || 24,
-                              key: dataIndex ? dataIndex.toString() : idx,
-                              ...mulColProp,
-                            };
+                          const colProp = {
+                            order: order || 24,
+                            key: dataIndex ? dataIndex.toString() : idx,
+                            ...mulColProp,
+                          };
 
-                            return hideInSearch || !isCollapsed
-                              ? acc
-                              : acc.concat(
-                                  cur?.renderItem?.(cur, colProp) ?? (
-                                    <Col {...colProp}>
-                                      {renderItem(cur, innerform)}
-                                    </Col>
-                                  ),
-                                );
-                          },
-                          [],
-                        )}
+                          return hideInSearch || !isCollapsed
+                            ? acc
+                            : acc.concat(
+                                cur?.renderItem?.(cur, colProp) ?? (
+                                  <Col {...colProp}>{renderItem(cur, innerform)}</Col>
+                                ),
+                              );
+                        }, [])}
                       </Row>
                     </Card>
                   }
@@ -280,7 +244,7 @@ export default ({
                   <Button type="link" htmlType="reset">
                     重置
                   </Button>
-                  {...btnExtr ?? []}
+                  {btnExtr ?? []}
                 </Space>
               </Form.Item>
             </Col>
@@ -298,8 +262,7 @@ export default ({
  * @returns FormItem实例
  */
 function renderItem(col: XmilesCol, form: FormInstance) {
-  const { title, dataIndex, tooltip, formItemProps, renderFormItem, bordered } =
-      col,
+  const { title, dataIndex, tooltip, formItemProps, renderFormItem, bordered } = col,
     Ele = renderCol(col),
     noStyle = Ele?.props?._just_placeholder;
 
@@ -312,11 +275,7 @@ function renderItem(col: XmilesCol, form: FormInstance) {
       noStyle={noStyle}
       {...formItemProps}
     >
-      {renderFormItem?.(
-        col as any,
-        { type: 'form', defaultRender: () => Ele },
-        form,
-      ) ?? Ele}
+      {renderFormItem?.(col as any, { type: 'form', defaultRender: () => Ele }, form) ?? Ele}
     </FormItemActive>
   );
 }
@@ -326,9 +285,7 @@ function renderItem(col: XmilesCol, form: FormInstance) {
  * @param valueEnum 兼容pro-table的value枚举，支持Record和Map
  * @returns entries 数组[[k1, v1], [k2, v2]]
  */
-export function getValueEnum(
-  valueEnum: Map<any, any> | Record<any, any> | undefined,
-) {
+export function getValueEnum(valueEnum: Map<any, any> | Record<any, any> | undefined) {
   if (valueEnum instanceof Map) {
     return valueEnum?.entries();
   } else if (typeof valueEnum === 'object') {

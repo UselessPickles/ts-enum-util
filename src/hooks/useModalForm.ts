@@ -6,7 +6,6 @@ export interface InitValue {
   formProps?: FormProps;
   data?: any;
   form?: FormInstance;
-  onSucess?: (val: any) => any;
 }
 
 export default (initValue?: InitValue) => {
@@ -28,7 +27,6 @@ export default (initValue?: InitValue) => {
   });
 
   const [data, setData] = useState<any>(initValue?.data);
-  const [onSuccess, setOnSuccess] = useState(initValue?.onSucess);
 
   function close() {
     setModalProps((pre) => ({ ...pre, visible: false }));
@@ -44,8 +42,5 @@ export default (initValue?: InitValue) => {
     setFormProps,
     data,
     setData,
-
-    onSuccess,
-    setOnSuccess,
   };
 };

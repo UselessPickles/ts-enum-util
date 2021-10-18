@@ -2,10 +2,9 @@
  * request 网络请求工具
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
-import { extend, ResponseError } from 'umi-request';
+import { extend, ResponseError, RequestOptionsInit } from 'umi-request';
 import { message, notification } from 'antd';
 import { history } from 'umi';
-import { RequestOptionsInit } from 'umi-request';
 export type NOTIFY_TYPE = 'FAIL' | 'SUCCESS' | boolean | undefined;
 
 export interface configType {
@@ -40,10 +39,7 @@ export interface CustomRequestConfig extends RequestOptionsInit {
   notify?: NOTIFY_TYPE;
 }
 
-export type ResponseHandler = (
-  response: any,
-  options?: CustomRequestConfig,
-) => void;
+export type ResponseHandler = (response: any, options?: CustomRequestConfig) => void;
 
 /**
  * 配置request请求时的默认参数
@@ -58,10 +54,7 @@ const throwKeys: RegExp[] = [/权限标识列表为空/];
 
 function errorHandler(err: ResponseError) {
   if ((err.request as any)?.options?.data?.data?.['noError']) return;
-  if (
-    throwKeys.some((item) => item.test(err.message)) ||
-    err.request.options['throwErr']
-  ) {
+  if (throwKeys.some((item) => item.test(err.message)) || err.request.options['throwErr']) {
     throw new Error(err.message);
   }
   if (err.message === 'redirectToLogin') {
@@ -100,8 +93,7 @@ RESTful.interceptors.request.use(
 RESTful.interceptors.request.use(
   (url, { fullUrl, service, api, ...options }: CustomRequestConfig) => {
     const fullApi =
-      fullUrl ??
-      config.REQUEST_URL + (service ?? config.SERVICE) + '/api/' + (api ?? url);
+      fullUrl ?? config.REQUEST_URL + (service ?? config.SERVICE) + '/api/' + (api ?? url);
 
     if (!fullApi) {
       throw new Error('invalid url');
@@ -147,9 +139,9 @@ const authHandler: ResponseHandler = (response) => {
         },
       });
       try {
-        window.parent &&
-          window !== window.top &&
-          window.parent.location.reload();
+        if (window !== window?.top) {
+          window?.parent?.location?.reload();
+        }
       } catch (e) {
         console.error(e);
       }
@@ -162,9 +154,7 @@ const notifyHandler: ResponseHandler = (response, options) => {
   switch (response?.result?.status) {
     case -401:
     case 0: {
-      if (
-        ([true, 'FAIL'] as NOTIFY_TYPE[]).includes(options?.notify ?? 'FAIL')
-      ) {
+      if (([true, 'FAIL'] as NOTIFY_TYPE[]).includes(options?.notify ?? 'FAIL')) {
         throw new Error(response?.result?.msg ?? '网络异常');
       }
       break;
@@ -182,9 +172,7 @@ const notifyHandler: ResponseHandler = (response, options) => {
 RESTful.interceptors.response.use(
   async (response, options: CustomRequestConfig) => {
     if (response.ok) {
-      if (
-        response?.headers?.get?.('Content-Type')?.includes?.('application/json')
-      ) {
+      if (response?.headers?.get?.('Content-Type')?.includes?.('application/json')) {
         const res = await response?.clone().json();
         authHandler(res);
         notifyHandler(res, options);
