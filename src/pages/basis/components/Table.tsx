@@ -1,14 +1,14 @@
 import { Button, Space, Dropdown, Menu } from 'antd';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
-import { XmilesCol } from '@/components/Xmiles/Col';
+import type { XmilesCol } from '@/components/Xmiles/Col';
 import { PlusOutlined } from '@ant-design/icons';
 
-import Row from '../models';
+import type Row from '../models';
 import { list } from '../services';
 import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import useModalForm from '@/hooks/useModalForm';
-import ModalForm from '@/components/ModalForm';
+import ModalForm from './ModalForm';
 
 export default function () {
   const { actionRef, formRef } = useProTable();

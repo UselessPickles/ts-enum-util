@@ -11,4 +11,17 @@ export default defineConfig({
   fastRefresh: {},
   // 不用dva
   dva: false,
+  proxy: {
+    '/utils_service': {
+      target: 'https://marketing-dev.yingzhongshare.com',
+      changeOrigin: true,
+    },
+    '/commercialize-manager': {
+      target: 'https://marketing-dev.yingzhongshare.com',
+      changeOrigin: true,
+      pathRewrite: {
+        '/commercialize-manager': '',
+      },
+    },
+  },
 });
