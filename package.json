@@ -21,13 +21,17 @@
   },
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
+    "@ant-design/pro-table": "^2.56.2",
     "react": "17.x",
     "react-dom": "17.x",
-    "umi": "^3.5.20"
+    "styled-components": "^5.3.1",
+    "umi": "^3.5.20",
+    "unstated-next": "^1.1.0"
   },
   "devDependencies": {
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "@types/styled-components": "^5.1.15",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.5.20",
     "lint-staged": "^10.0.7",
