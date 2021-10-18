@@ -24,6 +24,7 @@
     "@ant-design/pro-table": "^2.56.2",
     "react": "17.x",
     "react-dom": "17.x",
+    "react-query": "^3.27.0",
     "styled-components": "^5.3.1",
     "umi": "^3.5.20",
     "unstated-next": "^1.1.0"
