@@ -1,17 +1,17 @@
-import React, { cloneElement, useReducer } from 'react';
+import { cloneElement, useReducer } from 'react';
 import useDebounce from '@/hooks/useDebounce';
 import useThrottle from '@/hooks/useThrottle';
-import { Empty, Spin, Select, SelectProps } from 'antd';
-import ChildrenRender from '@/components/ChildrenRender';
+import { Empty, Spin, Select } from 'antd';
+
 import { useQuery } from 'react-query';
-import { SelectValue } from 'antd/es/select';
+
 import { curry } from '../utils';
 
-export type LITMIT_TYPE = 'debounce' | 'throttle';
+export type LIMIT_TYPE = 'debounce' | 'throttle';
 
 export interface SearchAsyncParam {
   delay?: number;
-  limitType?: LITMIT_TYPE;
+  limitType?: LIMIT_TYPE;
   query: (value: any) => ReturnType<typeof useQuery>;
   reducer?: () => ReturnType<typeof useReducer>;
   trigger?: string[];
@@ -31,64 +31,8 @@ export const defaultReducer = () =>
 /**
  * api搜索切片
  */
-export default (param: SearchAsyncParam) =>
-  (Element: ReturnType<typeof Select>) =>
-    (
-      <ChildrenRender>
-        {(forwardProps) => SearchAsync(param, forwardProps, Element)}
-      </ChildrenRender>
-    );
 
-export const SearchAsync = curry(
-  (
-    {
-      delay = 800,
-      limitType = 'throttle',
-      query,
-      reducer = defaultReducer,
-      trigger = ['onSearch', 'onDeselect'],
-    }: SearchAsyncParam,
-    forwardProps: SelectProps<SelectValue>,
-    Element: ReturnType<typeof Select>,
-  ) => {
-    const [state, dispatch] = reducer();
-    const { data: options, isLoading: loading } = query(state);
-
-    function onDispatch(event: any) {
-      const fn = (...args: any) => {
-        dispatch?.({ type: event, payload: args });
-        Element?.props?.[event]?.(...args);
-        forwardProps?.[event]?.(...args);
-      };
-      return {
-        debounce: useDebounce(fn, delay),
-        throttle: useThrottle(fn, delay),
-      }[limitType];
-    }
-
-    return cloneElement(Element, {
-      ...forwardProps,
-      showSearch: true,
-      filterOption: false,
-      notFoundContent: loading ? (
-        <Spin style={{ width: '100%' }} tip="loading..." />
-      ) : (
-        <Empty />
-      ),
-      options,
-      loading,
-      ...trigger?.reduce(
-        (acc, event) => ({
-          ...acc,
-          [event]: onDispatch(event),
-        }),
-        {},
-      ),
-    });
-  },
-);
-
-export const PureSearchAsync = curry(
+export default curry(
   (
     {
       delay = 800,
