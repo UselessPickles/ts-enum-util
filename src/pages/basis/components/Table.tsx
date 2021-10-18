@@ -66,7 +66,7 @@ export default function () {
               page_size: params.pageSize,
             },
           };
-          const res = await list(data);
+          const res = await list({ data });
 
           return {
             data: res?.data?.total_datas || [],
