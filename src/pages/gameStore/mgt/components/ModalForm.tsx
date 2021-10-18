@@ -40,7 +40,7 @@ export default ({
       formProps={{ onFinish: onSubmit, ...formProps }}
       modalProps={{ onOk: onSubmit, ...modalProps }}
     >
-      <Item label="产品" name="prdId" rules={[{ required: true }]}>
+      <Item name="tab">
         <Input />
       </Item>
     </ModalForm>

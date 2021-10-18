@@ -6,7 +6,8 @@ export default defineConfig({
   },
   routes: [
     { path: '/', component: '@/pages/index' },
-    { path: '/basis', component: '@/pages/basis' },
+    { path: '/gameStore/mgt', component: '@/pages/gameStore/mgt' },
+    { path: '/gameStore/sync', component: '@/pages/gameStore/sync' },
   ],
   fastRefresh: {},
   // 不用dva
