@@ -5,15 +5,25 @@ export default defineConfig({
     type: 'none',
   },
   routes: [
-    { path: '/', component: '@/pages/index' },
+    { path: '/login', component: '@/pages/Login' },
+    { path: '/', redirect: '/home', exact: true },
+
     {
-      path: '/gameStore/mgt',
+      path: '/',
+      component: '@/layouts/BasicLayout',
       routes: [
-        { path: '/gameStore/mgt/', redirect: '/gameStore/mgt/test' },
-        { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
+        { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authroized'] },
+        { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authroized'] },
+
+        {
+          path: '/gameStore/mgt',
+          routes: [
+            { path: '/gameStore/mgt/', redirect: '/gameStore/mgt/test' },
+            { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
+          ],
+        },
       ],
     },
-    { path: '/gameStore/sync', component: '@/pages/gameStore/sync' },
   ],
   fastRefresh: {},
   // 不用dva
