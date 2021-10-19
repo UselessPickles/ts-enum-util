@@ -5,8 +5,14 @@ export default defineConfig({
     type: 'none',
   },
   routes: [
-    { path: '/', component: '@/pages/index' },
-    { path: '/basis', component: '@/pages/basis' },
+    {
+      path: '/',
+      component: '@/layouts/index',
+      routes: [
+        { path: '/', component: '@/pages/index' },
+        { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authroized.tsx'] },
+      ],
+    },
   ],
   fastRefresh: {},
   // 不用dva
