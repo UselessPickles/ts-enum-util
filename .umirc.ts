@@ -5,12 +5,14 @@ export default defineConfig({
     type: 'none',
   },
   routes: [
+    { path: '/login', component: '@/pages/Login' },
+    { path: '/', redirect: '/home', exact: true },
     {
       path: '/',
-      component: '@/layouts/index',
+      component: '@/layouts/BasicLayout',
       routes: [
-        { path: '/', component: '@/pages/index' },
-        { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authroized.tsx'] },
+        { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authroized'] },
+        { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authroized'] },
       ],
     },
   ],

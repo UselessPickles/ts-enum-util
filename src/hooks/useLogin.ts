@@ -9,7 +9,7 @@ function useLogin() {
   const logIn = () => {
     setLoginStatus(true);
     localStorage.setItem('token', 'true');
-    // history.push({ pathname: '/home' })
+    history.push({ pathname: '/home' });
   };
   const logOut = () => {
     setLoginStatus(false);

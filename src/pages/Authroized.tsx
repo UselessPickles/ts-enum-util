@@ -12,7 +12,7 @@ const Authroized: React.FC = ({ children, ...other }) => {
 
   if (!loginStatus) {
     // history.replace('/')
-    return <Redirect to="/" />;
+    return <Redirect to="/login" />;
   } else {
     return <>{children}</>;
   }
