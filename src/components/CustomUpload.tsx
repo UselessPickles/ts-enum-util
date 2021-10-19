@@ -1,5 +1,6 @@
 import React from 'react';
-import { Upload, UploadProps } from 'antd';
+import type { UploadProps } from 'antd';
+import { Upload } from 'antd';
 import RESTful from '@/utils/RESTful';
 
 export default (props: React.PropsWithChildren<UploadProps>) => (

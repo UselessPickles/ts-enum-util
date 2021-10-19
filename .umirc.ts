@@ -6,7 +6,13 @@ export default defineConfig({
   },
   routes: [
     { path: '/', component: '@/pages/index' },
-    { path: '/gameStore/mgt', component: '@/pages/gameStore/mgt' },
+    {
+      path: '/gameStore/mgt',
+      routes: [
+        { path: '/gameStore/mgt/', redirect: '/gameStore/mgt/test' },
+        { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
+      ],
+    },
     { path: '/gameStore/sync', component: '@/pages/gameStore/sync' },
   ],
   fastRefresh: {},

@@ -13,7 +13,6 @@ export default (initValue?: InitValue) => {
 
   const [modalProps, setModalProps] = useState<ModalProps>({
     bodyStyle: { maxHeight: '80vh', overflow: 'scroll' },
-    centered: true,
     onCancel: close,
     ...initValue?.modalProps,
   });

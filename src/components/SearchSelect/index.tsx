@@ -1,6 +1,7 @@
 import React from 'react';
-import { Select, SelectProps } from 'antd';
-import { RefSelectProps } from 'antd/lib/select';
+import type { SelectProps } from 'antd';
+import { Select } from 'antd';
+import type { RefSelectProps } from 'antd/lib/select';
 import Search from '@/decorators/Select/Search';
 import { compose } from '@/decorators/utils';
 
