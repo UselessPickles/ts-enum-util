@@ -12,6 +12,7 @@ export default (initValue?: InitValue) => {
   const [form] = Form.useForm(initValue?.form);
 
   const [modalProps, setModalProps] = useState<ModalProps>({
+    width: 600,
     bodyStyle: { maxHeight: '80vh', overflow: 'scroll' },
     onCancel: close,
     ...initValue?.modalProps,

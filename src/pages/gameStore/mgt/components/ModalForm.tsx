@@ -1,4 +1,16 @@
-import { Form, message, Radio, Input, Image, Space, Button, DatePicker, Checkbox } from 'antd';
+import {
+  Form,
+  message,
+  Radio,
+  Input,
+  Image,
+  Space,
+  Button,
+  DatePicker,
+  Checkbox,
+  Descriptions,
+  Popconfirm,
+} from 'antd';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
@@ -47,7 +59,7 @@ export default ({
   return (
     <ModalForm
       formProps={{ onFinish: onSubmit, initialValues: { tab: '商务信息' }, ...formProps }}
-      modalProps={{ onOk: onSubmit, visible: true, ...modalProps }}
+      modalProps={{ onOk: onSubmit, ...modalProps }}
     >
       <Item name="tab" wrapperCol={{ span: 24 }}>
         <Radio.Group optionType="button" options={Options(TYPE).toOpt} />
@@ -102,6 +114,23 @@ function GameInfo() {
           <Image src="error" width="100%" />
         </Space>
       </Item>
+
+      <Item name="视屏" label="视屏">
+        <video controls width="250">
+          <source src="/media/cc0-videos/flower.webm" type="video/webm" />
+          <source src="/media/cc0-videos/flower.mp4" type="video/mp4" />
+          Sorry, your browser doesn't support embedded videos.
+        </video>
+      </Item>
+
+      <Item name="游戏动态图" label="游戏动态图">
+        <Image src="error" width="100%" />
+      </Item>
+
+      <Item name="游戏评分" label="游戏评分">
+        <Input placeholder="输入内容" />
+      </Item>
+
       <Item name="游戏分类（第三方）" label="游戏分类（第三方）">
         <SearchSelect mode="multiple" showArrow />
       </Item>
@@ -181,6 +210,11 @@ function BizInfo() {
       <Item name="更新方式" label="更新方式">
         <SearchSelect />
       </Item>
+
+      <Item name="上线状态" label="上线状态">
+        <SearchSelect />
+      </Item>
+
       <Item name="定时更新" label="定时更新">
         <DatePicker showTime />
       </Item>
@@ -192,6 +226,7 @@ function BizInfo() {
       <Item name="更新内容" label="更新内容">
         <Input.TextArea placeholder="输入内容" />
       </Item>
+
       <Item name="出版物号（ISBN号）" label="出版物号（ISBN号）">
         <Input placeholder="输入内容" />
       </Item>
@@ -221,5 +256,39 @@ function BizInfo() {
 }
 
 function UpdateRecord() {
-  return <></>;
+  return (
+    <>
+      {Array(20)
+        .fill(Object.create(null))
+        .map((_, key) => (
+          <Descriptions column={3} key={key}>
+            <Descriptions.Item label="同步时间">XXXXX</Descriptions.Item>
+            <Descriptions.Item label="同步人">XXXXX</Descriptions.Item>
+            <Descriptions.Item contentStyle={{ justifyContent: 'end' }}>
+              <Popconfirm title="二次确认">
+                {' '}
+                <Button type="primary" size="small">
+                  回退到此版本
+                </Button>
+              </Popconfirm>
+            </Descriptions.Item>
+
+            <Descriptions.Item span={3} contentStyle={{ backgroundColor: '#ddd', padding: '24px' }}>
+              <Space>
+                <Descriptions column={1}>
+                  <Descriptions.Item label="修改前"> </Descriptions.Item>
+                  <Descriptions.Item label="游戏名">XXX</Descriptions.Item>
+                  <Descriptions.Item label="apk版本">XXX</Descriptions.Item>
+                </Descriptions>
+                <Descriptions column={1}>
+                  <Descriptions.Item label="修改前"> </Descriptions.Item>
+                  <Descriptions.Item label="游戏名">XXX</Descriptions.Item>
+                  <Descriptions.Item label="apk版本">XXX</Descriptions.Item>
+                </Descriptions>
+              </Space>
+            </Descriptions.Item>
+          </Descriptions>
+        ))}
+    </>
+  );
 }

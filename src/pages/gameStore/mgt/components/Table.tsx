@@ -1,4 +1,4 @@
-import { Button, Space, Dropdown, Menu } from 'antd';
+import { Button, Space, Dropdown, Menu, Tabs, TabsProps } from 'antd';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
 import type { XmilesCol } from '@/components/Xmiles/Col';
@@ -9,11 +9,16 @@ import { list } from '../services';
 import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import useModalForm from '@/hooks/useModalForm';
 import ModalForm from './ModalForm';
+import { useParams, useHistory } from 'react-router';
+
+const { TabPane } = Tabs;
 
 export default function () {
+  const history = useHistory();
   const { actionRef, formRef } = useProTable();
 
   const modalFormInstance = useModalForm();
+  const { env } = useParams<{ env: string }>();
 
   function addHandler() {
     modalFormInstance.setModalProps((pre) => ({
@@ -30,8 +35,16 @@ export default function () {
     },
   ];
 
+  const onTabClick: TabsProps['onTabClick'] = (key) => {
+    history.replace(key);
+  };
+
   return (
     <>
+      <Tabs activeKey={env} onTabClick={onTabClick}>
+        <TabPane tab="测试库" key="test" />
+        <TabPane tab="正式库" key="prod" />
+      </Tabs>
       <ModalForm {...modalFormInstance} />
       <XmilesTable
         actionRef={actionRef}
