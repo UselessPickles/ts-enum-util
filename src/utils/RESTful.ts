@@ -2,7 +2,8 @@
  * request 网络请求工具
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
-import { extend, ResponseError, RequestOptionsInit } from 'umi-request';
+import type { ResponseError, RequestOptionsInit } from 'umi-request';
+import { extend } from 'umi-request';
 import { message, notification } from 'antd';
 import { history } from 'umi';
 export type NOTIFY_TYPE = 'FAIL' | 'SUCCESS' | boolean | undefined;
@@ -13,7 +14,7 @@ export interface configType {
   HOME_NAME: string;
   PROJECT_NAME: string;
   SERVICE: string;
-  WITH_OUT_COOKIE: Array<string>;
+  WITH_OUT_COOKIE: string[];
   NOTIFICATION_KEY: string;
 }
 
@@ -53,8 +54,8 @@ const RESTful = extend({
 const throwKeys: RegExp[] = [/权限标识列表为空/];
 
 function errorHandler(err: ResponseError) {
-  if ((err.request as any)?.options?.data?.data?.['noError']) return;
-  if (throwKeys.some((item) => item.test(err.message)) || err.request.options['throwErr']) {
+  if ((err.request as any)?.options?.data?.data?.noError) return;
+  if (throwKeys.some((item) => item.test(err.message)) || err.request.options.throwErr) {
     throw new Error(err.message);
   }
   if (err.message === 'redirectToLogin') {

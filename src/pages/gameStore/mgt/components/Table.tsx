@@ -1,14 +1,18 @@
-import { Button, Space, Dropdown, Menu, Tabs, TabsProps } from 'antd';
+import type { ReactNode } from 'react';
+import type { TabsProps } from 'antd';
+import type { XmilesCol } from '@/components/Xmiles/Col';
+import type Row from '../models';
+
+import { Button, Space, Dropdown, Menu, Tabs } from 'antd';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
-import type { XmilesCol } from '@/components/Xmiles/Col';
-import { PlusOutlined } from '@ant-design/icons';
+import { UploadOutlined } from '@ant-design/icons';
 
-import type Row from '../models';
 import { list } from '../services';
 import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import useModalForm from '@/hooks/useModalForm';
-import ModalForm from './ModalForm';
+import Editor from './Editor';
+import Uploader from './Uploader';
 import { useParams, useHistory } from 'react-router';
 
 const { TabPane } = Tabs;
@@ -17,14 +21,31 @@ export default function () {
   const history = useHistory();
   const { actionRef, formRef } = useProTable();
 
-  const modalFormInstance = useModalForm();
+  const uploader = useModalForm({ modalProps: { title: '上传游戏' } });
+  const editor = useModalForm();
+
   const { env } = useParams<{ env: string }>();
+  const envBehaviorMap = new Map<string, ReactNode>([
+    ['prod', '线上游戏列表'],
+    [
+      'test',
+      <Button type="primary" icon={<UploadOutlined />} onClick={addHandler}>
+        上传游戏
+      </Button>,
+    ],
+  ]);
 
   function addHandler() {
-    modalFormInstance.setModalProps((pre) => ({
+    uploader.setModalProps((pre) => ({
       ...pre,
       visible: true,
-      title: '新增物理位广告位',
+    }));
+  }
+
+  function editHandler() {
+    editor.setModalProps((pre) => ({
+      ...pre,
+      visible: true,
     }));
   }
 
@@ -45,38 +66,23 @@ export default function () {
         <TabPane tab="测试库" key="test" />
         <TabPane tab="正式库" key="prod" />
       </Tabs>
-      <ModalForm {...modalFormInstance} />
+
+      <Editor {...editor} />
+      <Uploader {...uploader} />
+
       <XmilesTable
         actionRef={actionRef}
         formRef={formRef}
         columns={columns}
         rowKey="id"
-        headerTitle={
-          <Space>
-            <Dropdown
-              trigger={['click', 'hover']}
-              mouseLeaveDelay={3}
-              overlay={
-                <Menu>
-                  <Menu.Item key="物理广告位" onClick={addHandler}>
-                    物理广告位
-                  </Menu.Item>
-                </Menu>
-              }
-            >
-              <Button type="primary" icon={<PlusOutlined />}>
-                广告位
-              </Button>
-            </Dropdown>
-          </Space>
-        }
+        headerTitle={envBehaviorMap.get(env)}
         options={false}
         request={async (params) => {
           const data = {
             ...params,
             page: {
-              page_no: params.current,
-              page_size: params.pageSize,
+              page_no: params?.current,
+              page_size: params?.pageSize,
             },
           };
           const res = await list({ data });

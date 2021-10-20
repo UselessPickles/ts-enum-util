@@ -20,8 +20,7 @@ export default (initValue?: InitValue) => {
 
   const [formProps, setFormProps] = useState<FormProps>({
     form,
-    labelCol: { span: 7 },
-    wrapperCol: { span: 14 },
+    layout: 'vertical',
     validateMessages: { required: '该选项是必选项' },
     ...initValue?.formProps,
   });

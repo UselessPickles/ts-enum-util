@@ -30,15 +30,24 @@ export default defineConfig({
   dva: false,
   proxy: {
     '/utils_service': {
-      target: 'https://marketing-dev.yingzhongshare.com',
+      target: 'https://test.yingzhongshare.com',
       changeOrigin: true,
     },
     '/commercialize-manager': {
-      target: 'https://marketing-dev.yingzhongshare.com',
+      target: 'https://test.yingzhongshare.com',
       changeOrigin: true,
       pathRewrite: {
         '/commercialize-manager': '',
       },
+    },
+    '/intelligent-manager': {
+      target: 'https://test.yingzhongshare.com',
+      changeOrigin: true,
+    },
+  },
+  define: {
+    PROCESS_ENV: {
+      APP_NAME: '566game',
     },
   },
 });

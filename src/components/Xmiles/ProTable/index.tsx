@@ -1,9 +1,11 @@
-import { ProCoreActionType } from '@ant-design/pro-utils';
-import { Form, FormInstance } from 'antd';
-import { ProTableProps } from '@ant-design/pro-table';
-import React, { FC, useRef } from 'react';
+import type { ProCoreActionType } from '@ant-design/pro-utils';
+import type { FormInstance } from 'antd';
+import { Form } from 'antd';
+import type { ProTableProps } from '@ant-design/pro-table';
+import type { FC } from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
-import { XmilesCol } from '../Col';
+import type { XmilesCol } from '../Col';
 import XmilesTable from '../Table';
 import XmilesSearch, { isValidValue } from '../Search';
 
@@ -16,21 +18,12 @@ const Space = styled.div`
   overflow: visible;
 `;
 
-export interface XmilesTableProps<
-  T,
-  U extends {
-    [key: string]: any;
-  },
-> extends Omit<ProTableProps<T, U>, 'columns'> {
+export interface XmilesTableProps<T, U extends Record<string, any>>
+  extends Omit<ProTableProps<T, U>, 'columns'> {
   columns?: XmilesCol<T>[];
 }
 
-export default <
-  T,
-  U extends {
-    [key: string]: any;
-  } = {},
->({
+export default <T, U extends Record<string, any> = {}>({
   columns,
   formRef,
   actionRef,
