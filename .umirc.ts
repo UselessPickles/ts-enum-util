@@ -1,4 +1,5 @@
 import { defineConfig } from 'umi';
+import theme from './config/theme';
 
 export default defineConfig({
   nodeModulesTransform: {
@@ -7,7 +8,6 @@ export default defineConfig({
   routes: [
     { path: '/login', component: '@/pages/Login' },
     { path: '/', redirect: '/home', exact: true },
-
     {
       path: '/',
       component: '@/layouts/BasicLayout',
@@ -25,6 +25,7 @@ export default defineConfig({
       ],
     },
   ],
+  theme,
   fastRefresh: {},
   // 不用dva
   dva: false,
