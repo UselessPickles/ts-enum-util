@@ -5,14 +5,19 @@ export default defineConfig({
     type: 'none',
   },
   routes: [
-    { path: '/login', component: '@/pages/Login' },
+    {
+      path: '/user',
+      component: '@/layouts/UserLayout',
+      routes: [{ path: '/user/login', component: '@/pages/User/Login' }],
+    },
+    // { path: '/user/login', component: '@/pages/User/Login' },
     { path: '/', redirect: '/home', exact: true },
     {
       path: '/',
       component: '@/layouts/BasicLayout',
       routes: [
-        { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authroized'] },
-        { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authroized'] },
+        { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authorized'] },
+        { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authorized'] },
       ],
     },
   ],
@@ -25,7 +30,7 @@ export default defineConfig({
       changeOrigin: true,
     },
     '/commercialize-manager': {
-      target: 'https://marketing-dev.yingzhongshare.com',
+      target: 'https://test.yingzhongshare.com',
       changeOrigin: true,
       pathRewrite: {
         '/commercialize-manager': '',

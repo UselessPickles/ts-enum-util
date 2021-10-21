@@ -4,18 +4,18 @@ import LoginContext from '@/hooks/useLogin';
 // import { history } from 'umi'
 import { Redirect } from 'umi';
 
-const Authroized: React.FC = ({ children, ...other }) => {
-  console.log('Authroized:', children, other);
+const Authorized: React.FC = ({ children, ...other }) => {
+  // console.log('Authorized:', children, other);
   const { loginStatus } = LoginContext.useContainer();
   // checkLogStatus()
   // console.log('loginStatus:', loginStatus)
 
   if (!loginStatus) {
     // history.replace('/')
-    return <Redirect to="/login" />;
+    return <Redirect to="/user/login" />;
   } else {
     return <>{children}</>;
   }
 };
 
-export default Authroized;
+export default Authorized;
