@@ -1,24 +1,31 @@
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 import { useHistory } from 'react-router';
+import { accountLogin } from '@/services/user';
 
 function useLogin() {
-  const [loginStatus, setLoginStatus] = useState(() => localStorage.getItem('token') == 'true');
+  const [loginStatus, setLoginStatus] = useState(() => Boolean(localStorage.getItem('token')));
   const history = useHistory();
-  console.log('run useLogin', loginStatus);
-  const logIn = () => {
+  // console.log('run useLogin', loginStatus);
+  const logIn = (username, password) => {
     setLoginStatus(true);
-    localStorage.setItem('token', 'true');
-    history.push({ pathname: '/home' });
+    accountLogin({ username, password })
+      .then((res) => {
+        const { access_token } = res.data;
+        localStorage.setItem('token', access_token);
+        history.push({ pathname: '/home' });
+      })
+      .catch((error) => {
+        return error;
+      });
   };
   const logOut = () => {
     setLoginStatus(false);
-    localStorage.setItem('token', 'false');
+    localStorage.removeItem('token');
+    history.push({ pathname: '/user/login' });
   };
   const checkLogStatus = () => {
     const token = localStorage.getItem('token');
-    console.log('token Value:', token);
-    console.log('checkLogStatus', loginStatus);
     setLoginStatus(Boolean(token));
     return Boolean(token);
   };

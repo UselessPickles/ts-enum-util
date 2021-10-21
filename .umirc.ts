@@ -5,13 +5,13 @@ export default defineConfig({
     type: 'none',
   },
   routes: [
-    { path: '/login', component: '@/pages/Login' },
+    {
+      path: '/user',
+      component: '@/layouts/UserLayout',
+      routes: [{ path: '/user/login', component: '@/pages/User/Login' }],
+    },
+    // { path: '/user/login', component: '@/pages/User/Login' },
     { path: '/', redirect: '/home', exact: true },
-    // { path: '/home', redirect: '/recommand/type', exact: true },
-    // {
-    //   path: '/recommand/type',
-    //   component: '@/pages/RecommandMananger/TypeMananger'
-    // },
     {
       path: '/',
       component: '@/layouts/BasicLayout',
@@ -35,7 +35,7 @@ export default defineConfig({
       changeOrigin: true,
     },
     '/commercialize-manager': {
-      target: 'https://marketing-dev.yingzhongshare.com',
+      target: 'https://test.yingzhongshare.com',
       changeOrigin: true,
       pathRewrite: {
         '/commercialize-manager': '',

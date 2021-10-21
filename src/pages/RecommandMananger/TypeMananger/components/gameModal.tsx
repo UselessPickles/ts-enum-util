@@ -22,6 +22,9 @@ export default () => {
       .ant-table-tbody > tr > td {
         border-bottom: 0 !important;
       }
+      .ant-table-tbody > tr.ant-table-row-selected > td {
+        background-color: #ffffff !important;
+      }
     `;
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export default () => {
       { key: 1, icon: '123', gameName: '123', packageName: '123' },
       { key: 2, icon: '234', gameName: '567', packageName: '789' },
     ]); //模拟数据
-  }, []);
+  }, [gameSelect]);
 
   const rowSelection = {
     onchange: (selectedRowKeys: any[], selectedRows: any[]) => {},
@@ -68,7 +71,9 @@ export default () => {
               style={{ width: '70%', border: '1px solid #E0E0E0' }}
               placeholder={`游戏名/包名关键词搜索`}
               prefix={<SearchOutlined />}
-              //onSelect={value => {setGameSelect(value)}}
+              onChange={(value) => {
+                setGameSelect(value);
+              }}
             />
           </div>
           <div className={styles.gameBody}>
@@ -77,6 +82,7 @@ export default () => {
               dataSource={dataSource}
               columns={columns}
               size="small"
+              pagination={false}
             />
           </div>
         </div>
