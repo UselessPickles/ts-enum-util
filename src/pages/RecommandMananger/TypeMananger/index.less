@@ -1,0 +1,76 @@
+.downward {
+  td {
+    border-bottom: 2px dashed #1890ff !important;
+  }
+}
+.upward {
+  td {
+    border-top: 2px dashed #1890ff !important;
+  }
+}
+.drag {
+  -webkit-user-drag: element;
+}
+.noDrag {
+  user-select: inherit;
+  -webkit-user-drag: none;
+}
+.editForm {
+  > .ant-row .ant-form-item & {
+    margin-bottom: 12px !important;
+  }
+  > div {
+    margin-bottom: 12px !important;
+  }
+  > h3 {
+    font-size: 14px;
+  }
+}
+.transfer {
+  .ant-transfer-customize-list .ant-transfer-list {
+    border-radius: 4px;
+  }
+  .ant-transfer-list-header {
+    background: #f1f4f9;
+  }
+  .ant-transfer-operation > Button {
+    display: none;
+  }
+}
+.gameClass {
+  p {
+    margin-bottom: 0;
+    color: #999999;
+    font-weight: 400;
+  }
+  h5 {
+    color: #333333;
+    font-size: 14px;
+  }
+}
+
+.gameEdit {
+  display: flex;
+  width: 100%;
+  > div {
+    width: 45%;
+    min-height: 450px;
+    margin: 0 10px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+  .gameHeader {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 8px 12px 9px;
+    background: #f1f4f9;
+    .headerTitle {
+      margin-right: 16px;
+      color: #333333;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 22px;
+    }
+  }
+}

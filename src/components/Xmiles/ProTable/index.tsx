@@ -44,7 +44,7 @@ export default <T, U extends Record<string, any>>({
   }
 
   if (actionRef) {
-    (actionRef as React.MutableRefObject<ProCoreActionType> as any).current =
+    ((actionRef as React.MutableRefObject<ProCoreActionType>) as any).current =
       forwardActionRef?.current;
   }
 

@@ -189,8 +189,14 @@ export default ({ columns, formProps, colProps, btnExtr }: XmilesSearchProps) =>
                          * 渲染逻辑类似上面，但是只渲染隐藏项
                          */}
                         {[...columns]?.reduce((acc: JSX.Element[], cur, idx) => {
-                          const { hideInSearch, dataIndex, isCollapsed, order, colSpan, colSize } =
-                              cur,
+                          const {
+                              hideInSearch,
+                              dataIndex,
+                              isCollapsed,
+                              order,
+                              colSpan,
+                              colSize,
+                            } = cur,
                             // 倍数 兼容 新旧api
                             mulSpan = colSpan || colSize || 1;
                           const mulColProp: any = { ...defaultCol };
