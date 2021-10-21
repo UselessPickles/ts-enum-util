@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     image: 566-game-managment-node-git:dev
-    container_name: 566-game-managment-${BRANCH:?err}
+    container_name: 566-game-managment-${CNAME:?err}
     environment:
       BRANCH: ${BRANCH:?err}
     volumes:
