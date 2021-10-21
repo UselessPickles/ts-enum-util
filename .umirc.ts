@@ -7,12 +7,22 @@ export default defineConfig({
   routes: [
     { path: '/login', component: '@/pages/Login' },
     { path: '/', redirect: '/home', exact: true },
+    // { path: '/home', redirect: '/recommand/type', exact: true },
+    // {
+    //   path: '/recommand/type',
+    //   component: '@/pages/RecommandMananger/TypeMananger'
+    // },
     {
       path: '/',
       component: '@/layouts/BasicLayout',
       routes: [
         { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authroized'] },
         { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authroized'] },
+        {
+          path: '/recommand/type',
+          component: '@/pages/RecommandMananger/TypeMananger',
+          wrappers: ['@/pages/Authroized'],
+        },
       ],
     },
   ],
