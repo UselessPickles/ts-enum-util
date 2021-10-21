@@ -7,7 +7,8 @@ import React, { useRef } from 'react';
 import styled from 'styled-components';
 import type { XmilesCol } from '../Col';
 import XmilesTable from '../Table';
-import XmilesSearch, { isValidValue } from '../Search';
+import XmilesSearch from '../Search';
+import isValidValue from '@/utils/isValidValue';
 
 const Space = styled.div`
   width: 100%;
@@ -23,7 +24,7 @@ export interface XmilesTableProps<T, U extends Record<string, any>>
   columns?: XmilesCol<T>[];
 }
 
-export default <T, U extends Record<string, any> = {}>({
+export default <T, U extends Record<string, any>>({
   columns,
   formRef,
   actionRef,
@@ -70,19 +71,19 @@ export default <T, U extends Record<string, any> = {}>({
     (forwardActionRef as React.MutableRefObject<ProCoreActionType>).current?.reloadAndRest?.();
   }
 
-  function columnEmptyTextHOF(col: XmilesCol): XmilesCol['render'] {
+  function columnEmptyTextHOF(c: XmilesCol): XmilesCol['render'] {
     return (...args) => {
-      const preRender = col?.render?.(...args);
+      const preRender = c?.render?.(...args);
       return preRender
         ? preRender
-        : isValidValue(args?.[1]?.[col?.dataIndex as string])
+        : isValidValue(args?.[1]?.[c?.dataIndex as string])
         ? args?.[0]
         : '-';
     };
   }
 
   function enhanceCol(cols?: XmilesCol[]) {
-    return cols?.map((col) => ({ ...col, render: columnEmptyTextHOF(col) }));
+    return cols?.map((c) => ({ ...c, render: columnEmptyTextHOF(c) }));
   }
 
   return (

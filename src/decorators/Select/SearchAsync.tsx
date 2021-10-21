@@ -1,9 +1,10 @@
 import { cloneElement, useReducer } from 'react';
 import useDebounce from '@/hooks/useDebounce';
 import useThrottle from '@/hooks/useThrottle';
-import { Empty, Spin, Select } from 'antd';
+import type { Select } from 'antd';
+import { Empty, Spin } from 'antd';
 
-import { useQuery } from 'react-query';
+import type { useQuery } from 'react-query';
 
 import { curry } from '../utils';
 
@@ -17,7 +18,7 @@ export interface SearchAsyncParam {
   trigger?: string[];
 }
 
-export const defaultReducer = () =>
+export const DefaultReducer = () =>
   useReducer((state: any, action: any) => {
     switch (action.type) {
       case 'onSearch':
@@ -38,7 +39,7 @@ export default curry(
       delay = 800,
       limitType = 'throttle',
       query,
-      reducer = defaultReducer,
+      reducer = DefaultReducer,
       trigger = ['onSearch', 'onDeselect'],
     }: SearchAsyncParam,
     Element: ReturnType<typeof Select>,
@@ -46,7 +47,7 @@ export default curry(
     const [state, dispatch] = reducer();
     const { data: options, isLoading: loading } = query(state);
 
-    function onDispatch(event: any) {
+    function useDispatch(event: any) {
       const fn = (...args: any) => {
         dispatch?.({ type: event, payload: args });
         Element?.props?.[event]?.(...args);
@@ -60,17 +61,13 @@ export default curry(
     return cloneElement(Element, {
       showSearch: true,
       filterOption: false,
-      notFoundContent: loading ? (
-        <Spin style={{ width: '100%' }} tip="loading..." />
-      ) : (
-        <Empty />
-      ),
+      notFoundContent: loading ? <Spin style={{ width: '100%' }} tip="loading..." /> : <Empty />,
       options,
       loading,
       ...trigger?.reduce(
         (acc, event) => ({
           ...acc,
-          [event]: onDispatch(event),
+          [event]: useDispatch(event),
         }),
         {},
       ),

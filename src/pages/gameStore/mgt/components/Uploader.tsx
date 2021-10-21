@@ -1,5 +1,5 @@
-import type { FormItemProps } from 'antd';
-import { Form, message, Button, Upload, Card, Space, Divider } from 'antd';
+import type { FormItemProps, InputProps } from 'antd';
+import { Form, message, Button, Upload, Card, Space, Divider, Input } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
@@ -11,6 +11,8 @@ import { compose } from '@/decorators/utils';
 
 import { UploadOutlined, DeleteOutlined, StarOutlined, PaperClipOutlined } from '@ant-design/icons';
 import RESTful from '@/utils/RESTful';
+import showCount from '@/decorators/Input/showCount';
+import type { ReactElement } from 'react';
 
 const { Item } = Form;
 
@@ -62,7 +64,7 @@ export default ({
   return (
     <ModalForm
       formProps={{ onFinish: onSubmit, initialValues: { tab: '商务信息' }, ...formProps }}
-      modalProps={{ onOk: onSubmit, ...modalProps }}
+      modalProps={{ onOk: onSubmit, visible: true, ...modalProps }}
     >
       <Item
         name="游戏apk"
@@ -78,31 +80,32 @@ export default ({
             const tokenKey = getQiniuKey(file as any);
 
             try {
-              const data = await RESTful.get('', {
-                fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-                throwErr: true,
-              }).then((res) => res?.data);
+              // const data = await RESTful.get('', {
+              //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
+              //   throwErr: true,
+              // }).then((res) => res?.data);
 
-              if (!data) {
-                throw new Error('上传失败');
-              }
+              // if (!data) {
+              //   throw new Error('上传失败');
+              // }
 
-              const fd = new FormData();
-              fd.append('file', file);
-              fd.append('token', data?.[tokenKey]);
-              fd.append('key', tokenKey);
+              // const fd = new FormData();
+              // fd.append('file', file);
+              // fd.append('token', data?.[tokenKey]);
+              // fd.append('key', tokenKey);
 
-              await fetch('https://upload.qiniup.com', {
-                method: 'POST',
-                body: fd,
-              });
+              // await fetch('https://upload.qiniup.com', {
+              //   method: 'POST',
+              //   body: fd,
+              // });
 
               const xhr = new XMLHttpRequest();
-              if ((Math.random() * 100) % 2) {
-                onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
-              } else {
-                onError?.(new Error('error'));
-              }
+              onError?.(new Error('error'));
+              // if ((Math.random() * 100) % 2) {
+              //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
+              // } else {
+              //   onError?.(new Error('error'));
+              // }
             } catch (e: any) {
               onError?.(e);
             }
@@ -127,6 +130,11 @@ export default ({
           <Button icon={<UploadOutlined />}>上传apk文件</Button>
         </Upload>
       </Item>
+
+      <Item name="游戏名称" label="游戏名称" rules={[{ required: true }]}>
+        {compose<ReactElement<InputProps>>(IOC([showCount]))(<Input maxLength={20} />)}
+      </Item>
+
       <Item
         name="游戏icon"
         label="游戏icon"

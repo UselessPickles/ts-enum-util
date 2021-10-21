@@ -24,7 +24,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => (
         }).then((res) => res?.data);
 
         if (!data) {
-          throw new Error('上传失败');
+          onError?.(new Error('上传失败'));
         }
 
         const fd = new FormData();
@@ -38,9 +38,9 @@ export default (props: React.PropsWithChildren<UploadProps>) => (
         });
 
         const xhr = new XMLHttpRequest();
-        onSuccess!(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
+        onSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
       } catch (e: any) {
-        onError!(e);
+        onError?.(e);
       }
     }}
     {...props}
