@@ -1,4 +1,4 @@
-import type { FormItemProps, InputProps } from 'antd';
+import type { FormItemProps, InputProps, UploadProps } from 'antd';
 import { Form, message, Button, Upload, Card, Space, Divider, Input } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
@@ -9,10 +9,23 @@ import Format from '@/decorators/Format';
 import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
 
-import { UploadOutlined, DeleteOutlined, StarOutlined, PaperClipOutlined } from '@ant-design/icons';
+import {
+  UploadOutlined,
+  DeleteOutlined,
+  StarOutlined,
+  PaperClipOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import RESTful from '@/utils/RESTful';
 import showCount from '@/decorators/Input/showCount';
 import type { ReactElement } from 'react';
+import {
+  str2fileList,
+  strArr2fileList,
+  uploadEvent2str,
+  uploadEvent2strArr,
+} from '@/decorators/Upload/Format';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 
 const { Item } = Form;
 
@@ -25,12 +38,14 @@ export default ({
 }: ReturnType<typeof useModalForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const file2str = (value: any) => {
-    const res = value?.fileList?.[0]?.response;
-    return res ? [res] : value;
+  const beforeUpload: UploadProps['beforeUpload'] = (file) => {
+    const outOfRange = file.size / 1024 > 100;
+    if (outOfRange) {
+      message.warning('图片必须小于100k');
+      return Upload.LIST_IGNORE;
+    }
+    return !outOfRange;
   };
-
-  const str2file = (value: any) => [].concat(value ?? []);
 
   const getValueFromEvent: FormItemProps['getValueFromEvent'] = (e: any) => {
     if (Array.isArray(e)) {
@@ -38,8 +53,6 @@ export default ({
     }
     return e?.fileList;
   };
-
-  const normalize: FormItemProps['normalize'] = (value) => value?.[0];
 
   async function onSubmit() {
     try {
@@ -63,7 +76,14 @@ export default ({
 
   return (
     <ModalForm
-      formProps={{ onFinish: onSubmit, initialValues: { tab: '商务信息' }, ...formProps }}
+      formProps={{
+        onFinish: onSubmit,
+        initialValues: {
+          tab: '商务信息',
+          游戏icon: 'https://image.quzhuanxiang.com/566game/rc-upload-1634797383545-2.png',
+        },
+        ...formProps,
+      }}
       modalProps={{ onOk: onSubmit, visible: true, ...modalProps }}
     >
       <Item
@@ -75,8 +95,9 @@ export default ({
       >
         <Upload
           maxCount={1}
-          accept="image/*"
+          accept=".apk"
           customRequest={async ({ onSuccess: onUploadSuccess, onError, file }) => {
+            console.log(file);
             const tokenKey = getQiniuKey(file as any);
 
             try {
@@ -134,27 +155,40 @@ export default ({
       <Item name="游戏名称" label="游戏名称" rules={[{ required: true }]}>
         {compose<ReactElement<InputProps>>(IOC([showCount]))(<Input maxLength={20} />)}
       </Item>
-
-      <Item
-        name="游戏icon"
-        label="游戏icon"
-        rules={[{ required: true }]}
-        valuePropName="fileList"
-        getValueFromEvent={getValueFromEvent}
-        normalize={normalize}
-      >
-        {compose<ReturnType<typeof CustomUpload>>(
-          IOC([
-            Format({
-              valuePropName: 'fileList',
-              f: file2str,
-              g: str2file,
-            }),
-          ]),
-        )(
-          <CustomUpload maxCount={1} accept="image/*">
-            <Button icon={<UploadOutlined />}>上传apk文件</Button>
-          </CustomUpload>,
+      <Item dependencies={[['游戏icon']]} noStyle>
+        {({ getFieldValue }) => (
+          <Item
+            name="游戏icon"
+            label="游戏icon"
+            rules={[{ required: true }]}
+            valuePropName="fileList"
+            extra="jpg、png格式，建议尺寸xx*xx px，不超过100k"
+          >
+            {compose<ReturnType<typeof CustomUpload>>(
+              IOC([
+                Format({
+                  valuePropName: 'fileList',
+                  f: uploadEvent2str,
+                  g: str2fileList,
+                }),
+              ]),
+            )(
+              <CustomUpload
+                maxCount={1}
+                accept=".jpg,.png"
+                listType="picture-card"
+                multiple
+                beforeUpload={beforeUpload}
+              >
+                {getFieldValue(['游戏icon'])?.length < 1 && (
+                  <div>
+                    <PlusOutlined style={{ fontSize: '18px' }} />
+                    <div style={{ marginTop: 8 }}>上传照片</div>
+                  </div>
+                )}
+              </CustomUpload>,
+            )}
+          </Item>
         )}
       </Item>
     </ModalForm>
