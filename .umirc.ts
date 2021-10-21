@@ -56,4 +56,5 @@ export default defineConfig({
       APP_NAME: '566game',
     },
   },
+  mfsu: {},
 });
