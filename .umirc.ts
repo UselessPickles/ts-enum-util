@@ -17,13 +17,9 @@ export default defineConfig({
       path: '/',
       component: '@/layouts/BasicLayout',
       routes: [
-        { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authroized'] },
-        { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authroized'] },
-        {
-          path: '/recommand/type',
-          component: '@/pages/RecommandMananger/TypeMananger',
-          wrappers: ['@/pages/Authroized'],
-        },
+        { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authorized'] },
+        { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authorized'] },
+
         {
           path: '/gameStore/mgt',
           routes: [
