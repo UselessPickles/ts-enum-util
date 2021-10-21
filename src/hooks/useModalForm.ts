@@ -12,16 +12,15 @@ export default (initValue?: InitValue) => {
   const [form] = Form.useForm(initValue?.form);
 
   const [modalProps, setModalProps] = useState<ModalProps>({
+    width: 600,
     bodyStyle: { maxHeight: '80vh', overflow: 'scroll' },
-    centered: true,
     onCancel: close,
     ...initValue?.modalProps,
   });
 
   const [formProps, setFormProps] = useState<FormProps>({
     form,
-    labelCol: { span: 7 },
-    wrapperCol: { span: 14 },
+    layout: 'vertical',
     validateMessages: { required: '该选项是必选项' },
     ...initValue?.formProps,
   });

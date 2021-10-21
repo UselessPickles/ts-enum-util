@@ -1,8 +1,7 @@
-import { ProColumns } from '@ant-design/pro-table';
-import { ColProps } from 'antd';
+import type { ProColumns } from '@ant-design/pro-table';
+import type { ColProps } from 'antd';
 
 export type XmilesCol<T = any> = Omit<ProColumns<T>, 'valueType'> & {
-  tooltip?: string;
   isCollapsed?: boolean;
   bordered?: boolean;
   colSize?: number;

@@ -1,11 +1,14 @@
-import { ProCoreActionType } from '@ant-design/pro-utils';
-import { Form, FormInstance } from 'antd';
-import { ProTableProps } from '@ant-design/pro-table';
-import React, { FC, useRef } from 'react';
+import type { ProCoreActionType } from '@ant-design/pro-utils';
+import type { FormInstance } from 'antd';
+import { Form } from 'antd';
+import type { ProTableProps } from '@ant-design/pro-table';
+import type { FC } from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
-import { XmilesCol } from '../Col';
+import type { XmilesCol } from '../Col';
 import XmilesTable from '../Table';
-import XmilesSearch, { isValidValue } from '../Search';
+import XmilesSearch from '../Search';
+import isValidValue from '@/utils/isValidValue';
 
 const Space = styled.div`
   width: 100%;
@@ -16,21 +19,12 @@ const Space = styled.div`
   overflow: visible;
 `;
 
-export interface XmilesTableProps<
-  T,
-  U extends {
-    [key: string]: any;
-  },
-> extends Omit<ProTableProps<T, U>, 'columns'> {
+export interface XmilesTableProps<T, U extends Record<string, any>>
+  extends Omit<ProTableProps<T, U>, 'columns'> {
   columns?: XmilesCol<T>[];
 }
 
-export default <
-  T,
-  U extends {
-    [key: string]: any;
-  } = {},
->({
+export default <T, U extends Record<string, any>>({
   columns,
   formRef,
   actionRef,
@@ -77,19 +71,19 @@ export default <
     (forwardActionRef as React.MutableRefObject<ProCoreActionType>).current?.reloadAndRest?.();
   }
 
-  function columnEmptyTextHOF(col: XmilesCol): XmilesCol['render'] {
+  function columnEmptyTextHOF(c: XmilesCol): XmilesCol['render'] {
     return (...args) => {
-      const preRender = col?.render?.(...args);
+      const preRender = c?.render?.(...args);
       return preRender
         ? preRender
-        : isValidValue(args?.[1]?.[col?.dataIndex as string])
+        : isValidValue(args?.[1]?.[c?.dataIndex as string])
         ? args?.[0]
         : '-';
     };
   }
 
   function enhanceCol(cols?: XmilesCol[]) {
-    return cols?.map((col) => ({ ...col, render: columnEmptyTextHOF(col) }));
+    return cols?.map((c) => ({ ...c, render: columnEmptyTextHOF(c) }));
   }
 
   return (
