@@ -1,7 +1,7 @@
 import { Form, message, Input } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
-import useModalForm from '@/hooks/useModalForm';
+import type useModalForm from '@/hooks/useModalForm';
 import { add } from '../services';
 
 const { Item } = Form;

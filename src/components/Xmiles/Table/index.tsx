@@ -6,11 +6,10 @@ import styled from 'styled-components';
  */
 const XmilesTable = styled(ProTable)`
   .ant-table-thead > tr > th {
-    background: #f1f4f9;
     color: #333333;
+    background: #f1f4f9;
   }
-  .ant-pro-table-toolbar,
-  .ant-table-wrapper {
+  .ant-pro-table-toolbar {
     padding: 0 16px;
   }
 
@@ -26,8 +25,8 @@ const XmilesTable = styled(ProTable)`
 
   .ant-pagination-total-text,
   .ant-pagination-simple-pager {
-    left: 0;
     position: absolute;
+    left: 0;
     color: #666666;
   }
 
@@ -61,12 +60,12 @@ const XmilesTable = styled(ProTable)`
   .anticon-reload,
   .anticon-column-height {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333333;
+    font-weight: 400;
     font-size: 12px;
     font-family: PingFangSC-Regular, PingFang SC;
-    font-weight: 400;
-    color: #333333;
-    justify-content: center;
-    align-items: center;
   }
 `;
 

@@ -1,13 +1,16 @@
 import theme from '@/../config/theme';
-import React, { createElement, ReactElement, useRef, useState } from 'react';
-import { Button, Card, Col, Dropdown, Form, Input, Row, Space, ColProps } from 'antd';
-import { FormInstance, FormProps } from 'antd/lib/form/Form';
+import type { ReactElement } from 'react';
+import React, { createElement, useRef, useState } from 'react';
+import type { ColProps } from 'antd';
+import { Button, Card, Col, Dropdown, Form, Input, Row, Space } from 'antd';
+import type { FormInstance, FormProps } from 'antd/lib/form/Form';
 import SearchForm from '@/components/SearchForm';
 import valueTypeRegister from './valueTypeRegister';
 import { DoubleRightOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import { XmilesCol } from '../Col';
+import type { XmilesCol } from '../Col';
 import SearchSelect from '@/components/SearchSelect';
+import isValidValue from '@/utils/isValidValue';
 
 const FormItem = Form.Item;
 const { 'primary-color': primaryColor } = theme;
@@ -123,10 +126,10 @@ export default ({ columns, formProps, colProps, btnExtr }: XmilesSearchProps) =>
                     style = isCollapsed ? { background: '#E8EAEC' } : {},
                     // 倍数 兼容 新旧api
                     mulSpan = colSpan || colSize || 1;
-                  let mulColProp = { ...defaultCol };
+                  const mulColProp: any = { ...defaultCol };
                   if (mulSpan !== 1) {
                     for (const k in mulColProp) {
-                      if (typeof mulColProp[k] === 'number') {
+                      if (typeof mulColProp?.[k] === 'number') {
                         const calc = mulColProp?.[k] * mulSpan;
                         mulColProp[k] = calc > 24 ? 24 : calc;
                       }
@@ -186,11 +189,17 @@ export default ({ columns, formProps, colProps, btnExtr }: XmilesSearchProps) =>
                          * 渲染逻辑类似上面，但是只渲染隐藏项
                          */}
                         {[...columns]?.reduce((acc: JSX.Element[], cur, idx) => {
-                          const { hideInSearch, dataIndex, isCollapsed, order, colSpan, colSize } =
-                              cur,
+                          const {
+                              hideInSearch,
+                              dataIndex,
+                              isCollapsed,
+                              order,
+                              colSpan,
+                              colSize,
+                            } = cur,
                             // 倍数 兼容 新旧api
                             mulSpan = colSpan || colSize || 1;
-                          let mulColProp = { ...defaultCol };
+                          const mulColProp: any = { ...defaultCol };
                           if (mulSpan !== 1) {
                             for (const k in mulColProp) {
                               if (typeof mulColProp[k] === 'number') {
@@ -334,13 +343,4 @@ function renderCol(col: XmilesCol) {
     bordered: false,
     allowClear: true,
   });
-}
-
-export function isValidValue(val: any) {
-  // 过滤空
-  if ([undefined, null, ''].includes(val)) return false;
-  // 过滤空对象 tips: typeof null === 'object'
-  if (typeof val === 'object') return Object.values(val)?.length > 0;
-
-  return true;
 }

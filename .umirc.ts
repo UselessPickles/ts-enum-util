@@ -1,4 +1,5 @@
 import { defineConfig } from 'umi';
+import theme from './config/theme';
 
 export default defineConfig({
   nodeModulesTransform: {
@@ -23,15 +24,23 @@ export default defineConfig({
           component: '@/pages/RecommandMananger/TypeMananger',
           wrappers: ['@/pages/Authroized'],
         },
+        {
+          path: '/gameStore/mgt',
+          routes: [
+            { path: '/gameStore/mgt/', redirect: '/gameStore/mgt/test' },
+            { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
+          ],
+        },
       ],
     },
   ],
+  theme,
   fastRefresh: {},
   // 不用dva
   dva: false,
   proxy: {
     '/utils_service': {
-      target: 'https://marketing-dev.yingzhongshare.com',
+      target: 'https://test.yingzhongshare.com',
       changeOrigin: true,
     },
     '/commercialize-manager': {
@@ -40,6 +49,15 @@ export default defineConfig({
       pathRewrite: {
         '/commercialize-manager': '',
       },
+    },
+    '/intelligent-manager': {
+      target: 'https://test.yingzhongshare.com',
+      changeOrigin: true,
+    },
+  },
+  define: {
+    PROCESS_ENV: {
+      APP_NAME: '566game',
     },
   },
 });
