@@ -1,5 +1,5 @@
 import type { FormItemProps, InputProps, UploadProps } from 'antd';
-import { Form, message, Button, Upload, Card, Space, Divider, Input } from 'antd';
+import { Form, message, Button, Upload, Card, Space, Divider, Input, Modal } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
@@ -55,23 +55,30 @@ export default ({
   };
 
   async function onSubmit() {
-    try {
-      setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-      const value = await form?.validateFields();
+    const value = await form?.validateFields();
 
-      await add({
-        data: value,
-        throwErr: true,
-      });
-
-      onSuccess?.();
-    } catch (e: any) {
-      if (e?.message) {
-        message.error(e?.message);
-      }
-    } finally {
-      setModalProps((pre) => ({ ...pre, confirmLoading: false }));
-    }
+    Modal.confirm({
+      title: '请进行二次确认',
+      content: '上传的游戏将进入自动化测试，测试完成可同步到线上',
+      onOk: async () => {
+        try {
+          setModalProps((pre) => ({ ...pre, confirmLoading: true }));
+          await add({
+            data: value,
+            throwErr: true,
+          });
+          onSuccess?.();
+          setModalProps((pre) => ({ ...pre, visible: false }));
+        } catch (e: any) {
+          if (e?.message) {
+            message.error(e?.message);
+          }
+          throw e;
+        } finally {
+          setModalProps((pre) => ({ ...pre, confirmLoading: false }));
+        }
+      },
+    });
   }
 
   return (
@@ -177,7 +184,6 @@ export default ({
                 maxCount={1}
                 accept=".jpg,.png"
                 listType="picture-card"
-                multiple
                 beforeUpload={beforeUpload}
               >
                 {getFieldValue(['游戏icon'])?.length < 1 && (

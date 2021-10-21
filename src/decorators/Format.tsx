@@ -1,4 +1,5 @@
-import { cloneElement, ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import { cloneElement } from 'react';
 import { compose, curry, maybe } from './utils';
 
 // 正反函数
@@ -12,11 +13,9 @@ export interface FormatParams {
  * 格式化切片
  */
 
-export default curry(
-  ({ f, g, valuePropName = 'value' }: FormatParams, Element: ReactElement) => {
-    return cloneElement(Element, {
-      onChange: compose(maybe(Element?.props?.onChange), maybe(f)),
-      [valuePropName]: g?.(Element?.props?.[valuePropName]),
-    });
-  },
-);
+export default curry(({ f, g, valuePropName = 'value' }: FormatParams, Element: ReactElement) => {
+  return cloneElement(Element, {
+    onChange: compose(maybe(Element?.props?.onChange), maybe(f)),
+    [valuePropName]: g?.(Element?.props?.[valuePropName]),
+  });
+});
