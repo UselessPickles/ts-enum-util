@@ -19,7 +19,6 @@ export default defineConfig({
       routes: [
         { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authorized'] },
         { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authorized'] },
-
         {
           path: '/gameStore/mgt',
           routes: [
@@ -54,6 +53,7 @@ export default defineConfig({
   define: {
     PROCESS_ENV: {
       APP_NAME: '566game',
+      APP_CN_NAME: '566 游戏管理平台',
     },
   },
   mfsu: {},

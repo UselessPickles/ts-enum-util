@@ -1,14 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './index.less';
-import LoginContext from '@/hooks/useLogin';
-import { Layout, Menu, ConfigProvider } from 'antd';
-import {
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-} from '@ant-design/icons';
+import UserContext from '@/hooks/useUser';
+import { Layout, ConfigProvider } from 'antd';
 import Account from './Account';
 import zhCN from 'antd/es/locale/zh_CN';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -22,11 +15,11 @@ const BasicLayout: React.FC = (props) => {
   return (
     <Layout className={styles['basic-layout']}>
       <QueryClientProvider client={queryClient}>
-        <LoginContext.Provider>
+        <UserContext.Provider>
           <SiderMenuContext.Provider>
             <Header className={styles.header}>
               <div className={styles['left-content']}>
-                <div className={styles.projectName}>566 游戏管理平台</div>
+                <div className={styles.projectName}>{PROCESS_ENV.APP_CN_NAME}</div>
               </div>
               <Account />
             </Header>
@@ -45,7 +38,7 @@ const BasicLayout: React.FC = (props) => {
               </Content>
             </Layout>
           </SiderMenuContext.Provider>
-        </LoginContext.Provider>
+        </UserContext.Provider>
       </QueryClientProvider>
     </Layout>
   );
