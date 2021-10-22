@@ -38,7 +38,7 @@ import {
 } from '@/decorators/Upload/Format';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import theme from '@/../config/theme';
-const { 'primary-color': primaryColor, 'text-color-secondary': textColorSecondary } = theme;
+const { 'primary-color': primaryColor } = theme;
 const { Item } = Form;
 const { Item: DItem } = Descriptions;
 
@@ -154,9 +154,9 @@ export default ({
           }}
           itemRender={(origin, file) => {
             return (
-              <Card style={{ marginTop: '4px', backgroundColor: textColorSecondary }} size="small">
+              <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                 {origin}
-                <Divider style={{ margin: '12px 0', backgroundColor: textColorSecondary }} />
+                <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
                 <Descriptions column={1} size="small" labelStyle={{ minWidth: '80px' }}>
                   <DItem label="内部版本号"> 信息2</DItem>
                   <DItem label="外部版本号"> 信息2</DItem>

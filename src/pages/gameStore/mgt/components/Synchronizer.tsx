@@ -27,7 +27,7 @@ import {
 } from '@/decorators/Upload/Format';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import theme from '@/../config/theme';
-const { 'primary-color': primaryColor, 'text-color-secondary': textColorSecondary } = theme;
+const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
 
@@ -145,7 +145,7 @@ export default ({
             return (
               <Card style={{ marginTop: '4px' }} size="small">
                 {origin}
-                <Divider style={{ margin: '12px 0', backgroundColor: textColorSecondary }} />
+                <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
                 <div>信息1: 信息2</div>
                 <div>信息1: 信息2</div>
                 <div>信息1: 信息2</div>

@@ -18,6 +18,7 @@ import {
   Divider,
   Upload,
   Timeline,
+  Tag,
 } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
@@ -42,7 +43,7 @@ import {
 import type { Moment } from 'moment';
 import moment from 'moment';
 import theme from '@/../config/theme';
-const { 'primary-color': primaryColor, 'text-color-secondary': textColorSecondary } = theme;
+const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
 const { TabPane } = Tabs;
@@ -384,12 +385,12 @@ function SourceInfo() {
           }}
           itemRender={(origin, file) => {
             return (
-              <Card style={{ marginTop: '4px', backgroundColor: textColorSecondary }} size="small">
+              <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   {origin}
                   <Button icon={<DownloadOutlined />}>下载{getExt(file.name)}文件</Button>
                 </div>
-                <Divider style={{ margin: '12px 0', backgroundColor: textColorSecondary }} />
+                <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
                 <Descriptions column={1} size="small" labelStyle={{ minWidth: '80px' }}>
                   <DItem label="内部版本号"> 信息2</DItem>
                   <DItem label="外部版本号"> 信息2</DItem>
@@ -532,32 +533,30 @@ function UpdateRecord() {
         .fill(Object.create(null))
         .map((_, key) => (
           <TItem key={key}>
-            <Descriptions size="small">
-              <DItem label="同步时间">XXXXX</DItem>
-              <DItem label="同步人">XXXXX</DItem>
-              <DItem contentStyle={{ justifyContent: 'end' }}>
+            <Space direction="vertical">
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Text strong>2. 基础信息</Text>
                 <Popconfirm title="二次确认">
                   <Button size="small" style={{ color: primaryColor, borderColor: primaryColor }}>
                     回退到此版本
                   </Button>
                 </Popconfirm>
-              </DItem>
-
-              <DItem contentStyle={{ backgroundColor: textColorSecondary, padding: '24px' }}>
-                <Space>
-                  <Descriptions column={1}>
-                    <DItem label="修改前"> </DItem>
-                    <DItem label="游戏名">XXX</DItem>
-                    <DItem label="apk版本">XXX</DItem>
-                  </Descriptions>
-                  <Descriptions column={1}>
-                    <DItem label="修改前"> </DItem>
-                    <DItem label="游戏名">XXX</DItem>
-                    <DItem label="apk版本">XXX</DItem>
-                  </Descriptions>
-                </Space>
-              </DItem>
-            </Descriptions>
+              </div>
+              <Descriptions
+                column={1}
+                size="small"
+                labelStyle={{ minWidth: '80px' }}
+                style={{ backgroundColor: '#fafafa', padding: '12px' }}
+              >
+                <DItem>
+                  <Tag color="success">更新内容</Tag>
+                </DItem>
+                <DItem label="内部版本号"> 信息2</DItem>
+                <DItem label="外部版本号"> 信息2</DItem>
+                <DItem label="MD5"> 信息2</DItem>
+                <DItem label="游戏位数"> 信息2</DItem>
+              </Descriptions>
+            </Space>
           </TItem>
         ))}
     </Timeline>
