@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Form, FormInstance, FormProps, ModalProps } from 'antd';
+import type { FormInstance, FormProps, ModalProps } from 'antd';
+import { Form } from 'antd';
 
 export interface InitValue {
   modalProps?: ModalProps;
@@ -13,7 +14,7 @@ export default (initValue?: InitValue) => {
 
   const [modalProps, setModalProps] = useState<ModalProps>({
     width: 600,
-    bodyStyle: { maxHeight: '80vh', overflow: 'scroll' },
+    bodyStyle: { maxHeight: '66.6vh', overflow: 'scroll' },
     onCancel: close,
     ...initValue?.modalProps,
   });

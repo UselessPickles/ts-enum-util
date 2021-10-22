@@ -1,5 +1,6 @@
 export default {
   'primary-color': '#1B73E8',
+  'text-color-secondary': '#00000073',
   'font-size-base': '12px',
   'font-size-lg': '14px',
   'border-radius-base': '4px',
