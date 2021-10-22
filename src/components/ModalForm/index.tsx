@@ -1,18 +1,15 @@
-import React, { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
+import React from 'react';
 import { Modal, Form } from 'antd';
-import { InitValue } from '@/hooks/useModalForm';
+import type { InitValue } from '@/hooks/useModalForm';
 
-export default ({
-  children,
-  modalProps,
-  formProps,
-}: PropsWithChildren<InitValue>) => (
-  <Modal {...modalProps}>
-    <Form {...formProps}>
+export default ({ children, modalProps, formProps }: PropsWithChildren<InitValue>) => (
+  <Form {...formProps}>
+    <Modal {...modalProps}>
       {children}
       <Form.Item noStyle>
         <button html-type="submit" style={{ visibility: 'hidden' }} />
       </Form.Item>
-    </Form>
-  </Modal>
+    </Modal>
+  </Form>
 );

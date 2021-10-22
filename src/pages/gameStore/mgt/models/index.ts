@@ -1,4 +1,6 @@
-export default interface Row {}
+export default interface Row {
+  id: 'string';
+}
 
 export const TYPE = new Map([
   ['游戏资料', '游戏资料'],

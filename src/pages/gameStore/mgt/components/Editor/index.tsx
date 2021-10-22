@@ -10,6 +10,7 @@ import {
   Checkbox,
   Descriptions,
   Popconfirm,
+  Tabs,
 } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
@@ -24,8 +25,10 @@ import Format from '@/decorators/Format';
 import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
 import { PlusOutlined } from '@ant-design/icons';
+import styles from './index';
 
 const { Item } = Form;
+const { TabPane } = Tabs;
 
 export default ({
   formProps,
@@ -58,13 +61,31 @@ export default ({
 
   return (
     <ModalForm
-      formProps={{ onFinish: onSubmit, initialValues: { tab: '商务信息' }, ...formProps }}
-      modalProps={{ onOk: onSubmit, ...modalProps }}
+      formProps={{ onFinish: onSubmit, initialValues: { tab: '游戏资料' }, ...formProps }}
+      modalProps={{
+        visible: true,
+        onOk: onSubmit,
+        className: styles['modal-title-height'],
+        ...modalProps,
+        title: (
+          <>
+            {modalProps?.title}
+            <Item
+              name="tab"
+              wrapperCol={{ span: 24 }}
+              valuePropName="activeKey"
+              style={{ position: 'absolute' }}
+            >
+              <Tabs>
+                {Options(TYPE).toOpt?.map((opt) => (
+                  <TabPane tab={opt.label} key={opt.value} />
+                ))}
+              </Tabs>
+            </Item>
+          </>
+        ),
+      }}
     >
-      <Item name="tab" wrapperCol={{ span: 24 }}>
-        <Radio.Group optionType="button" options={Options(TYPE).toOpt} />
-      </Item>
-
       <Item dependencies={[['tab']]} noStyle>
         {({ getFieldValue }) => {
           switch (getFieldValue(['tab'])) {

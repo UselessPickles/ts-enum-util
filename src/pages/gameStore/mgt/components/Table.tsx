@@ -13,7 +13,10 @@ import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import useModalForm from '@/hooks/useModalForm';
 import Editor from './Editor';
 import Uploader from './Uploader';
+import Synchronizer from './Synchronizer';
 import { useParams, useHistory } from 'react-router';
+import { compose } from '@/decorators/utils';
+import disabled from '@/decorators/ATag/disabled';
 
 const { TabPane } = Tabs;
 
@@ -23,6 +26,7 @@ export default function () {
 
   const uploader = useModalForm({ modalProps: { title: '上传游戏' } });
   const editor = useModalForm();
+  const synchronizer = useModalForm();
 
   const { env } = useParams<{ env: string }>();
   const envBehaviorMap = new Map<string, ReactNode>([
@@ -42,17 +46,40 @@ export default function () {
     }));
   }
 
-  function editHandler() {
-    editor.setModalProps((pre) => ({
-      ...pre,
-      visible: true,
-    }));
+  function editHandler(id: Row['id']) {
+    return () =>
+      editor.setModalProps((pre) => ({
+        ...pre,
+        title: '加载中...',
+        confirmLoading: true,
+        visible: true,
+      }));
+  }
+
+  function syncHandler(id: Row['id']) {
+    return () =>
+      editor.setModalProps((pre) => ({
+        ...pre,
+        visible: true,
+      }));
   }
 
   const columns: XmilesCol<Row>[] = [
     {
       title: '广告位ID',
       dataIndex: 'positionId',
+    },
+    {
+      title: '操作',
+      dataIndex: 'id',
+      renderText: (id) => {
+        return (
+          <Space>
+            {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
+            {compose(disabled(false))(<a onClick={syncHandler(id)}>同步到线上</a>)}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -69,6 +96,7 @@ export default function () {
 
       <Editor {...editor} />
       <Uploader {...uploader} />
+      <Synchronizer {...synchronizer} />
 
       <XmilesTable
         actionRef={actionRef}
