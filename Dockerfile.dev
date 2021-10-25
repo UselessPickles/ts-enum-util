@@ -14,4 +14,4 @@ COPY . .
 
 ENV BRANCH = "master"
 
-CMD ["sh", "-c", "git fetch && git checkout $BRANCH && git pull && npm install && bash"]
+CMD ["sh", "-c", "git fetch && git checkout $BRANCH && git pull && npm install && node"]

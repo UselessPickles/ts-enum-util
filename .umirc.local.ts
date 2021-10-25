@@ -2,7 +2,7 @@
 // module.exports = {
 //   define: {
 //     PROCESS_ENV: {
-//       APP_API_BASE: '/five_six_six_manager',
+//       APP_API_BASE: '/commercialize-manager',
 //       APP_API_BASE_URL: 'https://test.yingzhongshare.com',
 //       // APP_API_BASE_URL: "http://192.168.35.138:8080",
 //       APP_API_SECURITY: '/yingzhong-security',
@@ -17,7 +17,7 @@
 module.exports = {
   define: {
     PROCESS_ENV: {
-      APP_API_BASE: '/five_six_six_manager',
+      APP_API_BASE: '/commercialize-manager',
       APP_API_BASE_URL: 'http://marketing-dev.yingzhongshare.com',
       // APP_API_BASE_URL: "http://192.168.35.138:8080",
       APP_API_SECURITY: '/yingzhong-security',

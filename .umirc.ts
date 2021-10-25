@@ -46,13 +46,6 @@ export default defineConfig({
         '/commercialize-manager': '',
       },
     },
-    '/five_six_six_manager': {
-      target: 'https://marketing-dev.yingzhongshare.com',
-      changeOrigin: true,
-      pathRewrite: {
-        '/five_six_six_manager': '',
-      },
-    },
     '/intelligent-manager': {
       target: 'https://marketing-dev.yingzhongshare.com',
       changeOrigin: true,
