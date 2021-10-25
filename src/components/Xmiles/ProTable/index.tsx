@@ -110,7 +110,7 @@ export default <T, U extends Record<string, any>>({
             density: false,
           }}
           sticky={{
-            offsetHeader: -16,
+            offsetHeader: 0,
           }}
           columnEmptyText="-"
           bordered

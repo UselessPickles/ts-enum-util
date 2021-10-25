@@ -68,23 +68,30 @@ export default ({
   onSuccess?: (...args: any) => void;
 }) => {
   async function onSubmit() {
-    try {
-      setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-      const value = await form?.validateFields();
+    const value = await form?.validateFields();
 
-      await add({
-        data: value,
-        throwErr: true,
-      });
-
-      onSuccess?.();
-    } catch (e: any) {
-      if (e?.message) {
-        message.error(e?.message);
-      }
-    } finally {
-      setModalProps((pre) => ({ ...pre, confirmLoading: false }));
-    }
+    Modal.confirm({
+      title: '请进行二次确认',
+      content: '上传的游戏将进入自动化测试，测试完成可同步到线上',
+      onOk: async () => {
+        try {
+          setModalProps((pre) => ({ ...pre, confirmLoading: true }));
+          await add({
+            data: value,
+            throwErr: true,
+          });
+          onSuccess?.();
+          setModalProps((pre) => ({ ...pre, visible: false }));
+        } catch (e: any) {
+          if (e?.message) {
+            message.error(e?.message);
+          }
+          throw e;
+        } finally {
+          setModalProps((pre) => ({ ...pre, confirmLoading: false }));
+        }
+      },
+    });
   }
 
   return (
@@ -123,18 +130,23 @@ export default ({
     >
       <Item dependencies={[['tab']]} noStyle>
         {({ getFieldValue }) => {
-          switch (getFieldValue(['tab'])) {
-            case '游戏资料':
-              return <GameInfo />;
-            case '资源信息':
-              return <SourceInfo />;
-            case '商务信息':
-              return <BizInfo />;
-            case '更新记录':
-              return <UpdateRecord />;
-            default:
-              break;
-          }
+          const t = getFieldValue(['tab']);
+          return (
+            <>
+              <Item noStyle hidden={t !== '游戏资料'}>
+                <GameInfo />
+              </Item>
+              <Item noStyle hidden={t !== '资源信息'}>
+                <SourceInfo />
+              </Item>
+              <Item noStyle hidden={t !== '商务信息'}>
+                <BizInfo />
+              </Item>
+              <Item noStyle hidden={t !== '更新记录'}>
+                <UpdateRecord />
+              </Item>
+            </>
+          );
         }}
       </Item>
     </ModalForm>

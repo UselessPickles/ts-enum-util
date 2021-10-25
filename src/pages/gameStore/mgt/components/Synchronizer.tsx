@@ -1,35 +1,9 @@
-import type { FormItemProps, InputProps, UploadProps } from 'antd';
-import { Form, message, Button, Upload, Card, Space, Divider, Input, Modal } from 'antd';
+import { message, Modal } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
 import { add } from '../services';
-import CustomUpload, { getQiniuKey } from '@/components/CustomUpload';
-import Format from '@/decorators/Format';
-import { IOC } from '@/decorators/hoc';
-import { compose } from '@/decorators/utils';
-
-import {
-  UploadOutlined,
-  DeleteOutlined,
-  StarOutlined,
-  PaperClipOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
-import RESTful from '@/utils/RESTful';
-import showCount from '@/decorators/Input/showCount';
-import type { ReactElement } from 'react';
-import {
-  str2fileList,
-  strArr2fileList,
-  uploadEvent2str,
-  uploadEvent2strArr,
-} from '@/decorators/Upload/Format';
-import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
-import theme from '@/../config/theme';
-const { 'primary-color': primaryColor } = theme;
-
-const { Item } = Form;
+import { DescriptionsRender } from './DescriptionsRender';
 
 export default ({
   formProps,
@@ -40,22 +14,6 @@ export default ({
 }: ReturnType<typeof useModalForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const beforeUpload: UploadProps['beforeUpload'] = (file) => {
-    const outOfRange = file.size / 1024 > 100;
-    if (outOfRange) {
-      message.warning('图片必须小于100k');
-      return Upload.LIST_IGNORE;
-    }
-    return !outOfRange;
-  };
-
-  const getValueFromEvent: FormItemProps['getValueFromEvent'] = (e: any) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList;
-  };
-
   async function onSubmit() {
     const value = await form?.validateFields();
 
@@ -83,118 +41,42 @@ export default ({
     });
   }
 
+  const map = new Map([
+    [0, '上线'],
+    [1, '下线'],
+  ]);
+
+  const rows = [
+    { field: 'status', title: '状态', render: (text) => map.get(text) },
+    { field: 'gameName', title: '游戏名称' },
+    { field: 'version', title: '版本号' },
+    { field: 'description', title: '一句话介绍' },
+    { field: 'descriptionDetail', title: '详细介绍' },
+  ];
+
+  const dataSource = [
+    {
+      status: 1,
+      gameName: '农药',
+      description: '1',
+      descriptionDetail:
+        '12312312312312312312312312312312312312312312312312312312312312312312312312312312312323',
+    },
+    {
+      status: 0,
+      gameName: '农药2',
+      version: 'v1.2',
+      description: '2',
+      // descriptionDetail:'12312312312312312312312312312312312312312312312312312312312312312312312312312312312323',
+    },
+  ];
+
   return (
     <ModalForm
-      formProps={{
-        onFinish: onSubmit,
-        ...formProps,
-      }}
-      modalProps={{ onOk: onSubmit, ...modalProps }}
+      formProps={{ onFinish: onSubmit, ...formProps }}
+      modalProps={{ onOk: onSubmit, title: '同步到线上', okText: '确定同步', ...modalProps }}
     >
-      <Item
-        name="游戏apk"
-        label="游戏apk"
-        rules={[{ required: true }]}
-        valuePropName="fileList"
-        getValueFromEvent={getValueFromEvent}
-      >
-        <Upload
-          maxCount={1}
-          accept=".apk"
-          customRequest={async ({ onSuccess: onUploadSuccess, onError, file }) => {
-            console.log(file);
-            const tokenKey = getQiniuKey(file as any);
-
-            try {
-              // const data = await RESTful.get('', {
-              //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-              //   throwErr: true,
-              // }).then((res) => res?.data);
-
-              // if (!data) {
-              //   throw new Error('上传失败');
-              // }
-
-              // const fd = new FormData();
-              // fd.append('file', file);
-              // fd.append('token', data?.[tokenKey]);
-              // fd.append('key', tokenKey);
-
-              // await fetch('https://upload.qiniup.com', {
-              //   method: 'POST',
-              //   body: fd,
-              // });
-
-              const xhr = new XMLHttpRequest();
-              onError?.(new Error('error'));
-              // if ((Math.random() * 100) % 2) {
-              //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
-              // } else {
-              //   onError?.(new Error('error'));
-              // }
-            } catch (e: any) {
-              onError?.(e);
-            }
-          }}
-          showUploadList={{
-            showDownloadIcon: true,
-            downloadIcon: 'download ',
-            showRemoveIcon: true,
-          }}
-          itemRender={(origin, file) => {
-            return (
-              <Card style={{ marginTop: '4px' }} size="small">
-                {origin}
-                <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
-                <div>信息1: 信息2</div>
-                <div>信息1: 信息2</div>
-                <div>信息1: 信息2</div>
-              </Card>
-            );
-          }}
-        >
-          <Button icon={<UploadOutlined />}>上传apk文件</Button>
-        </Upload>
-      </Item>
-
-      <Item name="游戏名称" label="游戏名称" rules={[{ required: true }]}>
-        {compose<ReactElement<InputProps>>(IOC([showCount]))(<Input maxLength={20} />)}
-      </Item>
-      <Item dependencies={[['游戏icon']]} noStyle>
-        {({ getFieldValue }) => (
-          <Item
-            name="游戏icon"
-            label="游戏icon"
-            rules={[{ required: true }]}
-            valuePropName="fileList"
-            extra="jpg、png格式，建议尺寸xx*xx px，不超过100k"
-          >
-            {compose<ReturnType<typeof CustomUpload>>(
-              IOC([
-                Format({
-                  valuePropName: 'fileList',
-                  f: uploadEvent2str,
-                  g: str2fileList,
-                }),
-              ]),
-            )(
-              <CustomUpload
-                maxCount={1}
-                accept=".jpg,.png"
-                listType="picture-card"
-                beforeUpload={beforeUpload}
-              >
-                {getFieldValue(['游戏icon'])?.length < 1 && (
-                  <div>
-                    <PlusOutlined style={{ fontSize: '18px' }} />
-                    <div style={{ marginTop: 8 }}>上传图片</div>
-                  </div>
-                )}
-              </CustomUpload>,
-            )}
-          </Item>
-        )}
-      </Item>
+      <DescriptionsRender bordered dataSource={dataSource} rows={rows} />
     </ModalForm>
   );
 };

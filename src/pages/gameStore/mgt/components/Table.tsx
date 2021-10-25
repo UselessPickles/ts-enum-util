@@ -58,7 +58,7 @@ export default function () {
 
   function syncHandler(id: Row['id']) {
     return () =>
-      editor.setModalProps((pre) => ({
+      synchronizer.setModalProps((pre) => ({
         ...pre,
         visible: true,
       }));
