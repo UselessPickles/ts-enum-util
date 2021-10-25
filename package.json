@@ -25,6 +25,8 @@
     "@ant-design/pro-layout": "^6.5.0",
     "@ant-design/pro-table": "^2.56.2",
     "react": "17.x",
+    "react-dnd": "^14.0.4",
+    "react-dnd-html5-backend": "^14.0.2",
     "react-dom": "17.x",
     "react-query": "^3.27.0",
     "styled-components": "^5.3.1",

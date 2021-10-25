@@ -1,43 +1,93 @@
-import { Input, Modal, Select, Table } from 'antd';
-import styled from 'styled-components';
+import { Form, Input, Modal } from 'antd';
 import styles from '../index.less';
-import { useContainer } from '../useStore';
+import { useContainer, gameTable } from '../useStore';
 import React, { useState, useEffect } from 'react';
-import SearchOutlined from '@ant-design/icons/lib/icons/SearchOutlined';
 import gameImg from '@/assets/img/icon-566game.png';
+import sortIcon from '@/assets/img/icon-sort.png';
+import { SortableHandle } from 'react-sortable-hoc';
+import isValidValue from '@/utils/isValidValue';
+import { MenuOutlined, SearchOutlined, CloseOutlined } from '@ant-design/icons';
+import { dragComponents } from './dragComponents';
+import GameList from '@/querys/GameList';
 
 export default () => {
-  const { gameModalProps, setGameModalProps } = useContainer(),
+  const {
+      gameModalProps,
+      setGameModalProps,
+      checkedGames,
+      setCheckedGames,
+      selectedRowKeys,
+      setSelectRowKeys,
+    } = useContainer(),
     [dataSource, setDataSource] = useState<any>(),
-    [gameSelect, setGameSelect] = useState<any>(),
+    { GameTable } = gameTable(),
     onCancel = () => {
       setGameModalProps({
         visible: false,
       });
+      setCheckedGames([]);
+      setSelectRowKeys([]);
     },
-    GameTable = styled(Table)`
-      thead {
-        display: none;
-      }
-      .ant-table-tbody > tr > td {
-        border-bottom: 0 !important;
-      }
-      .ant-table-tbody > tr.ant-table-row-selected > td {
-        background-color: #ffffff !important;
-      }
-    `;
+    onSubmit = () => {
+      setGameModalProps({
+        visible: false,
+      });
+      setSelectRowKeys([]);
+    };
+  // const gameListSource = GameList({ format: (res) => res?.data })?.data ?? [];
+  // console.log('gameListSource',gameListSource)
+
+  const gameData = [
+    { key: 5, icon: '123', gameName: '123', packageName: '123' },
+    { key: 7, icon: '234', gameName: '567', packageName: '789' },
+    { key: 10, icon: '1011', gameName: '5874', packageName: '789' },
+  ]; //模拟数据
+
+  const DragHandle = SortableHandle(() => (
+    <div>
+      <img src={sortIcon} style={{ cursor: 'move', width: 24 }} />
+    </div>
+  ));
 
   useEffect(() => {
-    console.log('执行一次');
-    setDataSource([
-      { key: 1, icon: '123', gameName: '123', packageName: '123' },
-      { key: 2, icon: '234', gameName: '567', packageName: '789' },
-    ]); //模拟数据
-  }, [gameSelect]);
+    setDataSource(gameData);
+  }, []);
+
+  function onTableSelectChange(rowKeys: any[], rowData: any[]) {
+    setSelectRowKeys(rowKeys);
+    setCheckedGames(rowData);
+  }
 
   const rowSelection = {
-    onchange: (selectedRowKeys: any[], selectedRows: any[]) => {},
+    selectedRowKeys,
+    onChange: onTableSelectChange,
+    type: 'checkbox',
   };
+
+  function onRow(record: any, index: number) {
+    return {
+      index,
+      moveRow: moveRow,
+    };
+  }
+  function moveRow(dragIndex: number, hoverIndex: number) {
+    const data = [...checkedGames];
+    data.splice(dragIndex, 1);
+    data.splice(hoverIndex, 0, checkedGames[dragIndex]);
+    data.forEach((item, index) => {
+      item.sort = index + 1 + '';
+    });
+    setCheckedGames(data);
+  }
+
+  function delectChecked(record: any) {
+    const { key } = record;
+    selectedRowKeys.splice(selectedRowKeys.indexOf(key), 1);
+    const rowData = checkedGames.filter((item: any) => {
+      return item !== record;
+    });
+    onTableSelectChange(selectedRowKeys, rowData);
+  }
 
   const columns = [
     {
@@ -60,9 +110,41 @@ export default () => {
       },
     },
   ];
+  const selectColumns = [
+    {
+      dataIndex: 'sort',
+      with: 30,
+      className: styles.drag,
+      render: () => <DragHandle />,
+    },
+    {
+      dataIndex: 'icon',
+      render: () => {
+        return <img src={gameImg} style={{ width: '42px' }} />;
+      },
+    },
+    {
+      dataIndex: 'gameName',
+      width: 550,
+      render: (text: any, record: any, index: any) => {
+        return (
+          <div className={styles.gameClass}>
+            <h5>{record?.gameName}</h5>
+            <p>{record?.packageName}</p>
+          </div>
+        );
+      },
+    },
+    {
+      with: 30,
+      render: (text: any, record: any, index: any) => {
+        return <CloseOutlined onClick={() => delectChecked(record)} style={{ color: '#ADADAE' }} />;
+      },
+    },
+  ];
 
   return (
-    <Modal {...gameModalProps} onCancel={onCancel} onOk={onCancel} width={800}>
+    <Modal {...gameModalProps} onCancel={onCancel} onOk={onSubmit} width={800}>
       <div className={styles.gameEdit}>
         <div>
           <div className={styles.gameHeader}>
@@ -71,14 +153,24 @@ export default () => {
               style={{ width: '70%', border: '1px solid #E0E0E0' }}
               placeholder={`游戏名/包名关键词搜索`}
               prefix={<SearchOutlined />}
-              onChange={(value) => {
-                setGameSelect(value);
+              onChange={(e) => {
+                const inputGame = e.target.value;
+                setDataSource(
+                  isValidValue(inputGame)
+                    ? gameData?.filter((item) => {
+                        return (
+                          item.gameName?.indexOf(inputGame ?? '') !== -1 ||
+                          item.packageName?.indexOf(inputGame ?? '') !== -1
+                        );
+                      })
+                    : gameData,
+                );
               }}
             />
           </div>
           <div className={styles.gameBody}>
             <GameTable
-              rowSelection={{ ...rowSelection }}
+              rowSelection={rowSelection}
               dataSource={dataSource}
               columns={columns}
               size="small"
@@ -88,9 +180,26 @@ export default () => {
         </div>
         <div>
           <div className={styles.gameHeader}>
-            <div className={styles.headerTitle}>已选游戏</div>
+            <div className={styles.headerTitle}>
+              已选游戏{selectedRowKeys?.length > 0 ? `(${selectedRowKeys?.length})` : ``}
+            </div>
           </div>
-          <div className={styles.gameBody}></div>
+          <div
+            className={styles.gameBody}
+            style={{ padding: 12 }}
+            hidden={!(selectedRowKeys?.length > 0)}
+          >
+            <GameTable
+              rowKey="key"
+              pagination={false}
+              className={styles.checkedGameTable}
+              columns={selectColumns}
+              dataSource={checkedGames}
+              components={dragComponents}
+              onRow={onRow}
+              size="small"
+            />
+          </div>
         </div>
       </div>
     </Modal>

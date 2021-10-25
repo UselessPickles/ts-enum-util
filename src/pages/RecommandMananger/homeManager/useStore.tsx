@@ -2,21 +2,17 @@ import { createContext, useContext, useRef, useState } from 'react';
 import { ModalProps } from 'antd/lib/modal';
 import { ProCoreActionType } from '@ant-design/pro-utils';
 import { FormInstance } from 'antd/lib/form';
-import { Form, Table } from 'antd';
+import { Form } from 'antd';
 import { useMutation } from 'react-query';
 import RESTful from '@/utils/RESTful';
-import styled from 'styled-components';
 
 // 共享 hooks
 export function useStore() {
   const actionRef = useRef<ProCoreActionType | undefined>();
   const formRef = useRef<FormInstance | undefined>();
-  const [modalFormRef] = Form.useForm(),
-    [modalProps, setModalProps] = useState<ModalProps>({}),
-    [editRecord, setEditRecord] = useState<{ [key: string]: any }>({}),
-    [gameModalProps, setGameModalProps] = useState<ModalProps>({}),
-    [checkedGames, setCheckedGames] = useState<any>([]),
-    [selectedRowKeys, setSelectRowKeys] = useState<any>([]);
+  const [modalFormRef] = Form.useForm();
+  const [modalProps, setModalProps] = useState<ModalProps>({});
+  const [editRecord, setEditRecord] = useState<{ [key: string]: any }>({});
 
   return {
     actionRef,
@@ -26,12 +22,6 @@ export function useStore() {
     modalFormRef,
     editRecord,
     setEditRecord,
-    gameModalProps,
-    setGameModalProps,
-    checkedGames,
-    setCheckedGames,
-    selectedRowKeys,
-    setSelectRowKeys,
   };
 }
 
@@ -54,39 +44,24 @@ export default {
 
 export function useModalFromSubmit() {
   const { modalFormRef, setModalProps, actionRef, editRecord } = useContainer();
-  const addOrUpdater = useMutation(
-    (data: { [key: string]: any }) =>
-      RESTful.post('', {
-        data,
-      }),
-    {
-      onSuccess: () => {
-        actionRef.current?.reload();
-        setModalProps({
-          visible: false,
-        });
-      },
-    },
-  );
+  // const addOrUpdater = useMutation(
+  //   (data: { [key: string]: any }) =>
+  //     RESTful.post('',{
+  //       data
+  //     }),
+  //   {
+  //     onSuccess: () => {
+  //       actionRef.current?.reload();
+  //       setModalProps({
+  //         visible: false,
+  //       });
+  //     },
+  //   },
+  // );
 
   function submitor() {
     return modalFormRef.validateFields().then((value) => {});
   }
 
   return { submitor }; //addOrUpdater
-}
-
-export function gameTable() {
-  const GameTable = styled(Table)`
-    thead {
-      display: none;
-    }
-    .ant-table-tbody > tr > td {
-      border-bottom: 0 !important;
-    }
-    .ant-table-tbody > tr.ant-table-row-selected > td {
-      background-color: #ffffff !important;
-    }
-  `;
-  return { GameTable };
 }
