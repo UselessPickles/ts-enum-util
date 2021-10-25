@@ -19,3 +19,14 @@ export const INSTALL_TYPE = new Map([
   ['内部安装', '内部安装'],
   ['应用外安装', '应用外安装'],
 ]);
+
+export const STATUS = new Map([
+  [1, '上线'],
+  [2, '下线'],
+]);
+export const TEST_STATUS = new Map([
+  [1, '未开始'],
+  [2, '测试中'],
+  [3, '测试成功'],
+  [4, '测试失败'],
+]);

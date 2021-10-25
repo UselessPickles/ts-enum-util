@@ -36,18 +36,25 @@ export default defineConfig({
   dva: false,
   proxy: {
     '/utils_service': {
-      target: 'https://test.yingzhongshare.com',
+      target: 'https://marketing-dev.yingzhongshare.com',
       changeOrigin: true,
     },
     '/commercialize-manager': {
-      target: 'https://test.yingzhongshare.com',
+      target: 'https://marketing-dev.yingzhongshare.com',
       changeOrigin: true,
       pathRewrite: {
         '/commercialize-manager': '',
       },
     },
+    '/five_six_six_manager': {
+      target: 'https://marketing-dev.yingzhongshare.com',
+      changeOrigin: true,
+      pathRewrite: {
+        '/five_six_six_manager': '',
+      },
+    },
     '/intelligent-manager': {
-      target: 'https://test.yingzhongshare.com',
+      target: 'https://marketing-dev.yingzhongshare.com',
       changeOrigin: true,
     },
   },
