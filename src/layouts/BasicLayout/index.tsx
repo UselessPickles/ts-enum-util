@@ -28,13 +28,15 @@ const BasicLayout: React.FC = (props) => {
                 <div className="logo" />
                 <SliderMenu />
               </Sider>
-              <Content className="site-layout-background" style={{ padding: 16, minHeight: 280 }}>
-                <ConfigProvider
-                  locale={zhCN}
-                  form={{ validateMessages: { required: '${label} 是必选字段' } }}
-                >
-                  {props.children}
-                </ConfigProvider>
+              <Content className="site-layout-background" style={{ minHeight: 280 }}>
+                <div style={{ padding: 16 }}>
+                  <ConfigProvider
+                    locale={zhCN}
+                    form={{ validateMessages: { required: '${label} 是必选字段' } }}
+                  >
+                    {props.children}
+                  </ConfigProvider>
+                </div>
               </Content>
             </Layout>
           </SiderMenuContext.Provider>
