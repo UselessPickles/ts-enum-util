@@ -82,33 +82,19 @@ export default () => {
           ]}
         />
       </Item>
-      <Item noStyle dependencies={['status']}>
-        {({ getFieldValue }) => {
-          const status = getFieldValue('status');
-          return (
-            status && (
-              <Item
-                label={[
-                  <>
-                    <span>排序</span>
-                    <span style={{ color: 'rgba(0, 0, 0, 0.45)', marginLeft: '8px' }}>
-                      (在APP页面上的排序位置,数字越大越靠前)
-                    </span>
-                  </>,
-                ]}
-                name="sort"
-                rules={[{ required: true }]}
-              >
-                <InputNumber
-                  max={999}
-                  min={1}
-                  style={{ width: '100%' }}
-                  placeholder="请输入数值0-999"
-                />
-              </Item>
-            )
-          );
-        }}
+      <Item
+        label={[
+          <>
+            <span>排序</span>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)', marginLeft: '8px' }}>
+              (在APP页面上的排序位置,数字越大越靠前)
+            </span>
+          </>,
+        ]}
+        name="sort"
+        rules={[{ required: true }]}
+      >
+        <InputNumber max={999} min={1} style={{ width: '100%' }} placeholder="请输入数值0-999" />
       </Item>
       <h3>2.游戏名单</h3>
       <Button onClick={onOpenGame} icon={<EditOutlined />} className={styles.btnDefaut}>

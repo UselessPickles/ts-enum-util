@@ -3,7 +3,7 @@ import RESTful from '@/utils/RESTful';
 import { useQuery, UseQueryOptions } from 'react-query';
 
 export interface GameList {
-  icon: string;
+  gameIcon: string;
   gameName: string;
   packageName: string;
 }
@@ -19,6 +19,6 @@ export default <T = GameList[]>({
 } = {}) =>
   useQuery<T>( //查询游戏列表的api
     ['', format, options],
-    (opt: CustomRequestConfig) => RESTful.post('', opt).then(format),
+    (opt: CustomRequestConfig) => RESTful.post('fxx/game/prod/page', opt).then(format),
     options,
   );

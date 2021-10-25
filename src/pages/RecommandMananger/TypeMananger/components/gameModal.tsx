@@ -34,8 +34,8 @@ export default () => {
       });
       setSelectRowKeys([]);
     };
-  // const gameListSource = GameList({ format: (res) => res?.data })?.data ?? [];
-  // console.log('gameListSource',gameListSource)
+  const gameListSource = GameList({ format: (res) => res?.data })?.data ?? [];
+  console.log('gameListSource', gameListSource);
 
   const gameData = [
     { key: 5, icon: '123', gameName: '123', packageName: '123' },

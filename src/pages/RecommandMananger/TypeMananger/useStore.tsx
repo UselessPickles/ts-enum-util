@@ -6,6 +6,7 @@ import { Form, Table } from 'antd';
 import { useMutation } from 'react-query';
 import RESTful from '@/utils/RESTful';
 import styled from 'styled-components';
+import { addAPI, updateAPI } from './services';
 
 // 共享 hooks
 export function useStore() {
@@ -54,23 +55,18 @@ export default {
 
 export function useModalFromSubmit() {
   const { modalFormRef, setModalProps, actionRef, editRecord } = useContainer();
-  const addOrUpdater = useMutation(
-    (data: { [key: string]: any }) =>
-      RESTful.post('', {
-        data,
-      }),
-    {
-      onSuccess: () => {
-        actionRef.current?.reload();
-        setModalProps({
-          visible: false,
-        });
-      },
-    },
-  );
+  const updater = useMutation((data) => updateAPI({ data }));
+  const creater = useMutation((data) => addAPI({ data }));
 
   function submitor() {
-    return modalFormRef.validateFields().then((value) => {});
+    return modalFormRef.validateFields().then((value) => {
+      const { id } = value;
+      if (id) {
+        updater.mutateAsync(value);
+      } else {
+        creater.m;
+      }
+    });
   }
 
   return { submitor }; //addOrUpdater

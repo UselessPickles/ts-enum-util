@@ -80,33 +80,19 @@ export default () => {
           ]}
         />
       </Item>
-      <Item noStyle dependencies={['status']}>
-        {({ getFieldValue }) => {
-          const status = getFieldValue('status');
-          return (
-            status && (
-              <Item
-                label={[
-                  <>
-                    <span>展示位置</span>
-                    <span style={{ color: 'rgba(0, 0, 0, 0.45)', marginLeft: '8px' }}>
-                      (可在首页前50个位置中，任意一个位置展示)
-                    </span>
-                  </>,
-                ]}
-                name="sort"
-                rules={[{ required: true }]}
-              >
-                <InputNumber
-                  max={50}
-                  min={0}
-                  style={{ width: '100%' }}
-                  placeholder="请输入数值0-50"
-                />
-              </Item>
-            )
-          );
-        }}
+      <Item
+        label={[
+          <>
+            <span>展示位置</span>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)', marginLeft: '8px' }}>
+              (可在首页前50个位置中，任意一个位置展示)
+            </span>
+          </>,
+        ]}
+        name="sort"
+        rules={[{ required: true }]}
+      >
+        <InputNumber max={50} min={0} style={{ width: '100%' }} placeholder="请输入数值0-50" />
       </Item>
     </DrawerForm>
   );
