@@ -49,7 +49,7 @@ function BodyRow(props: any) {
   );
 }
 const rowSource = {
-  beginDrag(props: { index: any }) {
+  beginDrag(props) {
     return {
       index: props.index,
     };
@@ -57,21 +57,13 @@ const rowSource = {
 };
 
 const rowTarget = {
-  drop(
-    props: { index: any; moveRow: (arg0: any, arg1: any) => void },
-    monitor: { getItem: () => { (): any; new (): any; index: any } },
-  ) {
+  drop(props, monitor) {
     const dragIndex = monitor.getItem().index;
     const hoverIndex = props.index;
-
-    // Don't replace items with themselves
     if (dragIndex === hoverIndex) {
       return;
     }
-
-    // Time to actually perform the action
     props.moveRow(dragIndex, hoverIndex);
-
     monitor.getItem().index = hoverIndex;
   },
 };
@@ -91,6 +83,5 @@ const DraggableBodyRow = DropTarget('row', rowTarget, (connect, monitor) => ({
 export const dragComponents = {
   body: {
     row: DraggableBodyRow,
-    // cell: EditableCell,
   },
 };

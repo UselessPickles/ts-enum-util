@@ -20,6 +20,20 @@ export default defineConfig({
         { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authorized'] },
         { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authorized'] },
         {
+          path: '/RecommandMananger',
+          routes: [
+            { path: '/RecommazndMananger', redirect: '/RecommandMananger/TypeMananger' },
+            {
+              path: '/RecommandMananger/TypeMananger',
+              component: '@/pages/RecommandMananger/TypeMananger',
+            },
+            {
+              path: '/RecommandMananger/homeManager',
+              component: '@/pages/RecommandMananger/homeManager',
+            },
+          ],
+        },
+        {
           path: '/gameStore/mgt',
           routes: [
             { path: '/gameStore/mgt/', redirect: '/gameStore/mgt/test' },
