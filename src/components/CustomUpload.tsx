@@ -3,13 +3,13 @@ import type { UploadProps } from 'antd';
 import { Upload } from 'antd';
 import RESTful from '@/utils/RESTful';
 
-export function getExt(file: File): string {
-  const arr = file?.name?.split('.');
+export function getExt(fileName: string): string {
+  const arr = fileName?.split('.');
   return arr[arr?.length - 1];
 }
 
 export function getQiniuKey(file: File & { uid: string }) {
-  return `${PROCESS_ENV.APP_NAME}/${file.uid}.${getExt(file)}`;
+  return `${PROCESS_ENV.APP_NAME}/${file.uid}.${getExt(file.name)}`;
 }
 
 export default (props: React.PropsWithChildren<UploadProps>) => (

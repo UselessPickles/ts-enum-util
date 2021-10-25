@@ -3,7 +3,7 @@ import type { TabsProps } from 'antd';
 import type { XmilesCol } from '@/components/Xmiles/Col';
 import type Row from '../models';
 
-import { Button, Space, Dropdown, Menu, Tabs } from 'antd';
+import { Button, Space, Dropdown, Menu, Tabs, Image } from 'antd';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
 import { UploadOutlined } from '@ant-design/icons';
@@ -13,8 +13,12 @@ import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import useModalForm from '@/hooks/useModalForm';
 import Editor from './Editor';
 import Uploader from './Uploader';
+import Synchronizer from './Synchronizer';
 import { useParams, useHistory } from 'react-router';
-
+import { compose } from '@/decorators/utils';
+import disabled from '@/decorators/ATag/disabled';
+import { STATUS, TEST_STATUS } from '../models';
+// unsaved test
 const { TabPane } = Tabs;
 
 export default function () {
@@ -23,6 +27,7 @@ export default function () {
 
   const uploader = useModalForm({ modalProps: { title: '上传游戏' } });
   const editor = useModalForm();
+  const synchronizer = useModalForm();
 
   const { env } = useParams<{ env: string }>();
   const envBehaviorMap = new Map<string, ReactNode>([
@@ -42,17 +47,90 @@ export default function () {
     }));
   }
 
-  function editHandler() {
-    editor.setModalProps((pre) => ({
-      ...pre,
-      visible: true,
-    }));
+  function editHandler(id: Row['id']) {
+    return () =>
+      editor.setModalProps((pre) => ({
+        ...pre,
+        title: '加载中...',
+        confirmLoading: true,
+        visible: true,
+      }));
+  }
+
+  function syncHandler(id: Row['id']) {
+    return () =>
+      synchronizer.setModalProps((pre) => ({
+        ...pre,
+        visible: true,
+      }));
   }
 
   const columns: XmilesCol<Row>[] = [
     {
-      title: '广告位ID',
-      dataIndex: 'positionId',
+      title: '包名/游戏名',
+      dataIndex: 'packageOrGameName',
+    },
+    {
+      title: '包名',
+      dataIndex: 'packageName',
+      hideInSearch: true,
+    },
+    {
+      title: 'icon',
+      dataIndex: 'gameIcon',
+      hideInSearch: true,
+      renderText: (src) => <Image src={src} />,
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      valueEnum: STATUS,
+    },
+    {
+      title: '自动化测试状态',
+      dataIndex: 'testStatus',
+      valueEnum: TEST_STATUS,
+      hideInSearch: true,
+    },
+    {
+      title: '版本号',
+      dataIndex: 'gameVersion',
+      hideInSearch: true,
+    },
+    {
+      title: '游戏来源',
+      dataIndex: 'gameSource',
+      hideInSearch: true,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'utime',
+      valueType: 'dateTimeRange',
+    },
+    {
+      title: '操作人',
+      dataIndex: 'operator',
+      hideInSearch: true,
+    },
+    {
+      title: '操作时间',
+      dataIndex: 'ctime',
+      valueType: 'dateTimeRange',
+      hideInSearch: true,
+    },
+    {
+      title: '操作',
+      dataIndex: 'id',
+      hideInSearch: true,
+      fixed: 'right',
+      renderText: (id) => {
+        return (
+          <Space>
+            {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
+            {compose(disabled(false))(<a onClick={syncHandler(id)}>同步到线上</a>)}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -69,6 +147,7 @@ export default function () {
 
       <Editor {...editor} />
       <Uploader {...uploader} />
+      <Synchronizer {...synchronizer} />
 
       <XmilesTable
         actionRef={actionRef}
@@ -80,6 +159,8 @@ export default function () {
         request={async (params) => {
           const data = {
             ...params,
+            ustartTime: params?.utime?.[0]?.format('YYYY-MM-DD hh:mm:ss'),
+            uendTime: params?.utime?.[1]?.format('YYYY-MM-DD hh:mm:ss'),
             page: {
               page_no: params?.current,
               page_size: params?.pageSize,
