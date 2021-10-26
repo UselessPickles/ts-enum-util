@@ -38,6 +38,7 @@ import {
 } from '@/decorators/Upload/Format';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import theme from '@/../config/theme';
+import { useQuery } from 'react-query';
 const { 'primary-color': primaryColor } = theme;
 const { Item } = Form;
 const { Item: DItem } = Descriptions;
@@ -98,9 +99,10 @@ export default ({
     <ModalForm
       formProps={{
         onFinish: onSubmit,
+
         ...formProps,
       }}
-      modalProps={{ onOk: onSubmit, ...modalProps }}
+      modalProps={{ onOk: onSubmit, confirmLoading: detail.isFetching, ...modalProps }}
     >
       <Item
         name="游戏apk"
@@ -171,13 +173,13 @@ export default ({
         </Upload>
       </Item>
 
-      <Item name="游戏名称" label="游戏名称" rules={[{ required: true }]}>
+      <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
         {compose<ReactElement<InputProps>>(IOC([showCount]))(<Input maxLength={20} />)}
       </Item>
-      <Item dependencies={[['游戏Icon']]} noStyle>
+      <Item dependencies={[['gameIcon']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name="游戏Icon"
+            name="gameIcon"
             label="游戏Icon"
             rules={[{ required: true }]}
             valuePropName="fileList"
