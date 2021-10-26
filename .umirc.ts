@@ -45,6 +45,8 @@ export default defineConfig({
   ],
   theme,
   fastRefresh: {},
+  // https://github.com/umijs/umi/issues/6766
+  mfsu: {},
   // 不用dva
   dva: false,
   proxy: {

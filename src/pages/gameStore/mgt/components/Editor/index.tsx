@@ -110,7 +110,7 @@ export default ({
       modalProps={{
         onOk: onSubmit,
         className: styles['modal-title-height'],
-        visible: true,
+
         ...modalProps,
         title: (
           <>
@@ -160,7 +160,7 @@ function GameInfo() {
       <Item>
         <Text strong>1. 基础信息</Text>
       </Item>
-      <Item name="游戏名称" label="游戏名称" rules={[{ required: true }]}>
+      <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
         <Input placeholder="输入内容" />
       </Item>
       <Item name="一句话介绍" label="一句话介绍" rules={[{ required: true }]}>
@@ -170,10 +170,10 @@ function GameInfo() {
         <Input.TextArea placeholder="输入内容" rows={5} />
       </Item>
       <div style={{ display: 'flex' }}>
-        <Item dependencies={[['游戏Icon']]} noStyle>
+        <Item dependencies={[['gameIcon']]} noStyle>
           {({ getFieldValue }) => (
             <Item
-              name="游戏Icon"
+              name="gameIcon"
               label="游戏Icon"
               rules={[{ required: true }]}
               style={{ flex: 1 }}

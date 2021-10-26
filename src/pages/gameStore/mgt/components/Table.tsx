@@ -3,12 +3,12 @@ import type { TabsProps } from 'antd';
 import type { XmilesCol } from '@/components/Xmiles/Col';
 import type Row from '../models';
 
-import { Button, Space, Dropdown, Menu, Tabs, Image } from 'antd';
+import { Button, Space, Tabs, Image } from 'antd';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
 import { UploadOutlined } from '@ant-design/icons';
 
-import { list } from '../services';
+import { services } from '../services';
 import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import useModalForm from '@/hooks/useModalForm';
 import Editor from './Editor';
@@ -48,27 +48,32 @@ export default function () {
   }
 
   function editHandler(id: Row['id']) {
-    return () =>
+    return () => {
       editor.setModalProps((pre) => ({
         ...pre,
         title: '加载中...',
         confirmLoading: true,
         visible: true,
       }));
+      editor.setData({ id });
+    };
   }
 
   function syncHandler(id: Row['id']) {
-    return () =>
+    return () => {
       synchronizer.setModalProps((pre) => ({
         ...pre,
         visible: true,
       }));
+      synchronizer.setData({ id });
+    };
   }
 
   const columns: XmilesCol<Row>[] = [
     {
       title: '包名/游戏名',
       dataIndex: 'packageOrGameName',
+      hideInTable: true,
     },
     {
       title: '包名',
@@ -136,6 +141,7 @@ export default function () {
 
   const onTabClick: TabsProps['onTabClick'] = (key) => {
     history.replace(key);
+    actionRef.current?.reload();
   };
 
   return (
@@ -166,7 +172,7 @@ export default function () {
               page_size: params?.pageSize,
             },
           };
-          const res = await list({ data });
+          const res = await services('list', { data }, env);
 
           return {
             data: res?.data?.total_datas || [],
