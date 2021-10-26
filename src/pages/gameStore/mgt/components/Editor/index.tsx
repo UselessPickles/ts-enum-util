@@ -6,6 +6,7 @@ import {
   Input,
   Modal,
   Image,
+  Tooltip,
   Space,
   Button,
   DatePicker,
@@ -24,7 +25,7 @@ import {
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
-import { add } from '../../services';
+import { services } from '../../services';
 import Options from '@/utils/Options';
 import { PROFIT_MODE, INSTALL_TYPE, STATUS, TYPE } from '../../models';
 import SearchSelect from '@/components/SearchSelect';
@@ -44,6 +45,11 @@ import {
 import type { Moment } from 'moment';
 import moment from 'moment';
 import theme from '@/../config/theme';
+import { useQuery } from 'react-query';
+import isValidValue from '@/utils/isValidValue';
+import prune from '@/utils/prune';
+import SelectAll from '@/decorators/Select/SelectAll';
+import { arr2str, str2arr } from '@/decorators/Select/Format';
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -59,59 +65,132 @@ const getValueFromEvent: FormItemProps['getValueFromEvent'] = (e: any) => {
   return e?.fileList;
 };
 
+function getFileNameInPath(path: string) {
+  const arr = path?.split?.('/');
+  return arr?.[arr?.length - 1];
+}
+
 export default ({
   formProps,
   modalProps,
   setModalProps,
   onSuccess,
   form,
+  data = {},
 }: ReturnType<typeof useModalForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  async function onSubmit() {
-    const value = await form?.validateFields();
-
-    Modal.confirm({
-      title: '请进行二次确认',
-      content: '上传的游戏将进入自动化测试，测试完成可同步到线上',
-      onOk: async () => {
-        try {
-          setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-          await add({
-            data: value,
-            throwErr: true,
-          });
-          onSuccess?.();
-          setModalProps((pre) => ({ ...pre, visible: false }));
-        } catch (e: any) {
-          if (e?.message) {
-            message.error(e?.message);
-          }
-          throw e;
-        } finally {
-          setModalProps((pre) => ({ ...pre, confirmLoading: false }));
-        }
+  const { id, env } = data;
+  const detail = useQuery(
+    ['game-mgt-editor', data.id],
+    () => services('get', { data: { id } }, env),
+    {
+      enabled: !!id,
+      refetchOnWindowFocus: false,
+      onSuccess(res) {
+        const formData = prune(res?.data, isValidValue) ?? {};
+        const {
+          // resources,
+          gamePictureList,
+          gameVideoList,
+        } = formData ?? {};
+        // apk , 内部版本号， 外部版本号， md5
+        // const { apk, ...restResources } = resources ?? {};
+        const format = {
+          ...formData,
+          gamePicture: gamePictureList,
+          gameVideo: gameVideoList?.[0]?.url,
+          // resources: {
+          //   ...restResources,
+          //   insideVersion: 2,
+          //   apk: [
+          //     {
+          //       response: {
+          //         name: getFileNameInPath(apk),
+          //         url: apk,
+          //       },
+          //       name: getFileNameInPath(apk),
+          //     },
+          //   ],
+          // },
+        };
+        form.setFieldsValue(format);
+        setModalProps((pre) => ({
+          ...pre,
+          title: formData?.packageName,
+          confirmLoading: undefined,
+        }));
       },
-    });
+    },
+  );
+
+  async function onSubmit() {
+    try {
+      const value = await form?.validateFields();
+      const format = {
+        ...value,
+      };
+
+      Modal.confirm({
+        title: '请进行二次确认',
+        content: '上传的游戏将进入自动化测试，测试完成可同步到线上',
+        onOk: async () => {
+          try {
+            setModalProps((pre) => ({ ...pre, confirmLoading: true }));
+            await services(
+              'update',
+              {
+                data: format,
+                throwErr: true,
+              },
+              env,
+            );
+            onSuccess?.();
+            setModalProps((pre) => ({ ...pre, visible: false }));
+          } catch (e: any) {
+            if (e?.message) {
+              message.error(e?.message);
+            }
+            throw e;
+          } finally {
+            setModalProps((pre) => ({ ...pre, confirmLoading: false }));
+          }
+        },
+      });
+    } catch (e: any) {
+      const { errorFields } = e ?? {};
+      const errMsgs = errorFields?.reduce(
+        (acc: string[], field: any) => acc.concat(field?.errors),
+        [],
+      );
+      message.error(
+        <>
+          <b>表单存在以下错误</b>
+          <br />
+          {errMsgs?.map((msg: string) => (
+            <>
+              {msg} <br />
+            </>
+          ))}
+        </>,
+      );
+    }
   }
 
   return (
     <ModalForm
       formProps={{
         onFinish: onSubmit,
-        initialValues: {
-          tab: '游戏资料',
-          gameVideo: 'https://image.quzhuanxiang.com/566game/rc-upload-1634886125444-13.webm',
-          安装方式: '内部安装',
-        },
+        initialValues: { tab: '游戏资料' },
         className: styles['form-item-margin-bottom'],
-
+        title: detail?.isFetched ? '加载中...' : undefined,
         ...formProps,
       }}
       modalProps={{
         onOk: onSubmit,
         className: styles['modal-title-height'],
-
+        confirmLoading: detail?.isFetched,
+        visible: true,
         ...modalProps,
         title: (
           <>
@@ -134,6 +213,7 @@ export default ({
           const t = getFieldValue(['tab']);
           return (
             <>
+              <Item name={'id'} hidden />
               <Item noStyle hidden={t !== '游戏资料'}>
                 <GameInfo />
               </Item>
@@ -172,65 +252,69 @@ function GameInfo() {
       </Item>
       <div style={{ display: 'flex' }}>
         <Item dependencies={[['gameIcon']]} noStyle>
-          {({ getFieldValue }) => (
-            <Item
-              name="gameIcon"
-              label="游戏Icon"
-              rules={[{ required: true }]}
-              style={{ flex: 1 }}
-              valuePropName="fileList"
-            >
-              {compose<ReturnType<typeof CustomUpload>>(
-                IOC([
-                  Format({
-                    valuePropName: 'fileList',
-                    f: uploadEvent2str,
-                    g: str2fileList,
-                  }),
-                ]),
-              )(
-                <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
-                  {!(getFieldValue(['游戏Icon'])?.length >= 1) && (
-                    <div>
-                      <PlusOutlined style={{ fontSize: '18px' }} />
-                      <div style={{ marginTop: 8 }}>上传图片</div>
-                    </div>
-                  )}
-                </CustomUpload>,
-              )}
-            </Item>
-          )}
+          {({ getFieldValue }) => {
+            return (
+              <Item
+                name="gameIcon"
+                label="游戏Icon"
+                rules={[{ required: true }]}
+                style={{ flex: 1 }}
+                valuePropName="fileList"
+              >
+                {compose<ReturnType<typeof CustomUpload>>(
+                  IOC([
+                    Format({
+                      valuePropName: 'fileList',
+                      f: uploadEvent2str,
+                      g: str2fileList,
+                    }),
+                  ]),
+                )(
+                  <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
+                    {!(getFieldValue(['gameIcon'])?.length >= 1) && (
+                      <div>
+                        <PlusOutlined style={{ fontSize: '18px' }} />
+                        <div style={{ marginTop: 8 }}>上传图片</div>
+                      </div>
+                    )}
+                  </CustomUpload>,
+                )}
+              </Item>
+            );
+          }}
         </Item>
 
         <Item dependencies={[['firstPicture']]} noStyle>
-          {({ getFieldValue }) => (
-            <Item
-              name="firstPicture"
-              label="头图"
-              rules={[{ required: true }]}
-              style={{ flex: 1 }}
-              valuePropName="fileList"
-            >
-              {compose<ReturnType<typeof CustomUpload>>(
-                IOC([
-                  Format({
-                    valuePropName: 'fileList',
-                    f: uploadEvent2str,
-                    g: str2fileList,
-                  }),
-                ]),
-              )(
-                <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
-                  {!(getFieldValue(['firstPicture'])?.length >= 1) && (
-                    <div>
-                      <PlusOutlined style={{ fontSize: '18px' }} />
-                      <div style={{ marginTop: 8 }}>上传图片</div>
-                    </div>
-                  )}
-                </CustomUpload>,
-              )}
-            </Item>
-          )}
+          {({ getFieldValue }) => {
+            return (
+              <Item
+                name="firstPicture"
+                label="头图"
+                rules={[{ required: true }]}
+                style={{ flex: 1 }}
+                valuePropName="fileList"
+              >
+                {compose<ReturnType<typeof CustomUpload>>(
+                  IOC([
+                    Format({
+                      valuePropName: 'fileList',
+                      f: uploadEvent2str,
+                      g: str2fileList,
+                    }),
+                  ]),
+                )(
+                  <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
+                    {!(getFieldValue(['firstPicture'])?.length >= 1) && (
+                      <div>
+                        <PlusOutlined style={{ fontSize: '18px' }} />
+                        <div style={{ marginTop: 8 }}>上传图片</div>
+                      </div>
+                    )}
+                  </CustomUpload>,
+                )}
+              </Item>
+            );
+          }}
         </Item>
       </div>
       <Item dependencies={[['gamePicture']]} noStyle>
@@ -341,7 +425,15 @@ function GameInfo() {
         <Text strong>2. 基础信息</Text>
       </Item>
       <Item name="thirdGameClassify" label="第三方游戏分类">
-        <SearchSelect mode="multiple" showArrow />
+        {compose<ReturnType<typeof SearchSelect>>(
+          IOC([
+            SelectAll,
+            Format({
+              f: arr2str,
+              g: str2arr,
+            }),
+          ]),
+        )(<SearchSelect mode="multiple" showArrow />)}
       </Item>
       <Item name="gameClassifyId" label="APP中游戏分类" rules={[{ required: true }]}>
         <SearchSelect mode="multiple" showArrow />
@@ -349,6 +441,11 @@ function GameInfo() {
     </>
   );
 }
+
+const extra: FormItemProps = {
+  labelCol: { span: 4, style: { paddingBottom: 0 } },
+  style: { flexDirection: 'row', alignItems: 'center', marginBottom: 0 },
+};
 
 // 资源信息
 function SourceInfo() {
@@ -360,68 +457,92 @@ function SourceInfo() {
         valuePropName="fileList"
         getValueFromEvent={getValueFromEvent}
       >
-        <Upload
-          maxCount={1}
-          accept=".apk,.aab"
-          customRequest={async ({ onSuccess, onError, file }) => {
-            console.log(file);
+        {compose<ReturnType<typeof CustomUpload>>(
+          IOC([
+            Format({
+              valuePropName: 'fileList',
+              f: uploadEvent2str,
+              g: str2fileList,
+            }),
+          ]),
+        )(
+          <Upload
+            maxCount={1}
+            accept=".apk,.aab"
+            customRequest={async ({ onSuccess, onError, file }) => {
+              console.log(file);
 
-            try {
-              // const data = await RESTful.get('', {
-              //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-              //   throwErr: true,
-              // }).then((res) => res?.data);
+              try {
+                // const data = await RESTful.get('', {
+                //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
+                //   throwErr: true,
+                // }).then((res) => res?.data);
 
-              // if (!data) {
-              //   throw new Error('上传失败');
-              // }
+                // if (!data) {
+                //   throw new Error('上传失败');
+                // }
 
-              // const fd = new FormData();
-              // fd.append('file', file);
-              // fd.append('token', data?.[tokenKey]);
-              // fd.append('key', tokenKey);
+                // const fd = new FormData();
+                // fd.append('file', file);
+                // fd.append('token', data?.[tokenKey]);
+                // fd.append('key', tokenKey);
 
-              // await fetch('https://upload.qiniup.com', {
-              //   method: 'POST',
-              //   body: fd,
-              // });
+                // await fetch('https://upload.qiniup.com', {
+                //   method: 'POST',
+                //   body: fd,
+                // });
 
-              const xhr = new XMLHttpRequest();
+                const xhr = new XMLHttpRequest();
 
-              if ((Math.random() * 100) % 2) {
-                onSuccess?.(`https://image.quzhuanxiang.com/${123}`, xhr);
-              } else {
-                onError?.(new Error('error'));
+                if ((Math.random() * 100) % 2) {
+                  onSuccess?.(`https://image.quzhuanxiang.com/${123}`, xhr);
+                } else {
+                  onError?.(new Error('error'));
+                }
+              } catch (e: any) {
+                onError?.(e);
               }
-            } catch (e: any) {
-              onError?.(e);
-            }
-          }}
-          showUploadList={{
-            showDownloadIcon: false,
-            showRemoveIcon: false,
-          }}
-          itemRender={(origin, file) => {
-            return (
-              <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  {origin}
-                  <Button icon={<DownloadOutlined />}>下载{getExt(file.name)}文件</Button>
-                </div>
-                <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
-                <Descriptions column={1} size="small" labelStyle={{ minWidth: '80px' }}>
-                  <DItem label="内部版本号"> 信息2</DItem>
-                  <DItem label="外部版本号"> 信息2</DItem>
-                  <DItem label="MD5"> 信息2</DItem>
-                  <DItem label="游戏位数"> 信息2</DItem>
-                </Descriptions>
-              </Card>
-            );
-          }}
-        >
-          <Button icon={<UploadOutlined />}>上传apk文件</Button>
-        </Upload>
+            }}
+            showUploadList={{
+              showDownloadIcon: false,
+              showRemoveIcon: false,
+            }}
+            itemRender={(origin, file) => {
+              console.log('itemRender', file);
+              return (
+                <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    {origin}
+                    <Button
+                      icon={<DownloadOutlined />}
+                      onClick={() => window.open(file?.response?.url)}
+                    >
+                      下载{getExt(file?.name ?? '')}文件
+                    </Button>
+                  </div>
+                  <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
+
+                  <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
+                    <FormItemView defaultValue={'未知'} />
+                  </Item>
+                  <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
+                    <FormItemView defaultValue={'未知'} />
+                  </Item>
+                  <Item name={['resources', 'md5']} label="MD5：" {...extra}>
+                    <FormItemView defaultValue={'未知'} />
+                  </Item>
+                  <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
+                    <FormItemView defaultValue={'未知'} />
+                  </Item>
+                </Card>
+              );
+            }}
+          >
+            <Button icon={<UploadOutlined />}>上传apk文件</Button>
+          </Upload>,
+        )}
       </Item>
+
       <Item name={['resources', 'installType']} label="安装方式" rules={[{ required: true }]}>
         <Radio.Group options={Options(INSTALL_TYPE).toOpt} optionType="button" />
       </Item>

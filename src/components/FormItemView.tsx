@@ -2,8 +2,9 @@ import React from 'react';
 
 export default ({
   value,
+  defaultValue,
   ...props
-}: { value?: any } & React.DetailedHTMLProps<
+}: { value?: any; defaultValue?: any } & React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
->) => <div {...props}>{value}</div>;
+>) => <div {...props}>{value ?? defaultValue}</div>;

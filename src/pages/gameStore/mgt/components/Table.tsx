@@ -46,10 +46,7 @@ export default function () {
       visible: true,
     }));
 
-    uploader.setData((pre: any) => ({
-      ...pre,
-      env,
-    }));
+    uploader.setData({ env });
   }
 
   function editHandler(id: Row['id']) {
@@ -60,7 +57,7 @@ export default function () {
         confirmLoading: true,
         visible: true,
       }));
-      editor.setData({ id });
+      editor.setData({ id, env });
     };
   }
 
@@ -89,7 +86,7 @@ export default function () {
       title: 'icon',
       dataIndex: 'gameIcon',
       hideInSearch: true,
-      renderText: (src) => <Image src={src} />,
+      renderText: (src) => <Image width="60px" src={src} />,
     },
     {
       title: '状态',
@@ -173,8 +170,8 @@ export default function () {
             ustartTime: params?.utime?.[0]?.format('YYYY-MM-DD hh:mm:ss'),
             uendTime: params?.utime?.[1]?.format('YYYY-MM-DD hh:mm:ss'),
             page: {
-              page_no: params?.current,
-              page_size: params?.pageSize,
+              pageNo: params?.current,
+              pageSize: params?.pageSize,
             },
           };
           const res = await services('page', { data }, env);

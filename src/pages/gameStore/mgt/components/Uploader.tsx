@@ -110,7 +110,7 @@ export default ({
       modalProps={{ onOk: onSubmit, ...modalProps }}
     >
       <Item
-        name="游戏apk"
+        name={['resources', 'apk']}
         label="游戏apk"
         rules={[{ required: true }]}
         valuePropName="fileList"
