@@ -14,7 +14,7 @@ import {
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
-import { add } from '../services';
+import { services } from '../services';
 import CustomUpload, { getQiniuKey } from '@/components/CustomUpload';
 import Format from '@/decorators/Format';
 import { IOC } from '@/decorators/hoc';
@@ -38,11 +38,13 @@ import {
 } from '@/decorators/Upload/Format';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import theme from '@/../config/theme';
+import { useQuery } from 'react-query';
 const { 'primary-color': primaryColor } = theme;
 const { Item } = Form;
 const { Item: DItem } = Descriptions;
 
 export default ({
+  data,
   formProps,
   modalProps,
   setModalProps,
@@ -76,10 +78,14 @@ export default ({
       onOk: async () => {
         try {
           setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-          await add({
-            data: value,
-            throwErr: true,
-          });
+          await services(
+            'save',
+            {
+              data: value,
+              throwErr: true,
+            },
+            data.env,
+          );
           onSuccess?.();
           setModalProps((pre) => ({ ...pre, visible: false }));
         } catch (e: any) {
@@ -98,6 +104,7 @@ export default ({
     <ModalForm
       formProps={{
         onFinish: onSubmit,
+
         ...formProps,
       }}
       modalProps={{ onOk: onSubmit, ...modalProps }}
@@ -171,13 +178,13 @@ export default ({
         </Upload>
       </Item>
 
-      <Item name="游戏名称" label="游戏名称" rules={[{ required: true }]}>
+      <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
         {compose<ReactElement<InputProps>>(IOC([showCount]))(<Input maxLength={20} />)}
       </Item>
-      <Item dependencies={[['游戏Icon']]} noStyle>
+      <Item dependencies={[['gameIcon']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name="游戏Icon"
+            name="gameIcon"
             label="游戏Icon"
             rules={[{ required: true }]}
             valuePropName="fileList"
