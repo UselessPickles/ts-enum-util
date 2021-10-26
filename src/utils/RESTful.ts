@@ -25,8 +25,8 @@ export const config: configType = {
       ? PROCESS_ENV.APP_API_SECURITY_URL
       : PROCESS_ENV.APP_API_BASE) + PROCESS_ENV.APP_API_SECURITY,
   HOME_NAME: '/',
-  PROJECT_NAME: '/five_six_six_manager',
-  SERVICE: '/five_six_six_manager',
+  PROJECT_NAME: '/commercialize-manager',
+  SERVICE: '/commercialize-manager',
   WITH_OUT_COOKIE: ['sidebarStatus'],
   NOTIFICATION_KEY: 'notificationKey',
 };
