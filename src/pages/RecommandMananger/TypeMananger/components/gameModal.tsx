@@ -1,4 +1,4 @@
-import { Form, Input, Modal } from 'antd';
+import { Input, Modal } from 'antd';
 import styles from '../index.less';
 import { useContainer, gameTable } from '../useStore';
 import React, { useState, useEffect } from 'react';
@@ -6,9 +6,10 @@ import gameImg from '@/assets/img/icon-566game.png';
 import sortIcon from '@/assets/img/icon-sort.png';
 import { SortableHandle } from 'react-sortable-hoc';
 import isValidValue from '@/utils/isValidValue';
-import { MenuOutlined, SearchOutlined, CloseOutlined } from '@ant-design/icons';
+import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { dragComponents } from './dragComponents';
 import GameList from '@/querys/GameList';
+import { gameList } from '../services';
 
 export default () => {
   const {
@@ -20,6 +21,7 @@ export default () => {
       setSelectRowKeys,
     } = useContainer(),
     [dataSource, setDataSource] = useState<any>(),
+    [page, setPage] = useState(1),
     { GameTable } = gameTable(),
     onCancel = () => {
       setGameModalProps({
@@ -34,13 +36,37 @@ export default () => {
       });
       setSelectRowKeys([]);
     };
-  const gameListSource = GameList({ format: (res) => res?.data })?.data ?? [];
-  console.log('gameListSource', gameListSource);
+
+  const onscroll = (e) => {
+    if (e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 1) {
+      setPage(page + 1);
+    }
+  };
+
+  useEffect(() => {
+    const gameListSelected = gameList({
+      data: {
+        page: {
+          pageNo: page,
+          pageSize: 20,
+        },
+      },
+    });
+    console.log('gameListSelected', gameListSelected);
+  }, [page]);
 
   const gameData = [
     { key: 5, icon: '123', gameName: '123', packageName: '123' },
     { key: 7, icon: '234', gameName: '567', packageName: '789' },
     { key: 10, icon: '1011', gameName: '5874', packageName: '789' },
+    { key: 12, icon: '1011', gameName: '5874', packageName: '789' },
+    { key: 14, icon: '1011', gameName: '5874', packageName: '789' },
+    { key: 16, icon: '1011', gameName: '5874', packageName: '789' },
+    { key: 18, icon: '1011', gameName: '5874', packageName: '789' },
+    { key: 20, icon: '1011', gameName: '5874', packageName: '789' },
+    { key: 22, icon: '1011', gameName: '5874', packageName: '789' },
+    { key: 24, icon: '1011', gameName: '5874', packageName: '789' },
+    { key: 26, icon: '1011', gameName: '5874', packageName: '789' },
   ]; //模拟数据
 
   const DragHandle = SortableHandle(() => (
@@ -58,18 +84,6 @@ export default () => {
     setCheckedGames(rowData);
   }
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onTableSelectChange,
-    type: 'checkbox',
-  };
-
-  function onRow(record: any, index: number) {
-    return {
-      index,
-      moveRow: moveRow,
-    };
-  }
   function moveRow(dragIndex: number, hoverIndex: number) {
     const data = [...checkedGames];
     data.splice(dragIndex, 1);
@@ -144,7 +158,7 @@ export default () => {
   ];
 
   return (
-    <Modal {...gameModalProps} onCancel={onCancel} onOk={onSubmit} width={800}>
+    <Modal {...gameModalProps} onCancel={onCancel} onOk={onSubmit} width={800} zIndex={100}>
       <div className={styles.gameEdit}>
         <div>
           <div className={styles.gameHeader}>
@@ -168,9 +182,18 @@ export default () => {
               }}
             />
           </div>
-          <div className={styles.gameBody}>
+          <div
+            className={styles.gameBody}
+            //ref={c => this.scrollRef = c}
+            // onScrollCapture
+            onScroll={onscroll}
+          >
             <GameTable
-              rowSelection={rowSelection}
+              rowSelection={{
+                selectedRowKeys,
+                onChange: onTableSelectChange,
+                type: 'checkbox',
+              }}
               dataSource={dataSource}
               columns={columns}
               size="small"
@@ -196,7 +219,12 @@ export default () => {
               columns={selectColumns}
               dataSource={checkedGames}
               components={dragComponents}
-              onRow={onRow}
+              onRow={(record: any, index: number) => {
+                return {
+                  index,
+                  moveRow: moveRow,
+                };
+              }}
               size="small"
             />
           </div>

@@ -87,7 +87,6 @@ export default (props: any) => {
       ...defalutTableColumnsProps,
       render: (_, record) => {
         const { id } = record;
-        console.log('id', id);
         return (
           <div className={styles.opera}>
             <Button type="link" onClick={() => editHandler(record)}>

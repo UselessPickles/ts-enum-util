@@ -66,19 +66,19 @@ export default () => {
     <DrawerForm
       onCancel={onCancel}
       onSubmit={onCancel}
-      modalProps={modalProps}
+      modalProps={{ ...modalProps, zIndex: 10 }}
       formProps={{ layout: 'vertical', form: modalFormRef, className: styles.editForm }}
     >
       <h3>1.基础信息 </h3>
-      <Item label="类别名称" name="categoryName" rules={[{ required: true }]}>
+      <Item label="类别名称" name="name" rules={[{ required: true }]}>
         <Input maxLength={10} />
       </Item>
-      <Item label="展示状态" name="status" rules={[{ required: true }]}>
+      <Item label="展示状态" name="showStatus" rules={[{ required: true }]}>
         <Radio.Group
           optionType="button"
           options={[
-            { value: true, label: '展示' },
-            { value: false, label: '隐藏' },
+            { value: 1, label: '展示' },
+            { value: 0, label: '隐藏' },
           ]}
         />
       </Item>

@@ -65,7 +65,7 @@
   display: flex;
   width: 100%;
   > div {
-    width: 45%;
+    width: 47%;
     min-height: 450px;
     margin: 0 10px;
     border: 1px solid rgba(0, 0, 0, 0.15);
@@ -83,6 +83,14 @@
       font-weight: 500;
       font-size: 14px;
       line-height: 22px;
+    }
+  }
+  .gameBody {
+    --scroll-bar: none;
+    height: 400px;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      display: none;
     }
   }
 }

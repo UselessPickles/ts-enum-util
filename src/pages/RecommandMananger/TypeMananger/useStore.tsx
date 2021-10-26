@@ -61,10 +61,11 @@ export function useModalFromSubmit() {
   function submitor() {
     return modalFormRef.validateFields().then((value) => {
       const { id } = value;
+      let data;
       if (id) {
-        updater.mutateAsync(value);
+        data = updater.mutateAsync(value);
       } else {
-        creater.m;
+        data = creater.mutateAsync(value);
       }
     });
   }
