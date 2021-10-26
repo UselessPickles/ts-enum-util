@@ -45,6 +45,11 @@ export default function () {
       ...pre,
       visible: true,
     }));
+
+    uploader.setData((pre: any) => ({
+      ...pre,
+      env,
+    }));
   }
 
   function editHandler(id: Row['id']) {
@@ -172,7 +177,7 @@ export default function () {
               page_size: params?.pageSize,
             },
           };
-          const res = await services('list', { data }, env);
+          const res = await services('page', { data }, env);
 
           return {
             data: res?.data?.total_datas || [],

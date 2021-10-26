@@ -14,7 +14,7 @@ import {
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
-import { add } from '../services';
+import { services } from '../services';
 import CustomUpload, { getQiniuKey } from '@/components/CustomUpload';
 import Format from '@/decorators/Format';
 import { IOC } from '@/decorators/hoc';
@@ -44,6 +44,7 @@ const { Item } = Form;
 const { Item: DItem } = Descriptions;
 
 export default ({
+  data,
   formProps,
   modalProps,
   setModalProps,
@@ -77,10 +78,14 @@ export default ({
       onOk: async () => {
         try {
           setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-          await add({
-            data: value,
-            throwErr: true,
-          });
+          await services(
+            'save',
+            {
+              data: value,
+              throwErr: true,
+            },
+            data.env,
+          );
           onSuccess?.();
           setModalProps((pre) => ({ ...pre, visible: false }));
         } catch (e: any) {
@@ -102,7 +107,7 @@ export default ({
 
         ...formProps,
       }}
-      modalProps={{ onOk: onSubmit, confirmLoading: detail.isFetching, ...modalProps }}
+      modalProps={{ onOk: onSubmit, ...modalProps }}
     >
       <Item
         name="游戏apk"

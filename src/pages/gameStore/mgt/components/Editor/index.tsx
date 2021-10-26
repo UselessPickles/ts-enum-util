@@ -4,6 +4,7 @@ import {
   message,
   Radio,
   Input,
+  Modal,
   Image,
   Space,
   Button,
@@ -100,7 +101,7 @@ export default ({
         onFinish: onSubmit,
         initialValues: {
           tab: '游戏资料',
-          游戏视频: 'https://image.quzhuanxiang.com/566game/rc-upload-1634886125444-13.webm',
+          gameVideo: 'https://image.quzhuanxiang.com/566game/rc-upload-1634886125444-13.webm',
           安装方式: '内部安装',
         },
         className: styles['form-item-margin-bottom'],
@@ -163,10 +164,10 @@ function GameInfo() {
       <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
         <Input placeholder="输入内容" />
       </Item>
-      <Item name="一句话介绍" label="一句话介绍" rules={[{ required: true }]}>
+      <Item name="briefIntroduction" label="一句话介绍" rules={[{ required: true }]}>
         <Input placeholder="输入内容" />
       </Item>
-      <Item name="详细介绍" label="详细介绍" rules={[{ required: true }]}>
+      <Item name="detailedIntroduction" label="详细介绍" rules={[{ required: true }]}>
         <Input.TextArea placeholder="输入内容" rows={5} />
       </Item>
       <div style={{ display: 'flex' }}>
@@ -201,10 +202,10 @@ function GameInfo() {
           )}
         </Item>
 
-        <Item dependencies={[['头图']]} noStyle>
+        <Item dependencies={[['firstPicture']]} noStyle>
           {({ getFieldValue }) => (
             <Item
-              name="头图"
+              name="firstPicture"
               label="头图"
               rules={[{ required: true }]}
               style={{ flex: 1 }}
@@ -220,7 +221,7 @@ function GameInfo() {
                 ]),
               )(
                 <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
-                  {!(getFieldValue(['头图'])?.length >= 1) && (
+                  {!(getFieldValue(['firstPicture'])?.length >= 1) && (
                     <div>
                       <PlusOutlined style={{ fontSize: '18px' }} />
                       <div style={{ marginTop: 8 }}>上传图片</div>
@@ -232,10 +233,10 @@ function GameInfo() {
           )}
         </Item>
       </div>
-      <Item dependencies={[['游戏截图']]} noStyle>
+      <Item dependencies={[['gamePicture']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name="游戏截图"
+            name="gamePicture"
             label="游戏截图"
             rules={[{ required: true }]}
             style={{ flex: 1 }}
@@ -251,7 +252,7 @@ function GameInfo() {
               ]),
             )(
               <CustomUpload maxCount={5} accept=".jpg,.png" listType="picture-card" multiple>
-                {!(getFieldValue(['游戏截图'])?.length >= 5) && (
+                {!(getFieldValue(['gamePicture'])?.length >= 5) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
                     <div style={{ marginTop: 8 }}>上传图片</div>
@@ -264,11 +265,11 @@ function GameInfo() {
       </Item>
 
       <div style={{ display: 'flex' }}>
-        <Item dependencies={[['游戏视频']]} noStyle>
+        <Item dependencies={[['gameVideo']]} noStyle>
           {({ getFieldValue }) => {
-            const url = getFieldValue(['游戏视频'])?.[0]?.response || getFieldValue(['游戏视频']);
+            const url = getFieldValue(['gameVideo'])?.[0]?.response || getFieldValue(['gameVideo']);
             return (
-              <Item name="游戏视频" label="游戏视频" style={{ flex: 1 }} valuePropName="fileList">
+              <Item name="gameVideo" label="游戏视频" style={{ flex: 1 }} valuePropName="fileList">
                 {compose<ReturnType<typeof CustomUpload>>(
                   IOC([
                     Format({
@@ -301,9 +302,14 @@ function GameInfo() {
           }}
         </Item>
 
-        <Item dependencies={[['游戏动态图']]} noStyle>
+        <Item dependencies={[['dynamicPicture']]} noStyle>
           {({ getFieldValue }) => (
-            <Item name="游戏动态图" label="游戏动态图" style={{ flex: 1 }} valuePropName="fileList">
+            <Item
+              name="dynamicPicture"
+              label="游戏动态图"
+              style={{ flex: 1 }}
+              valuePropName="fileList"
+            >
               {compose<ReturnType<typeof CustomUpload>>(
                 IOC([
                   Format({
@@ -314,7 +320,7 @@ function GameInfo() {
                 ]),
               )(
                 <CustomUpload maxCount={1} accept=".gif" listType="picture-card">
-                  {!(getFieldValue(['游戏动态图'])?.length >= 1) && (
+                  {!(getFieldValue(['dynamicPicture'])?.length >= 1) && (
                     <div>
                       <PlusOutlined style={{ fontSize: '18px' }} />
                       <div style={{ marginTop: 8 }}>上传图片</div>
@@ -327,17 +333,17 @@ function GameInfo() {
         </Item>
       </div>
 
-      <Item name="游戏评分" label="游戏评分">
+      <Item name="score" label="游戏评分">
         <InputNumber placeholder="输入内容" min={0} max={10} style={{ width: '100%' }} />
       </Item>
 
       <Item>
         <Text strong>2. 基础信息</Text>
       </Item>
-      <Item name="第三方游戏分类" label="第三方游戏分类">
+      <Item name="thirdGameClassify" label="第三方游戏分类">
         <SearchSelect mode="multiple" showArrow />
       </Item>
-      <Item name="APP中游戏分类" label="APP中游戏分类" rules={[{ required: true }]}>
+      <Item name="gameClassifyId" label="APP中游戏分类" rules={[{ required: true }]}>
         <SearchSelect mode="multiple" showArrow />
       </Item>
     </>
