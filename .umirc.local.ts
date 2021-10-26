@@ -22,7 +22,7 @@ module.exports = {
       // APP_API_BASE_URL: "http://192.168.35.138:8080",
       APP_API_SECURITY: '/yingzhong-security',
       APP_API_SECURITY_URL: 'http://marketing-dev.yingzhongshare.com',
-      APP_API_SUBSYSTEMID: 1153,
+      APP_API_SUBSYSTEMID: 1154,
       NODE_ENV: 'development',
     },
   },
