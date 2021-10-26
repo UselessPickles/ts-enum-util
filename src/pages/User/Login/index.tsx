@@ -1,6 +1,6 @@
 import styles from './index.less';
 import { Button } from 'antd';
-import LoginContext from '@/hooks/useLogin';
+import UserContext from '@/hooks/useUser';
 import { Form, Input, notification } from 'antd';
 import {
   MenuUnfoldOutlined,
@@ -13,7 +13,7 @@ import {
 import { getmd5 } from '@/utils/utils';
 
 export default function Login() {
-  const { logIn } = LoginContext.useContainer();
+  const { logIn } = UserContext.useContainer();
   const onFinish = ({ username, password }) => {
     logIn(username, getmd5(password));
   };

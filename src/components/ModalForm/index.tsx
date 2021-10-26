@@ -1,12 +1,8 @@
-import React, { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
 import { Modal, Form } from 'antd';
-import { InitValue } from '@/hooks/useModalForm';
+import type { InitValue } from '@/hooks/useModalForm';
 
-export default ({
-  children,
-  modalProps,
-  formProps,
-}: PropsWithChildren<InitValue>) => (
+export default ({ children, modalProps, formProps }: PropsWithChildren<InitValue>) => (
   <Modal {...modalProps}>
     <Form {...formProps}>
       {children}

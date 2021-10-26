@@ -1,4 +1,6 @@
-export default interface Row {}
+export default interface Row {
+  id: 'string';
+}
 
 export const TYPE = new Map([
   ['游戏资料', '游戏资料'],
@@ -10,4 +12,21 @@ export const TYPE = new Map([
 export const GAIN_TYPE = new Map([
   ['广告', '广告'],
   ['内购', '内购'],
+  ['网赚', '网赚'],
+]);
+
+export const INSTALL_TYPE = new Map([
+  ['内部安装', '内部安装'],
+  ['应用外安装', '应用外安装'],
+]);
+
+export const STATUS = new Map([
+  [1, '上线'],
+  [2, '下线'],
+]);
+export const TEST_STATUS = new Map([
+  [1, '未开始'],
+  [2, '测试中'],
+  [3, '测试成功'],
+  [4, '测试失败'],
 ]);

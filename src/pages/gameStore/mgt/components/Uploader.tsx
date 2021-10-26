@@ -1,5 +1,16 @@
 import type { FormItemProps, InputProps, UploadProps } from 'antd';
-import { Form, message, Button, Upload, Card, Space, Divider, Input } from 'antd';
+import {
+  Form,
+  message,
+  Button,
+  Upload,
+  Card,
+  Space,
+  Divider,
+  Input,
+  Modal,
+  Descriptions,
+} from 'antd';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
@@ -26,8 +37,11 @@ import {
   uploadEvent2strArr,
 } from '@/decorators/Upload/Format';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
-
+import theme from '@/../config/theme';
+import { useQuery } from 'react-query';
+const { 'primary-color': primaryColor } = theme;
 const { Item } = Form;
+const { Item: DItem } = Descriptions;
 
 export default ({
   formProps,
@@ -55,36 +69,40 @@ export default ({
   };
 
   async function onSubmit() {
-    try {
-      setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-      const value = await form?.validateFields();
+    const value = await form?.validateFields();
 
-      await add({
-        data: value,
-        throwErr: true,
-      });
-
-      onSuccess?.();
-    } catch (e: any) {
-      if (e?.message) {
-        message.error(e?.message);
-      }
-    } finally {
-      setModalProps((pre) => ({ ...pre, confirmLoading: false }));
-    }
+    Modal.confirm({
+      title: '请进行二次确认',
+      content: '上传的游戏将进入自动化测试，测试完成可同步到线上',
+      onOk: async () => {
+        try {
+          setModalProps((pre) => ({ ...pre, confirmLoading: true }));
+          await add({
+            data: value,
+            throwErr: true,
+          });
+          onSuccess?.();
+          setModalProps((pre) => ({ ...pre, visible: false }));
+        } catch (e: any) {
+          if (e?.message) {
+            message.error(e?.message);
+          }
+          throw e;
+        } finally {
+          setModalProps((pre) => ({ ...pre, confirmLoading: false }));
+        }
+      },
+    });
   }
 
   return (
     <ModalForm
       formProps={{
         onFinish: onSubmit,
-        initialValues: {
-          tab: '商务信息',
-          游戏icon: 'https://image.quzhuanxiang.com/566game/rc-upload-1634797383545-2.png',
-        },
+
         ...formProps,
       }}
-      modalProps={{ onOk: onSubmit, visible: true, ...modalProps }}
+      modalProps={{ onOk: onSubmit, confirmLoading: detail.isFetching, ...modalProps }}
     >
       <Item
         name="游戏apk"
@@ -95,7 +113,7 @@ export default ({
       >
         <Upload
           maxCount={1}
-          accept=".apk"
+          accept=".apk,.aab"
           customRequest={async ({ onSuccess: onUploadSuccess, onError, file }) => {
             console.log(file);
             const tokenKey = getQiniuKey(file as any);
@@ -138,12 +156,15 @@ export default ({
           }}
           itemRender={(origin, file) => {
             return (
-              <Card style={{ marginTop: '4px' }} size="small">
+              <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                 {origin}
-                <Divider style={{ margin: '12px 0', backgroundColor: '#f0f0f0' }} />
-                <div>信息1: 信息2</div>
-                <div>信息1: 信息2</div>
-                <div>信息1: 信息2</div>
+                <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
+                <Descriptions column={1} size="small" labelStyle={{ minWidth: '80px' }}>
+                  <DItem label="内部版本号"> 信息2</DItem>
+                  <DItem label="外部版本号"> 信息2</DItem>
+                  <DItem label="MD5"> 信息2</DItem>
+                  <DItem label="游戏位数"> 信息2</DItem>
+                </Descriptions>
               </Card>
             );
           }}
@@ -152,14 +173,14 @@ export default ({
         </Upload>
       </Item>
 
-      <Item name="游戏名称" label="游戏名称" rules={[{ required: true }]}>
+      <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
         {compose<ReactElement<InputProps>>(IOC([showCount]))(<Input maxLength={20} />)}
       </Item>
-      <Item dependencies={[['游戏icon']]} noStyle>
+      <Item dependencies={[['gameIcon']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name="游戏icon"
-            label="游戏icon"
+            name="gameIcon"
+            label="游戏Icon"
             rules={[{ required: true }]}
             valuePropName="fileList"
             extra="jpg、png格式，建议尺寸xx*xx px，不超过100k"
@@ -177,13 +198,12 @@ export default ({
                 maxCount={1}
                 accept=".jpg,.png"
                 listType="picture-card"
-                multiple
                 beforeUpload={beforeUpload}
               >
-                {getFieldValue(['游戏icon'])?.length < 1 && (
+                {!(getFieldValue(['游戏Icon'])?.length >= 1) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
-                    <div style={{ marginTop: 8 }}>上传照片</div>
+                    <div style={{ marginTop: 8 }}>上传图片</div>
                   </div>
                 )}
               </CustomUpload>,

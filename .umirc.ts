@@ -19,7 +19,6 @@ export default defineConfig({
       routes: [
         { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authorized'] },
         { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authorized'] },
-
         {
           path: '/RecommandMananger',
           routes: [
@@ -46,28 +45,32 @@ export default defineConfig({
   ],
   theme,
   fastRefresh: {},
+  // https://github.com/umijs/umi/issues/6766
+  mfsu: {},
   // 不用dva
   dva: false,
   proxy: {
     '/utils_service': {
-      target: 'https://test.yingzhongshare.com',
+      target: 'https://marketing-dev.yingzhongshare.com',
       changeOrigin: true,
     },
     '/commercialize-manager': {
-      target: 'https://test.yingzhongshare.com',
+      target: 'https://marketing-dev.yingzhongshare.com',
       changeOrigin: true,
       pathRewrite: {
         '/commercialize-manager': '',
       },
     },
     '/intelligent-manager': {
-      target: 'https://test.yingzhongshare.com',
+      target: 'https://marketing-dev.yingzhongshare.com',
       changeOrigin: true,
     },
   },
   define: {
     PROCESS_ENV: {
       APP_NAME: '566game',
+      APP_CN_NAME: '566 游戏管理平台',
     },
   },
+  mfsu: {},
 });
