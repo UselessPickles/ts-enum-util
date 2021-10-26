@@ -9,15 +9,15 @@ export const TYPE = new Map([
   ['更新记录', '更新记录'],
 ]);
 
-export const GAIN_TYPE = new Map([
+export const PROFIT_MODE = new Map([
   ['广告', '广告'],
   ['内购', '内购'],
   ['网赚', '网赚'],
 ]);
 
 export const INSTALL_TYPE = new Map([
-  ['内部安装', '内部安装'],
-  ['应用外安装', '应用外安装'],
+  [1, '内部安装'],
+  [2, '应用外安装'],
 ]);
 
 export const STATUS = new Map([

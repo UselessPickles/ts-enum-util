@@ -25,7 +25,7 @@ import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
 import { add } from '../../services';
 import Options from '@/utils/Options';
-import { GAIN_TYPE, INSTALL_TYPE, TYPE } from '../../models';
+import { PROFIT_MODE, INSTALL_TYPE, STATUS, TYPE } from '../../models';
 import SearchSelect from '@/components/SearchSelect';
 import FormItemView from '@/components/FormItemView';
 import CustomUpload, { getExt } from '@/components/CustomUpload';
@@ -349,7 +349,7 @@ function SourceInfo() {
   return (
     <>
       <Item
-        name="游戏apk"
+        name={['resources', 'apk']}
         label="游戏apk"
         valuePropName="fileList"
         getValueFromEvent={getValueFromEvent}
@@ -416,7 +416,7 @@ function SourceInfo() {
           <Button icon={<UploadOutlined />}>上传apk文件</Button>
         </Upload>
       </Item>
-      <Item name="安装方式" label="安装方式" rules={[{ required: true }]}>
+      <Item name={['resources', 'installType']} label="安装方式" rules={[{ required: true }]}>
         <Radio.Group options={Options(INSTALL_TYPE).toOpt} optionType="button" />
       </Item>
     </>
@@ -447,12 +447,12 @@ function BizInfo() {
 
   return (
     <>
-      <Item name="上线状态" label="上线状态" rules={[{ required: true }]}>
-        <SearchSelect />
+      <Item name="status" label="上线状态" rules={[{ required: true }]}>
+        <SearchSelect options={Options(STATUS).toOpt} />
       </Item>
 
       <Item
-        name="定时更新"
+        name={['resources', 'timingUpdateTime']}
         label="定时更新"
         rules={[
           {
@@ -469,21 +469,21 @@ function BizInfo() {
         <DatePicker showTime disabledDate={disabledDate} disabledTime={disabledTime} />
       </Item>
 
-      <Item name="盈利方式" label="盈利方式">
-        <Checkbox.Group options={Options(GAIN_TYPE).toOpt} />
+      <Item name={['business', 'profitMode']} label="盈利方式">
+        <Checkbox.Group options={Options(PROFIT_MODE).toOpt} />
       </Item>
 
-      <Item name="更新内容" label="更新内容">
+      <Item name={['resources', 'updateContent']} label="更新内容">
         <Input.TextArea placeholder="输入内容" />
       </Item>
 
-      <Item name="出版物号（ISBN号）" label="出版物号（ISBN号）">
+      <Item name={['business', 'publicationNo']} label="出版物号（ISBN号）">
         <Input placeholder="输入内容" />
       </Item>
-      <Item dependencies={[['网络游戏出版物号（ISBN）核发单']]} noStyle>
+      <Item dependencies={[['business', 'publicationOrder']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name="网络游戏出版物号（ISBN）核发单"
+            name={['business', 'publicationOrder']}
             label="网络游戏出版物号（ISBN）核发单"
             style={{ flex: 1 }}
             valuePropName="fileList"
@@ -498,7 +498,7 @@ function BizInfo() {
               ]),
             )(
               <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
-                {!(getFieldValue(['网络游戏出版物号（ISBN）核发单'])?.length >= 1) && (
+                {!(getFieldValue(['business', 'publicationOrder'])?.length >= 1) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
                     <div style={{ marginTop: 8 }}>上传图片</div>
@@ -509,9 +509,14 @@ function BizInfo() {
           </Item>
         )}
       </Item>
-      <Item dependencies={[['软著']]} noStyle>
+      <Item dependencies={[['business', 'softwareCopyright']]} noStyle>
         {({ getFieldValue }) => (
-          <Item name="软著" label="软著" style={{ flex: 1 }} valuePropName="fileList">
+          <Item
+            name={['business', 'softwareCopyright']}
+            label="软著"
+            style={{ flex: 1 }}
+            valuePropName="fileList"
+          >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
                 Format({
@@ -522,7 +527,7 @@ function BizInfo() {
               ]),
             )(
               <CustomUpload maxCount={1}>
-                {!(getFieldValue(['软著'])?.length >= 1) && (
+                {!(getFieldValue(['business', 'softwareCopyright'])?.length >= 1) && (
                   <Button icon={<UploadOutlined />}>上传文件</Button>
                 )}
               </CustomUpload>,
@@ -531,7 +536,7 @@ function BizInfo() {
         )}
       </Item>
 
-      <Item name="实名认证备案识别码" label="实名认证备案识别码">
+      <Item name={['business', 'idAuthFilingCode']} label="实名认证备案识别码">
         <Input placeholder="输入内容" />
       </Item>
     </>
