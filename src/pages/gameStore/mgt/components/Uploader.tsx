@@ -39,6 +39,8 @@ import {
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import theme from '@/../config/theme';
 import { useQuery } from 'react-query';
+import FormItemView from '@/components/FormItemView';
+import { extra } from './constant';
 const { 'primary-color': primaryColor } = theme;
 const { Item } = Form;
 const { Item: DItem } = Descriptions;
@@ -60,13 +62,6 @@ export default ({
       return Upload.LIST_IGNORE;
     }
     return !outOfRange;
-  };
-
-  const getValueFromEvent: FormItemProps['getValueFromEvent'] = (e: any) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList;
   };
 
   async function onSubmit() {
@@ -114,68 +109,83 @@ export default ({
         label="游戏apk"
         rules={[{ required: true }]}
         valuePropName="fileList"
-        getValueFromEvent={getValueFromEvent}
       >
-        <Upload
-          maxCount={1}
-          accept=".apk,.aab"
-          customRequest={async ({ onSuccess: onUploadSuccess, onError, file }) => {
-            console.log(file);
-            const tokenKey = getQiniuKey(file as any);
+        {compose<ReturnType<typeof CustomUpload>>(
+          IOC([
+            Format({
+              valuePropName: 'fileList',
+              f: uploadEvent2str,
+              g: str2fileList,
+            }),
+          ]),
+        )(
+          <Upload
+            maxCount={1}
+            accept=".apk,.aab"
+            customRequest={async ({ onSuccess: onUploadSuccess, onError, file }) => {
+              console.log(file);
+              const tokenKey = getQiniuKey(file as any);
 
-            try {
-              // const data = await RESTful.get('', {
-              //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-              //   throwErr: true,
-              // }).then((res) => res?.data);
+              try {
+                // const data = await RESTful.get('', {
+                //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
+                //   throwErr: true,
+                // }).then((res) => res?.data);
 
-              // if (!data) {
-              //   throw new Error('上传失败');
-              // }
+                // if (!data) {
+                //   throw new Error('上传失败');
+                // }
 
-              // const fd = new FormData();
-              // fd.append('file', file);
-              // fd.append('token', data?.[tokenKey]);
-              // fd.append('key', tokenKey);
+                // const fd = new FormData();
+                // fd.append('file', file);
+                // fd.append('token', data?.[tokenKey]);
+                // fd.append('key', tokenKey);
 
-              // await fetch('https://upload.qiniup.com', {
-              //   method: 'POST',
-              //   body: fd,
-              // });
+                // await fetch('https://upload.qiniup.com', {
+                //   method: 'POST',
+                //   body: fd,
+                // });
 
-              const xhr = new XMLHttpRequest();
-              onError?.(new Error('error'));
-              // if ((Math.random() * 100) % 2) {
-              //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
-              // } else {
-              //   onError?.(new Error('error'));
-              // }
-            } catch (e: any) {
-              onError?.(e);
-            }
-          }}
-          showUploadList={{
-            showDownloadIcon: true,
-            downloadIcon: 'download ',
-            showRemoveIcon: true,
-          }}
-          itemRender={(origin, file) => {
-            return (
-              <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
-                {origin}
-                <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
-                <Descriptions column={1} size="small" labelStyle={{ minWidth: '80px' }}>
-                  <DItem label="内部版本号"> 信息2</DItem>
-                  <DItem label="外部版本号"> 信息2</DItem>
-                  <DItem label="MD5"> 信息2</DItem>
-                  <DItem label="游戏位数"> 信息2</DItem>
-                </Descriptions>
-              </Card>
-            );
-          }}
-        >
-          <Button icon={<UploadOutlined />}>上传apk文件</Button>
-        </Upload>
+                const xhr = new XMLHttpRequest();
+                onError?.(new Error('error'));
+                // if ((Math.random() * 100) % 2) {
+                //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
+                // } else {
+                //   onError?.(new Error('error'));
+                // }
+              } catch (e: any) {
+                onError?.(e);
+              }
+            }}
+            showUploadList={{
+              showDownloadIcon: true,
+              downloadIcon: 'download ',
+              showRemoveIcon: true,
+            }}
+            itemRender={(origin, file) => {
+              return (
+                <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
+                  {origin}
+                  <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
+                  <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
+                    <FormItemView defaultValue={'未知'} />
+                  </Item>
+                  <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
+                    <FormItemView defaultValue={'未知'} />
+                  </Item>
+                  <Item name={['resources', 'md5']} label="MD5：" {...extra}>
+                    <FormItemView defaultValue={'未知'} />
+                  </Item>
+                  <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
+                    <FormItemView defaultValue={'未知'} />
+                  </Item>
+                </Card>
+              );
+            }}
+          >
+            <Button icon={<UploadOutlined />}>上传apk文件</Button>
+          </Upload>,
+        )}
       </Item>
 
       <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>

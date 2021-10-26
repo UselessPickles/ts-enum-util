@@ -3,12 +3,13 @@ import type { TabsProps } from 'antd';
 import type { XmilesCol } from '@/components/Xmiles/Col';
 import type Row from '../models';
 
-import { Button, Space, Tabs, Image } from 'antd';
+import { Button, Space, Tabs, Image, Modal } from 'antd';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
 import { UploadOutlined } from '@ant-design/icons';
 
 import { services } from '../services';
+import { services as syncServices } from '../services/sync';
 import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import useModalForm from '@/hooks/useModalForm';
 import Editor from './Editor';
@@ -61,14 +62,47 @@ export default function () {
     };
   }
 
+  function sync2line(id: string) {
+    return syncServices('save', { data: { id }, throwErr: true });
+  }
+
+  function syncConfirm(id: string, first = true) {
+    return Modal.confirm({
+      title: '确认同步游戏一线上吗？',
+      content: `${first ? '该游戏为新游戏，线上无旧版本' : '请核实无误'}，确定同步后将上线`,
+      onOk: () => sync2line(id),
+    });
+  }
+
   function syncHandler(id: Row['id']) {
-    return () => {
-      synchronizer.setModalProps((pre) => ({
-        ...pre,
-        visible: true,
-      }));
-      synchronizer.setData({ id });
+    return async () => {
+      const dataSource =
+        (await syncServices('get', { data: { id } }).then((res: any) => res?.data)) ?? [];
+      if (dataSource?.length > 1) {
+        synchronizer.setModalProps((pre) => ({
+          ...pre,
+          visible: true,
+          onOk: () => syncConfirm(id, false),
+        }));
+
+        synchronizer.setFormProps((pre) => ({
+          ...pre,
+          onFinish: () => syncConfirm(id, false),
+        }));
+
+        synchronizer.setData({ dataSource });
+      } else {
+        syncConfirm(id);
+      }
     };
+  }
+
+  function onSuccess() {
+    tableReload();
+  }
+
+  function tableReload() {
+    actionRef.current?.reload();
   }
 
   const columns: XmilesCol<Row>[] = [
@@ -143,7 +177,7 @@ export default function () {
 
   const onTabClick: TabsProps['onTabClick'] = (key) => {
     history.replace(key);
-    actionRef.current?.reload();
+    tableReload();
   };
 
   return (
@@ -153,9 +187,9 @@ export default function () {
         <TabPane tab="正式库" key="prod" />
       </Tabs>
 
-      <Editor {...editor} />
-      <Uploader {...uploader} />
-      <Synchronizer {...synchronizer} />
+      <Editor {...editor} onSuccess={onSuccess} />
+      <Uploader {...uploader} onSuccess={onSuccess} />
+      <Synchronizer {...synchronizer} onSuccess={onSuccess} />
 
       <XmilesTable
         actionRef={actionRef}

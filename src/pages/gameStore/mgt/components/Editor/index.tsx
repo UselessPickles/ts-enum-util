@@ -5,8 +5,6 @@ import {
   Radio,
   Input,
   Modal,
-  Image,
-  Tooltip,
   Space,
   Button,
   DatePicker,
@@ -50,6 +48,7 @@ import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import SelectAll from '@/decorators/Select/SelectAll';
 import { arr2str, str2arr } from '@/decorators/Select/Format';
+import { extra } from '../constant';
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -57,18 +56,6 @@ const { TabPane } = Tabs;
 const { Text } = Typography;
 const { Item: DItem } = Descriptions;
 const { Item: TItem } = Timeline;
-
-const getValueFromEvent: FormItemProps['getValueFromEvent'] = (e: any) => {
-  if (Array.isArray(e)) {
-    return e;
-  }
-  return e?.fileList;
-};
-
-function getFileNameInPath(path: string) {
-  const arr = path?.split?.('/');
-  return arr?.[arr?.length - 1];
-}
 
 export default ({
   formProps,
@@ -129,6 +116,7 @@ export default ({
       const value = await form?.validateFields();
       const format = {
         ...value,
+        gamePicture: value?.gamePicture ? JSON.stringify(value?.gamePicture) : undefined,
       };
 
       Modal.confirm({
@@ -190,7 +178,6 @@ export default ({
         onOk: onSubmit,
         className: styles['modal-title-height'],
         confirmLoading: detail?.isFetched,
-        visible: true,
         ...modalProps,
         title: (
           <>
@@ -442,21 +429,11 @@ function GameInfo() {
   );
 }
 
-const extra: FormItemProps = {
-  labelCol: { span: 4, style: { paddingBottom: 0 } },
-  style: { flexDirection: 'row', alignItems: 'center', marginBottom: 0 },
-};
-
 // 资源信息
 function SourceInfo() {
   return (
     <>
-      <Item
-        name={['resources', 'apk']}
-        label="游戏apk"
-        valuePropName="fileList"
-        getValueFromEvent={getValueFromEvent}
-      >
+      <Item name={['resources', 'apk']} label="游戏apk" valuePropName="fileList">
         {compose<ReturnType<typeof CustomUpload>>(
           IOC([
             Format({
@@ -513,10 +490,7 @@ function SourceInfo() {
                 <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     {origin}
-                    <Button
-                      icon={<DownloadOutlined />}
-                      onClick={() => window.open(file?.response?.url)}
-                    >
+                    <Button icon={<DownloadOutlined />} onClick={() => window.open(file?.url)}>
                       下载{getExt(file?.name ?? '')}文件
                     </Button>
                   </div>
