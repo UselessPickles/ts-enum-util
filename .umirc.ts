@@ -45,7 +45,7 @@ export default defineConfig({
   ],
   dynamicImport: {},
   base: '/game-management-frontend',
-  publicPath: '/game-management-frontend',
+  publicPath: '/game-management-frontend/',
   theme,
   fastRefresh: {},
   // https://github.com/umijs/umi/issues/6766
