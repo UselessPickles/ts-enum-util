@@ -25,6 +25,7 @@ import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
 import { services } from '../../services';
 import Options from '@/utils/Options';
+import type { ENV } from '../../models';
 import { PROFIT_MODE, INSTALL_TYPE, STATUS, TYPE } from '../../models';
 import SearchSelect from '@/components/SearchSelect';
 import FormItemView from '@/components/FormItemView';
@@ -182,13 +183,13 @@ export default ({
                 <GameInfo />
               </Item>
               <Item noStyle hidden={t !== '资源信息'}>
-                <SourceInfo />
+                <SourceInfo env={env} />
               </Item>
               <Item noStyle hidden={t !== '商务信息'}>
                 <BizInfo />
               </Item>
               <Item noStyle hidden={t !== '更新记录'}>
-                <UpdateRecord />
+                <UpdateRecord env={env} />
               </Item>
             </>
           );
@@ -429,7 +430,7 @@ function GameInfo() {
 }
 
 // 资源信息
-function SourceInfo() {
+function SourceInfo({ env }: { env: ENV }) {
   return (
     <>
       <Item
@@ -449,11 +450,10 @@ function SourceInfo() {
           ]),
         )(
           <Upload
+            disabled={env === 'prod'}
             maxCount={1}
             accept=".apk,.aab"
             customRequest={async ({ onSuccess, onError, file }) => {
-              console.log(file);
-
               try {
                 // const data = await RESTful.get('', {
                 //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
@@ -516,13 +516,19 @@ function SourceInfo() {
               );
             }}
           >
-            <Button icon={<UploadOutlined />}>上传apk文件</Button>
+            <Button icon={<UploadOutlined />} disabled={env === 'prod'}>
+              上传apk文件
+            </Button>
           </Upload>,
         )}
       </Item>
 
       <Item name={['resources', 'installType']} label="安装方式" rules={[{ required: true }]}>
-        <Radio.Group options={Options(INSTALL_TYPE).toOpt} optionType="button" />
+        <Radio.Group
+          disabled={env === 'prod'}
+          options={Options(INSTALL_TYPE).toOpt}
+          optionType="button"
+        />
       </Item>
     </>
   );
@@ -652,7 +658,7 @@ function BizInfo() {
   );
 }
 
-function UpdateRecord() {
+function UpdateRecord({ env }: { env: ENV }) {
   return (
     <Timeline>
       {Array(20)
@@ -662,11 +668,13 @@ function UpdateRecord() {
             <Space direction="vertical">
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Text strong>2. 基础信息</Text>
-                <Popconfirm title="二次确认">
-                  <Button size="small" style={{ color: primaryColor, borderColor: primaryColor }}>
-                    回退到此版本
-                  </Button>
-                </Popconfirm>
+                {env === 'test' && (
+                  <Popconfirm title="二次确认">
+                    <Button size="small" style={{ color: primaryColor, borderColor: primaryColor }}>
+                      回退到此版本
+                    </Button>
+                  </Popconfirm>
+                )}
               </div>
               <Descriptions
                 column={1}

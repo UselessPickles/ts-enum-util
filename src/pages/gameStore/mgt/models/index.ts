@@ -30,3 +30,5 @@ export const TEST_STATUS = new Map([
   [3, '测试成功'],
   [4, '测试失败'],
 ]);
+
+export type ENV = 'prod' | 'test';

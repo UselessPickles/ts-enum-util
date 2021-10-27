@@ -45,7 +45,7 @@ export default function () {
   const editor = useModalForm();
   const synchronizer = useModalForm();
 
-  const { env } = useParams<{ env: string }>();
+  const { env } = useParams<{ env: 'test' | 'prod' }>();
   const envBehaviorMap = new Map<string, ReactNode>([
     ['prod', '线上游戏列表'],
     [
@@ -195,7 +195,8 @@ export default function () {
         return (
           <Space>
             {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
-            {compose(disabled(false))(<a onClick={syncHandler(id)}>同步到线上</a>)}
+            {env === 'test' &&
+              compose(disabled(false))(<a onClick={syncHandler(id)}>同步到线上</a>)}
           </Space>
         );
       },
