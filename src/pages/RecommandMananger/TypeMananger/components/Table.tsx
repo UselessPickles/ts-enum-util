@@ -51,12 +51,10 @@ export default (props: any) => {
       align: 'center',
       render: (_, record) => {
         const isStatus = record.showStatus === 1;
-        return isStatus ? (
-          <Tag color="green" style={{ margin: 0 }}>
-            展示
+        return (
+          <Tag style={{ margin: 0 }} color={isStatus ? 'green' : 'default'}>
+            {isStatus ? '展示' : '隐藏'}
           </Tag>
-        ) : (
-          <Tag>隐藏</Tag>
         );
       },
     },

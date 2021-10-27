@@ -2,7 +2,8 @@ import { createContext, useContext, useRef, useState } from 'react';
 import { ModalProps } from 'antd/lib/modal';
 import { ProCoreActionType } from '@ant-design/pro-utils';
 import { FormInstance } from 'antd/lib/form';
-import { Form } from 'antd';
+import { Form, Modal } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useMutation } from 'react-query';
 import RESTful from '@/utils/RESTful';
 
@@ -15,6 +16,7 @@ export function useStore() {
   const [editRecord, setEditRecord] = useState<{ [key: string]: any }>({}),
     [page, setPage] = useState<any>(1),
     [loading, setLoading] = useState<boolean>(false),
+    [inputSelect, setInputSelect] = useState<string>(),
     [selectGame, setSelectGame] = useState<any>([]);
 
   return {
@@ -31,6 +33,8 @@ export function useStore() {
     setLoading,
     selectGame,
     setSelectGame,
+    inputSelect,
+    setInputSelect,
   };
 }
 
@@ -52,25 +56,41 @@ export default {
 };
 
 export function useModalFromSubmit() {
-  const { modalFormRef, setModalProps, actionRef, editRecord } = useContainer();
-  // const addOrUpdater = useMutation(
-  //   (data: { [key: string]: any }) =>
-  //     RESTful.post('',{
-  //       data
-  //     }),
-  //   {
-  //     onSuccess: () => {
-  //       actionRef.current?.reload();
-  //       setModalProps({
-  //         visible: false,
-  //       });
-  //     },
-  //   },
-  // );
+  const {
+    modalFormRef,
+    setModalProps,
+    actionRef,
+    editRecord,
+    setSelectGame,
+    setEditRecord,
+    setInputSelect,
+  } = useContainer();
+  const { confirm } = Modal;
 
-  function submitor() {
-    return modalFormRef.validateFields().then((value) => {});
+  function onCancel() {
+    setModalProps({
+      visible: false,
+    });
+    modalFormRef.resetFields();
+    setEditRecord({});
+    setSelectGame([]);
+    setInputSelect(undefined);
   }
 
-  return { submitor }; //addOrUpdater
+  function submitor() {
+    return modalFormRef.validateFields().then((value) => {
+      const { sort } = value;
+      confirm({
+        title: '确认添加游戏吗？',
+        icon: <ExclamationCircleOutlined />,
+        content: `首页推荐中，第【${sort}】位的游戏将更改为您配置的游戏`,
+        onOk() {
+          return new Promise((resolve, reject) => {}).catch(() => console.log('Oops errors!'));
+        },
+        onCancel,
+      });
+    });
+  }
+
+  return { submitor, onCancel }; //addOrUpdater
 }

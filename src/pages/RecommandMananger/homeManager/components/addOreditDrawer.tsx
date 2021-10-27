@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 import { Form, Select, InputNumber, Radio, Modal } from 'antd';
 import { useContainer, useModalFromSubmit } from '../useStore';
 import DrawerForm from '@/components/DrawerForm';
-import gameImg from '@/assets/img/icon-566game.png';
 import styles from '../index.less';
-import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined';
 import { gameList } from '@/services/gameQuery';
 
 const { Item } = Form,
@@ -14,7 +12,6 @@ const { Item } = Form,
 export default () => {
   const {
       modalProps,
-      setModalProps,
       modalFormRef,
       setEditRecord,
       page,
@@ -23,34 +20,11 @@ export default () => {
       setLoading,
       selectGame,
       setSelectGame,
+      inputSelect,
+      setInputSelect,
     } = useContainer(),
-    { submitor } = useModalFromSubmit(),
-    [inputSelect, setInputSelect] = useState<string>(),
-    [dataSource, setDataSource] = useState<any>([]),
-    onCancel = () => {
-      setModalProps({
-        visible: false,
-      });
-      modalFormRef.resetFields();
-      setEditRecord({});
-      setSelectGame([]);
-      setInputSelect(undefined);
-    };
-
-  function onSubmit() {
-    const sort = modalFormRef.getFieldValue('sort');
-    confirm({
-      title: '确认添加游戏吗？',
-      icon: <ExclamationCircleOutlined />,
-      content: `首页推荐中，第【${sort}】位的游戏将更改为您配置的游戏`,
-      onOk() {
-        return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-        }).catch(() => console.log('Oops errors!'));
-      },
-      onCancel,
-    });
-  }
+    { submitor, onCancel } = useModalFromSubmit(),
+    [dataSource, setDataSource] = useState<any>([]);
 
   async function queryGameList() {
     setLoading(true);
@@ -94,8 +68,10 @@ export default () => {
 
   return (
     <DrawerForm
-      onCancel={onCancel}
-      onSubmit={onSubmit}
+      onCancel={() => {
+        onCancel();
+      }}
+      onSubmit={submitor}
       modalProps={modalProps}
       formProps={{
         layout: 'vertical',

@@ -1,6 +1,6 @@
 import { Button, Form, Input, InputNumber, Radio } from 'antd';
 import React, { useEffect } from 'react';
-import { gameTable, useContainer, useModalFromSubmit } from '../useStore';
+import { useContainer, useModalFromSubmit } from '../useStore';
 import { EditOutlined } from '@ant-design/icons';
 import styles from '../index.less';
 import DrawerForm from '@/components/DrawerForm';
@@ -21,16 +21,7 @@ export default () => {
       setSelectRowKeys,
       setPage,
     } = useContainer(),
-    { submitor } = useModalFromSubmit(),
-    onCancel = () => {
-      setModalProps({
-        visible: false,
-      });
-      modalFormRef.resetFields();
-      setEditRecord({});
-      setSelectRowKeys([]);
-      setCheckedGames([]);
-    },
+    { submitor, onCancel } = useModalFromSubmit(),
     onOpenGame = () => {
       setPage(1);
       setGameModalProps({

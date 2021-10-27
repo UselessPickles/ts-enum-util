@@ -221,6 +221,7 @@ export default () => {
           <div className={styles.gameHeader}>
             <div className={styles.headerTitle}>
               已选游戏{editRowKeys?.length > 0 ? `(${editRowKeys?.length})` : ``}
+              <span className={styles.scrollTip}>可拖动排序</span>
             </div>
           </div>
           <div

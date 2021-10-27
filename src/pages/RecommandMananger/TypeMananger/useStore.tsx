@@ -2,9 +2,10 @@ import { createContext, useContext, useRef, useState } from 'react';
 import { ModalProps } from 'antd/lib/modal';
 import { ProCoreActionType } from '@ant-design/pro-utils';
 import { FormInstance } from 'antd/lib/form';
-import { Form } from 'antd';
+import { Form, Modal } from 'antd';
 import { useMutation } from 'react-query';
 import { addAPI, updateAPI } from './services';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 // 共享 hooks
 export function useStore() {
@@ -71,36 +72,47 @@ export function useModalFromSubmit() {
   const updater = useMutation((data) => updateAPI({ data }));
   const creater = useMutation((data) => addAPI({ data }));
 
+  const { confirm } = Modal;
+
+  function onCancel() {
+    setModalProps({
+      visible: false,
+    });
+    modalFormRef.resetFields();
+    setEditRecord({});
+    setSelectRowKeys([]);
+    setCheckedGames([]);
+  }
+
   function submitor() {
     return modalFormRef.validateFields().then((value) => {
-      const { id } = editRecord;
-      value.details = checkedGames?.map((item: { gameNum: any; sort: any; id: any }) => ({
-        gameNum: item.gameNum,
-        sort: item.sort,
-        id: item.id,
-      }));
+      confirm({
+        title: '确定保存吗？',
+        icon: <ExclamationCircleOutlined />,
+        onOk() {
+          const { id } = editRecord;
+          value.details = checkedGames?.map((item: { gameNum: any; sort: any; id: any }) => ({
+            gameNum: item.gameNum,
+            sort: item.sort,
+            id: item.id,
+          }));
 
-      console.log('submitValue', value);
-
-      let data;
-      if (id) {
-        data = updater.mutateAsync({ ...value, id });
-      } else {
-        data = creater.mutateAsync(value);
-      }
-      if (!data) {
-        throw new Error('no body');
-      }
-      setModalProps({
-        visible: false,
+          let data;
+          if (id) {
+            data = updater.mutateAsync({ ...value, id });
+          } else {
+            data = creater.mutateAsync(value);
+          }
+          if (!data) {
+            throw new Error('no body');
+          }
+          onCancel();
+          actionRef.current?.reload();
+        },
+        onCancel,
       });
-      actionRef.current?.reload();
-      modalFormRef.resetFields();
-      setEditRecord({});
-      setSelectRowKeys([]);
-      setCheckedGames([]);
     });
   }
 
-  return { submitor }; //addOrUpdater
+  return { submitor, onCancel }; //addOrUpdater
 }
