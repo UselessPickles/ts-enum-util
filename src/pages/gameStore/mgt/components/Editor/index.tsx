@@ -51,6 +51,7 @@ import SelectAll from '@/decorators/Select/SelectAll';
 import { arr2str, str2arr } from '@/decorators/Select/Format';
 import { beforeUpload, extra } from '../constant';
 import getExt from '@/utils/file/getExt';
+import { ReactElement } from 'react';
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -570,7 +571,14 @@ function BizInfo() {
           },
         ]}
       >
-        <DatePicker showTime disabledDate={disabledDate} disabledTime={disabledTime} />
+        {compose<any>(
+          IOC([
+            Format({
+              f: (v: any) => v?.format('YYYY-MM-DD HH:mm:ss') ?? v,
+              g: (v: any) => (v ? moment(v) : undefined),
+            }),
+          ]),
+        )(<DatePicker showTime disabledDate={disabledDate} disabledTime={disabledTime} />)}
       </Item>
 
       <Item name={['business', 'profitMode']} label="盈利方式">
