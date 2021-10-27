@@ -11,6 +11,7 @@ function changePwd() {
 
 const Account: React.FC = () => {
   const { userInfo, logOut } = UserContext.useContainer();
+  const { name } = userInfo;
   const downMenu = (
     <Menu>
       <Menu.Item key="1" icon={<SettingOutlined />} onClick={changePwd}>
@@ -25,9 +26,9 @@ const Account: React.FC = () => {
   return (
     <div className={styles.account}>
       <div />
-      <Avatar className={styles.avatar}>{userInfo.name[0]}</Avatar>
+      <Avatar className={styles.avatar}>{name ? name[0] : ''}</Avatar>
       <Dropdown overlay={downMenu}>
-        <span className={styles.name}>{userInfo.name}</span>
+        <span className={styles.name}>{name}</span>
       </Dropdown>
       <DownOutlined />
     </div>
