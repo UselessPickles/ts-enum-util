@@ -437,7 +437,6 @@ function SourceInfo({ env }: { env: ENV }) {
           IOC([
             Format({
               valuePropName: 'fileList',
-
               g: str2fileList,
             }),
           ]),
@@ -562,7 +561,7 @@ function BizInfo() {
         rules={[
           {
             validator: (_, time: Moment) => {
-              if (time <= moment()) {
+              if (time && time <= moment()) {
                 return Promise.reject(new Error('不能小于当前时间'));
               }
 
@@ -582,7 +581,14 @@ function BizInfo() {
       </Item>
 
       <Item name={['business', 'profitMode']} label="盈利方式">
-        <Checkbox.Group options={Options(PROFIT_MODE).toOpt} />
+        {compose<ReturnType<typeof SearchSelect>>(
+          IOC([
+            Format({
+              f: arr2str,
+              g: str2arr,
+            }),
+          ]),
+        )(<Checkbox.Group options={Options(PROFIT_MODE).toOpt} />)}
       </Item>
 
       <Item name={['resources', 'updateContent']} label="更新内容">
@@ -606,7 +612,6 @@ function BizInfo() {
               IOC([
                 Format({
                   valuePropName: 'fileList',
-
                   g: str2fileList,
                 }),
               ]),
@@ -637,7 +642,6 @@ function BizInfo() {
               IOC([
                 Format({
                   valuePropName: 'fileList',
-
                   g: str2fileList,
                 }),
               ]),
