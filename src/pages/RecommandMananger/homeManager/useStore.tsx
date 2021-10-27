@@ -12,7 +12,10 @@ export function useStore() {
   const formRef = useRef<FormInstance | undefined>();
   const [modalFormRef] = Form.useForm();
   const [modalProps, setModalProps] = useState<ModalProps>({});
-  const [editRecord, setEditRecord] = useState<{ [key: string]: any }>({});
+  const [editRecord, setEditRecord] = useState<{ [key: string]: any }>({}),
+    [page, setPage] = useState<any>(1),
+    [loading, setLoading] = useState<boolean>(false),
+    [selectGame, setSelectGame] = useState<any>([]);
 
   return {
     actionRef,
@@ -22,6 +25,12 @@ export function useStore() {
     modalFormRef,
     editRecord,
     setEditRecord,
+    page,
+    setPage,
+    loading,
+    setLoading,
+    selectGame,
+    setSelectGame,
   };
 }
 

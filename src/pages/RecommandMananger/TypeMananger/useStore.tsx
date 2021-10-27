@@ -2,10 +2,8 @@ import { createContext, useContext, useRef, useState } from 'react';
 import { ModalProps } from 'antd/lib/modal';
 import { ProCoreActionType } from '@ant-design/pro-utils';
 import { FormInstance } from 'antd/lib/form';
-import { Form, Table } from 'antd';
+import { Form } from 'antd';
 import { useMutation } from 'react-query';
-import RESTful from '@/utils/RESTful';
-import styled from 'styled-components';
 import { addAPI, updateAPI } from './services';
 
 // 共享 hooks
@@ -17,7 +15,9 @@ export function useStore() {
     [editRecord, setEditRecord] = useState<{ [key: string]: any }>({}),
     [gameModalProps, setGameModalProps] = useState<ModalProps>({}),
     [checkedGames, setCheckedGames] = useState<any>([]),
-    [selectedRowKeys, setSelectRowKeys] = useState<any>([]);
+    [selectedRowKeys, setSelectRowKeys] = useState<any>([]),
+    [page, setPage] = useState<any>(1),
+    [loading, setLoading] = useState<boolean>(false);
 
   return {
     actionRef,
@@ -33,6 +33,10 @@ export function useStore() {
     setCheckedGames,
     selectedRowKeys,
     setSelectRowKeys,
+    page,
+    setPage,
+    loading,
+    setLoading,
   };
 }
 
@@ -54,36 +58,49 @@ export default {
 };
 
 export function useModalFromSubmit() {
-  const { modalFormRef, setModalProps, actionRef, editRecord } = useContainer();
+  const {
+    modalFormRef,
+    setModalProps,
+    actionRef,
+    editRecord,
+    setEditRecord,
+    setSelectRowKeys,
+    setCheckedGames,
+    checkedGames,
+  } = useContainer();
   const updater = useMutation((data) => updateAPI({ data }));
   const creater = useMutation((data) => addAPI({ data }));
 
   function submitor() {
     return modalFormRef.validateFields().then((value) => {
-      const { id } = value;
+      const { id } = editRecord;
+      value.details = checkedGames?.map((item: { gameNum: any; sort: any; id: any }) => ({
+        gameNum: item.gameNum,
+        sort: item.sort,
+        id: item.id,
+      }));
+
+      console.log('submitValue', value);
+
       let data;
       if (id) {
-        data = updater.mutateAsync(value);
+        data = updater.mutateAsync({ ...value, id });
       } else {
         data = creater.mutateAsync(value);
       }
+      if (!data) {
+        throw new Error('no body');
+      }
+      setModalProps({
+        visible: false,
+      });
+      actionRef.current?.reload();
+      modalFormRef.resetFields();
+      setEditRecord({});
+      setSelectRowKeys([]);
+      setCheckedGames([]);
     });
   }
 
   return { submitor }; //addOrUpdater
-}
-
-export function gameTable() {
-  const GameTable = styled(Table)`
-    thead {
-      display: none;
-    }
-    .ant-table-tbody > tr > td {
-      border-bottom: 0 !important;
-    }
-    .ant-table-tbody > tr.ant-table-row-selected > td {
-      background-color: #ffffff !important;
-    }
-  `;
-  return { GameTable };
 }

@@ -47,6 +47,14 @@
     color: #333333;
     font-size: 14px;
   }
+  p,
+  h5 {
+    width: 180px;
+    overflow: hidden;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }
 .checkedGameTable {
   table {
@@ -100,9 +108,14 @@
   border-radius: 4px;
 }
 .showGameDIV {
+  max-height: 450px;
   margin-top: 12px;
   padding: 2px 0;
+  overflow-y: scroll;
   border: 1px solid rgba(0, 0, 0, 0.15);
+  &::-webkit-scrollbar {
+    display: none;
+  }
   .gameIndex {
     width: 35px;
     color: #333333;

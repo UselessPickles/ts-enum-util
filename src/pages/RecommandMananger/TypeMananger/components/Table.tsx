@@ -45,17 +45,25 @@ export default (props: any) => {
       title: '状态',
       dataIndex: 'showStatus',
       ...defalutTableColumnsProps,
+      width: 130,
       valueEnum: { 1: '展示', 0: '隐藏' },
       hideInSearch: false,
       align: 'center',
       render: (_, record) => {
         const isStatus = record.showStatus === 1;
-        return isStatus ? <Tag color="green">展示</Tag> : <Tag>隐藏</Tag>;
+        return isStatus ? (
+          <Tag color="green" style={{ margin: 0 }}>
+            展示
+          </Tag>
+        ) : (
+          <Tag>隐藏</Tag>
+        );
       },
     },
     {
       title: '游戏数量',
-      dataIndex: 'num',
+      dataIndex: 'gameCount',
+      width: 130,
       ...defalutTableColumnsProps,
       align: 'center',
     },
@@ -63,14 +71,15 @@ export default (props: any) => {
       title: '排序',
       dataIndex: 'sort',
       ...defalutTableColumnsProps,
-      align: 'center',
+      width: 130,
       sorter: (a, b) => a.sort - b.sort,
     },
     {
       title: '操作人',
       dataIndex: 'operator',
       ...defalutTableColumnsProps,
-      align: 'center',
+      width: 130,
+      // align: 'center',
     },
     {
       title: '操作时间',
@@ -129,37 +138,12 @@ export default (props: any) => {
             pageSize: params.pageSize,
           },
         };
-        // const res = await list({ data });
-        // return {
-        //   data: res?.data?.totalDatas || [],
-        //   page: params?.current || 1,
-        //   success: true,
-        //   total: res?.data?.totalCount || 0,
-        // };
+        const res = await list({ data });
         return {
-          data: [
-            {
-              id: 1,
-              name: '类型1',
-              showStatus: 1,
-              num: 12,
-              operator: '测试111',
-              utime: '2021/10/20',
-              sort: 95,
-            },
-            {
-              id: 2,
-              name: '类型2',
-              showStatus: 0,
-              num: 5,
-              operator: '测试2',
-              utime: '2021/10/25',
-              sort: 40,
-            },
-          ],
+          data: res?.data?.total_datas || [],
           page: params?.current || 1,
           success: true,
-          total: 1,
+          total: res?.data?.total_count || 0,
         };
       }}
     />

@@ -1,11 +1,11 @@
 import { Button, Form, Input, InputNumber, Radio } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { gameTable, useContainer, useModalFromSubmit } from '../useStore';
 import { EditOutlined } from '@ant-design/icons';
 import styles from '../index.less';
 import DrawerForm from '@/components/DrawerForm';
-import gameImg from '@/assets/img/icon-566game.png';
-
+import { listDetail, check } from '../services';
+import GameTable from '@/components/Xmiles/NoHeadTable';
 const { Item } = Form;
 
 export default () => {
@@ -13,11 +13,14 @@ export default () => {
       modalProps,
       setModalProps,
       modalFormRef,
+      editRecord,
       setEditRecord,
       setGameModalProps,
       checkedGames,
+      setCheckedGames,
+      setSelectRowKeys,
+      setPage,
     } = useContainer(),
-    { GameTable } = gameTable(),
     { submitor } = useModalFromSubmit(),
     onCancel = () => {
       setModalProps({
@@ -25,33 +28,58 @@ export default () => {
       });
       modalFormRef.resetFields();
       setEditRecord({});
+      setSelectRowKeys([]);
+      setCheckedGames([]);
     },
     onOpenGame = () => {
+      setPage(1);
       setGameModalProps({
         visible: true,
         title: '编辑游戏名单',
       });
     };
 
+  async function queryGameDetail() {
+    const { id } = editRecord ?? {};
+    try {
+      const res = await listDetail({
+        data: { id },
+      });
+      const details = res?.data?.details;
+      if (details?.length > 0) {
+        const sortDetails = details?.sort((a, b) => a['sort'] - b['sort']);
+        setCheckedGames(sortDetails);
+        const rowKeys = sortDetails?.reduce((acc, cur) => (acc = [...acc, cur?.gameNum]), []);
+        setSelectRowKeys(rowKeys);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  useEffect(() => {
+    modalProps.title == '编辑' && queryGameDetail();
+  }, [modalProps]);
+
   const columns = [
     {
-      dataIndex: 'index',
+      dataIndex: 'sort',
       align: 'center',
       with: 100,
-      render: (text, record, index) => {
-        return <div className={styles.gameIndex}>{index + 1}</div>;
+      render: (_: any, record: any) => {
+        return <div className={styles.gameIndex}>{record?.sort}</div>;
       },
     },
     {
-      dataIndex: 'icon',
-      render: () => {
-        return <img src={gameImg} style={{ width: '42px' }} />;
+      dataIndex: 'gameIcon',
+      render: (_: any, record: any) => {
+        return <img src={record?.gameIcon} style={{ width: '42px' }} />;
       },
     },
     {
       dataIndex: 'gameName',
       width: 680,
-      render: (text: any, record: any, index: any) => {
+      render: (_: any, record: any) => {
         return (
           <div className={styles.gameClass}>
             <h5>{record?.gameName}</h5>
@@ -65,9 +93,14 @@ export default () => {
   return (
     <DrawerForm
       onCancel={onCancel}
-      onSubmit={onCancel}
+      onSubmit={submitor}
       modalProps={{ ...modalProps, zIndex: 10 }}
-      formProps={{ layout: 'vertical', form: modalFormRef, className: styles.editForm }}
+      formProps={{
+        layout: 'vertical',
+        form: modalFormRef,
+        className: styles.editForm,
+        initialValues: { showStatus: 1 },
+      }}
     >
       <h3>1.基础信息 </h3>
       <Item label="类别名称" name="name" rules={[{ required: true }]}>
@@ -92,7 +125,29 @@ export default () => {
           </>,
         ]}
         name="sort"
-        rules={[{ required: true }]}
+        rules={[
+          { required: true },
+          ({ getFieldValue }) => {
+            const name = getFieldValue('name');
+            return {
+              async validator(_, sort) {
+                try {
+                  await check({
+                    data: {
+                      id: editRecord.id,
+                      name,
+                      sort,
+                    },
+                    throwErr: true,
+                  });
+                  return Promise.resolve();
+                } catch (e) {
+                  return Promise.reject(e);
+                }
+              },
+            };
+          },
+        ]}
       >
         <InputNumber max={999} min={1} style={{ width: '100%' }} placeholder="请输入数值0-999" />
       </Item>

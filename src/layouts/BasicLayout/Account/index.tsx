@@ -25,7 +25,7 @@ const Account: React.FC = () => {
   return (
     <div className={styles.account}>
       <div />
-      <Avatar className={styles.avatar}>{userInfo.name[0]}</Avatar>
+      <Avatar className={styles.avatar}>{userInfo?.name?.[0]}</Avatar>
       <Dropdown overlay={downMenu}>
         <span className={styles.name}>{userInfo.name}</span>
       </Dropdown>
