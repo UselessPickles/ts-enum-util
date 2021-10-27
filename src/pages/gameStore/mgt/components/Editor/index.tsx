@@ -405,6 +405,9 @@ function GameInfo() {
         <Text strong>2. 基础信息</Text>
       </Item>
       <Item name="thirdGameClassify" label="第三方游戏分类">
+        <FormItemView />
+      </Item>
+      <Item name="gameClassifyId" label="APP中游戏分类" rules={[{ required: true }]}>
         {compose<ReturnType<typeof SearchSelect>>(
           IOC([
             SelectAll,
@@ -415,17 +418,6 @@ function GameInfo() {
           ]),
         )(<SearchSelect mode="multiple" showArrow />)}
       </Item>
-      {/* <Item name="gameClassifyId" label="APP中游戏分类" rules={[{ required: true }]}>
-        {compose<ReturnType<typeof SearchSelect>>(
-          IOC([
-            SelectAll,
-            Format({
-              f: arr2str,
-              g: str2arr,
-            }),
-          ]),
-        )(<SearchSelect mode="multiple" showArrow />)}
-      </Item> */}
     </>
   );
 }
