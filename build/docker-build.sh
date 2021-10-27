@@ -34,16 +34,16 @@ echo '删除打包镜像成功'
 
 # 运行 K8S
 echo 'K8S WebHook:'
-# case $1 in
-#     "test")
-#         # 国内镜像 curl
-#         curl "https://cs.console.aliyun.com/hook/trigger?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVzdGVySWQiOiJjNjk1MjE0YzcxYzVlNDJkZTlhODc2MzhkMzQ4MjY3MzUiLCJpZCI6IjE0NjkxMiJ9.i59pnxoxxV-nu2tgFKh-t8dXV9kMCnzj7O3_kpmAjsdin8A8-ezliIxQ_kCwvRfHGPrHflSMSyt0h2aIxRh_z4Rfvq3cTPnaGtbalEAgtBY5WrnC2Fg41iJo5GVbngwlayBWvoCThAGjfb6eB-WPDQ1P_JZ3EojMGV3oVbieBJo"
-#     ;;
-#     "production")
-#         # 海外镜像自动运行 K8S 触发
-#         echo "海外镜像自动运行 K8S 触发器"
-#     ;;
-#     *)
-#         curl "https://cs.console.aliyun.com/hook/trigger?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVzdGVySWQiOiJjOGMxMDcwNWYxN2EwNGMwNjhiNTRjMWFkMDAzMGY1ZTYiLCJpZCI6IjE1MDY0NCJ9.Z5cNV8bzeKEJBMrj_ro85oPnen6wiUbngOPWGIkWJYoNsEkY1JrdWeXYqO5IE5cvBeVHOggHo2C0or3nSvaGQIurN_B7ohco_Ziha8PlPTe-a5VMQPjUgSPCoK67BN8UeMXHr8ItkKY9UdAm6UOe9TIXbptozNUtOrGKPHCvETs"
-#     ;;
-# esac
+case $1 in
+    "test")
+        # 国内镜像 curl
+        curl "https://cs.console.aliyun.com/hook/trigger?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVzdGVySWQiOiJjOTk2MmNkZDNiNjc0NGQ0N2EwNTE0ZWY4YTIyNjEyODMiLCJpZCI6IjE1ODcyNCJ9.TJW4ZAobyljjfCrUe2XuZJ7Z_P64GpaaT_kjiy_pDkJTIqNFU3BassUW6XDzXd5v-wYzT3qoYWdpfA0tftPjTcQuPidcg2JhcGWFBJJSzL1C6L7h4y2HGVqzXvYzT2rkXCTQWiXDHjEaGXzd42dHHCt3uxneNZ3f5pLQsmrnF7Y"
+    ;;
+    "production")
+        # 海外镜像自动运行 K8S 触发
+        echo "海外镜像自动运行 K8S 触发器"
+    ;;
+    # *)
+    #     curl "https://cs.console.aliyun.com/hook/trigger?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVzdGVySWQiOiJjOGMxMDcwNWYxN2EwNGMwNjhiNTRjMWFkMDAzMGY1ZTYiLCJpZCI6IjE1MDY0NCJ9.Z5cNV8bzeKEJBMrj_ro85oPnen6wiUbngOPWGIkWJYoNsEkY1JrdWeXYqO5IE5cvBeVHOggHo2C0or3nSvaGQIurN_B7ohco_Ziha8PlPTe-a5VMQPjUgSPCoK67BN8UeMXHr8ItkKY9UdAm6UOe9TIXbptozNUtOrGKPHCvETs"
+    # ;;
+esac
