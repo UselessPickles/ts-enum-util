@@ -90,23 +90,25 @@ export default function () {
     });
   }
 
-  function syncHandler(id: Row['id']) {
+  function syncHandler(offline: Row) {
     return async () => {
-      const dataSource =
-        (await syncServices('get', { data: { id } }).then((res: any) => res?.data)) ?? [];
-      if (dataSource?.length > 1) {
-        synchronizer.setModalProps((pre) => ({
-          ...pre,
-          visible: true,
-          onOk: () => syncConfirm(id, false),
-        }));
+      const id = offline?.id;
+      const online = await syncServices('get', { data: { id } }).then((res: any) => res?.data);
+      if (online) {
+        const dataSource = [online, offline];
+
+        synchronizer.setData({ dataSource });
 
         synchronizer.setFormProps((pre) => ({
           ...pre,
           onFinish: () => syncConfirm(id, false),
         }));
 
-        synchronizer.setData({ dataSource });
+        synchronizer.setModalProps((pre) => ({
+          ...pre,
+          visible: true,
+          onOk: () => syncConfirm(id, false),
+        }));
       } else {
         syncConfirm(id);
       }
@@ -188,15 +190,15 @@ export default function () {
     {
       title: '操作',
       dataIndex: 'id',
-      width: 100,
+      width: 150,
       hideInSearch: true,
       fixed: 'right',
-      renderText: (id) => {
+      renderText: (id, record) => {
         return (
           <Space>
             {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
             {env === 'test' &&
-              compose(disabled(false))(<a onClick={syncHandler(id)}>同步到线上</a>)}
+              compose(disabled(false))(<a onClick={syncHandler(record)}>同步到线上</a>)}
           </Space>
         );
       },

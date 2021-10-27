@@ -37,9 +37,9 @@ export default ({
       },
     },
     { field: 'gameName', title: '游戏名称' },
-    { field: 'version', title: '版本号' },
-    { field: 'description', title: '一句话介绍' },
-    { field: 'descriptionDetail', title: '详细介绍' },
+    { field: 'insideVersion', title: '版本号' },
+    { field: 'briefIntroduction', title: '一句话介绍' },
+    { field: 'detailedIntroduction', title: '详细介绍' },
     {
       field: 'gameIcon',
       title: '游戏icon',
