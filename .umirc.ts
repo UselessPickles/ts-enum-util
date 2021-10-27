@@ -43,6 +43,7 @@ export default defineConfig({
       ],
     },
   ],
+  dynamicImport: {},
   base: '/game-management-frontend',
   publicPath: '/game-management-frontend/',
   theme,
