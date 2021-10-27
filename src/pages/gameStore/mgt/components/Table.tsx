@@ -148,17 +148,17 @@ export default function () {
       dataIndex: 'status',
       width: 100,
       valueEnum: STATUS,
+      hideInSearch: true,
     },
     {
       title: '自动化测试状态',
       dataIndex: 'testStatus',
       width: 100,
       valueEnum: TEST_STATUS,
-      hideInSearch: true,
     },
     {
       title: '版本号',
-      dataIndex: 'gameVersion',
+      dataIndex: 'insideVersion',
       width: 100,
       hideInSearch: true,
     },
@@ -171,8 +171,14 @@ export default function () {
     {
       title: '更新时间',
       dataIndex: 'utime',
-      width: 100,
       valueType: 'dateTimeRange',
+      hideInTable: true,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'utime',
+      width: 100,
+      hideInSearch: true,
     },
     {
       title: '操作人',
@@ -184,7 +190,6 @@ export default function () {
       title: '操作时间',
       dataIndex: 'ctime',
       width: 100,
-      valueType: 'dateTimeRange',
       hideInSearch: true,
     },
     {

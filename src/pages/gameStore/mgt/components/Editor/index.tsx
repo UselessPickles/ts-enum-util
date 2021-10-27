@@ -292,6 +292,7 @@ function GameInfo() {
             valuePropName="fileList"
             getValueFromEvent={getValueFromEvent}
             normalize={uploadEvent2strArr}
+            extra="为App更好的展示效果，请上传至少三张游戏截图"
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
