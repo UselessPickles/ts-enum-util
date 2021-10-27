@@ -1,13 +1,9 @@
-import { message, Modal, Image, Tag, Typography } from 'antd';
+import { Image, Tag, Typography } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
-import { services } from '../services/sync';
 import type { Row } from './DescriptionsRender';
 import { DescriptionsRender } from './DescriptionsRender';
-import isValidValue from '@/utils/isValidValue';
-import prune from '@/utils/prune';
-import { useQuery } from 'react-query';
 import { STATUS } from '../models';
 
 const { Text } = Typography;
@@ -15,31 +11,11 @@ const { Text } = Typography;
 export default ({
   formProps,
   modalProps,
-  setModalProps,
-  onSuccess,
-  form,
   data = {},
 }: ReturnType<typeof useModalForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const {
-    dataSource = [
-      {
-        status: 1,
-        gameName: '农药',
-        description: '1',
-        descriptionDetail:
-          '12312312312312312312312312312312312312312312312312312312312312312312312312312312312323',
-      },
-      {
-        status: 2,
-        gameName: '农药2',
-        version: 'v1.2',
-        description: '2',
-        // descriptionDetail:'12312312312312312312312312312312312312312312312312312312312312312312312312312312312323',
-      },
-    ],
-  } = {};
+  const { dataSource } = data;
 
   const rows: Row<any>[] = [
     {
@@ -75,9 +51,9 @@ export default ({
     <ModalForm
       formProps={formProps}
       modalProps={{
-        visible: true,
         title: '同步到线上',
         okText: '确定同步',
+
         ...modalProps,
         width: 960,
       }}

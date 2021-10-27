@@ -19,12 +19,14 @@ import { useParams, useHistory } from 'react-router';
 import { compose } from '@/decorators/utils';
 import disabled from '@/decorators/ATag/disabled';
 import { STATUS, TEST_STATUS } from '../models';
+import { useQueryClient } from 'react-query';
 // unsaved test
 const { TabPane } = Tabs;
 
 export default function () {
   const history = useHistory();
   const { actionRef, formRef } = useProTable();
+  const client = useQueryClient();
 
   const uploader = useModalForm({ modalProps: { title: '上传游戏' } });
   const editor = useModalForm();
@@ -52,6 +54,7 @@ export default function () {
 
   function editHandler(id: Row['id']) {
     return () => {
+      client.invalidateQueries(['game-mgt-editor', id]);
       editor.setModalProps((pre) => ({
         ...pre,
         title: '加载中...',

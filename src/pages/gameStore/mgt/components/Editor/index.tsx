@@ -1,4 +1,4 @@
-import type { FormItemProps, DatePickerProps } from 'antd';
+import type { DatePickerProps, FormItemProps } from 'antd';
 import {
   Form,
   message,
@@ -39,11 +39,12 @@ import {
   str2fileList,
   strArr2fileList,
   uploadEvent2strArr,
+  getValueFromEvent,
 } from '@/decorators/Upload/Format';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import theme from '@/../config/theme';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import SelectAll from '@/decorators/Select/SelectAll';
@@ -68,6 +69,7 @@ export default ({
   onSuccess?: (...args: any) => void;
 }) => {
   const { id, env } = data;
+  const client = useQueryClient();
   const detail = useQuery(
     ['game-mgt-editor', data.id],
     () => services('get', { data: { id } }, env),
@@ -76,32 +78,8 @@ export default ({
       refetchOnWindowFocus: false,
       onSuccess(res) {
         const formData = prune(res?.data, isValidValue) ?? {};
-        const {
-          // resources,
-          gamePictureList,
-          gameVideoList,
-        } = formData ?? {};
-        // apk , 内部版本号， 外部版本号， md5
-        // const { apk, ...restResources } = resources ?? {};
-        const format = {
-          ...formData,
-          gamePicture: gamePictureList,
-          gameVideo: gameVideoList?.[0]?.url,
-          // resources: {
-          //   ...restResources,
-          //   insideVersion: 2,
-          //   apk: [
-          //     {
-          //       response: {
-          //         name: getFileNameInPath(apk),
-          //         url: apk,
-          //       },
-          //       name: getFileNameInPath(apk),
-          //     },
-          //   ],
-          // },
-        };
-        form.setFieldsValue(format);
+
+        form.setFieldsValue(formData);
         setModalProps((pre) => ({
           ...pre,
           title: formData?.packageName,
@@ -114,10 +92,7 @@ export default ({
   async function onSubmit() {
     try {
       const value = await form?.validateFields();
-      const format = {
-        ...value,
-        gamePicture: value?.gamePicture ? JSON.stringify(value?.gamePicture) : undefined,
-      };
+      const format = prune(value, isValidValue);
 
       Modal.confirm({
         title: '请进行二次确认',
@@ -133,7 +108,7 @@ export default ({
               },
               env,
             );
-            onSuccess?.();
+            await onSuccess?.();
             setModalProps((pre) => ({ ...pre, visible: false }));
           } catch (e: any) {
             if (e?.message) {
@@ -178,6 +153,7 @@ export default ({
         onOk: onSubmit,
         className: styles['modal-title-height'],
         confirmLoading: detail?.isFetched,
+
         ...modalProps,
         title: (
           <>
@@ -200,7 +176,9 @@ export default ({
           const t = getFieldValue(['tab']);
           return (
             <>
-              <Item name={'id'} hidden />
+              <Item name={'id'} hidden>
+                <input />
+              </Item>
               <Item noStyle hidden={t !== '游戏资料'}>
                 <GameInfo />
               </Item>
@@ -247,12 +225,13 @@ function GameInfo() {
                 rules={[{ required: true }]}
                 style={{ flex: 1 }}
                 valuePropName="fileList"
+                getValueFromEvent={getValueFromEvent}
+                normalize={uploadEvent2str}
               >
                 {compose<ReturnType<typeof CustomUpload>>(
                   IOC([
                     Format({
                       valuePropName: 'fileList',
-                      f: uploadEvent2str,
                       g: str2fileList,
                     }),
                   ]),
@@ -271,59 +250,60 @@ function GameInfo() {
           }}
         </Item>
 
-        <Item dependencies={[['firstPicture']]} noStyle>
-          {({ getFieldValue }) => {
-            return (
-              <Item
-                name="firstPicture"
-                label="头图"
-                rules={[{ required: true }]}
-                style={{ flex: 1 }}
-                valuePropName="fileList"
-              >
-                {compose<ReturnType<typeof CustomUpload>>(
-                  IOC([
-                    Format({
-                      valuePropName: 'fileList',
-                      f: uploadEvent2str,
-                      g: str2fileList,
-                    }),
-                  ]),
-                )(
-                  <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
-                    {!(getFieldValue(['firstPicture'])?.length >= 1) && (
-                      <div>
-                        <PlusOutlined style={{ fontSize: '18px' }} />
-                        <div style={{ marginTop: 8 }}>上传图片</div>
-                      </div>
-                    )}
-                  </CustomUpload>,
-                )}
-              </Item>
-            );
-          }}
+        <Item dependencies={[['dynamicPicture']]} noStyle>
+          {({ getFieldValue }) => (
+            <Item
+              name="dynamicPicture"
+              label="游戏动态图"
+              style={{ flex: 1 }}
+              valuePropName="fileList"
+              getValueFromEvent={getValueFromEvent}
+              normalize={uploadEvent2str}
+            >
+              {compose<ReturnType<typeof CustomUpload>>(
+                IOC([
+                  Format({
+                    valuePropName: 'fileList',
+
+                    g: str2fileList,
+                  }),
+                ]),
+              )(
+                <CustomUpload maxCount={1} accept=".gif" listType="picture-card">
+                  {!(getFieldValue(['dynamicPicture'])?.length >= 1) && (
+                    <div>
+                      <PlusOutlined style={{ fontSize: '18px' }} />
+                      <div style={{ marginTop: 8 }}>上传图片</div>
+                    </div>
+                  )}
+                </CustomUpload>,
+              )}
+            </Item>
+          )}
         </Item>
       </div>
-      <Item dependencies={[['gamePicture']]} noStyle>
+      <Item dependencies={[['gamePictureList']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name="gamePicture"
+            name="gamePictureList"
             label="游戏截图"
             rules={[{ required: true }]}
             style={{ flex: 1 }}
             valuePropName="fileList"
+            getValueFromEvent={getValueFromEvent}
+            normalize={uploadEvent2strArr}
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
                 Format({
                   valuePropName: 'fileList',
-                  f: uploadEvent2strArr,
+
                   g: strArr2fileList,
                 }),
               ]),
             )(
               <CustomUpload maxCount={5} accept=".jpg,.png" listType="picture-card" multiple>
-                {!(getFieldValue(['gamePicture'])?.length >= 5) && (
+                {!(getFieldValue(['gamePictureList'])?.length >= 5) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
                     <div style={{ marginTop: 8 }}>上传图片</div>
@@ -336,16 +316,25 @@ function GameInfo() {
       </Item>
 
       <div style={{ display: 'flex' }}>
-        <Item dependencies={[['gameVideo']]} noStyle>
+        <Item dependencies={[['gameVideoList', 0, 'url']]} noStyle>
           {({ getFieldValue }) => {
-            const url = getFieldValue(['gameVideo'])?.[0]?.response || getFieldValue(['gameVideo']);
+            const url =
+              getFieldValue(['gameVideoList', 0, 'url'])?.[0]?.response ||
+              getFieldValue(['gameVideoList', 0, 'url']);
             return (
-              <Item name="gameVideo" label="游戏视频" style={{ flex: 1 }} valuePropName="fileList">
+              <Item
+                name={['gameVideoList', 0, 'url']}
+                label="游戏视频"
+                style={{ flex: 1 }}
+                valuePropName="fileList"
+                getValueFromEvent={getValueFromEvent}
+                normalize={uploadEvent2str}
+              >
                 {compose<ReturnType<typeof CustomUpload>>(
                   IOC([
                     Format({
                       valuePropName: 'fileList',
-                      f: uploadEvent2str,
+
                       g: str2fileList,
                     }),
                   ]),
@@ -372,35 +361,38 @@ function GameInfo() {
             );
           }}
         </Item>
+        <Item dependencies={[['gameVideoList', 0, 'img']]} noStyle>
+          {({ getFieldValue }) => {
+            return (
+              <Item
+                name={['gameVideoList', 0, 'img']}
+                label="视频封面图"
+                style={{ flex: 1 }}
+                valuePropName="fileList"
+                getValueFromEvent={getValueFromEvent}
+                normalize={uploadEvent2str}
+              >
+                {compose<ReturnType<typeof CustomUpload>>(
+                  IOC([
+                    Format({
+                      valuePropName: 'fileList',
 
-        <Item dependencies={[['dynamicPicture']]} noStyle>
-          {({ getFieldValue }) => (
-            <Item
-              name="dynamicPicture"
-              label="游戏动态图"
-              style={{ flex: 1 }}
-              valuePropName="fileList"
-            >
-              {compose<ReturnType<typeof CustomUpload>>(
-                IOC([
-                  Format({
-                    valuePropName: 'fileList',
-                    f: uploadEvent2str,
-                    g: str2fileList,
-                  }),
-                ]),
-              )(
-                <CustomUpload maxCount={1} accept=".gif" listType="picture-card">
-                  {!(getFieldValue(['dynamicPicture'])?.length >= 1) && (
-                    <div>
-                      <PlusOutlined style={{ fontSize: '18px' }} />
-                      <div style={{ marginTop: 8 }}>上传图片</div>
-                    </div>
-                  )}
-                </CustomUpload>,
-              )}
-            </Item>
-          )}
+                      g: str2fileList,
+                    }),
+                  ]),
+                )(
+                  <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
+                    {!(getFieldValue(['gameVideoList', 0, 'img'])?.length >= 1) && (
+                      <div>
+                        <PlusOutlined style={{ fontSize: '18px' }} />
+                        <div style={{ marginTop: 8 }}>上传图片</div>
+                      </div>
+                    )}
+                  </CustomUpload>,
+                )}
+              </Item>
+            );
+          }}
         </Item>
       </div>
 
@@ -422,9 +414,17 @@ function GameInfo() {
           ]),
         )(<SearchSelect mode="multiple" showArrow />)}
       </Item>
-      <Item name="gameClassifyId" label="APP中游戏分类" rules={[{ required: true }]}>
-        <SearchSelect mode="multiple" showArrow />
-      </Item>
+      {/* <Item name="gameClassifyId" label="APP中游戏分类" rules={[{ required: true }]}>
+        {compose<ReturnType<typeof SearchSelect>>(
+          IOC([
+            SelectAll,
+            Format({
+              f: arr2str,
+              g: str2arr,
+            }),
+          ]),
+        )(<SearchSelect mode="multiple" showArrow />)}
+      </Item> */}
     </>
   );
 }
@@ -433,12 +433,18 @@ function GameInfo() {
 function SourceInfo() {
   return (
     <>
-      <Item name={['resources', 'apk']} label="游戏apk" valuePropName="fileList">
+      <Item
+        name={['resources', 'apk']}
+        label="游戏apk"
+        valuePropName="fileList"
+        getValueFromEvent={getValueFromEvent}
+        normalize={uploadEvent2str}
+      >
         {compose<ReturnType<typeof CustomUpload>>(
           IOC([
             Format({
               valuePropName: 'fileList',
-              f: uploadEvent2str,
+
               g: str2fileList,
             }),
           ]),
@@ -485,7 +491,6 @@ function SourceInfo() {
               showRemoveIcon: false,
             }}
             itemRender={(origin, file) => {
-              console.log('itemRender', file);
               return (
                 <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -497,16 +502,16 @@ function SourceInfo() {
                   <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
 
                   <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
-                    <FormItemView defaultValue={'未知'} />
+                    <FormItemView />
                   </Item>
                   <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
-                    <FormItemView defaultValue={'未知'} />
+                    <FormItemView />
                   </Item>
                   <Item name={['resources', 'md5']} label="MD5：" {...extra}>
-                    <FormItemView defaultValue={'未知'} />
+                    <FormItemView />
                   </Item>
                   <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
-                    <FormItemView defaultValue={'未知'} />
+                    <FormItemView />
                   </Item>
                 </Card>
               );
@@ -588,12 +593,14 @@ function BizInfo() {
             label="网络游戏出版物号（ISBN）核发单"
             style={{ flex: 1 }}
             valuePropName="fileList"
+            getValueFromEvent={getValueFromEvent}
+            normalize={uploadEvent2str}
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
                 Format({
                   valuePropName: 'fileList',
-                  f: uploadEvent2str,
+
                   g: str2fileList,
                 }),
               ]),
@@ -617,12 +624,14 @@ function BizInfo() {
             label="软著"
             style={{ flex: 1 }}
             valuePropName="fileList"
+            getValueFromEvent={getValueFromEvent}
+            normalize={uploadEvent2str}
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
                 Format({
                   valuePropName: 'fileList',
-                  f: uploadEvent2str,
+
                   g: str2fileList,
                 }),
               ]),

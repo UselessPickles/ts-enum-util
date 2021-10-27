@@ -1,49 +1,21 @@
-import type { FormItemProps, InputProps, UploadProps } from 'antd';
-import {
-  Form,
-  message,
-  Button,
-  Upload,
-  Card,
-  Space,
-  Divider,
-  Input,
-  Modal,
-  Descriptions,
-} from 'antd';
+import type { InputProps, UploadProps } from 'antd';
+import { Form, message, Button, Upload, Card, Divider, Input, Modal } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
 import { services } from '../services';
-import CustomUpload, { getQiniuKey } from '@/components/CustomUpload';
+import CustomUpload from '@/components/CustomUpload';
 import Format from '@/decorators/Format';
 import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
 
-import {
-  UploadOutlined,
-  DeleteOutlined,
-  StarOutlined,
-  PaperClipOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
-import RESTful from '@/utils/RESTful';
+import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
 import showCount from '@/decorators/Input/showCount';
 import type { ReactElement } from 'react';
-import {
-  str2fileList,
-  strArr2fileList,
-  uploadEvent2str,
-  uploadEvent2strArr,
-} from '@/decorators/Upload/Format';
-import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
-import theme from '@/../config/theme';
-import { useQuery } from 'react-query';
+import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Upload/Format';
 import FormItemView from '@/components/FormItemView';
 import { extra } from './constant';
-const { 'primary-color': primaryColor } = theme;
 const { Item } = Form;
-const { Item: DItem } = Descriptions;
 
 export default ({
   data,
@@ -81,7 +53,7 @@ export default ({
             },
             data.env,
           );
-          onSuccess?.();
+          await onSuccess?.();
           setModalProps((pre) => ({ ...pre, visible: false }));
         } catch (e: any) {
           if (e?.message) {
@@ -109,12 +81,13 @@ export default ({
         label="游戏apk"
         rules={[{ required: true }]}
         valuePropName="fileList"
+        getValueFromEvent={getValueFromEvent}
+        normalize={uploadEvent2str}
       >
         {compose<ReturnType<typeof CustomUpload>>(
           IOC([
             Format({
               valuePropName: 'fileList',
-              f: uploadEvent2str,
               g: str2fileList,
             }),
           ]),
@@ -122,9 +95,8 @@ export default ({
           <Upload
             maxCount={1}
             accept=".apk,.aab"
-            customRequest={async ({ onSuccess: onUploadSuccess, onError, file }) => {
+            customRequest={async ({ onError, file }) => {
               console.log(file);
-              const tokenKey = getQiniuKey(file as any);
 
               try {
                 // const data = await RESTful.get('', {
@@ -146,7 +118,6 @@ export default ({
                 //   body: fd,
                 // });
 
-                const xhr = new XMLHttpRequest();
                 onError?.(new Error('error'));
                 // if ((Math.random() * 100) % 2) {
                 //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
@@ -162,22 +133,22 @@ export default ({
               downloadIcon: 'download ',
               showRemoveIcon: true,
             }}
-            itemRender={(origin, file) => {
+            itemRender={(origin) => {
               return (
                 <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                   {origin}
                   <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
                   <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
-                    <FormItemView defaultValue={'未知'} />
+                    <FormItemView />
                   </Item>
                   <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
-                    <FormItemView defaultValue={'未知'} />
+                    <FormItemView />
                   </Item>
                   <Item name={['resources', 'md5']} label="MD5：" {...extra}>
-                    <FormItemView defaultValue={'未知'} />
+                    <FormItemView />
                   </Item>
                   <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
-                    <FormItemView defaultValue={'未知'} />
+                    <FormItemView />
                   </Item>
                 </Card>
               );
@@ -198,13 +169,15 @@ export default ({
             label="游戏Icon"
             rules={[{ required: true }]}
             valuePropName="fileList"
+            getValueFromEvent={getValueFromEvent}
+            normalize={uploadEvent2str}
             extra="jpg、png格式，建议尺寸xx*xx px，不超过100k"
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
                 Format({
                   valuePropName: 'fileList',
-                  f: uploadEvent2str,
+
                   g: str2fileList,
                 }),
               ]),
