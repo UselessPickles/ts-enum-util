@@ -49,7 +49,7 @@ import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import SelectAll from '@/decorators/Select/SelectAll';
 import { arr2str, str2arr } from '@/decorators/Select/Format';
-import { extra } from '../constant';
+import { beforeUpload, extra } from '../constant';
 import getExt from '@/utils/file/getExt';
 const { 'primary-color': primaryColor } = theme;
 
@@ -445,6 +445,7 @@ function SourceInfo({ env }: { env: ENV }) {
             disabled={env === 'prod'}
             maxCount={1}
             accept=".apk,.aab"
+            beforeUpload={beforeUpload}
             customRequest={async ({ onSuccess, onError, file }) => {
               try {
                 // const data = await RESTful.get('', {

@@ -15,6 +15,7 @@ import type { ReactElement } from 'react';
 import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Upload/Format';
 import FormItemView from '@/components/FormItemView';
 import { extra } from './constant';
+import { beforeUpload as beforeApkUpload } from './constant';
 const { Item } = Form;
 
 export default ({
@@ -95,6 +96,7 @@ export default ({
           <Upload
             maxCount={1}
             accept=".apk,.aab"
+            beforeUpload={beforeApkUpload}
             customRequest={async ({ onError, file }) => {
               console.log(file);
 
