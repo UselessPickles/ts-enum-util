@@ -1,4 +1,4 @@
-import type { DatePickerProps, FormItemProps } from 'antd';
+import type { DatePickerProps } from 'antd';
 import {
   Form,
   message,
@@ -28,7 +28,7 @@ import Options from '@/utils/Options';
 import { PROFIT_MODE, INSTALL_TYPE, STATUS, TYPE } from '../../models';
 import SearchSelect from '@/components/SearchSelect';
 import FormItemView from '@/components/FormItemView';
-import CustomUpload, { getExt } from '@/components/CustomUpload';
+import CustomUpload from '@/components/CustomUpload';
 import Format from '@/decorators/Format';
 import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
@@ -44,12 +44,13 @@ import {
 import type { Moment } from 'moment';
 import moment from 'moment';
 import theme from '@/../config/theme';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import SelectAll from '@/decorators/Select/SelectAll';
 import { arr2str, str2arr } from '@/decorators/Select/Format';
 import { extra } from '../constant';
+import getExt from '@/utils/file/getExt';
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -69,7 +70,6 @@ export default ({
   onSuccess?: (...args: any) => void;
 }) => {
   const { id, env } = data;
-  const client = useQueryClient();
   const detail = useQuery(
     ['game-mgt-editor', data.id],
     () => services('get', { data: { id } }, env),
@@ -153,7 +153,6 @@ export default ({
         onOk: onSubmit,
         className: styles['modal-title-height'],
         confirmLoading: detail?.isFetched,
-
         ...modalProps,
         title: (
           <>
@@ -177,7 +176,7 @@ export default ({
           return (
             <>
               <Item name={'id'} hidden>
-                <input />
+                <Input />
               </Item>
               <Item noStyle hidden={t !== '游戏资料'}>
                 <GameInfo />
