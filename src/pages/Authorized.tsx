@@ -1,16 +1,13 @@
 // import { router } from 'umi'
 import React from 'react';
-import LoginContext from '@/hooks/useLogin';
+import UserContext from '@/hooks/useUser';
 // import { history } from 'umi'
 import { Redirect } from 'umi';
 
 const Authorized: React.FC = ({ children, ...other }) => {
   // console.log('Authorized:', children, other);
-  const { loginStatus } = LoginContext.useContainer();
-  // checkLogStatus()
-  // console.log('loginStatus:', loginStatus)
-
-  if (!loginStatus) {
+  const { checkLoginState } = UserContext.useContainer();
+  if (!checkLoginState()) {
     // history.replace('/')
     return <Redirect to="/user/login" />;
   } else {

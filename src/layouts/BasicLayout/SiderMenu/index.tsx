@@ -23,7 +23,7 @@ function SubMenu() {
 function MenuItem(menuData: any) {
   // console.log('menuData:', menuData)
   return (
-    <Menu.Item key={menuData?.id?.toString()} icon={<FolderOutlined />} style={{ paddingLeft: 24 }}>
+    <Menu.Item key={menuData?.id?.toString()} style={{ paddingLeft: 24 }}>
       <Link to={menuData.path}>{menuData.meta.title}</Link>
     </Menu.Item>
   );

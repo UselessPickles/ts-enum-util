@@ -1,8 +1,6 @@
 import React from 'react';
-import LoginContext from '@/hooks/useLogin';
+import UserContext from '@/hooks/useUser';
 
-const Layout: React.FC = ({ children }) => (
-  <LoginContext.Provider>{children}</LoginContext.Provider>
-);
+const Layout: React.FC = ({ children }) => <UserContext.Provider>{children}</UserContext.Provider>;
 
 export default Layout;

@@ -3,13 +3,13 @@ import { createContainer } from 'unstated-next';
 import request from '@/utils/RESTful';
 import { useQuery } from 'react-query';
 import { queryMenu } from '@/services/user';
-import LoginContext from '@/hooks/useLogin';
+import UserContext from '@/hooks/useUser';
 import { useState, useEffect } from 'react';
 
 function useSiderMenu() {
   const [menu, setMenu] = useState([]);
   console.log('useSiderMenu');
-  const { logOut } = LoginContext.useContainer();
+  const { logOut } = UserContext.useContainer();
   useEffect(() => {
     // const { error, data } = useQuery(
     //   'sys/sysmenu/list_for_tree',
