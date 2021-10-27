@@ -29,7 +29,7 @@ const BasicLayout: React.FC = (props) => {
                 <SliderMenu />
               </Sider>
               <Content className="site-layout-background" style={{ minHeight: 280 }}>
-                <div style={{ padding: 16 }}>
+                <div style={{ padding: 16, position: 'relative' }}>
                   <ConfigProvider
                     locale={zhCN}
                     form={{ validateMessages: { required: '${label} 是必选字段' } }}

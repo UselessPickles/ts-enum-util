@@ -20,8 +20,21 @@ import { compose } from '@/decorators/utils';
 import disabled from '@/decorators/ATag/disabled';
 import { STATUS, TEST_STATUS } from '../models';
 import { useQueryClient } from 'react-query';
+import styled from 'styled-components';
 // unsaved test
 const { TabPane } = Tabs;
+
+const TabBackground = styled(Tabs)`
+  background-color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  .ant-tabs-nav {
+    margin: 0;
+    padding: 0 16px;
+  }
+`;
 
 export default function () {
   const history = useHistory();
@@ -185,42 +198,44 @@ export default function () {
 
   return (
     <>
-      <Tabs activeKey={env} onTabClick={onTabClick}>
+      <TabBackground activeKey={env} onTabClick={onTabClick}>
         <TabPane tab="测试库" key="test" />
         <TabPane tab="正式库" key="prod" />
-      </Tabs>
+      </TabBackground>
 
       <Editor {...editor} onSuccess={onSuccess} />
       <Uploader {...uploader} onSuccess={onSuccess} />
       <Synchronizer {...synchronizer} onSuccess={onSuccess} />
 
-      <XmilesTable
-        actionRef={actionRef}
-        formRef={formRef}
-        columns={columns}
-        rowKey="id"
-        headerTitle={envBehaviorMap.get(env)}
-        options={false}
-        request={async (params) => {
-          const data = {
-            ...params,
-            ustartTime: params?.utime?.[0]?.format('YYYY-MM-DD hh:mm:ss'),
-            uendTime: params?.utime?.[1]?.format('YYYY-MM-DD hh:mm:ss'),
-            page: {
-              pageNo: params?.current,
-              pageSize: params?.pageSize,
-            },
-          };
-          const res = await services('page', { data }, env);
+      <div style={{ marginTop: 'calc(48px)' }}>
+        <XmilesTable
+          actionRef={actionRef}
+          formRef={formRef}
+          columns={columns}
+          rowKey="id"
+          headerTitle={envBehaviorMap.get(env)}
+          options={false}
+          request={async (params) => {
+            const data = {
+              ...params,
+              ustartTime: params?.utime?.[0]?.format('YYYY-MM-DD hh:mm:ss'),
+              uendTime: params?.utime?.[1]?.format('YYYY-MM-DD hh:mm:ss'),
+              page: {
+                pageNo: params?.current,
+                pageSize: params?.pageSize,
+              },
+            };
+            const res = await services('page', { data }, env);
 
-          return {
-            data: res?.data?.total_datas || [],
-            page: params.current || 1,
-            success: true,
-            total: res?.data?.total_count || 0,
-          };
-        }}
-      />
+            return {
+              data: res?.data?.total_datas || [],
+              page: params.current || 1,
+              success: true,
+              total: res?.data?.total_count || 0,
+            };
+          }}
+        />
+      </div>
     </>
   );
 }
