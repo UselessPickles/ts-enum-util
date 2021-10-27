@@ -10,7 +10,6 @@ import {
   DatePicker,
   Checkbox,
   Descriptions,
-  Popconfirm,
   Tabs,
   Typography,
   InputNumber,
@@ -97,7 +96,7 @@ export default ({
 
       Modal.confirm({
         title: '请进行二次确认',
-        content: '上传的游戏将进入自动化测试，测试完成可同步到线上',
+        content: '确定保存游戏内容吗？再次确定保存成功',
         onOk: async () => {
           try {
             setModalProps((pre) => ({ ...pre, confirmLoading: true }));
@@ -652,6 +651,15 @@ function BizInfo() {
 }
 
 function UpdateRecord({ env }: { env: ENV }) {
+  function rollback() {
+    return () => {
+      return Modal.confirm({
+        title: '请进行二次确认',
+        content: `测试库的游戏将回退到此版本信息（包含apk包+游戏全部信息内容）`,
+        onOk: () => {},
+      });
+    };
+  }
   return (
     <Timeline>
       {Array(20)
@@ -662,11 +670,13 @@ function UpdateRecord({ env }: { env: ENV }) {
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Text strong>2. 基础信息</Text>
                 {env === 'test' && (
-                  <Popconfirm title="二次确认">
-                    <Button size="small" style={{ color: primaryColor, borderColor: primaryColor }}>
-                      回退到此版本
-                    </Button>
-                  </Popconfirm>
+                  <Button
+                    size="small"
+                    style={{ color: primaryColor, borderColor: primaryColor }}
+                    onClick={rollback()}
+                  >
+                    回退到此版本
+                  </Button>
                 )}
               </div>
               <Descriptions
