@@ -22,8 +22,8 @@ export default (initValue?: InitValue) => {
   const [formProps, setFormProps] = useState<FormProps>({
     form,
     layout: 'vertical',
-    validateMessages: { required: '该选项是必选项' },
     ...initValue?.formProps,
+    validateMessages: { required: '${label} 是必选字段' },
   });
 
   const [data, setData] = useState<any>(initValue?.data);

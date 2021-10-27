@@ -1,5 +1,6 @@
 import ChildrenRender from '@/components/ChildrenRender';
-import React, { ReactElement, cloneElement } from 'react';
+import type { ReactElement } from 'react';
+import { cloneElement } from 'react';
 import { curry, maybe, compose } from './utils';
 
 export interface ForwardProps {
@@ -7,20 +8,15 @@ export interface ForwardProps {
   [key: string]: any;
 }
 
-export const IOC = curry(
-  (fns: Array<(pars: any) => any>, Element: ReactElement) => (
-    <ChildrenRender<ForwardProps>>
-      {(forwardProps) =>
-        compose(...fns)(
-          cloneElement(Element, {
-            ...forwardProps,
-            onChange: compose(
-              maybe(forwardProps?.onChange),
-              maybe(Element?.props?.onChange),
-            ),
-          }),
-        )
-      }
-    </ChildrenRender>
-  ),
-);
+export const IOC = curry((fns: ((pars: any) => any)[], Element: ReactElement) => (
+  <ChildrenRender<ForwardProps>>
+    {(forwardProps) =>
+      compose(...fns)(
+        cloneElement(Element, {
+          ...forwardProps,
+          onChange: compose(maybe(forwardProps?.onChange), maybe(Element?.props?.onChange)),
+        }),
+      )
+    }
+  </ChildrenRender>
+));

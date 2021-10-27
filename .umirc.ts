@@ -40,6 +40,7 @@ export default defineConfig({
             { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
           ],
         },
+        { path: '/lab', component: '@/pages/lab' },
       ],
     },
   ],
@@ -49,7 +50,7 @@ export default defineConfig({
   theme,
   fastRefresh: {},
   // https://github.com/umijs/umi/issues/6766
-  mfsu: {},
+  // mfsu: {},
   // 不用dva
   dva: false,
   proxy: {
