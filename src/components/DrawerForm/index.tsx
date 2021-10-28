@@ -12,12 +12,14 @@ export default ({
     placement="right"
     width={600}
     footer={[
-      <>
-        <Button onClick={onCancel}>取消</Button>
+      <div key="DrawerFooter">
+        <Button onClick={onCancel} style={{ marginRight: '10px' }}>
+          取消
+        </Button>
         <Button type="primary" onClick={onSubmit}>
           确定
         </Button>
-      </>,
+      </div>,
     ]}
     onClose={onCancel}
     {...modalProps}
