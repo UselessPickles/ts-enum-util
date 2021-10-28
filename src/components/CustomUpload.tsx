@@ -36,7 +36,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
 
         try {
           const data =
-            (await RESTful.post('scenead/overseas/game/credentials', {
+            (await RESTful.post('fxx/game/credentials', {
               method: 'POST',
               throwErr: true,
             }).then((res) => res?.data)) ?? {};
