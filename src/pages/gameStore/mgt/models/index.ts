@@ -11,6 +11,7 @@ export default interface Row {
   dynamicPicture: string;
   gamePicture: string;
   gameVideoList: string[];
+  gameVideoListVideo: string[];
   score: string;
   thirdGameClassify: string;
   gameClassifyId: string;
