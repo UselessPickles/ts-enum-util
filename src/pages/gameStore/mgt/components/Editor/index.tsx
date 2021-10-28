@@ -24,6 +24,7 @@ import {
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
 import { services } from '../../services';
+import { services as classifyServices } from '../../services/classify';
 import Options from '@/utils/Options';
 import type { ENV } from '../../models';
 import type Row from '../../models';
@@ -58,9 +59,9 @@ import {
   str2arr,
   moment2str,
   str2moment,
+  getFileNameInPath,
 } from '@/decorators/Format/converter';
-import { ReactNode } from 'react';
-import ChildrenRender from '@/components/ChildrenRender';
+import type { ReactNode } from 'react';
 import getIn from '@/utils/getIn';
 const { 'primary-color': primaryColor } = theme;
 
@@ -211,6 +212,16 @@ export default ({
 
 // 游戏资料
 function GameInfo() {
+  const classify = useQuery<{ data: { id: number; name: string }[] }>(
+    ['game-mgt-classify-list'],
+    () => classifyServices('list')({ data: {} }),
+  );
+
+  const classifyMap = classify?.data?.data?.reduce(
+    (acc, cur: any) => acc.set(cur.id, cur.name),
+    new Map(),
+  );
+
   return (
     <>
       <Item>
@@ -426,7 +437,7 @@ function GameInfo() {
               g: str2arr,
             }),
           ]),
-        )(<SearchSelect mode="multiple" showArrow />)}
+        )(<SearchSelect mode="multiple" showArrow options={Options(classifyMap)?.toOpt} />)}
       </Item>
     </>
   );
@@ -529,7 +540,7 @@ function SourceInfo({ env }: { env: ENV }) {
       <Item name={['installType']} label="安装方式" rules={[{ required: true }]}>
         <Radio.Group
           disabled={env === 'prod'}
-          options={Options(INSTALL_TYPE).toOpt}
+          options={Options(INSTALL_TYPE)?.toOpt}
           optionType="button"
         />
       </Item>
@@ -671,6 +682,16 @@ function BizInfo() {
 function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'] }) {
   const client = useQueryClient();
 
+  const classify = useQuery<{ data: { id: number; name: string }[] }>(
+    ['game-mgt-classify-list'],
+    () => classifyServices('list')({ data: {} }),
+  );
+
+  const classifyMap = classify?.data?.data?.reduce(
+    (acc, cur: any) => acc.set(cur.id, cur.name),
+    new Map(),
+  );
+
   function rollback(row: Row) {
     return () => {
       return Modal.confirm({
@@ -703,23 +724,18 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     {
       name: 'gamePicture',
       label: '游戏截图',
-      format: (json: string) => {
-        try {
-          const srcs = JSON.parse(json);
-          return srcs?.map((src: string) => <Image width="60px" src={src} key={src} />);
-        } catch {}
-      },
+      format: (srcs: string[]) =>
+        srcs?.map((src: string) => <Image width="60px" src={src} key={src} />),
     },
     {
       name: 'gameVideoList',
       label: '游戏视频',
-      format: (json: string) => {
+      format: (json: any) => {
         try {
-          const src = JSON.parse(json)?.[0]?.url;
-
+          const src = json?.[0]?.url;
           return (
-            <video width="60px" src={src}>
-              ; 你的浏览器不支持此视频 <a href={src}>视频链接</a>
+            <video width="200px" src={src} controls>
+              你的浏览器不支持此视频 <a href={src}>视频链接</a>
             </video>
           );
         } catch {}
@@ -728,17 +744,21 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     {
       name: 'gameVideoList',
       label: '视频封面图',
-      format: (json: string) => {
+      format: (json: any) => {
         try {
-          const src = JSON.parse(json)?.[0]?.img;
+          const src = json?.[0]?.img;
           return <Image width="60px" src={src} />;
         } catch {}
       },
     },
     { name: 'score', label: '游戏评分' },
     { name: 'thirdGameClassify', label: '第三方游戏分类' },
-    { name: 'gameClassifyId', label: 'APP中游戏分类' },
-    { name: 'apk', label: '游戏apk' },
+    {
+      name: 'gameClassifyId',
+      label: 'APP中游戏分类',
+      format: (strs) => str2arr(strs)?.map((str: string) => classifyMap?.get(str)),
+    },
+    { name: 'apk', label: '游戏apk', format: getFileNameInPath },
     { name: 'insideVersion', label: '内部版本号' },
     { name: 'externalVersion', label: '外部版本号' },
     { name: 'md5', label: 'MD5' },
@@ -804,7 +824,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
       const [pre, next] = [getIn(master, name), getIn(guest, name)];
       let dom: ReactNode;
       // 相同显示
-      if (pre !== next) {
+      if (`${pre}` !== `${next}`) {
         if ((pre ?? true) === true) {
           // delete
           dom = <Text delete>{format ? format(next, guest) : next}</Text>;
