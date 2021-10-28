@@ -45,7 +45,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
             throw new Error('授权失败');
           }
 
-          const { cndDomain } = data;
+          const { domain } = data;
 
           const f: any = file;
           const client = new OSS({ ...data, stsToken: data?.securityToken });
@@ -57,7 +57,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
           }
 
           const xhr = new XMLHttpRequest();
-          onSuccess!(`${cndDomain}/${path}`, xhr);
+          onSuccess!(`${domain}/${path}`, xhr);
         } catch (e: any) {
           onError!(e);
         } finally {

@@ -62,7 +62,10 @@ import {
   getFileNameInPath,
 } from '@/decorators/Format/converter';
 import type { ReactNode } from 'react';
+import { Fragment } from 'react';
 import getIn from '@/utils/getIn';
+import type { Key } from '@/utils/setTo';
+import setTo from '@/utils/setTo';
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -215,6 +218,7 @@ function GameInfo() {
   const classify = useQuery<{ data: { id: number; name: string }[] }>(
     ['game-mgt-classify-list'],
     () => classifyServices('list')({ data: {} }),
+    { refetchOnWindowFocus: false },
   );
 
   const classifyMap = classify?.data?.data?.reduce(
@@ -685,6 +689,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   const classify = useQuery<{ data: { id: number; name: string }[] }>(
     ['game-mgt-classify-list'],
     () => classifyServices('list')({ data: {} }),
+    { refetchOnWindowFocus: false },
   );
 
   const classifyMap = classify?.data?.data?.reduce(
@@ -706,7 +711,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   }
 
   interface DiffCol<T> {
-    name: keyof T | (keyof T)[];
+    name: Key | Key[];
     label: ReactNode;
     format?: (value?: any, record?: T) => any;
   }
@@ -728,28 +733,18 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
         srcs?.map((src: string) => <Image width="60px" src={src} key={src} />),
     },
     {
-      name: 'gameVideoListVideo',
+      name: ['gameVideoList', 0, 'url'],
       label: '游戏视频',
-      format: (json: any) => {
-        try {
-          const src = json?.[0]?.url;
-          return (
-            <video width="200px" src={src} controls>
-              你的浏览器不支持此视频 <a href={src}>视频链接</a>
-            </video>
-          );
-        } catch {}
-      },
+      format: (src: string) => (
+        <video width="200px" src={src} controls>
+          你的浏览器不支持此视频 <a href={src}>视频链接</a>
+        </video>
+      ),
     },
     {
-      name: 'gameVideoList',
+      name: ['gameVideoList', 0, 'img'],
       label: '视频封面图',
-      format: (json: any) => {
-        try {
-          const src = json?.[0]?.img;
-          return <Image width="60px" src={src} />;
-        } catch {}
-      },
+      format: (src: string) => <Image width="60px" src={src} />,
     },
     { name: 'score', label: '游戏评分' },
     { name: 'thirdGameClassify', label: '第三方游戏分类' },
@@ -784,9 +779,9 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   }
 
   function rowRender(row: Record<keyof Row, ReactNode | any>, idx: number) {
-    const { id, operator, ctime } = row ?? {};
+    const { operator, ctime } = row ?? {};
     return (
-      <TItem key={id}>
+      <TItem key={idx}>
         <Space direction="vertical">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <Text strong>
@@ -820,19 +815,24 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
 
   // 以guest为主，保留master不同的
   function diff(master: Row, guest: Row): Record<any, ReactNode> {
-    return columns.reduce((acc, { name, format }) => {
+    return columns.reduce((acc, { name, format }, idx) => {
       const [pre, next] = [getIn(master, name), getIn(guest, name)];
       let dom: ReactNode;
       // 相同显示
       if (`${pre}` !== `${next}`) {
         if ((pre ?? true) === true) {
           // delete
-          dom = <Text delete>{format ? format(next, guest) : next}</Text>;
+          dom = (
+            <Text delete key={idx}>
+              {format ? format(next, guest) : next}
+            </Text>
+          );
         } else {
           // update
-          dom = <>{format ? format(pre, master) : pre}</>;
+          dom = <Fragment key={idx}>{format ? format(pre, master) : pre}</Fragment>;
         }
-        return { ...acc, [name as string]: dom };
+
+        setTo(acc, name, dom);
       }
       return acc;
     }, {});
@@ -847,10 +847,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
       child.push(
         rowRender(
           {
-            ...diff(
-              { ...young, gameVideoListVideo: young?.gameVideoList },
-              { ...old, gameVideoListVideo: old?.gameVideoList },
-            ),
+            ...diff(young, old),
             operator: young?.operator,
             ctime: young?.ctime,
           } as any,
