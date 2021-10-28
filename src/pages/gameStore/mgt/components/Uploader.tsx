@@ -79,7 +79,7 @@ export default ({
       modalProps={{ onOk: onSubmit, ...modalProps }}
     >
       <Item
-        name={['resources', 'apk']}
+        name={['apk']}
         label="游戏apk"
         rules={[{ required: true }]}
         valuePropName="fileList"
@@ -141,16 +141,16 @@ export default ({
                 <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                   {origin}
                   <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
-                  <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
+                  <Item name={['insideVersion']} label="内部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
+                  <Item name={['externalVersion']} label="外部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'md5']} label="MD5：" {...extra}>
+                  <Item name={['md5']} label="MD5：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
+                  <Item name={['gameBit']} label="游戏位数：" {...extra}>
                     <FormItemView />
                   </Item>
                 </Card>

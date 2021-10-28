@@ -432,7 +432,7 @@ function SourceInfo({ env }: { env: ENV }) {
   return (
     <>
       <Item
-        name={['resources', 'apk']}
+        name={['apk']}
         label="游戏apk"
         valuePropName="fileList"
         getValueFromEvent={getValueFromEvent}
@@ -498,16 +498,16 @@ function SourceInfo({ env }: { env: ENV }) {
                   </div>
                   <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
 
-                  <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
+                  <Item name={['insideVersion']} label="内部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
+                  <Item name={['externalVersion']} label="外部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'md5']} label="MD5：" {...extra}>
+                  <Item name={['md5']} label="MD5：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
+                  <Item name={['gameBit']} label="游戏位数：" {...extra}>
                     <FormItemView />
                   </Item>
                 </Card>
@@ -521,7 +521,7 @@ function SourceInfo({ env }: { env: ENV }) {
         )}
       </Item>
 
-      <Item name={['resources', 'installType']} label="安装方式" rules={[{ required: true }]}>
+      <Item name={['installType']} label="安装方式" rules={[{ required: true }]}>
         <Radio.Group
           disabled={env === 'prod'}
           options={Options(INSTALL_TYPE).toOpt}
@@ -561,7 +561,7 @@ function BizInfo() {
       </Item>
 
       <Item
-        name={['resources', 'timingUpdateTime']}
+        name={['timingUpdateTime']}
         label="定时更新"
         rules={[
           {
@@ -580,7 +580,7 @@ function BizInfo() {
         )}
       </Item>
 
-      <Item name={['business', 'profitMode']} label="盈利方式">
+      <Item name={['profitMode']} label="盈利方式">
         {compose<ReturnType<typeof SearchSelect>>(
           IOC([
             Format({
@@ -591,17 +591,17 @@ function BizInfo() {
         )(<Checkbox.Group options={Options(PROFIT_MODE).toOpt} />)}
       </Item>
 
-      <Item name={['resources', 'updateContent']} label="更新内容">
+      <Item name={['updateContent']} label="更新内容">
         <Input.TextArea placeholder="输入内容" />
       </Item>
 
-      <Item name={['business', 'publicationNo']} label="出版物号（ISBN号）">
+      <Item name={['publicationNo']} label="出版物号（ISBN号）">
         <Input placeholder="输入内容" />
       </Item>
-      <Item dependencies={[['business', 'publicationOrder']]} noStyle>
+      <Item dependencies={[['publicationOrder']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name={['business', 'publicationOrder']}
+            name={['publicationOrder']}
             label="网络游戏出版物号（ISBN）核发单"
             style={{ flex: 1 }}
             valuePropName="fileList"
@@ -617,7 +617,7 @@ function BizInfo() {
               ]),
             )(
               <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
-                {!(getFieldValue(['business', 'publicationOrder'])?.length >= 1) && (
+                {!(getFieldValue(['publicationOrder'])?.length >= 1) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
                     <div style={{ marginTop: 8 }}>上传图片</div>
@@ -628,10 +628,10 @@ function BizInfo() {
           </Item>
         )}
       </Item>
-      <Item dependencies={[['business', 'softwareCopyright']]} noStyle>
+      <Item dependencies={[['softwareCopyright']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name={['business', 'softwareCopyright']}
+            name={['softwareCopyright']}
             label="软著"
             style={{ flex: 1 }}
             valuePropName="fileList"
@@ -647,7 +647,7 @@ function BizInfo() {
               ]),
             )(
               <CustomUpload maxCount={1}>
-                {!(getFieldValue(['business', 'softwareCopyright'])?.length >= 1) && (
+                {!(getFieldValue(['softwareCopyright'])?.length >= 1) && (
                   <Button icon={<UploadOutlined />}>上传文件</Button>
                 )}
               </CustomUpload>,
@@ -656,7 +656,7 @@ function BizInfo() {
         )}
       </Item>
 
-      <Item name={['business', 'idAuthFilingCode']} label="实名认证备案识别码">
+      <Item name={['idAuthFilingCode']} label="实名认证备案识别码">
         <Input placeholder="输入内容" />
       </Item>
     </>
