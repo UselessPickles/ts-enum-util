@@ -728,7 +728,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
         srcs?.map((src: string) => <Image width="60px" src={src} key={src} />),
     },
     {
-      name: 'gameVideoList',
+      name: 'gameVideoListVideo',
       label: '游戏视频',
       format: (json: any) => {
         try {
@@ -846,7 +846,14 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
       const [young, old] = [sort[i], sort[i + 1]];
       child.push(
         rowRender(
-          { ...diff(young, old), operator: young?.operator, ctime: young?.ctime } as any,
+          {
+            ...diff(
+              { ...young, gameVideoListVideo: young?.gameVideoList },
+              { ...old, gameVideoListVideo: old?.gameVideoList },
+            ),
+            operator: young?.operator,
+            ctime: young?.ctime,
+          } as any,
           i,
         ),
       );
