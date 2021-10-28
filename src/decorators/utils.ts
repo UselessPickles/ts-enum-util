@@ -1,5 +1,5 @@
 // 组合函数
-export function compose<T>(...fns: Array<(args: T) => T>) {
+export function compose<T>(...fns: ((args: T) => T)[]) {
   return fns?.reduceRight(
     (pre, next) =>
       (...args) =>

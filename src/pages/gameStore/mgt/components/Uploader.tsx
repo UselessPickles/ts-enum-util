@@ -10,12 +10,13 @@ import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
 
 import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
-import showCount from '@/decorators/Input/showCount';
+import showCount from '@/decorators/Input/ShowCount';
 import type { ReactElement } from 'react';
-import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Upload/Format';
+
 import FormItemView from '@/components/FormItemView';
 import { extra } from './constant';
 import { beforeUpload as beforeApkUpload } from './constant';
+import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Format/converter';
 const { Item } = Form;
 
 export default ({

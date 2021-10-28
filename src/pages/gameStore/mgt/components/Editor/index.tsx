@@ -34,13 +34,7 @@ import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
 import { PlusOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import styles from './index.less';
-import {
-  uploadEvent2str,
-  str2fileList,
-  strArr2fileList,
-  uploadEvent2strArr,
-  getValueFromEvent,
-} from '@/decorators/Upload/Format';
+
 import type { Moment } from 'moment';
 import moment from 'moment';
 import theme from '@/../config/theme';
@@ -48,10 +42,21 @@ import { useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import SelectAll from '@/decorators/Select/SelectAll';
-import { arr2str, str2arr } from '@/decorators/Select/Format';
+
 import { beforeUpload, extra } from '../constant';
 import getExt from '@/utils/file/getExt';
-import { ReactElement } from 'react';
+
+import {
+  getValueFromEvent,
+  uploadEvent2str,
+  str2fileList,
+  uploadEvent2strArr,
+  strArr2fileList,
+  arr2str,
+  str2arr,
+  moment2str,
+  str2moment,
+} from '@/decorators/Format/converter';
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -570,14 +575,9 @@ function BizInfo() {
           },
         ]}
       >
-        {compose<any>(
-          IOC([
-            Format({
-              f: (v: any) => v?.format('YYYY-MM-DD HH:mm:ss') ?? v,
-              g: (v: any) => (v ? moment(v) : undefined),
-            }),
-          ]),
-        )(<DatePicker showTime disabledDate={disabledDate} disabledTime={disabledTime} />)}
+        {compose<any>(IOC([Format({ f: moment2str, g: str2moment })]))(
+          <DatePicker showTime disabledDate={disabledDate} disabledTime={disabledTime} />,
+        )}
       </Item>
 
       <Item name={['business', 'profitMode']} label="盈利方式">
