@@ -78,22 +78,26 @@ export default function () {
     };
   }
 
-  function sync2line(id: string) {
-    return syncServices('save', { data: { id }, throwErr: true });
+  function sync2line(gameNum: string) {
+    return syncServices('save', { data: { gameNum }, throwErr: true, notify: true });
   }
 
-  function syncConfirm(id: string, first = true) {
+  function syncConfirm(gameNum: string, first = true) {
     return Modal.confirm({
       title: '确认同步游戏一线上吗？',
       content: `${first ? '该游戏为新游戏，线上无旧版本' : '请核实无误'}，确定同步后将上线`,
-      onOk: () => sync2line(id),
+      onOk: () =>
+        sync2line(gameNum).then(() => {
+          synchronizer.setModalProps({ visible: false });
+          actionRef.current?.reload();
+        }),
     });
   }
 
   function syncHandler(offline: Row) {
     return async () => {
-      const id = offline?.id;
-      const online = await syncServices('get', { data: { id } }).then((res: any) => res?.data);
+      const gameNum = offline?.gameNum;
+      const online = await syncServices('get', { data: { gameNum } }).then((res: any) => res?.data);
       if (online) {
         const dataSource = [online, offline];
 
@@ -101,16 +105,16 @@ export default function () {
 
         synchronizer.setFormProps((pre) => ({
           ...pre,
-          onFinish: () => syncConfirm(id, false),
+          onFinish: () => syncConfirm(gameNum, false),
         }));
 
         synchronizer.setModalProps((pre) => ({
           ...pre,
           visible: true,
-          onOk: () => syncConfirm(id, false),
+          onOk: () => syncConfirm(gameNum, false),
         }));
       } else {
-        syncConfirm(id);
+        syncConfirm(gameNum);
       }
     };
   }

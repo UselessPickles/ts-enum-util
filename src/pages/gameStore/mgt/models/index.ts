@@ -1,5 +1,25 @@
 export default interface Row {
-  id: 'string';
+  id: string;
+  gameNum: string;
+  operator?: string;
+  ctime?: string;
+  versionList?: Row[];
+  gameName: string;
+  briefIntroduction: string;
+  detailedIntroduction: string;
+  gameIcon: string;
+  dynamicPicture: string;
+  gamePicture: string;
+  gameVideoList: string[];
+  score: string;
+  thirdGameClassify: string;
+  gameClassifyId: string;
+  apk: string;
+  insideVersion: string;
+  externalVersion: string;
+  md5: string;
+  gameBit: string;
+  installType: string;
 }
 
 export const TYPE = new Map([
