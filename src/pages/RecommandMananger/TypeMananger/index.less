@@ -47,6 +47,14 @@
     color: #333333;
     font-size: 14px;
   }
+  p,
+  h5 {
+    width: 80%;
+    overflow: hidden;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }
 .checkedGameTable {
   table {
@@ -65,7 +73,7 @@
   display: flex;
   width: 100%;
   > div {
-    width: 45%;
+    width: 47%;
     min-height: 450px;
     margin: 0 10px;
     border: 1px solid rgba(0, 0, 0, 0.15);
@@ -78,11 +86,31 @@
     padding: 8px 12px 9px;
     background: #f1f4f9;
     .headerTitle {
-      margin-right: 16px;
+      position: relative;
+      margin-right: 5%;
       color: #333333;
       font-weight: 500;
       font-size: 14px;
       line-height: 22px;
+      .scrollTip {
+        margin-left: 8px;
+        color: #999999;
+        font-size: 14px;
+      }
+      .tag {
+        position: absolute;
+        right: 0;
+        margin: 0;
+        color: grey;
+      }
+    }
+  }
+  .gameBody {
+    --scroll-bar: none;
+    height: 400px;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      display: none;
     }
   }
 }
@@ -92,9 +120,14 @@
   border-radius: 4px;
 }
 .showGameDIV {
+  max-height: 450px;
   margin-top: 12px;
   padding: 2px 0;
+  overflow-y: scroll;
   border: 1px solid rgba(0, 0, 0, 0.15);
+  &::-webkit-scrollbar {
+    display: none;
+  }
   .gameIndex {
     width: 35px;
     color: #333333;

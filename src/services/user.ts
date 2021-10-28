@@ -11,10 +11,10 @@ export function queryMenu(): Promise<any> {
   })?.then((res) => res?.data);
 }
 
-export async function accountLogin(params) {
+export async function accountLogin(params: any) {
   return request('user/sysUser/login', {
     service: '/yingzhong-security',
     method: 'POST',
     data: params,
-  });
+  })?.then((res) => res?.data);
 }
