@@ -1,4 +1,4 @@
-import { Input, Modal, Spin } from 'antd';
+import { Input, Modal, Spin, message, Tag } from 'antd';
 import styles from '../index.less';
 import { useContainer } from '../useStore';
 import React, { useState, useEffect } from 'react';
@@ -27,14 +27,18 @@ export default () => {
     [editGameList, setEditGameList] = useState<any>([]), //编辑选择的游戏列表
     [editRowKeys, setEditRowKeys] = useState<any>([]), //编辑时 rowKeys
     onSubmit = () => {
-      let changeSort = [...editGameList];
-      changeSort = changeSort?.map((item, index) => {
-        item.sort = index + 1;
-        return item;
-      });
-      setCheckedGames(changeSort);
-      setSelectRowKeys(editRowKeys);
-      resetState();
+      if (editGameList?.length < 4) {
+        message.error('游戏最少配置4个');
+      } else {
+        let changeSort = [...editGameList];
+        changeSort = changeSort?.map((item, index) => {
+          item.sort = index + 1;
+          return item;
+        });
+        setCheckedGames(changeSort);
+        setSelectRowKeys(editRowKeys);
+        resetState();
+      }
     };
 
   const onscroll = (e) => {
@@ -219,9 +223,10 @@ export default () => {
         </div>
         <div>
           <div className={styles.gameHeader}>
-            <div className={styles.headerTitle}>
+            <div className={styles.headerTitle} style={{ marginRight: 0, width: '100%' }}>
               已选游戏{editRowKeys?.length > 0 ? `(${editRowKeys?.length})` : ``}
               <span className={styles.scrollTip}>可拖动排序</span>
+              <Tag className={styles.tag}>至少选4个</Tag>
             </div>
           </div>
           <div

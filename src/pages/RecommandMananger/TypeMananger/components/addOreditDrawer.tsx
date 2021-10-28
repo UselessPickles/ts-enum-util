@@ -1,4 +1,4 @@
-import { Button, Form, Input, InputNumber, Radio } from 'antd';
+import { Button, Form, Input, InputNumber, Radio, Spin } from 'antd';
 import React, { useEffect } from 'react';
 import { useContainer, useModalFromSubmit } from '../useStore';
 import { EditOutlined } from '@ant-design/icons';
@@ -11,15 +11,15 @@ const { Item } = Form;
 export default () => {
   const {
       modalProps,
-      setModalProps,
       modalFormRef,
       editRecord,
-      setEditRecord,
       setGameModalProps,
       checkedGames,
       setCheckedGames,
       setSelectRowKeys,
       setPage,
+      loading,
+      setLoading,
     } = useContainer(),
     { submitor, onCancel } = useModalFromSubmit(),
     onOpenGame = () => {
@@ -33,6 +33,7 @@ export default () => {
   async function queryGameDetail() {
     const { id } = editRecord ?? {};
     try {
+      setLoading(true);
       const res = await listDetail({
         data: { id },
       });
@@ -46,6 +47,7 @@ export default () => {
     } catch (e) {
       console.log(e);
     }
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -146,22 +148,24 @@ export default () => {
       <Button onClick={onOpenGame} icon={<EditOutlined />} className={styles.btnDefaut}>
         编辑游戏名单
       </Button>
-      <Item noStyle shouldUpdate>
-        {({}) => {
-          return (
-            checkedGames?.length > 0 && (
-              <div className={styles.showGameDIV}>
-                <GameTable
-                  columns={columns}
-                  dataSource={checkedGames}
-                  pagination={false}
-                  size="small"
-                />
-              </div>
-            )
-          );
-        }}
-      </Item>
+      <Spin spinning={loading} tip="Loading..." style={{ height: 400 }}>
+        <Item noStyle shouldUpdate>
+          {({}) => {
+            return (
+              checkedGames?.length > 0 && (
+                <div className={styles.showGameDIV}>
+                  <GameTable
+                    columns={columns}
+                    dataSource={checkedGames}
+                    pagination={false}
+                    size="small"
+                  />
+                </div>
+              )
+            );
+          }}
+        </Item>
+      </Spin>
     </DrawerForm>
   );
 };

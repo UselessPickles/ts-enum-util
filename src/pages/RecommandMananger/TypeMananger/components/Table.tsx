@@ -92,6 +92,7 @@ export default (props: any) => {
     {
       title: '操作',
       ...defalutTableColumnsProps,
+      fixed: 'right',
       render: (_, record) => {
         const { id } = record;
         return (

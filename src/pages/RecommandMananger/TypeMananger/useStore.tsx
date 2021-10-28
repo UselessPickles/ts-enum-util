@@ -2,7 +2,7 @@ import { createContext, useContext, useRef, useState } from 'react';
 import { ModalProps } from 'antd/lib/modal';
 import { ProCoreActionType } from '@ant-design/pro-utils';
 import { FormInstance } from 'antd/lib/form';
-import { Form, Modal } from 'antd';
+import { Form, Modal, message } from 'antd';
 import { useMutation } from 'react-query';
 import { addAPI, updateAPI } from './services';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
@@ -85,33 +85,38 @@ export function useModalFromSubmit() {
   }
 
   function submitor() {
-    return modalFormRef.validateFields().then((value) => {
-      confirm({
-        title: '确定保存吗？',
-        icon: <ExclamationCircleOutlined />,
-        onOk() {
-          const { id } = editRecord;
-          value.details = checkedGames?.map((item: { gameNum: any; sort: any; id: any }) => ({
-            gameNum: item.gameNum,
-            sort: item.sort,
-            id: item.id,
-          }));
+    console.log(checkedGames);
+    if (checkedGames.length > 0) {
+      return modalFormRef.validateFields().then((value) => {
+        confirm({
+          title: '确定保存吗？',
+          icon: <ExclamationCircleOutlined />,
+          onOk() {
+            const { id } = editRecord;
+            value.details = checkedGames?.map((item: { gameNum: any; sort: any; id: any }) => ({
+              gameNum: item.gameNum,
+              sort: item.sort,
+              id: item.id,
+            }));
 
-          let data;
-          if (id) {
-            data = updater.mutateAsync({ ...value, id });
-          } else {
-            data = creater.mutateAsync(value);
-          }
-          if (!data) {
-            throw new Error('no body');
-          }
-          onCancel();
-          actionRef.current?.reload();
-        },
-        onCancel,
+            let data;
+            if (id) {
+              data = updater.mutateAsync({ ...value, id });
+            } else {
+              data = creater.mutateAsync(value);
+            }
+            if (!data) {
+              throw new Error('no body');
+            }
+            onCancel();
+            actionRef.current?.reload();
+          },
+          onCancel,
+        });
       });
-    });
+    } else {
+      message.error('必须配置游戏，至少配置4个', 2.5);
+    }
   }
 
   return { submitor, onCancel }; //addOrUpdater
