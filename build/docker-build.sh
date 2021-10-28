@@ -43,7 +43,7 @@ case $1 in
         # 海外镜像自动运行 K8S 触发
         echo "海外镜像自动运行 K8S 触发器"
     ;;
-    # *)
-    #     curl "https://cs.console.aliyun.com/hook/trigger?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVzdGVySWQiOiJjOGMxMDcwNWYxN2EwNGMwNjhiNTRjMWFkMDAzMGY1ZTYiLCJpZCI6IjE1MDY0NCJ9.Z5cNV8bzeKEJBMrj_ro85oPnen6wiUbngOPWGIkWJYoNsEkY1JrdWeXYqO5IE5cvBeVHOggHo2C0or3nSvaGQIurN_B7ohco_Ziha8PlPTe-a5VMQPjUgSPCoK67BN8UeMXHr8ItkKY9UdAm6UOe9TIXbptozNUtOrGKPHCvETs"
-    # ;;
+    *)
+        curl "https://cs.console.aliyun.com/hook/trigger?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVzdGVySWQiOiJjOGMxMDcwNWYxN2EwNGMwNjhiNTRjMWFkMDAzMGY1ZTYiLCJpZCI6IjE1ODk1MiJ9.rJFBqsJxDVIIG_UMwgwmIv-AUvAN9vif-BNP9Eb7Fof9RhXiVBpfq8GX-CjEQdg7Gr0Kci2Ztl_BQoG07iypeoHMk3CYy-ow3ZFJ1eeuVy_v6mhRokTmyqC3x0c3aLS8SCzJJ8bic6_55duGs8FJH2dsiYaa24bPUp4NKDIkxzs"
+    ;;
 esac
