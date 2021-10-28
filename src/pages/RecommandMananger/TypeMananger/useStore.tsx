@@ -2,11 +2,10 @@ import { createContext, useContext, useRef, useState } from 'react';
 import { ModalProps } from 'antd/lib/modal';
 import { ProCoreActionType } from '@ant-design/pro-utils';
 import { FormInstance } from 'antd/lib/form';
-import { Form, Table } from 'antd';
+import { Form, Modal, message } from 'antd';
 import { useMutation } from 'react-query';
-import RESTful from '@/utils/RESTful';
-import styled from 'styled-components';
 import { addAPI, updateAPI } from './services';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 // 共享 hooks
 export function useStore() {
@@ -17,7 +16,9 @@ export function useStore() {
     [editRecord, setEditRecord] = useState<{ [key: string]: any }>({}),
     [gameModalProps, setGameModalProps] = useState<ModalProps>({}),
     [checkedGames, setCheckedGames] = useState<any>([]),
-    [selectedRowKeys, setSelectRowKeys] = useState<any>([]);
+    [selectedRowKeys, setSelectRowKeys] = useState<any>([]),
+    [page, setPage] = useState<any>(1),
+    [loading, setLoading] = useState<boolean>(false);
 
   return {
     actionRef,
@@ -33,6 +34,10 @@ export function useStore() {
     setCheckedGames,
     selectedRowKeys,
     setSelectRowKeys,
+    page,
+    setPage,
+    loading,
+    setLoading,
   };
 }
 
@@ -54,35 +59,65 @@ export default {
 };
 
 export function useModalFromSubmit() {
-  const { modalFormRef, setModalProps, actionRef, editRecord } = useContainer();
+  const {
+    modalFormRef,
+    setModalProps,
+    actionRef,
+    editRecord,
+    setEditRecord,
+    setSelectRowKeys,
+    setCheckedGames,
+    checkedGames,
+  } = useContainer();
   const updater = useMutation((data) => updateAPI({ data }));
   const creater = useMutation((data) => addAPI({ data }));
 
-  function submitor() {
-    return modalFormRef.validateFields().then((value) => {
-      const { id } = value;
-      if (id) {
-        updater.mutateAsync(value);
-      } else {
-        creater.m;
-      }
+  const { confirm } = Modal;
+
+  function onCancel() {
+    setModalProps({
+      visible: false,
     });
+    modalFormRef.resetFields();
+    setEditRecord({});
+    setSelectRowKeys([]);
+    setCheckedGames([]);
   }
 
-  return { submitor }; //addOrUpdater
-}
+  function submitor() {
+    console.log(checkedGames);
+    if (checkedGames.length > 0) {
+      return modalFormRef.validateFields().then((value) => {
+        confirm({
+          title: '确定保存吗？',
+          icon: <ExclamationCircleOutlined />,
+          onOk() {
+            const { id } = editRecord;
+            value.details = checkedGames?.map((item: { gameNum: any; sort: any; id: any }) => ({
+              gameNum: item.gameNum,
+              sort: item.sort,
+              id: item.id,
+            }));
 
-export function gameTable() {
-  const GameTable = styled(Table)`
-    thead {
-      display: none;
+            let data;
+            if (id) {
+              data = updater.mutateAsync({ ...value, id });
+            } else {
+              data = creater.mutateAsync(value);
+            }
+            if (!data) {
+              throw new Error('no body');
+            }
+            onCancel();
+            actionRef.current?.reload();
+          },
+          onCancel,
+        });
+      });
+    } else {
+      message.error('必须配置游戏，至少配置4个', 2.5);
     }
-    .ant-table-tbody > tr > td {
-      border-bottom: 0 !important;
-    }
-    .ant-table-tbody > tr.ant-table-row-selected > td {
-      background-color: #ffffff !important;
-    }
-  `;
-  return { GameTable };
+  }
+
+  return { submitor, onCancel }; //addOrUpdater
 }

@@ -10,7 +10,7 @@ export default ({
 }: PropsWithChildren<any>) => (
   <Drawer
     placement="right"
-    width="800"
+    width={600}
     footer={[
       <>
         <Button onClick={onCancel}>取消</Button>

@@ -1,57 +1,78 @@
-import { Button, Form, Input, InputNumber, Radio } from 'antd';
-import React from 'react';
-import { gameTable, useContainer, useModalFromSubmit } from '../useStore';
+import { Button, Form, Input, InputNumber, Radio, Spin } from 'antd';
+import React, { useEffect } from 'react';
+import { useContainer, useModalFromSubmit } from '../useStore';
 import { EditOutlined } from '@ant-design/icons';
 import styles from '../index.less';
 import DrawerForm from '@/components/DrawerForm';
-import gameImg from '@/assets/img/icon-566game.png';
-
+import { listDetail, check } from '../services';
+import GameTable from '@/components/Xmiles/NoHeadTable';
 const { Item } = Form;
 
 export default () => {
   const {
       modalProps,
-      setModalProps,
       modalFormRef,
-      setEditRecord,
+      editRecord,
       setGameModalProps,
       checkedGames,
+      setCheckedGames,
+      setSelectRowKeys,
+      setPage,
+      loading,
+      setLoading,
     } = useContainer(),
-    { GameTable } = gameTable(),
-    { submitor } = useModalFromSubmit(),
-    onCancel = () => {
-      setModalProps({
-        visible: false,
-      });
-      modalFormRef.resetFields();
-      setEditRecord({});
-    },
+    { submitor, onCancel } = useModalFromSubmit(),
     onOpenGame = () => {
+      setPage(1);
       setGameModalProps({
         visible: true,
         title: '编辑游戏名单',
       });
     };
 
+  async function queryGameDetail() {
+    const { id } = editRecord ?? {};
+    try {
+      setLoading(true);
+      const res = await listDetail({
+        data: { id },
+      });
+      const details = res?.data?.details;
+      if (details?.length > 0) {
+        const sortDetails = details?.sort((a, b) => a['sort'] - b['sort']);
+        setCheckedGames(sortDetails);
+        const rowKeys = sortDetails?.reduce((acc, cur) => (acc = [...acc, cur?.gameNum]), []);
+        setSelectRowKeys(rowKeys);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    modalProps.title == '编辑' && queryGameDetail();
+  }, [modalProps]);
+
   const columns = [
     {
-      dataIndex: 'index',
+      dataIndex: 'sort',
       align: 'center',
       with: 100,
-      render: (text, record, index) => {
-        return <div className={styles.gameIndex}>{index + 1}</div>;
+      render: (_: any, record: any) => {
+        return <div className={styles.gameIndex}>{record?.sort}</div>;
       },
     },
     {
-      dataIndex: 'icon',
-      render: () => {
-        return <img src={gameImg} style={{ width: '42px' }} />;
+      dataIndex: 'gameIcon',
+      render: (_: any, record: any) => {
+        return <img src={record?.gameIcon} style={{ width: '42px' }} />;
       },
     },
     {
       dataIndex: 'gameName',
       width: 680,
-      render: (text: any, record: any, index: any) => {
+      render: (_: any, record: any) => {
         return (
           <div className={styles.gameClass}>
             <h5>{record?.gameName}</h5>
@@ -65,20 +86,25 @@ export default () => {
   return (
     <DrawerForm
       onCancel={onCancel}
-      onSubmit={onCancel}
-      modalProps={modalProps}
-      formProps={{ layout: 'vertical', form: modalFormRef, className: styles.editForm }}
+      onSubmit={submitor}
+      modalProps={{ ...modalProps, zIndex: 10 }}
+      formProps={{
+        layout: 'vertical',
+        form: modalFormRef,
+        className: styles.editForm,
+        initialValues: { showStatus: 1 },
+      }}
     >
       <h3>1.基础信息 </h3>
-      <Item label="类别名称" name="categoryName" rules={[{ required: true }]}>
+      <Item label="类别名称" name="name" rules={[{ required: true }]}>
         <Input maxLength={10} />
       </Item>
-      <Item label="展示状态" name="status" rules={[{ required: true }]}>
+      <Item label="展示状态" name="showStatus" rules={[{ required: true }]}>
         <Radio.Group
           optionType="button"
           options={[
-            { value: true, label: '展示' },
-            { value: false, label: '隐藏' },
+            { value: 1, label: '展示' },
+            { value: 0, label: '隐藏' },
           ]}
         />
       </Item>
@@ -92,7 +118,29 @@ export default () => {
           </>,
         ]}
         name="sort"
-        rules={[{ required: true }]}
+        rules={[
+          { required: true },
+          ({ getFieldValue }) => {
+            const name = getFieldValue('name');
+            return {
+              async validator(_, sort) {
+                try {
+                  await check({
+                    data: {
+                      id: editRecord.id,
+                      name,
+                      sort,
+                    },
+                    throwErr: true,
+                  });
+                  return Promise.resolve();
+                } catch (e) {
+                  return Promise.reject(e);
+                }
+              },
+            };
+          },
+        ]}
       >
         <InputNumber max={999} min={1} style={{ width: '100%' }} placeholder="请输入数值0-999" />
       </Item>
@@ -100,22 +148,24 @@ export default () => {
       <Button onClick={onOpenGame} icon={<EditOutlined />} className={styles.btnDefaut}>
         编辑游戏名单
       </Button>
-      <Item noStyle shouldUpdate>
-        {({}) => {
-          return (
-            checkedGames?.length > 0 && (
-              <div className={styles.showGameDIV}>
-                <GameTable
-                  columns={columns}
-                  dataSource={checkedGames}
-                  pagination={false}
-                  size="small"
-                />
-              </div>
-            )
-          );
-        }}
-      </Item>
+      <Spin spinning={loading} tip="Loading..." style={{ height: 400 }}>
+        <Item noStyle shouldUpdate>
+          {({}) => {
+            return (
+              checkedGames?.length > 0 && (
+                <div className={styles.showGameDIV}>
+                  <GameTable
+                    columns={columns}
+                    dataSource={checkedGames}
+                    pagination={false}
+                    size="small"
+                  />
+                </div>
+              )
+            );
+          }}
+        </Item>
+      </Spin>
     </DrawerForm>
   );
 };

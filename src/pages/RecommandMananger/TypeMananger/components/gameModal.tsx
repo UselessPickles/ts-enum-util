@@ -1,14 +1,13 @@
-import { Form, Input, Modal } from 'antd';
+import { Input, Modal, Spin, message, Tag } from 'antd';
 import styles from '../index.less';
-import { useContainer, gameTable } from '../useStore';
+import { useContainer } from '../useStore';
 import React, { useState, useEffect } from 'react';
-import gameImg from '@/assets/img/icon-566game.png';
 import sortIcon from '@/assets/img/icon-sort.png';
 import { SortableHandle } from 'react-sortable-hoc';
-import isValidValue from '@/utils/isValidValue';
-import { MenuOutlined, SearchOutlined, CloseOutlined } from '@ant-design/icons';
+import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { dragComponents } from './dragComponents';
-import GameList from '@/querys/GameList';
+import { gameList } from '@/services/gameQuery';
+import GameTable from '@/components/Xmiles/NoHeadTable';
 
 export default () => {
   const {
@@ -18,30 +17,85 @@ export default () => {
       setCheckedGames,
       selectedRowKeys,
       setSelectRowKeys,
+      page,
+      setPage,
+      loading,
+      setLoading,
     } = useContainer(),
-    [dataSource, setDataSource] = useState<any>(),
-    { GameTable } = gameTable(),
-    onCancel = () => {
-      setGameModalProps({
-        visible: false,
-      });
-      setCheckedGames([]);
-      setSelectRowKeys([]);
-    },
+    [dataSource, setDataSource] = useState<any>([]),
+    [inputSelect, setInputSelect] = useState<string>(), //查询
+    [editGameList, setEditGameList] = useState<any>([]), //编辑选择的游戏列表
+    [editRowKeys, setEditRowKeys] = useState<any>([]), //编辑时 rowKeys
     onSubmit = () => {
-      setGameModalProps({
-        visible: false,
-      });
-      setSelectRowKeys([]);
+      if (editGameList?.length < 4) {
+        message.error('游戏最少配置4个');
+      } else {
+        let changeSort = [...editGameList];
+        changeSort = changeSort?.map((item, index) => {
+          item.sort = index + 1;
+          return item;
+        });
+        setCheckedGames(changeSort);
+        setSelectRowKeys(editRowKeys);
+        resetState();
+      }
     };
-  const gameListSource = GameList({ format: (res) => res?.data })?.data ?? [];
-  console.log('gameListSource', gameListSource);
 
-  const gameData = [
-    { key: 5, icon: '123', gameName: '123', packageName: '123' },
-    { key: 7, icon: '234', gameName: '567', packageName: '789' },
-    { key: 10, icon: '1011', gameName: '5874', packageName: '789' },
-  ]; //模拟数据
+  const onscroll = (e) => {
+    if (
+      dataSource?.length > 0 &&
+      !inputSelect &&
+      e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 1
+    ) {
+      setPage(page + 1);
+    }
+  };
+
+  function resetState() {
+    setGameModalProps({
+      visible: false,
+    });
+    setEditRowKeys([]);
+    setDataSource([]);
+    setEditGameList([]);
+    setPage(0);
+    setInputSelect(undefined);
+  }
+
+  async function queryGameList() {
+    setLoading(true);
+    page == 1 && setDataSource([]);
+    inputSelect && setPage(1);
+    try {
+      const res = await gameList({
+        data: {
+          packageOrGameName: inputSelect,
+          page: {
+            pageNo: inputSelect ? 1 : page,
+            pageSize: inputSelect ? 1000 : 20,
+          },
+        },
+      });
+      if (res) {
+        const data = res?.data?.total_datas?.filter((item: { status: number }) => {
+          return item.status == 1;
+        });
+        setDataSource(inputSelect || page == 1 ? data : dataSource?.concat(data));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    queryGameList();
+  }, [page, inputSelect]);
+
+  useEffect(() => {
+    setEditGameList(checkedGames);
+    setEditRowKeys(selectedRowKeys);
+  }, [gameModalProps]);
 
   const DragHandle = SortableHandle(() => (
     <div>
@@ -49,58 +103,45 @@ export default () => {
     </div>
   ));
 
-  useEffect(() => {
-    setDataSource(gameData);
-  }, []);
-
-  function onTableSelectChange(rowKeys: any[], rowData: any[]) {
-    setSelectRowKeys(rowKeys);
-    setCheckedGames(rowData);
+  function onTableSelectChange(record: any, selected: any) {
+    const gameNum = record?.gameNum;
+    if (selected) {
+      setEditGameList([...editGameList, record]);
+      setEditRowKeys([...editRowKeys, gameNum]);
+    } else {
+      let selectKey = [...editRowKeys];
+      selectKey.splice(selectKey.indexOf(gameNum), 1);
+      setEditRowKeys(selectKey);
+      let editList = [...editGameList];
+      const rowData = editList?.filter((item: any) => {
+        return item?.gameNum !== record?.gameNum;
+      });
+      setEditGameList([...rowData]);
+    }
   }
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onTableSelectChange,
-    type: 'checkbox',
-  };
-
-  function onRow(record: any, index: number) {
-    return {
-      index,
-      moveRow: moveRow,
-    };
-  }
   function moveRow(dragIndex: number, hoverIndex: number) {
-    const data = [...checkedGames];
+    const data = [...editGameList];
     data.splice(dragIndex, 1);
-    data.splice(hoverIndex, 0, checkedGames[dragIndex]);
+    data.splice(hoverIndex, 0, editGameList[dragIndex]);
     data.forEach((item, index) => {
       item.sort = index + 1 + '';
     });
-    setCheckedGames(data);
-  }
-
-  function delectChecked(record: any) {
-    const { key } = record;
-    selectedRowKeys.splice(selectedRowKeys.indexOf(key), 1);
-    const rowData = checkedGames.filter((item: any) => {
-      return item !== record;
-    });
-    onTableSelectChange(selectedRowKeys, rowData);
+    setEditGameList(data);
   }
 
   const columns = [
     {
-      dataIndex: 'icon',
+      dataIndex: 'gameIcon',
       with: 50,
-      render: () => {
-        return <img src={gameImg} style={{ width: '42px' }} />;
+      render: (_: any, record: any) => {
+        return <img src={record?.gameIcon} style={{ width: '42px' }} />;
       },
     },
     {
       dataIndex: 'gameName',
       width: 250,
-      render: (text: any, record: any, index: any) => {
+      render: (_: any, record: any) => {
         return (
           <div className={styles.gameClass}>
             <h5>{record?.gameName}</h5>
@@ -118,15 +159,15 @@ export default () => {
       render: () => <DragHandle />,
     },
     {
-      dataIndex: 'icon',
-      render: () => {
-        return <img src={gameImg} style={{ width: '42px' }} />;
+      dataIndex: 'gameIcon',
+      render: (_: any, record: any) => {
+        return <img src={record.gameIcon} style={{ width: '42px' }} />;
       },
     },
     {
       dataIndex: 'gameName',
       width: 550,
-      render: (text: any, record: any, index: any) => {
+      render: (_: any, record: any) => {
         return (
           <div className={styles.gameClass}>
             <h5>{record?.gameName}</h5>
@@ -137,14 +178,19 @@ export default () => {
     },
     {
       with: 30,
-      render: (text: any, record: any, index: any) => {
-        return <CloseOutlined onClick={() => delectChecked(record)} style={{ color: '#ADADAE' }} />;
+      render: (_: any, record: any) => {
+        return (
+          <CloseOutlined
+            onClick={() => onTableSelectChange(record, false)}
+            style={{ color: '#ADADAE' }}
+          />
+        );
       },
     },
   ];
 
   return (
-    <Modal {...gameModalProps} onCancel={onCancel} onOk={onSubmit} width={800}>
+    <Modal {...gameModalProps} onCancel={resetState} onOk={onSubmit} width={800} zIndex={100}>
       <div className={styles.gameEdit}>
         <div>
           <div className={styles.gameHeader}>
@@ -154,49 +200,53 @@ export default () => {
               placeholder={`游戏名/包名关键词搜索`}
               prefix={<SearchOutlined />}
               onChange={(e) => {
-                const inputGame = e.target.value;
-                setDataSource(
-                  isValidValue(inputGame)
-                    ? gameData?.filter((item) => {
-                        return (
-                          item.gameName?.indexOf(inputGame ?? '') !== -1 ||
-                          item.packageName?.indexOf(inputGame ?? '') !== -1
-                        );
-                      })
-                    : gameData,
-                );
+                setInputSelect(e.target.value);
               }}
             />
           </div>
-          <div className={styles.gameBody}>
-            <GameTable
-              rowSelection={rowSelection}
-              dataSource={dataSource}
-              columns={columns}
-              size="small"
-              pagination={false}
-            />
-          </div>
+          <Spin spinning={loading} tip="Loading..." style={{ height: 400 }}>
+            <div className={styles.gameBody} onScroll={onscroll}>
+              <GameTable
+                rowKey="gameNum"
+                rowSelection={{
+                  selectedRowKeys: editRowKeys,
+                  onSelect: onTableSelectChange,
+                  type: 'checkbox',
+                }}
+                dataSource={dataSource}
+                columns={columns}
+                size="small"
+                pagination={false}
+              />
+            </div>
+          </Spin>
         </div>
         <div>
           <div className={styles.gameHeader}>
-            <div className={styles.headerTitle}>
-              已选游戏{selectedRowKeys?.length > 0 ? `(${selectedRowKeys?.length})` : ``}
+            <div className={styles.headerTitle} style={{ marginRight: 0, width: '100%' }}>
+              已选游戏{editRowKeys?.length > 0 ? `(${editRowKeys?.length})` : ``}
+              <span className={styles.scrollTip}>可拖动排序</span>
+              <Tag className={styles.tag}>至少选4个</Tag>
             </div>
           </div>
           <div
             className={styles.gameBody}
             style={{ padding: 12 }}
-            hidden={!(selectedRowKeys?.length > 0)}
+            hidden={!(editGameList?.length > 0)}
           >
             <GameTable
-              rowKey="key"
+              rowKey="gameNum"
               pagination={false}
               className={styles.checkedGameTable}
               columns={selectColumns}
-              dataSource={checkedGames}
+              dataSource={editGameList}
               components={dragComponents}
-              onRow={onRow}
+              onRow={(record: any, index: number) => {
+                return {
+                  index,
+                  moveRow: moveRow,
+                };
+              }}
               size="small"
             />
           </div>
