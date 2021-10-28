@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 
 function useSiderMenu() {
   const [menu, setMenu] = useState([]);
-  console.log('useSiderMenu');
+  // console.log('useSiderMenu');
   const { logOut } = UserContext.useContainer();
   useEffect(() => {
     // const { error, data } = useQuery(
@@ -32,7 +32,7 @@ function useSiderMenu() {
     // setMenu(data)
   }, [logOut]);
 
-  console.log('useSiderMenu data', menu);
+  // console.log('useSiderMenu data', menu);
   return {
     menuData: menu,
   };
