@@ -215,6 +215,7 @@ function GameInfo() {
   const classify = useQuery<{ data: { id: number; name: string }[] }>(
     ['game-mgt-classify-list'],
     () => classifyServices('list')({ data: {} }),
+    { refetchOnWindowFocus: false },
   );
 
   const classifyMap = classify?.data?.data?.reduce(
@@ -685,6 +686,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   const classify = useQuery<{ data: { id: number; name: string }[] }>(
     ['game-mgt-classify-list'],
     () => classifyServices('list')({ data: {} }),
+    { refetchOnWindowFocus: false },
   );
 
   const classifyMap = classify?.data?.data?.reduce(
