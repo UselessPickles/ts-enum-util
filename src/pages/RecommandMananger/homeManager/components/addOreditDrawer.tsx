@@ -1,70 +1,127 @@
+import { useEffect, useState } from 'react';
 import { Form, Select, InputNumber, Radio, Modal } from 'antd';
 import { useContainer, useModalFromSubmit } from '../useStore';
 import DrawerForm from '@/components/DrawerForm';
-import gameImg from '@/assets/img/icon-566game.png';
 import styles from '../index.less';
-import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined';
+import { gameList } from '@/services/gameQuery';
 
 const { Item } = Form,
   { Option } = Select,
   { confirm } = Modal;
 
 export default () => {
-  const { modalProps, setModalProps, modalFormRef, setEditRecord } = useContainer(),
-    { submitor } = useModalFromSubmit(),
-    onCancel = () => {
-      setModalProps({
-        visible: false,
-      });
-      modalFormRef.resetFields();
-      setEditRecord({});
-    };
+  const {
+      modalProps,
+      modalFormRef,
+      setEditRecord,
+      page,
+      setPage,
+      loading,
+      setLoading,
+      selectGame,
+      setSelectGame,
+      inputSelect,
+      setInputSelect,
+    } = useContainer(),
+    { submitor, onCancel } = useModalFromSubmit(),
+    [dataSource, setDataSource] = useState<any>([]);
 
-  function onSubmit() {
-    const sort = modalFormRef.getFieldValue('sort');
-    confirm({
-      title: '确认添加游戏吗？',
-      icon: <ExclamationCircleOutlined />,
-      content: `首页推荐中，第【${sort}】位的游戏将更改为您配置的游戏`,
-      onOk() {
-        return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-        }).catch(() => console.log('Oops errors!'));
-      },
-      onCancel,
-    });
+  async function queryGameList() {
+    setLoading(true);
+    page == 1 && setDataSource([]);
+    inputSelect && setPage(1);
+    try {
+      const res = await gameList({
+        data: {
+          packageOrGameName: inputSelect,
+          page: {
+            pageNo: inputSelect ? 1 : page,
+            pageSize: inputSelect ? 1000 : 20,
+          },
+        },
+      });
+      if (res) {
+        const data = res?.data?.total_datas?.filter((item: { status: number }) => {
+          return item.status == 1;
+        });
+        setDataSource(inputSelect || page == 1 ? data : dataSource?.concat(data));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
   }
+
+  const onscroll = (e) => {
+    if (
+      dataSource?.length > 0 &&
+      !inputSelect &&
+      e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 1
+    ) {
+      setPage(page + 1);
+    }
+  };
+
+  useEffect(() => {
+    queryGameList();
+  }, [page, inputSelect]);
 
   return (
     <DrawerForm
-      onCancel={onCancel}
-      onSubmit={onSubmit}
+      onCancel={() => {
+        onCancel();
+      }}
+      onSubmit={submitor}
       modalProps={modalProps}
-      formProps={{ layout: 'vertical', form: modalFormRef, className: styles.editForm }}
+      formProps={{
+        layout: 'vertical',
+        form: modalFormRef,
+        className: styles.editForm,
+        initialValues: { showStatus: 1 },
+      }}
     >
       <Item label="游戏名称" name="categoryName" rules={[{ required: true }]}>
-        <Select optionLabelProp="value" allowClear>
-          <Option label="com.xiaomai" value="游戏1" className={styles.Options}>
-            <div className={styles.GameOptions}>
-              <img src={gameImg} />
-              <div className={styles.gameBody}>
-                <div>游戏1</div>
-                <div className={styles.packge}>com.xiaomai</div>
-              </div>
-            </div>
-          </Option>
+        <Select
+          optionLabelProp="value"
+          allowClear
+          loading={loading}
+          showSearch
+          filterOption={false}
+          onSearch={(value) => setInputSelect(value)}
+          onPopupScroll={onscroll}
+          onClear={() => setSelectGame([])}
+          onSelect={(_, option) => setSelectGame([option])}
+        >
+          {dataSource?.map((item) => {
+            return (
+              <Option
+                packageName={item.packageName}
+                value={item.gameName}
+                gameIcon={item.gameIcon}
+                className={styles.Options}
+              >
+                <div className={styles.GameOptions}>
+                  <img src={item.gameIcon} />
+                  <div className={styles.gameBody}>
+                    <div>{item.gameName}</div>
+                    <div className={styles.packge}>{item.packageName}</div>
+                  </div>
+                </div>
+              </Option>
+            );
+          })}
         </Select>
       </Item>
       <Item noStyle dependencies={['categoryName']}>
-        {({ getFieldValue }) => {
-          const categoryName = getFieldValue('categoryName');
+        {({}) => {
+          const item = selectGame?.[0];
           return (
-            categoryName && (
+            selectGame?.length > 0 && (
               <div className={styles.GameShow}>
-                <img src={gameImg} />
+                <img src={item.gameIcon} />
                 <div className={styles.gameBody}>
-                  <div>游戏1</div>
-                  <div className={styles.packge}>com.xiaomai</div>
+                  <div>{item.value}</div>
+                  <div className={styles.packge}>{item.packageName}</div>
                 </div>
               </div>
             )

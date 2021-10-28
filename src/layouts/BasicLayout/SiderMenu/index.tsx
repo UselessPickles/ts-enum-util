@@ -6,7 +6,6 @@ import { FolderOutlined } from '@ant-design/icons';
 function SubMenu() {
   const { menuData } = SiderMenuContext.useContainer();
   const dfs = (data: any) => {
-    // console.log('data:', data)
     return data?.map((item: any) => {
       return item?.children?.length ? (
         <Menu.SubMenu key={item?.id?.toString()} title={item.meta.title} icon={<FolderOutlined />}>
@@ -21,7 +20,6 @@ function SubMenu() {
 }
 
 function MenuItem(menuData: any) {
-  // console.log('menuData:', menuData)
   return (
     <Menu.Item key={menuData?.id?.toString()} style={{ paddingLeft: 24 }}>
       <Link to={menuData.path}>{menuData.meta.title}</Link>

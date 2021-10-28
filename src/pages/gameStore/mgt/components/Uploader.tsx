@@ -1,49 +1,25 @@
-import type { FormItemProps, InputProps, UploadProps } from 'antd';
-import {
-  Form,
-  message,
-  Button,
-  Upload,
-  Card,
-  Space,
-  Divider,
-  Input,
-  Modal,
-  Descriptions,
-} from 'antd';
+import type { InputProps, UploadProps } from 'antd';
+import { Form, message, Button, Upload, Card, Divider, Input, Modal } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
-import { add } from '../services';
-import CustomUpload, { getQiniuKey } from '@/components/CustomUpload';
+import { services } from '../services';
+import CustomUpload from '@/components/CustomUpload';
 import Format from '@/decorators/Format';
 import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
 
-import {
-  UploadOutlined,
-  DeleteOutlined,
-  StarOutlined,
-  PaperClipOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
-import RESTful from '@/utils/RESTful';
+import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
 import showCount from '@/decorators/Input/showCount';
 import type { ReactElement } from 'react';
-import {
-  str2fileList,
-  strArr2fileList,
-  uploadEvent2str,
-  uploadEvent2strArr,
-} from '@/decorators/Upload/Format';
-import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
-import theme from '@/../config/theme';
-import { useQuery } from 'react-query';
-const { 'primary-color': primaryColor } = theme;
+import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Upload/Format';
+import FormItemView from '@/components/FormItemView';
+import { extra } from './constant';
+import { beforeUpload as beforeApkUpload } from './constant';
 const { Item } = Form;
-const { Item: DItem } = Descriptions;
 
 export default ({
+  data,
   formProps,
   modalProps,
   setModalProps,
@@ -61,13 +37,6 @@ export default ({
     return !outOfRange;
   };
 
-  const getValueFromEvent: FormItemProps['getValueFromEvent'] = (e: any) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList;
-  };
-
   async function onSubmit() {
     const value = await form?.validateFields();
 
@@ -77,11 +46,15 @@ export default ({
       onOk: async () => {
         try {
           setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-          await add({
-            data: value,
-            throwErr: true,
-          });
-          onSuccess?.();
+          await services(
+            'save',
+            {
+              data: value,
+              throwErr: true,
+            },
+            data.env,
+          );
+          await onSuccess?.();
           setModalProps((pre) => ({ ...pre, visible: false }));
         } catch (e: any) {
           if (e?.message) {
@@ -102,75 +75,90 @@ export default ({
 
         ...formProps,
       }}
-      modalProps={{ onOk: onSubmit, confirmLoading: detail.isFetching, ...modalProps }}
+      modalProps={{ onOk: onSubmit, ...modalProps }}
     >
       <Item
-        name="游戏apk"
+        name={['resources', 'apk']}
         label="游戏apk"
         rules={[{ required: true }]}
         valuePropName="fileList"
         getValueFromEvent={getValueFromEvent}
+        normalize={uploadEvent2str}
       >
-        <Upload
-          maxCount={1}
-          accept=".apk,.aab"
-          customRequest={async ({ onSuccess: onUploadSuccess, onError, file }) => {
-            console.log(file);
-            const tokenKey = getQiniuKey(file as any);
+        {compose<ReturnType<typeof CustomUpload>>(
+          IOC([
+            Format({
+              valuePropName: 'fileList',
+              g: str2fileList,
+            }),
+          ]),
+        )(
+          <Upload
+            maxCount={1}
+            accept=".apk,.aab"
+            beforeUpload={beforeApkUpload}
+            customRequest={async ({ onError, file }) => {
+              console.log(file);
 
-            try {
-              // const data = await RESTful.get('', {
-              //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-              //   throwErr: true,
-              // }).then((res) => res?.data);
+              try {
+                // const data = await RESTful.get('', {
+                //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
+                //   throwErr: true,
+                // }).then((res) => res?.data);
 
-              // if (!data) {
-              //   throw new Error('上传失败');
-              // }
+                // if (!data) {
+                //   throw new Error('上传失败');
+                // }
 
-              // const fd = new FormData();
-              // fd.append('file', file);
-              // fd.append('token', data?.[tokenKey]);
-              // fd.append('key', tokenKey);
+                // const fd = new FormData();
+                // fd.append('file', file);
+                // fd.append('token', data?.[tokenKey]);
+                // fd.append('key', tokenKey);
 
-              // await fetch('https://upload.qiniup.com', {
-              //   method: 'POST',
-              //   body: fd,
-              // });
+                // await fetch('https://upload.qiniup.com', {
+                //   method: 'POST',
+                //   body: fd,
+                // });
 
-              const xhr = new XMLHttpRequest();
-              onError?.(new Error('error'));
-              // if ((Math.random() * 100) % 2) {
-              //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
-              // } else {
-              //   onError?.(new Error('error'));
-              // }
-            } catch (e: any) {
-              onError?.(e);
-            }
-          }}
-          showUploadList={{
-            showDownloadIcon: true,
-            downloadIcon: 'download ',
-            showRemoveIcon: true,
-          }}
-          itemRender={(origin, file) => {
-            return (
-              <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
-                {origin}
-                <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
-                <Descriptions column={1} size="small" labelStyle={{ minWidth: '80px' }}>
-                  <DItem label="内部版本号"> 信息2</DItem>
-                  <DItem label="外部版本号"> 信息2</DItem>
-                  <DItem label="MD5"> 信息2</DItem>
-                  <DItem label="游戏位数"> 信息2</DItem>
-                </Descriptions>
-              </Card>
-            );
-          }}
-        >
-          <Button icon={<UploadOutlined />}>上传apk文件</Button>
-        </Upload>
+                onError?.(new Error('error'));
+                // if ((Math.random() * 100) % 2) {
+                //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
+                // } else {
+                //   onError?.(new Error('error'));
+                // }
+              } catch (e: any) {
+                onError?.(e);
+              }
+            }}
+            showUploadList={{
+              showDownloadIcon: true,
+              downloadIcon: 'download ',
+              showRemoveIcon: true,
+            }}
+            itemRender={(origin) => {
+              return (
+                <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
+                  {origin}
+                  <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
+                  <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
+                    <FormItemView />
+                  </Item>
+                  <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
+                    <FormItemView />
+                  </Item>
+                  <Item name={['resources', 'md5']} label="MD5：" {...extra}>
+                    <FormItemView />
+                  </Item>
+                  <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
+                    <FormItemView />
+                  </Item>
+                </Card>
+              );
+            }}
+          >
+            <Button icon={<UploadOutlined />}>上传apk文件</Button>
+          </Upload>,
+        )}
       </Item>
 
       <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
@@ -183,13 +171,15 @@ export default ({
             label="游戏Icon"
             rules={[{ required: true }]}
             valuePropName="fileList"
+            getValueFromEvent={getValueFromEvent}
+            normalize={uploadEvent2str}
             extra="jpg、png格式，建议尺寸xx*xx px，不超过100k"
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
                 Format({
                   valuePropName: 'fileList',
-                  f: uploadEvent2str,
+
                   g: str2fileList,
                 }),
               ]),

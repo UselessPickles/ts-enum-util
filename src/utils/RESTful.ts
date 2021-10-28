@@ -55,21 +55,24 @@ const throwKeys: RegExp[] = [/权限标识列表为空/];
 
 function errorHandler(err: ResponseError) {
   if ((err.request as any)?.options?.data?.data?.noError) return;
+
+  if (([true, 'FAIL'] as NOTIFY_TYPE[]).includes(err.request.options?.notify ?? 'FAIL')) {
+    if (err.message === 'redirectToLogin') {
+      notification.error({
+        message: '授权失败',
+        description: '登录过期，请重新登录',
+        key: config.NOTIFICATION_KEY,
+      });
+    } else {
+      notification.error({
+        key: config.NOTIFICATION_KEY,
+        message: '请求失败',
+        description: err.message,
+      });
+    }
+  }
   if (throwKeys.some((item) => item.test(err.message)) || err.request.options.throwErr) {
     throw new Error(err.message);
-  }
-  if (err.message === 'redirectToLogin') {
-    notification.error({
-      message: '授权失败',
-      description: '登录过期，请重新登录',
-      key: config.NOTIFICATION_KEY,
-    });
-  } else {
-    notification.error({
-      key: config.NOTIFICATION_KEY,
-      message: '请求失败',
-      description: err.message,
-    });
   }
 }
 

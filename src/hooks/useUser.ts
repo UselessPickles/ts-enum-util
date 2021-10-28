@@ -19,7 +19,7 @@ function useUser() {
     setLoginStatus(true);
     accountLogin({ username, password })
       .then((res) => {
-        const { access_token, name, id, username } = res.data;
+        const { access_token, name, id, username } = res;
         const user = { id, name, username };
         localStorage.setItem('token', access_token);
         localStorage.setItem('userInfo', JSON.stringify(user));

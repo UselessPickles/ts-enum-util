@@ -41,9 +41,16 @@ export default (props: any) => {
     },
     {
       title: '状态',
-      dataIndex: 'status',
+      dataIndex: 'showStatus',
       ...defalutTableColumnsProps,
-      renderText: (text) => (text ? <Tag color="green">展示</Tag> : <Tag>隐藏</Tag>),
+      render: (_, record) => {
+        const isStatus = record.showStatus === 1;
+        return (
+          <Tag style={{ margin: 0 }} color={isStatus ? 'green' : 'default'}>
+            {isStatus ? '展示' : '隐藏'}
+          </Tag>
+        );
+      },
     },
     {
       title: '展示位置',
@@ -70,7 +77,7 @@ export default (props: any) => {
               编辑
             </Button>
             <Popconfirm
-              title="确定删除吗"
+              title="此位置游戏将由算法补齐，确定删除吗"
               okText="确定"
               cancelText="取消"
               placement="top"

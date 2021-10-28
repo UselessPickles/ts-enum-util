@@ -1,55 +1,19 @@
 import { defineConfig } from 'umi';
 import theme from './config/theme';
+import routes from './config/routes';
 
 export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
   },
-  routes: [
-    {
-      path: '/user',
-      component: '@/layouts/UserLayout',
-      routes: [{ path: '/user/login', component: '@/pages/User/Login' }],
-    },
-    // { path: '/user/login', component: '@/pages/User/Login' },
-    { path: '/', redirect: '/home', exact: true },
-    {
-      path: '/',
-      component: '@/layouts/BasicLayout',
-      routes: [
-        { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authorized'] },
-        { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authorized'] },
-        {
-          path: '/RecommandMananger',
-          routes: [
-            { path: '/RecommazndMananger', redirect: '/RecommandMananger/TypeMananger' },
-            {
-              path: '/RecommandMananger/TypeMananger',
-              component: '@/pages/RecommandMananger/TypeMananger',
-            },
-            {
-              path: '/RecommandMananger/homeManager',
-              component: '@/pages/RecommandMananger/homeManager',
-            },
-          ],
-        },
-        {
-          path: '/gameStore/mgt',
-          routes: [
-            { path: '/gameStore/mgt/', redirect: '/gameStore/mgt/test' },
-            { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
-          ],
-        },
-      ],
-    },
-  ],
+  routes,
   dynamicImport: {},
   base: '/game-management-frontend',
   publicPath: '/game-management-frontend/',
   theme,
   fastRefresh: {},
   // https://github.com/umijs/umi/issues/6766
-  mfsu: {},
+  // mfsu: {},
   // 不用dva
   dva: false,
   proxy: {
