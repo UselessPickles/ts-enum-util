@@ -16,6 +16,7 @@ import {
   Card,
   Divider,
   Upload,
+  Image,
   Timeline,
   Tag,
 } from 'antd';
@@ -25,6 +26,7 @@ import type useModalForm from '@/hooks/useModalForm';
 import { services } from '../../services';
 import Options from '@/utils/Options';
 import type { ENV } from '../../models';
+import type Row from '../../models';
 import { PROFIT_MODE, INSTALL_TYPE, STATUS, TYPE } from '../../models';
 import SearchSelect from '@/components/SearchSelect';
 import FormItemView from '@/components/FormItemView';
@@ -34,23 +36,32 @@ import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
 import { PlusOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import styles from './index.less';
-import {
-  uploadEvent2str,
-  str2fileList,
-  strArr2fileList,
-  uploadEvent2strArr,
-  getValueFromEvent,
-} from '@/decorators/Upload/Format';
+
 import type { Moment } from 'moment';
 import moment from 'moment';
 import theme from '@/../config/theme';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import SelectAll from '@/decorators/Select/SelectAll';
-import { arr2str, str2arr } from '@/decorators/Select/Format';
+
 import { beforeUpload, extra } from '../constant';
 import getExt from '@/utils/file/getExt';
+
+import {
+  getValueFromEvent,
+  uploadEvent2str,
+  str2fileList,
+  uploadEvent2strArr,
+  strArr2fileList,
+  arr2str,
+  str2arr,
+  moment2str,
+  str2moment,
+} from '@/decorators/Format/converter';
+import { ReactNode } from 'react';
+import ChildrenRender from '@/components/ChildrenRender';
+import getIn from '@/utils/getIn';
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -187,7 +198,7 @@ export default ({
               <Item noStyle hidden={t !== '商务信息'}>
                 <BizInfo />
               </Item>
-              <Item noStyle hidden={t !== '更新记录'}>
+              <Item noStyle hidden={t !== '更新记录'} name={'versionList'}>
                 <UpdateRecord env={env} />
               </Item>
             </>
@@ -426,7 +437,7 @@ function SourceInfo({ env }: { env: ENV }) {
   return (
     <>
       <Item
-        name={['resources', 'apk']}
+        name={['apk']}
         label="游戏apk"
         valuePropName="fileList"
         getValueFromEvent={getValueFromEvent}
@@ -436,7 +447,6 @@ function SourceInfo({ env }: { env: ENV }) {
           IOC([
             Format({
               valuePropName: 'fileList',
-
               g: str2fileList,
             }),
           ]),
@@ -493,16 +503,16 @@ function SourceInfo({ env }: { env: ENV }) {
                   </div>
                   <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
 
-                  <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
+                  <Item name={['insideVersion']} label="内部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
+                  <Item name={['externalVersion']} label="外部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'md5']} label="MD5：" {...extra}>
+                  <Item name={['md5']} label="MD5：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
+                  <Item name={['gameBit']} label="游戏位数：" {...extra}>
                     <FormItemView />
                   </Item>
                 </Card>
@@ -516,7 +526,7 @@ function SourceInfo({ env }: { env: ENV }) {
         )}
       </Item>
 
-      <Item name={['resources', 'installType']} label="安装方式" rules={[{ required: true }]}>
+      <Item name={['installType']} label="安装方式" rules={[{ required: true }]}>
         <Radio.Group
           disabled={env === 'prod'}
           options={Options(INSTALL_TYPE).toOpt}
@@ -556,12 +566,12 @@ function BizInfo() {
       </Item>
 
       <Item
-        name={['resources', 'timingUpdateTime']}
+        name={['timingUpdateTime']}
         label="定时更新"
         rules={[
           {
             validator: (_, time: Moment) => {
-              if (time <= moment()) {
+              if (time && time <= moment()) {
                 return Promise.reject(new Error('不能小于当前时间'));
               }
 
@@ -570,24 +580,33 @@ function BizInfo() {
           },
         ]}
       >
-        <DatePicker showTime disabledDate={disabledDate} disabledTime={disabledTime} />
+        {compose<any>(IOC([Format({ f: moment2str, g: str2moment })]))(
+          <DatePicker showTime disabledDate={disabledDate} disabledTime={disabledTime} />,
+        )}
       </Item>
 
-      <Item name={['business', 'profitMode']} label="盈利方式">
-        <Checkbox.Group options={Options(PROFIT_MODE).toOpt} />
+      <Item name={['profitMode']} label="盈利方式">
+        {compose<ReturnType<typeof SearchSelect>>(
+          IOC([
+            Format({
+              f: arr2str,
+              g: str2arr,
+            }),
+          ]),
+        )(<Checkbox.Group options={Options(PROFIT_MODE).toOpt} />)}
       </Item>
 
-      <Item name={['resources', 'updateContent']} label="更新内容">
+      <Item name={['updateContent']} label="更新内容">
         <Input.TextArea placeholder="输入内容" />
       </Item>
 
-      <Item name={['business', 'publicationNo']} label="出版物号（ISBN号）">
+      <Item name={['publicationNo']} label="出版物号（ISBN号）">
         <Input placeholder="输入内容" />
       </Item>
-      <Item dependencies={[['business', 'publicationOrder']]} noStyle>
+      <Item dependencies={[['publicationOrder']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name={['business', 'publicationOrder']}
+            name={['publicationOrder']}
             label="网络游戏出版物号（ISBN）核发单"
             style={{ flex: 1 }}
             valuePropName="fileList"
@@ -598,13 +617,12 @@ function BizInfo() {
               IOC([
                 Format({
                   valuePropName: 'fileList',
-
                   g: str2fileList,
                 }),
               ]),
             )(
               <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
-                {!(getFieldValue(['business', 'publicationOrder'])?.length >= 1) && (
+                {!(getFieldValue(['publicationOrder'])?.length >= 1) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
                     <div style={{ marginTop: 8 }}>上传图片</div>
@@ -615,10 +633,10 @@ function BizInfo() {
           </Item>
         )}
       </Item>
-      <Item dependencies={[['business', 'softwareCopyright']]} noStyle>
+      <Item dependencies={[['softwareCopyright']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name={['business', 'softwareCopyright']}
+            name={['softwareCopyright']}
             label="软著"
             style={{ flex: 1 }}
             valuePropName="fileList"
@@ -629,13 +647,12 @@ function BizInfo() {
               IOC([
                 Format({
                   valuePropName: 'fileList',
-
                   g: str2fileList,
                 }),
               ]),
             )(
               <CustomUpload maxCount={1}>
-                {!(getFieldValue(['business', 'softwareCopyright'])?.length >= 1) && (
+                {!(getFieldValue(['softwareCopyright'])?.length >= 1) && (
                   <Button icon={<UploadOutlined />}>上传文件</Button>
                 )}
               </CustomUpload>,
@@ -644,59 +661,179 @@ function BizInfo() {
         )}
       </Item>
 
-      <Item name={['business', 'idAuthFilingCode']} label="实名认证备案识别码">
+      <Item name={['idAuthFilingCode']} label="实名认证备案识别码">
         <Input placeholder="输入内容" />
       </Item>
     </>
   );
 }
 
-function UpdateRecord({ env }: { env: ENV }) {
-  function rollback() {
+function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'] }) {
+  const client = useQueryClient();
+
+  function rollback(row: Row) {
     return () => {
       return Modal.confirm({
         title: '请进行二次确认',
         content: `测试库的游戏将回退到此版本信息（包含apk包+游戏全部信息内容）`,
-        onOk: () => {},
+        onOk: () =>
+          services('rollback', { data: row, throwErr: true, notify: true }, env).then(() =>
+            client.invalidateQueries(['game-mgt-editor']),
+          ),
       });
     };
   }
-  return (
-    <Timeline>
-      {Array(20)
-        .fill(Object.create(null))
-        .map((_, key) => (
-          <TItem key={key}>
-            <Space direction="vertical">
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text strong>2. 基础信息</Text>
-                {env === 'test' && (
-                  <Button
-                    size="small"
-                    style={{ color: primaryColor, borderColor: primaryColor }}
-                    onClick={rollback()}
-                  >
-                    回退到此版本
-                  </Button>
-                )}
-              </div>
-              <Descriptions
-                column={1}
+
+  interface DiffCol<T> {
+    name: keyof T | (keyof T)[];
+    label: ReactNode;
+    format?: (value?: any, record?: T) => any;
+  }
+
+  const columns: DiffCol<Row>[] = [
+    { name: 'gameName', label: '游戏名称' },
+    { name: 'briefIntroduction', label: '一句话介绍' },
+    { name: 'detailedIntroduction', label: '详细介绍' },
+    { name: 'gameIcon', label: '游戏Icon', format: (src) => <Image width="60px" src={src} /> },
+    {
+      name: 'dynamicPicture',
+      label: '游戏动态图',
+      format: (src) => <Image width="60px" src={src} />,
+    },
+    {
+      name: 'gamePicture',
+      label: '游戏截图',
+      format: (json: string) => {
+        try {
+          const srcs = JSON.parse(json);
+          return srcs?.map((src: string) => <Image width="60px" src={src} key={src} />);
+        } catch {}
+      },
+    },
+    {
+      name: 'gameVideoList',
+      label: '游戏视频',
+      format: (json: string) => {
+        try {
+          const src = JSON.parse(json)?.[0]?.url;
+
+          return (
+            <video width="60px" src={src}>
+              ; 你的浏览器不支持此视频 <a href={src}>视频链接</a>
+            </video>
+          );
+        } catch {}
+      },
+    },
+    {
+      name: 'gameVideoList',
+      label: '视频封面图',
+      format: (json: string) => {
+        try {
+          const src = JSON.parse(json)?.[0]?.img;
+          return <Image width="60px" src={src} />;
+        } catch {}
+      },
+    },
+    { name: 'score', label: '游戏评分' },
+    { name: 'thirdGameClassify', label: '第三方游戏分类' },
+    { name: 'gameClassifyId', label: 'APP中游戏分类' },
+    { name: 'apk', label: '游戏apk' },
+    { name: 'insideVersion', label: '内部版本号' },
+    { name: 'externalVersion', label: '外部版本号' },
+    { name: 'md5', label: 'MD5' },
+    { name: 'gameBit', label: '游戏位数' },
+    { name: 'installType', label: '安装方式', format: (v: number) => INSTALL_TYPE.get(v) },
+  ];
+
+  function itemRender(row: Record<keyof Row, ReactNode>) {
+    return (
+      <>
+        {columns?.reduce((acc: ReactNode[], { name, label }, idx) => {
+          const v = getIn(row, name);
+          return v
+            ? acc.concat(
+                <DItem key={idx} label={label}>
+                  {v}
+                </DItem>,
+              )
+            : acc;
+        }, [])}
+      </>
+    );
+  }
+
+  function rowRender(row: Record<keyof Row, ReactNode | any>, idx: number) {
+    const { id, operator, ctime } = row ?? {};
+    return (
+      <TItem key={id}>
+        <Space direction="vertical">
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Text strong>
+              {ctime} {operator ?? '系统'} 进行了同步
+            </Text>
+            {env === 'test' && idx !== 0 && (
+              <Button
                 size="small"
-                labelStyle={{ minWidth: '80px' }}
-                style={{ backgroundColor: '#fafafa', padding: '12px' }}
+                style={{ color: primaryColor, borderColor: primaryColor }}
+                onClick={rollback(row)}
               >
-                <DItem>
-                  <Tag color="success">更新内容</Tag>
-                </DItem>
-                <DItem label="内部版本号"> 信息2</DItem>
-                <DItem label="外部版本号"> 信息2</DItem>
-                <DItem label="MD5"> 信息2</DItem>
-                <DItem label="游戏位数"> 信息2</DItem>
-              </Descriptions>
-            </Space>
-          </TItem>
-        ))}
-    </Timeline>
-  );
+                回退到此版本
+              </Button>
+            )}
+          </div>
+          <Descriptions
+            column={1}
+            size="small"
+            labelStyle={{ minWidth: '80px' }}
+            style={{ backgroundColor: '#fafafa', padding: '12px' }}
+          >
+            <DItem>
+              <Tag color="success">更新内容</Tag>
+            </DItem>
+            {itemRender(row)}
+          </Descriptions>
+        </Space>
+      </TItem>
+    );
+  }
+
+  // 以guest为主，保留master不同的
+  function diff(master: Row, guest: Row): Record<any, ReactNode> {
+    return columns.reduce((acc, { name, format }) => {
+      const [pre, next] = [getIn(master, name), getIn(guest, name)];
+      let dom: ReactNode;
+      // 相同显示
+      if (pre !== next) {
+        if ((pre ?? true) === true) {
+          // delete
+          dom = <Text delete>{format ? format(next, guest) : next}</Text>;
+        } else {
+          // update
+          dom = <>{format ? format(pre, master) : pre}</>;
+        }
+        return { ...acc, [name as string]: dom };
+      }
+      return acc;
+    }, {});
+  }
+
+  function diffRender() {
+    const sort = [...value].reverse();
+    const child: ReactNode[] = [];
+
+    for (let i = 0; i < sort?.length; i++) {
+      const [young, old] = [sort[i], sort[i + 1]];
+      child.push(
+        rowRender(
+          { ...diff(young, old), operator: young?.operator, ctime: young?.ctime } as any,
+          i,
+        ),
+      );
+    }
+
+    return child;
+  }
+
+  return <Timeline>{diffRender()}</Timeline>;
 }
