@@ -62,6 +62,7 @@ import {
   getFileNameInPath,
 } from '@/decorators/Format/converter';
 import type { ReactNode } from 'react';
+import { Fragment } from 'react';
 import getIn from '@/utils/getIn';
 const { 'primary-color': primaryColor } = theme;
 
@@ -822,17 +823,21 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
 
   // 以guest为主，保留master不同的
   function diff(master: Row, guest: Row): Record<any, ReactNode> {
-    return columns.reduce((acc, { name, format }) => {
+    return columns.reduce((acc, { name, format }, idx) => {
       const [pre, next] = [getIn(master, name), getIn(guest, name)];
       let dom: ReactNode;
       // 相同显示
       if (`${pre}` !== `${next}`) {
         if ((pre ?? true) === true) {
           // delete
-          dom = <Text delete>{format ? format(next, guest) : next}</Text>;
+          dom = (
+            <Text delete key={idx}>
+              {format ? format(next, guest) : next}
+            </Text>
+          );
         } else {
           // update
-          dom = <>{format ? format(pre, master) : pre}</>;
+          dom = <Fragment key={idx}>{format ? format(pre, master) : pre}</Fragment>;
         }
         return { ...acc, [name as string]: dom };
       }
