@@ -48,6 +48,7 @@ import SelectAll from '@/decorators/Select/SelectAll';
 
 import { beforeUpload, extra } from '../constant';
 import getExt from '@/utils/file/getExt';
+import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import {
   getValueFromEvent,
@@ -66,6 +67,9 @@ import getIn from '@/utils/getIn';
 import type { Key } from '@/utils/setTo';
 import setTo from '@/utils/setTo';
 import getFileNameInPath from '@/utils/file/getFileNameInPath';
+import Mask from '@/components/Mask';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -342,8 +346,8 @@ function GameInfo() {
       </Item>
 
       <div style={{ display: 'flex' }}>
-        <Item dependencies={[['gameVideoList', 0, 'url']]} noStyle>
-          {({ getFieldValue }) => {
+        <Item shouldUpdate={shouldUpdateManyHOF([['gameVideoList', 0, 'url']])} noStyle>
+          {({ getFieldValue, setFields }) => {
             const url =
               getFieldValue(['gameVideoList', 0, 'url'])?.[0]?.response ||
               getFieldValue(['gameVideoList', 0, 'url']);
@@ -372,9 +376,36 @@ function GameInfo() {
                     listType="picture-card"
                   >
                     {url ? (
-                      <video src={url} width="100%" height="100%">
-                        你的浏览器不支持此视频 <a href={url}>视频链接</a>
-                      </video>
+                      <Mask
+                        toolbarProps={{
+                          children: (
+                            <Space style={{ fontSize: '16px', color: 'rgba(255,255,255)' }}>
+                              <EyeOutlined
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(url);
+                                }}
+                              />
+                              <DeleteOutlined
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setFields([
+                                    {
+                                      name: ['gameVideoList', 0, 'url'],
+                                      value: undefined,
+                                      errors: undefined,
+                                    },
+                                  ]);
+                                }}
+                              />
+                            </Space>
+                          ),
+                        }}
+                      >
+                        <video src={url} width="100%" height="100%">
+                          你的浏览器不支持此视频 <a href={url}>视频链接</a>
+                        </video>
+                      </Mask>
                     ) : (
                       <div>
                         <PlusOutlined style={{ fontSize: '18px' }} />
