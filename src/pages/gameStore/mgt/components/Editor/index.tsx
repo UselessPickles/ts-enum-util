@@ -888,7 +888,8 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   }
 
   function diffRender() {
-    const sort = [...value].reverse();
+    const sort = [...value];
+    // .reverse();
     const child: ReactNode[] = [];
 
     for (let i = 0; i < sort?.length; i++) {
@@ -897,10 +898,10 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
         rowRender(
           {
             ...diff(young, old),
-            operator: young?.operator,
-            ctime: young?.ctime,
-            gameNum: young?.gameNum,
-            id: young?.id,
+            operator: old?.operator,
+            ctime: old?.ctime,
+            gameNum: old?.gameNum,
+            id: old?.id,
           } as any,
           i,
         ),
