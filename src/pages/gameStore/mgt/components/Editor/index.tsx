@@ -349,7 +349,6 @@ function GameInfo() {
         <Item shouldUpdate={shouldUpdateManyHOF([['gameVideoList', 0, 'url']])} noStyle>
           {({ getFieldValue }) => {
             const url = getFieldValue(['gameVideoList', 0, 'url']);
-
             return (
               <Item
                 name={['gameVideoList', 0, 'url']}
@@ -401,7 +400,7 @@ function GameInfo() {
                       );
                     }}
                   >
-                    {url?.length <= 0 && (
+                    {!(url?.length >= 1) && (
                       <div>
                         <PlusOutlined style={{ fontSize: '18px' }} />
                         <div style={{ marginTop: 8 }}>上传视频</div>
@@ -567,6 +566,9 @@ function SourceInfo({ env }: { env: ENV }) {
         )}
       </Item>
 
+      <Item name={['packageName']} label="包名" rules={[{ required: true }]}>
+        <Input />
+      </Item>
       <Item name={['insideVersion']} label="内部版本号" rules={[{ required: true }]}>
         <Input />
       </Item>

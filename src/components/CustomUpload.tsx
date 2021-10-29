@@ -17,7 +17,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
 
   return (
     <Upload
-      customRequest={async ({ onSuccess, onError, onProgress, file, action }) => {
+      customRequest={async ({ onSuccess, onError, onProgress, file }) => {
         const upSpd = 50;
         const estimate = (file as any)?.size / 1024 / upSpd;
 
@@ -53,7 +53,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
             endpoint: 'oss-cn-shanghai.aliyuncs.com',
             stsToken: data?.securityToken,
           });
-          const path = `${action}/${f?.uid}-${f?.name}`;
+          const path = `${PROCESS_ENV.APP_NAME}/${f?.uid}-${f?.name}`;
           const res = await client.put(path, file);
 
           if (res?.res?.status !== 200) {
@@ -61,7 +61,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
           }
 
           const xhr = new XMLHttpRequest();
-          onSuccess!(`${domain}/${path}`, xhr);
+          onSuccess!(`${domain}${path}`, xhr);
         } catch (e: any) {
           onError!(e);
         } finally {

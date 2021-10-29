@@ -167,6 +167,10 @@ export default ({
         <Input />
       </Item>
 
+      <Item name={['packageName']} label="包名" rules={[{ required: true }]}>
+        <Input />
+      </Item>
+
       <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
         {compose<ReactElement<InputProps>>(IOC([showCount]))(<Input maxLength={20} />)}
       </Item>
