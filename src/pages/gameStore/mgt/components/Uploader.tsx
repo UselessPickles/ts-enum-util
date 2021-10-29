@@ -17,6 +17,7 @@ import FormItemView from '@/components/FormItemView';
 import { extra } from './constant';
 import { beforeUpload as beforeApkUpload } from './constant';
 import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Format/converter';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 const { Item } = Form;
 
 export default ({
@@ -184,7 +185,6 @@ export default ({
               IOC([
                 Format({
                   valuePropName: 'fileList',
-
                   g: str2fileList,
                 }),
               ]),
@@ -195,7 +195,7 @@ export default ({
                 listType="picture-card"
                 beforeUpload={beforeUpload}
               >
-                {!(getFieldValue(['游戏Icon'])?.length >= 1) && (
+                {!(getFieldValue(['gameIcon'])?.length >= 1) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
                     <div style={{ marginTop: 8 }}>上传图片</div>

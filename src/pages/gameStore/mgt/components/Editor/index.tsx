@@ -739,7 +739,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     new Map(),
   );
 
-  function rollback(row: any) {
+  function rollback(row: Record<Extract<keyof Row, 'id' | 'gameNum'>, any>) {
     return () => {
       return Modal.confirm({
         title: '请进行二次确认',
