@@ -347,10 +347,9 @@ function GameInfo() {
 
       <div style={{ display: 'flex' }}>
         <Item shouldUpdate={shouldUpdateManyHOF([['gameVideoList', 0, 'url']])} noStyle>
-          {({ getFieldValue, setFields }) => {
-            const url =
-              getFieldValue(['gameVideoList', 0, 'url'])?.[0]?.response ||
-              getFieldValue(['gameVideoList', 0, 'url']);
+          {({ getFieldValue }) => {
+            const url = getFieldValue(['gameVideoList', 0, 'url']);
+
             return (
               <Item
                 name={['gameVideoList', 0, 'url']}
@@ -364,7 +363,6 @@ function GameInfo() {
                   IOC([
                     Format({
                       valuePropName: 'fileList',
-
                       g: str2fileList,
                     }),
                   ]),
@@ -372,44 +370,38 @@ function GameInfo() {
                   <CustomUpload
                     maxCount={1}
                     accept="video/*"
-                    showUploadList={false}
                     listType="picture-card"
+                    itemRender={(origin, file, ___, actions) => {
+                      return file?.status === 'uploading' ? (
+                        origin
+                      ) : (
+                        <Mask
+                          containerProps={{
+                            style: {
+                              border: '1px solid #d9d9d9',
+                              borderRadius: '4px',
+                            },
+                          }}
+                          toolbarProps={{
+                            children: (
+                              <Space
+                                style={{ fontSize: '16px', color: 'rgba(255,255,255)' }}
+                                size={8}
+                              >
+                                <EyeOutlined onClick={actions?.download} />
+                                <DeleteOutlined onClick={actions?.remove} />
+                              </Space>
+                            ),
+                          }}
+                        >
+                          <video src={url} width="100%" height="100%">
+                            你的浏览器不支持此视频 <a href={url}>视频链接</a>
+                          </video>
+                        </Mask>
+                      );
+                    }}
                   >
-                    {url ? (
-                      <Mask
-                        toolbarProps={{
-                          children: (
-                            <Space
-                              style={{ fontSize: '16px', color: 'rgba(255,255,255)' }}
-                              size={8}
-                            >
-                              <EyeOutlined
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(url);
-                                }}
-                              />
-                              <DeleteOutlined
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setFields([
-                                    {
-                                      name: ['gameVideoList', 0, 'url'],
-                                      value: undefined,
-                                      errors: undefined,
-                                    },
-                                  ]);
-                                }}
-                              />
-                            </Space>
-                          ),
-                        }}
-                      >
-                        <video src={url} width="100%" height="100%">
-                          你的浏览器不支持此视频 <a href={url}>视频链接</a>
-                        </video>
-                      </Mask>
-                    ) : (
+                    {url?.length <= 0 && (
                       <div>
                         <PlusOutlined style={{ fontSize: '18px' }} />
                         <div style={{ marginTop: 8 }}>上传视频</div>
@@ -775,7 +767,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
       name: 'gamePicture',
       label: '游戏截图',
       format: (srcs: string[]) =>
-        srcs?.map((src: string) => <Image width="60px" src={src} key={src} />),
+        srcs?.map?.((src: string) => <Image width="60px" src={src} key={src} />),
     },
     {
       name: ['gameVideoList', 0, 'url'],
