@@ -734,7 +734,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     new Map(),
   );
 
-  function rollback(row: Row) {
+  function rollback(row: any) {
     return () => {
       return Modal.confirm({
         title: '请进行二次确认',
@@ -816,7 +816,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   }
 
   function rowRender(row: Record<keyof Row, ReactNode | any>, idx: number) {
-    const { operator, ctime } = row ?? {};
+    const { operator, ctime, id, gameNum } = row ?? {};
     return (
       <TItem key={idx}>
         <Space direction="vertical">
@@ -828,7 +828,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
               <Button
                 size="small"
                 style={{ color: primaryColor, borderColor: primaryColor }}
-                onClick={rollback(row)}
+                onClick={rollback({ id, gameNum })}
               >
                 回退到此版本
               </Button>
@@ -887,6 +887,8 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
             ...diff(young, old),
             operator: young?.operator,
             ctime: young?.ctime,
+            gameNum: young?.gameNum,
+            id: young?.id,
           } as any,
           i,
         ),
