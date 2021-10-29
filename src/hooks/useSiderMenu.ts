@@ -1,40 +1,31 @@
 // import React, { useState } from 'react'
 import { createContainer } from 'unstated-next';
-import request from '@/utils/RESTful';
-import { useQuery } from 'react-query';
 import { queryMenu } from '@/services/user';
-import UserContext from '@/hooks/useUser';
 import { useState, useEffect } from 'react';
+import { notification } from 'antd';
 
 function useSiderMenu() {
   const [menu, setMenu] = useState([]);
-  // console.log('useSiderMenu');
-  const { logOut } = UserContext.useContainer();
   useEffect(() => {
-    // const { error, data } = useQuery(
-    //   'sys/sysmenu/list_for_tree',
-    //   queryMenu
-    // )
-    // if (error instanceof Error) {
-    //   if (/权限标识列表为空/.test(error.message)) {
-    //     logOut()
-    //   }
-    // }
-    queryMenu()
-      .then((res) => setMenu(res))
-      .catch((error) => {
-        if (error instanceof Error) {
-          if (/权限标识列表为空/.test(error.message)) {
-            logOut();
+    if (menu.length == 0) {
+      queryMenu()
+        .then((res) => setMenu(res))
+        .catch((error) => {
+          if (error instanceof Error) {
+            if (/权限标识列表为空/.test(error.message)) {
+              notification.error({
+                message: '授权为空',
+                description: '权限标识列表为空',
+                key: 'notificationKey',
+              });
+            }
           }
-        }
-      });
-    // setMenu(data)
-  }, [logOut]);
-
-  // console.log('useSiderMenu data', menu);
+        });
+    }
+  }, [menu.length]);
   return {
     menuData: menu,
+    setMenu,
   };
 }
 

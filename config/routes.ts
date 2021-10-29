@@ -4,10 +4,7 @@ export default [
     component: '@/layouts/GlobalLayout',
     routes: [
       { path: '/', redirect: '/home', exact: true },
-      {
-        path: '/user',
-        routes: [{ path: '/user/login', component: '@/pages/User/Login' }],
-      },
+      { path: '/user/login', component: '@/pages/User/Login' },
       {
         path: '/',
         component: '@/layouts/BasicLayout',
