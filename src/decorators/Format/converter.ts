@@ -2,14 +2,11 @@
 export const arr2str = (arr: string[]) => arr?.join?.();
 export const str2arr = (str: string) => (str ? str?.split?.(',') : []);
 
+import getFileNameInPath from '@/utils/file/getFileNameInPath';
 /** file */
 import type { FormItemProps } from 'antd';
 export type File = { url?: string; response?: string; [key: string]: any };
 export type FileList = (File[] & { toJSON?: () => any }) | undefined;
-export function getFileNameInPath(path: string) {
-  const arr = path?.split?.('/');
-  return arr?.[arr?.length - 1];
-}
 
 export const getValueFromEvent: FormItemProps['getValueFromEvent'] = (e: any) => {
   if (Array.isArray(e)) {

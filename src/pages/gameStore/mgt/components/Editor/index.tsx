@@ -48,6 +48,7 @@ import SelectAll from '@/decorators/Select/SelectAll';
 
 import { beforeUpload, extra } from '../constant';
 import getExt from '@/utils/file/getExt';
+import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import {
   getValueFromEvent,
@@ -59,13 +60,16 @@ import {
   str2arr,
   moment2str,
   str2moment,
-  getFileNameInPath,
 } from '@/decorators/Format/converter';
 import type { ReactNode } from 'react';
 import { Fragment } from 'react';
 import getIn from '@/utils/getIn';
 import type { Key } from '@/utils/setTo';
 import setTo from '@/utils/setTo';
+import getFileNameInPath from '@/utils/file/getFileNameInPath';
+import Mask from '@/components/Mask';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -222,7 +226,7 @@ function GameInfo() {
   );
 
   const classifyMap = classify?.data?.data?.reduce(
-    (acc, cur: any) => acc.set(cur.id, cur.name),
+    (acc, cur: any) => acc.set(`${cur.id}`, cur.name),
     new Map(),
   );
 
@@ -342,11 +346,10 @@ function GameInfo() {
       </Item>
 
       <div style={{ display: 'flex' }}>
-        <Item dependencies={[['gameVideoList', 0, 'url']]} noStyle>
+        <Item shouldUpdate={shouldUpdateManyHOF([['gameVideoList', 0, 'url']])} noStyle>
           {({ getFieldValue }) => {
-            const url =
-              getFieldValue(['gameVideoList', 0, 'url'])?.[0]?.response ||
-              getFieldValue(['gameVideoList', 0, 'url']);
+            const url = getFieldValue(['gameVideoList', 0, 'url']);
+
             return (
               <Item
                 name={['gameVideoList', 0, 'url']}
@@ -360,7 +363,6 @@ function GameInfo() {
                   IOC([
                     Format({
                       valuePropName: 'fileList',
-
                       g: str2fileList,
                     }),
                   ]),
@@ -368,14 +370,38 @@ function GameInfo() {
                   <CustomUpload
                     maxCount={1}
                     accept="video/*"
-                    showUploadList={false}
                     listType="picture-card"
+                    itemRender={(origin, file, ___, actions) => {
+                      return file?.status === 'uploading' ? (
+                        origin
+                      ) : (
+                        <Mask
+                          containerProps={{
+                            style: {
+                              border: '1px solid #d9d9d9',
+                              borderRadius: '4px',
+                            },
+                          }}
+                          toolbarProps={{
+                            children: (
+                              <Space
+                                style={{ fontSize: '16px', color: 'rgba(255,255,255)' }}
+                                size={8}
+                              >
+                                <EyeOutlined onClick={actions?.download} />
+                                <DeleteOutlined onClick={actions?.remove} />
+                              </Space>
+                            ),
+                          }}
+                        >
+                          <video src={url} width="100%" height="100%">
+                            你的浏览器不支持此视频 <a href={url}>视频链接</a>
+                          </video>
+                        </Mask>
+                      );
+                    }}
                   >
-                    {url ? (
-                      <video src={url} width="100%" height="100%">
-                        你的浏览器不支持此视频 <a href={url}>视频链接</a>
-                      </video>
-                    ) : (
+                    {url?.length <= 0 && (
                       <div>
                         <PlusOutlined style={{ fontSize: '18px' }} />
                         <div style={{ marginTop: 8 }}>上传视频</div>
@@ -495,7 +521,7 @@ function SourceInfo({ env }: { env: ENV }) {
                 const xhr = new XMLHttpRequest();
 
                 if ((Math.random() * 100) % 2) {
-                  onSuccess?.(`https://image.quzhuanxiang.com/${123}`, xhr);
+                  onSuccess?.(`https://image.quzhuanxiang.com/${123}.aab`, xhr);
                 } else {
                   onError?.(new Error('error'));
                 }
@@ -540,13 +566,24 @@ function SourceInfo({ env }: { env: ENV }) {
           </Upload>,
         )}
       </Item>
-
-      <Item name={['installType']} label="安装方式" rules={[{ required: true }]}>
-        <Radio.Group
-          disabled={env === 'prod'}
-          options={Options(INSTALL_TYPE)?.toOpt}
-          optionType="button"
-        />
+      <Item dependencies={[['apk']]} noStyle>
+        {({ getFieldValue }) => {
+          const isAAB = getFieldValue(['apk'])?.endsWith?.('.aab');
+          return (
+            <Item
+              name={['installType']}
+              label="安装方式"
+              rules={[{ required: true }]}
+              extra={isAAB && 'aab格式仅能内部安装，安卓手机装不了此格式包'}
+            >
+              <Radio.Group
+                disabled={env === 'prod' || isAAB}
+                options={Options(INSTALL_TYPE)?.toOpt}
+                optionType="button"
+              />
+            </Item>
+          );
+        }}
       </Item>
     </>
   );
@@ -693,7 +730,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   );
 
   const classifyMap = classify?.data?.data?.reduce(
-    (acc, cur: any) => acc.set(cur.id, cur.name),
+    (acc, cur: any) => acc.set(`${cur.id}`, cur.name),
     new Map(),
   );
 
@@ -730,7 +767,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
       name: 'gamePicture',
       label: '游戏截图',
       format: (srcs: string[]) =>
-        srcs?.map((src: string) => <Image width="60px" src={src} key={src} />),
+        srcs?.map?.((src: string) => <Image width="60px" src={src} key={src} />),
     },
     {
       name: ['gameVideoList', 0, 'url'],
