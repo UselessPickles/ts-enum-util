@@ -59,13 +59,13 @@ import {
   str2arr,
   moment2str,
   str2moment,
-  getFileNameInPath,
 } from '@/decorators/Format/converter';
 import type { ReactNode } from 'react';
 import { Fragment } from 'react';
 import getIn from '@/utils/getIn';
 import type { Key } from '@/utils/setTo';
 import setTo from '@/utils/setTo';
+import getFileNameInPath from '@/utils/file/getFileNameInPath';
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -495,7 +495,7 @@ function SourceInfo({ env }: { env: ENV }) {
                 const xhr = new XMLHttpRequest();
 
                 if ((Math.random() * 100) % 2) {
-                  onSuccess?.(`https://image.quzhuanxiang.com/${123}`, xhr);
+                  onSuccess?.(`https://image.quzhuanxiang.com/${123}.aab`, xhr);
                 } else {
                   onError?.(new Error('error'));
                 }
@@ -540,13 +540,24 @@ function SourceInfo({ env }: { env: ENV }) {
           </Upload>,
         )}
       </Item>
-
-      <Item name={['installType']} label="安装方式" rules={[{ required: true }]}>
-        <Radio.Group
-          disabled={env === 'prod'}
-          options={Options(INSTALL_TYPE)?.toOpt}
-          optionType="button"
-        />
+      <Item dependencies={[['apk']]} noStyle>
+        {({ getFieldValue }) => {
+          const isAAB = getFieldValue(['apk'])?.endsWith?.('.aab');
+          return (
+            <Item
+              name={['installType']}
+              label="安装方式"
+              rules={[{ required: true }]}
+              extra={isAAB && 'aab格式仅能内部安装，安卓手机装不了此格式包'}
+            >
+              <Radio.Group
+                disabled={env === 'prod' || isAAB}
+                options={Options(INSTALL_TYPE)?.toOpt}
+                optionType="button"
+              />
+            </Item>
+          );
+        }}
       </Item>
     </>
   );
