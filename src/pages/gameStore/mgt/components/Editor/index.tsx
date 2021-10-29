@@ -222,7 +222,7 @@ function GameInfo() {
   );
 
   const classifyMap = classify?.data?.data?.reduce(
-    (acc, cur: any) => acc.set(cur.id, cur.name),
+    (acc, cur: any) => acc.set(`${cur.id}`, cur.name),
     new Map(),
   );
 
@@ -704,7 +704,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   );
 
   const classifyMap = classify?.data?.data?.reduce(
-    (acc, cur: any) => acc.set(cur.id, cur.name),
+    (acc, cur: any) => acc.set(`${cur.id}`, cur.name),
     new Map(),
   );
 
