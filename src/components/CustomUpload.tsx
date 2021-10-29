@@ -48,7 +48,11 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
           const { domain } = data;
 
           const f: any = file;
-          const client = new OSS({ ...data, stsToken: data?.securityToken });
+          const client = new OSS({
+            ...data,
+            endpoint: 'oss-cn-shanghai.aliyuncs.com',
+            stsToken: data?.securityToken,
+          });
           const path = `${action}/${f?.uid}-${f?.name}`;
           const res = await client.put(path, file);
 
