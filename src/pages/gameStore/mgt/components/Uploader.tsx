@@ -94,43 +94,43 @@ export default ({
             }),
           ]),
         )(
-          <Upload
+          <CustomUpload
             maxCount={1}
             accept=".apk,.aab"
             beforeUpload={beforeApkUpload}
-            customRequest={async ({ onError, file }) => {
-              console.log(file);
+            // customRequest={async ({ onError, file }) => {
+            //   console.log(file);
 
-              try {
-                // const data = await RESTful.get('', {
-                //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-                //   throwErr: true,
-                // }).then((res) => res?.data);
+            //   try {
+            //     // const data = await RESTful.get('', {
+            //     //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
+            //     //   throwErr: true,
+            //     // }).then((res) => res?.data);
 
-                // if (!data) {
-                //   throw new Error('上传失败');
-                // }
+            //     // if (!data) {
+            //     //   throw new Error('上传失败');
+            //     // }
 
-                // const fd = new FormData();
-                // fd.append('file', file);
-                // fd.append('token', data?.[tokenKey]);
-                // fd.append('key', tokenKey);
+            //     // const fd = new FormData();
+            //     // fd.append('file', file);
+            //     // fd.append('token', data?.[tokenKey]);
+            //     // fd.append('key', tokenKey);
 
-                // await fetch('https://upload.qiniup.com', {
-                //   method: 'POST',
-                //   body: fd,
-                // });
+            //     // await fetch('https://upload.qiniup.com', {
+            //     //   method: 'POST',
+            //     //   body: fd,
+            //     // });
 
-                onError?.(new Error('error'));
-                // if ((Math.random() * 100) % 2) {
-                //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
-                // } else {
-                //   onError?.(new Error('error'));
-                // }
-              } catch (e: any) {
-                onError?.(e);
-              }
-            }}
+            //     onError?.(new Error('error'));
+            //     // if ((Math.random() * 100) % 2) {
+            //     //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
+            //     // } else {
+            //     //   onError?.(new Error('error'));
+            //     // }
+            //   } catch (e: any) {
+            //     onError?.(e);
+            //   }
+            // }}
             showUploadList={{
               showDownloadIcon: true,
               downloadIcon: 'download ',
@@ -158,8 +158,12 @@ export default ({
             }}
           >
             <Button icon={<UploadOutlined />}>上传apk文件</Button>
-          </Upload>,
+          </CustomUpload>,
         )}
+      </Item>
+
+      <Item name={['insideVersion']} label="内部版本号" rules={[{ required: true }]}>
+        <Input />
       </Item>
 
       <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
