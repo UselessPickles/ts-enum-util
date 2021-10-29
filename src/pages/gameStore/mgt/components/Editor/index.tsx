@@ -836,7 +836,8 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
             <Text strong>
               {ctime} {operator ?? '系统'} 进行了同步
             </Text>
-            {env === 'test' && idx !== 0 && (
+            {env === 'test' && (
+              // && idx !== 0
               <Button
                 size="small"
                 style={{ color: primaryColor, borderColor: primaryColor }}
