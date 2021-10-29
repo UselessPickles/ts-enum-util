@@ -85,6 +85,7 @@ export default () => {
 
   return (
     <DrawerForm
+      key={'categoryDrawerForm'}
       onCancel={onCancel}
       onSubmit={submitor}
       modalProps={{ ...modalProps, zIndex: 10 }}
@@ -159,6 +160,7 @@ export default () => {
                     dataSource={checkedGames}
                     pagination={false}
                     size="small"
+                    rowKey={'id'}
                   />
                 </div>
               )

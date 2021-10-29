@@ -119,6 +119,7 @@ export default (props: any) => {
 
   return (
     <XmilesTable
+      rowKey={'id'}
       actionRef={actionRef}
       formRef={formRef}
       columns={tableColumns}
