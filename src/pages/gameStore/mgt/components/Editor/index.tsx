@@ -492,43 +492,43 @@ function SourceInfo({ env }: { env: ENV }) {
             }),
           ]),
         )(
-          <Upload
+          <CustomUpload
             disabled={env === 'prod'}
             maxCount={1}
             accept=".apk,.aab"
             beforeUpload={beforeUpload}
-            customRequest={async ({ onSuccess, onError, file }) => {
-              try {
-                // const data = await RESTful.get('', {
-                //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-                //   throwErr: true,
-                // }).then((res) => res?.data);
+            // customRequest={async ({ onSuccess, onError, file }) => {
+            //   try {
+            //     // const data = await RESTful.get('', {
+            //     //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
+            //     //   throwErr: true,
+            //     // }).then((res) => res?.data);
 
-                // if (!data) {
-                //   throw new Error('上传失败');
-                // }
+            //     // if (!data) {
+            //     //   throw new Error('上传失败');
+            //     // }
 
-                // const fd = new FormData();
-                // fd.append('file', file);
-                // fd.append('token', data?.[tokenKey]);
-                // fd.append('key', tokenKey);
+            //     // const fd = new FormData();
+            //     // fd.append('file', file);
+            //     // fd.append('token', data?.[tokenKey]);
+            //     // fd.append('key', tokenKey);
 
-                // await fetch('https://upload.qiniup.com', {
-                //   method: 'POST',
-                //   body: fd,
-                // });
+            //     // await fetch('https://upload.qiniup.com', {
+            //     //   method: 'POST',
+            //     //   body: fd,
+            //     // });
 
-                const xhr = new XMLHttpRequest();
+            //     const xhr = new XMLHttpRequest();
 
-                if ((Math.random() * 100) % 2) {
-                  onSuccess?.(`https://image.quzhuanxiang.com/${123}.aab`, xhr);
-                } else {
-                  onError?.(new Error('error'));
-                }
-              } catch (e: any) {
-                onError?.(e);
-              }
-            }}
+            //     if ((Math.random() * 100) % 2) {
+            //       onSuccess?.(`https://image.quzhuanxiang.com/${123}.aab`, xhr);
+            //     } else {
+            //       onError?.(new Error('error'));
+            //     }
+            //   } catch (e: any) {
+            //     onError?.(e);
+            //   }
+            // }}
             showUploadList={{
               showDownloadIcon: false,
               showRemoveIcon: false,
@@ -563,9 +563,14 @@ function SourceInfo({ env }: { env: ENV }) {
             <Button icon={<UploadOutlined />} disabled={env === 'prod'}>
               上传apk文件
             </Button>
-          </Upload>,
+          </CustomUpload>,
         )}
       </Item>
+
+      <Item name={['insideVersion']} label="内部版本号" rules={[{ required: true }]}>
+        <Input />
+      </Item>
+
       <Item dependencies={[['apk']]} noStyle>
         {({ getFieldValue }) => {
           const isAAB = getFieldValue(['apk'])?.endsWith?.('.aab');
@@ -734,7 +739,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     new Map(),
   );
 
-  function rollback(row: Row) {
+  function rollback(row: Record<Extract<keyof Row, 'id' | 'gameNum'>, any>) {
     return () => {
       return Modal.confirm({
         title: '请进行二次确认',
@@ -816,7 +821,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   }
 
   function rowRender(row: Record<keyof Row, ReactNode | any>, idx: number) {
-    const { operator, ctime } = row ?? {};
+    const { operator, ctime, id, gameNum } = row ?? {};
     return (
       <TItem key={idx}>
         <Space direction="vertical">
@@ -828,7 +833,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
               <Button
                 size="small"
                 style={{ color: primaryColor, borderColor: primaryColor }}
-                onClick={rollback(row)}
+                onClick={rollback({ id, gameNum })}
               >
                 回退到此版本
               </Button>
@@ -887,6 +892,8 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
             ...diff(young, old),
             operator: young?.operator,
             ctime: young?.ctime,
+            gameNum: young?.gameNum,
+            id: young?.id,
           } as any,
           i,
         ),

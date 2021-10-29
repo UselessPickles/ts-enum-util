@@ -71,7 +71,7 @@ function errorHandler(err: ResponseError) {
       });
     }
   }
-  if (throwKeys.some((item) => item.test(err.message)) || err.request.options.throwErr) {
+  if (throwKeys.some((item) => item.test(err.message)) || err?.request?.options?.throwErr) {
     throw new Error(err.message);
   }
 }
