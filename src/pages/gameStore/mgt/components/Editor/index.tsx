@@ -111,7 +111,7 @@ export default ({
   async function onSubmit() {
     try {
       const value = await form?.validateFields();
-      const format = prune(value, isValidValue);
+      const { versionList, ...format } = prune(value, isValidValue);
 
       Modal.confirm({
         title: '请进行二次确认',
