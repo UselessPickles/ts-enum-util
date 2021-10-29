@@ -5,27 +5,39 @@ export const MaskContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-`;
-
-export const Mask = styled.div`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.5);
-  opacity: 0;
+  padding: 8px;
   :hover {
-    opacity: 100;
+    .mask-tool {
+      opacity: 1;
+    }
   }
 `;
 
-export const Toolbar = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
+export const Mask = styled.span`
+  position: absolute;
+  z-index: 1;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: all 0.3s;
+  transform: translate(-100%);
+  :hover {
+    .mask-tool-bar {
+      opacity: 1;
+    }
+  }
+`;
+
+export const Toolbar = styled.span`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: all 0.3s;
   .anticon {
     opacity: 0.85;
     :hover {
@@ -51,8 +63,8 @@ export default function ({
   return (
     <MaskContainer {...containerProps}>
       {children}
-      <Mask {...maskProps}>
-        <Toolbar {...toolbarProps} />
+      <Mask {...maskProps} className="mask-tool">
+        <Toolbar {...toolbarProps} className="mask-tool-bar" />
       </Mask>
     </MaskContainer>
   );

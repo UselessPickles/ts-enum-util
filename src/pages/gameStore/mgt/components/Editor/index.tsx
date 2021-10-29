@@ -379,7 +379,10 @@ function GameInfo() {
                       <Mask
                         toolbarProps={{
                           children: (
-                            <Space style={{ fontSize: '16px', color: 'rgba(255,255,255)' }}>
+                            <Space
+                              style={{ fontSize: '16px', color: 'rgba(255,255,255)' }}
+                              size={8}
+                            >
                               <EyeOutlined
                                 onClick={(e) => {
                                   e.stopPropagation();
