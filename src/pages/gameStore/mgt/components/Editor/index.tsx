@@ -793,14 +793,21 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     {
       name: 'gameClassifyId',
       label: 'APP中游戏分类',
-      format: (strs) => str2arr(strs)?.map((str: string) => classifyMap?.get(str)),
+      format: (strs) =>
+        str2arr(strs)
+          ?.map((str: string) => classifyMap?.get(str) ?? '未知')
+          ?.join(','),
     },
     { name: 'apk', label: '游戏apk', format: getFileNameInPath },
     { name: 'insideVersion', label: '内部版本号' },
     { name: 'externalVersion', label: '外部版本号' },
     { name: 'md5', label: 'MD5' },
     { name: 'gameBit', label: '游戏位数' },
-    { name: 'installType', label: '安装方式', format: (v: number) => INSTALL_TYPE.get(v) },
+    {
+      name: 'installType',
+      label: '安装方式',
+      format: (v: number) => INSTALL_TYPE.get(v) ?? '未知',
+    },
   ];
 
   function itemRender(row: Record<keyof Row, ReactNode>) {
