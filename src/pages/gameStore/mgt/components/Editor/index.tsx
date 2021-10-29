@@ -899,10 +899,10 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
         rowRender(
           {
             ...diff(young, old),
-            operator: old?.operator,
-            ctime: old?.ctime,
-            gameNum: old?.gameNum,
-            id: old?.id,
+            operator: young?.operator,
+            ctime: young?.ctime,
+            gameNum: young?.gameNum,
+            id: young?.id,
           } as any,
           i,
         ),
