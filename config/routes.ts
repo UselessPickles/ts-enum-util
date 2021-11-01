@@ -36,6 +36,14 @@ export default [
               { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
             ],
           },
+          {
+            path: '/UserFeedback',
+            routes: [{ path: '/UserFeedback', component: '@/pages/UserFeedback' }],
+          },
+          {
+            path: '/VersionManager',
+            routes: [{ path: '/VersionManager', component: '@/pages/VersionManager' }],
+          },
           { path: '/lab', component: '@/pages/lab' },
         ],
       },
