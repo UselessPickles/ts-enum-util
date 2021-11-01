@@ -40,6 +40,7 @@ export function DescriptionsRender<T extends Record<string, any>>({
           <DItem
             labelStyle={idx === 0 ? { minWidth: '160px', ...labelStyle } : undefined}
             label={idx === 0 ? <b>{k}</b> : undefined}
+            key={idx}
           >
             {node ?? ''}
           </DItem>

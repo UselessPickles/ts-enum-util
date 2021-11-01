@@ -22,18 +22,14 @@ export default ({
       field: 'status',
       title: '状态',
       render: (text: number) => {
-        switch (text) {
-          case 1:
-            return <Tag>线上内容</Tag>;
-          case 2:
-            return (
-              <>
-                <Tag color="success">测试库内容</Tag>
-                <Text type="success">（将作为新版本替换线上内容）</Text>
-              </>
-            );
-        }
-        STATUS.get(text);
+        return !text ? (
+          <Tag>线上内容</Tag>
+        ) : (
+          <>
+            <Tag color="success">测试库内容</Tag>
+            <Text type="success">（将作为新版本替换线上内容）</Text>
+          </>
+        );
       },
     },
     { field: 'gameName', title: '游戏名称' },

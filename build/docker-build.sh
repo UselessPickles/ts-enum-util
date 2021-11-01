@@ -9,9 +9,9 @@ case $1 in
     "production")
         TARGET_IMAGE="ad-master-registry-registry.cn-shanghai.cr.aliyuncs.com/566/game-management-frontend:prod";
         ;;
-    # *)
-    #     TARGET_IMAGE="registry.cn-shanghai.aliyuncs.com/scenead/commercialize-manager-front:dev";
-    #     ;;
+    *)
+        TARGET_IMAGE="ad-master-registry-registry.cn-shanghai.cr.aliyuncs.com/566/game-management-frontend:dev";
+        ;;
 esac
 
 echo '开始构建 Docker'

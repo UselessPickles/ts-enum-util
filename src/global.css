@@ -4,30 +4,10 @@ body,
   height: 100%;
 }
 /*drawer 样式*/
-.ant-drawer-footer{
+.ant-drawer-footer {
   display: flex;
   justify-content: end;
 }
-.ant-drawer-footer > .ant-btn{
+.ant-drawer-footer > .ant-btn {
   margin: 0 8px;
 }
-/*select 样式*/
-.ant-select-item-option-active {
-  background-color: rgba(27, 115, 232, 0.1) !important;
-}
-.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-  background-color: rgba(244, 245, 246, 1) !important;
-}
-.ant-select-item-option-selected:not(.ant-select-item-option-disabled)::after {
-  content: '';
-  display: inline-block;
-  background: url(./assets/img/gou.png) no-repeat;
-  background-size: 100% 100%;
-  width: 14px;
-  height: 14px;
-  position: absolute;
-  right: 16px;
-  top: 35%;
-
-}
-
