@@ -1,1 +1,3 @@
-export default interface Row {}
+export default interface Row {
+  id?: string;
+}
