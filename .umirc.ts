@@ -37,14 +37,14 @@ export default defineConfig({
           path: '/gameStore/mgt',
           routes: [
             { path: '/gameStore/mgt/', redirect: '/gameStore/mgt/test' },
-            { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
+            { path: '/gameStore/mgt/:env', component: '@/pages/GameStore/mgt' },
           ],
         },
         {
           path: '/hot-words',
           component: '@/pages/HotWords',
         },
-        { path: '/lab', component: '@/pages/lab' },
+        { path: '/lab', component: '@/pages/Lab' },
       ],
     },
   ],
