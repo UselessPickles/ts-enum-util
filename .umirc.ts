@@ -40,6 +40,10 @@ export default defineConfig({
             { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
           ],
         },
+        {
+          path: '/hot-word',
+          routes: [{ path: '/hot-word', component: '@/pages/HotWord' }],
+        },
         { path: '/lab', component: '@/pages/lab' },
       ],
     },
