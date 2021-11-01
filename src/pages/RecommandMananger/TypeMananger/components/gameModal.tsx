@@ -1,4 +1,4 @@
-import { Input, Modal, Spin, message, Tag } from 'antd';
+import { Input, Modal, Spin, message, Tag, Typography } from 'antd';
 import styles from '../index.less';
 import { useContainer } from '../useStore';
 import React, { useState, useEffect } from 'react';
@@ -8,6 +8,8 @@ import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { dragComponents } from './dragComponents';
 import { gameList } from '@/services/gameQuery';
 import GameTable from '@/components/Xmiles/NoHeadTable';
+
+const { Text } = Typography;
 
 export default () => {
   const {
@@ -103,6 +105,19 @@ export default () => {
     </div>
   ));
 
+  function gameMessage(gameName: string, packageName: string) {
+    return (
+      <div className={styles.gameClass}>
+        <Text className={styles.gameName} ellipsis={{ tooltip: gameName }}>
+          {gameName}
+        </Text>
+        <Text className={styles.packageName} ellipsis={{ tooltip: packageName }}>
+          {packageName}
+        </Text>
+      </div>
+    );
+  }
+
   function onTableSelectChange(record: any, selected: any) {
     const gameNum = record?.gameNum;
     if (selected) {
@@ -140,14 +155,9 @@ export default () => {
     },
     {
       dataIndex: 'gameName',
-      width: 250,
+      width: 280,
       render: (_: any, record: any) => {
-        return (
-          <div className={styles.gameClass}>
-            <h5>{record?.gameName}</h5>
-            <p>{record?.packageName}</p>
-          </div>
-        );
+        return gameMessage(record?.gameName, record?.packageName);
       },
     },
   ];
@@ -166,31 +176,36 @@ export default () => {
     },
     {
       dataIndex: 'gameName',
-      width: 550,
+      width: 400,
+      textWrap: 'word-break',
       render: (_: any, record: any) => {
-        return (
-          <div className={styles.gameClass}>
-            <h5>{record?.gameName}</h5>
-            <p>{record?.packageName}</p>
-          </div>
-        );
+        return gameMessage(record?.gameName, record?.packageName);
       },
     },
     {
       with: 30,
       render: (_: any, record: any) => {
         return (
-          <CloseOutlined
-            onClick={() => onTableSelectChange(record, false)}
-            style={{ color: '#ADADAE' }}
-          />
+          <div style={{ width: 20, textAlign: 'center' }}>
+            <CloseOutlined
+              onClick={() => onTableSelectChange(record, false)}
+              style={{ color: '#ADADAE' }}
+            />
+          </div>
         );
       },
     },
   ];
 
   return (
-    <Modal {...gameModalProps} onCancel={resetState} onOk={onSubmit} width={800} zIndex={100}>
+    <Modal
+      {...gameModalProps}
+      onCancel={resetState}
+      onOk={onSubmit}
+      width={800}
+      zIndex={100}
+      style={{ minWidth: '700px' }}
+    >
       <div className={styles.gameEdit}>
         <div>
           <div className={styles.gameHeader}>
@@ -202,6 +217,7 @@ export default () => {
               onChange={(e) => {
                 setInputSelect(e.target.value);
               }}
+              allowClear
             />
           </div>
           <Spin spinning={loading} tip="Loading..." style={{ height: 400 }}>
