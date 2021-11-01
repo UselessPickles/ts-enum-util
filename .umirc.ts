@@ -41,8 +41,8 @@ export default defineConfig({
           ],
         },
         {
-          path: '/hot-word',
-          routes: [{ path: '/hot-word', component: '@/pages/HotWord' }],
+          path: '/hot-words',
+          component: '@/pages/HotWords',
         },
         { path: '/lab', component: '@/pages/lab' },
       ],
