@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { cloneElement } from 'react';
-import { compose, curry, maybe } from './utils';
+import { compose, curry, maybe } from '../utils';
 
 // 正反函数
 // f(g(x)) = f(g(x)) = x

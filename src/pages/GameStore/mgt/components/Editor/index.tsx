@@ -16,6 +16,7 @@ import {
   Card,
   Divider,
   Upload,
+  Image,
   Timeline,
   Tag,
 } from 'antd';
@@ -23,8 +24,10 @@ import {
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
 import { services } from '../../services';
+import { services as classifyServices } from '../../services/classify';
 import Options from '@/utils/Options';
 import type { ENV } from '../../models';
+import type Row from '../../models';
 import { PROFIT_MODE, INSTALL_TYPE, STATUS, TYPE } from '../../models';
 import SearchSelect from '@/components/SearchSelect';
 import FormItemView from '@/components/FormItemView';
@@ -34,23 +37,39 @@ import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
 import { PlusOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import styles from './index.less';
-import {
-  uploadEvent2str,
-  str2fileList,
-  strArr2fileList,
-  uploadEvent2strArr,
-  getValueFromEvent,
-} from '@/decorators/Upload/Format';
+
 import type { Moment } from 'moment';
 import moment from 'moment';
 import theme from '@/../config/theme';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import SelectAll from '@/decorators/Select/SelectAll';
-import { arr2str, str2arr } from '@/decorators/Select/Format';
-import { beforeUpload, extra } from '../constant';
+
+import { beforeUpload, extra } from '../utils';
 import getExt from '@/utils/file/getExt';
+import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
+
+import {
+  getValueFromEvent,
+  uploadEvent2str,
+  str2fileList,
+  uploadEvent2strArr,
+  strArr2fileList,
+  arr2str,
+  str2arr,
+  moment2str,
+  str2moment,
+} from '@/decorators/Format/converter';
+import type { ReactNode } from 'react';
+import { Fragment } from 'react';
+import getIn from '@/utils/getIn';
+import type { Key } from '@/utils/setTo';
+import setTo from '@/utils/setTo';
+import getFileNameInPath from '@/utils/file/getFileNameInPath';
+import Mask from '@/components/Mask';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+
 const { 'primary-color': primaryColor } = theme;
 
 const { Item } = Form;
@@ -92,7 +111,7 @@ export default ({
   async function onSubmit() {
     try {
       const value = await form?.validateFields();
-      const format = prune(value, isValidValue);
+      const { versionList, ...format } = prune(value, isValidValue);
 
       Modal.confirm({
         title: '请进行二次确认',
@@ -187,7 +206,7 @@ export default ({
               <Item noStyle hidden={t !== '商务信息'}>
                 <BizInfo />
               </Item>
-              <Item noStyle hidden={t !== '更新记录'}>
+              <Item noStyle hidden={t !== '更新记录'} name={'versionList'}>
                 <UpdateRecord env={env} />
               </Item>
             </>
@@ -200,6 +219,17 @@ export default ({
 
 // 游戏资料
 function GameInfo() {
+  const classify = useQuery<{ data: { id: number; name: string }[] }>(
+    ['game-mgt-classify-list'],
+    () => classifyServices('list')({ data: {} }),
+    { refetchOnWindowFocus: false },
+  );
+
+  const classifyMap = classify?.data?.data?.reduce(
+    (acc, cur: any) => acc.set(`${cur.id}`, cur.name),
+    new Map(),
+  );
+
   return (
     <>
       <Item>
@@ -316,11 +346,9 @@ function GameInfo() {
       </Item>
 
       <div style={{ display: 'flex' }}>
-        <Item dependencies={[['gameVideoList', 0, 'url']]} noStyle>
+        <Item shouldUpdate={shouldUpdateManyHOF([['gameVideoList', 0, 'url']])} noStyle>
           {({ getFieldValue }) => {
-            const url =
-              getFieldValue(['gameVideoList', 0, 'url'])?.[0]?.response ||
-              getFieldValue(['gameVideoList', 0, 'url']);
+            const url = getFieldValue(['gameVideoList', 0, 'url']);
             return (
               <Item
                 name={['gameVideoList', 0, 'url']}
@@ -334,7 +362,6 @@ function GameInfo() {
                   IOC([
                     Format({
                       valuePropName: 'fileList',
-
                       g: str2fileList,
                     }),
                   ]),
@@ -342,14 +369,38 @@ function GameInfo() {
                   <CustomUpload
                     maxCount={1}
                     accept="video/*"
-                    showUploadList={false}
                     listType="picture-card"
+                    itemRender={(origin, file, ___, actions) => {
+                      return file?.status === 'uploading' ? (
+                        origin
+                      ) : (
+                        <Mask
+                          containerProps={{
+                            style: {
+                              border: '1px solid #d9d9d9',
+                              borderRadius: '4px',
+                            },
+                          }}
+                          toolbarProps={{
+                            children: (
+                              <Space
+                                style={{ fontSize: '16px', color: 'rgba(255,255,255)' }}
+                                size={8}
+                              >
+                                <EyeOutlined onClick={actions?.download} />
+                                <DeleteOutlined onClick={actions?.remove} />
+                              </Space>
+                            ),
+                          }}
+                        >
+                          <video src={url} width="100%" height="100%">
+                            你的浏览器不支持此视频 <a href={url}>视频链接</a>
+                          </video>
+                        </Mask>
+                      );
+                    }}
                   >
-                    {url ? (
-                      <video src={url} width="100%" height="100%">
-                        你的浏览器不支持此视频 <a href={url}>视频链接</a>
-                      </video>
-                    ) : (
+                    {!(url?.length >= 1) && (
                       <div>
                         <PlusOutlined style={{ fontSize: '18px' }} />
                         <div style={{ marginTop: 8 }}>上传视频</div>
@@ -415,7 +466,7 @@ function GameInfo() {
               g: str2arr,
             }),
           ]),
-        )(<SearchSelect mode="multiple" showArrow />)}
+        )(<SearchSelect mode="multiple" showArrow options={Options(classifyMap)?.toOpt} />)}
       </Item>
     </>
   );
@@ -426,7 +477,7 @@ function SourceInfo({ env }: { env: ENV }) {
   return (
     <>
       <Item
-        name={['resources', 'apk']}
+        name={['apk']}
         label="游戏apk"
         valuePropName="fileList"
         getValueFromEvent={getValueFromEvent}
@@ -436,48 +487,47 @@ function SourceInfo({ env }: { env: ENV }) {
           IOC([
             Format({
               valuePropName: 'fileList',
-
               g: str2fileList,
             }),
           ]),
         )(
-          <Upload
+          <CustomUpload
             disabled={env === 'prod'}
             maxCount={1}
             accept=".apk,.aab"
             beforeUpload={beforeUpload}
-            customRequest={async ({ onSuccess, onError, file }) => {
-              try {
-                // const data = await RESTful.get('', {
-                //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-                //   throwErr: true,
-                // }).then((res) => res?.data);
+            // customRequest={async ({ onSuccess, onError, file }) => {
+            //   try {
+            //     // const data = await RESTful.get('', {
+            //     //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
+            //     //   throwErr: true,
+            //     // }).then((res) => res?.data);
 
-                // if (!data) {
-                //   throw new Error('上传失败');
-                // }
+            //     // if (!data) {
+            //     //   throw new Error('上传失败');
+            //     // }
 
-                // const fd = new FormData();
-                // fd.append('file', file);
-                // fd.append('token', data?.[tokenKey]);
-                // fd.append('key', tokenKey);
+            //     // const fd = new FormData();
+            //     // fd.append('file', file);
+            //     // fd.append('token', data?.[tokenKey]);
+            //     // fd.append('key', tokenKey);
 
-                // await fetch('https://upload.qiniup.com', {
-                //   method: 'POST',
-                //   body: fd,
-                // });
+            //     // await fetch('https://upload.qiniup.com', {
+            //     //   method: 'POST',
+            //     //   body: fd,
+            //     // });
 
-                const xhr = new XMLHttpRequest();
+            //     const xhr = new XMLHttpRequest();
 
-                if ((Math.random() * 100) % 2) {
-                  onSuccess?.(`https://image.quzhuanxiang.com/${123}`, xhr);
-                } else {
-                  onError?.(new Error('error'));
-                }
-              } catch (e: any) {
-                onError?.(e);
-              }
-            }}
+            //     if ((Math.random() * 100) % 2) {
+            //       onSuccess?.(`https://image.quzhuanxiang.com/${123}.aab`, xhr);
+            //     } else {
+            //       onError?.(new Error('error'));
+            //     }
+            //   } catch (e: any) {
+            //     onError?.(e);
+            //   }
+            // }}
             showUploadList={{
               showDownloadIcon: false,
               showRemoveIcon: false,
@@ -493,16 +543,16 @@ function SourceInfo({ env }: { env: ENV }) {
                   </div>
                   <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
 
-                  <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
+                  <Item name={['insideVersion']} label="内部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
+                  <Item name={['externalVersion']} label="外部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'md5']} label="MD5：" {...extra}>
+                  <Item name={['md5']} label="MD5：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
+                  <Item name={['gameBit']} label="游戏位数：" {...extra}>
                     <FormItemView />
                   </Item>
                 </Card>
@@ -512,16 +562,35 @@ function SourceInfo({ env }: { env: ENV }) {
             <Button icon={<UploadOutlined />} disabled={env === 'prod'}>
               上传apk文件
             </Button>
-          </Upload>,
+          </CustomUpload>,
         )}
       </Item>
 
-      <Item name={['resources', 'installType']} label="安装方式" rules={[{ required: true }]}>
-        <Radio.Group
-          disabled={env === 'prod'}
-          options={Options(INSTALL_TYPE).toOpt}
-          optionType="button"
-        />
+      <Item name={['packageName']} label="包名" rules={[{ required: true }]}>
+        <Input />
+      </Item>
+      <Item name={['insideVersion']} label="内部版本号" rules={[{ required: true }]}>
+        <Input />
+      </Item>
+
+      <Item dependencies={[['apk']]} noStyle>
+        {({ getFieldValue }) => {
+          const isAAB = getFieldValue(['apk'])?.endsWith?.('.aab');
+          return (
+            <Item
+              name={['installType']}
+              label="安装方式"
+              rules={[{ required: true }]}
+              extra={isAAB && 'aab格式仅能内部安装，安卓手机装不了此格式包'}
+            >
+              <Radio.Group
+                disabled={env === 'prod' || isAAB}
+                options={Options(INSTALL_TYPE)?.toOpt}
+                optionType="button"
+              />
+            </Item>
+          );
+        }}
       </Item>
     </>
   );
@@ -556,12 +625,12 @@ function BizInfo() {
       </Item>
 
       <Item
-        name={['resources', 'timingUpdateTime']}
+        name={['timingUpdateTime']}
         label="定时更新"
         rules={[
           {
             validator: (_, time: Moment) => {
-              if (time <= moment()) {
+              if (time && time <= moment()) {
                 return Promise.reject(new Error('不能小于当前时间'));
               }
 
@@ -570,24 +639,33 @@ function BizInfo() {
           },
         ]}
       >
-        <DatePicker showTime disabledDate={disabledDate} disabledTime={disabledTime} />
+        {compose<any>(IOC([Format({ f: moment2str, g: str2moment })]))(
+          <DatePicker showTime disabledDate={disabledDate} disabledTime={disabledTime} />,
+        )}
       </Item>
 
-      <Item name={['business', 'profitMode']} label="盈利方式">
-        <Checkbox.Group options={Options(PROFIT_MODE).toOpt} />
+      <Item name={['profitMode']} label="盈利方式">
+        {compose<ReturnType<typeof SearchSelect>>(
+          IOC([
+            Format({
+              f: arr2str,
+              g: str2arr,
+            }),
+          ]),
+        )(<Checkbox.Group options={Options(PROFIT_MODE).toOpt} />)}
       </Item>
 
-      <Item name={['resources', 'updateContent']} label="更新内容">
+      <Item name={['updateContent']} label="更新内容">
         <Input.TextArea placeholder="输入内容" />
       </Item>
 
-      <Item name={['business', 'publicationNo']} label="出版物号（ISBN号）">
+      <Item name={['publicationNo']} label="出版物号（ISBN号）">
         <Input placeholder="输入内容" />
       </Item>
-      <Item dependencies={[['business', 'publicationOrder']]} noStyle>
+      <Item dependencies={[['publicationOrder']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name={['business', 'publicationOrder']}
+            name={['publicationOrder']}
             label="网络游戏出版物号（ISBN）核发单"
             style={{ flex: 1 }}
             valuePropName="fileList"
@@ -598,13 +676,12 @@ function BizInfo() {
               IOC([
                 Format({
                   valuePropName: 'fileList',
-
                   g: str2fileList,
                 }),
               ]),
             )(
               <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
-                {!(getFieldValue(['business', 'publicationOrder'])?.length >= 1) && (
+                {!(getFieldValue(['publicationOrder'])?.length >= 1) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
                     <div style={{ marginTop: 8 }}>上传图片</div>
@@ -615,10 +692,10 @@ function BizInfo() {
           </Item>
         )}
       </Item>
-      <Item dependencies={[['business', 'softwareCopyright']]} noStyle>
+      <Item dependencies={[['softwareCopyright']]} noStyle>
         {({ getFieldValue }) => (
           <Item
-            name={['business', 'softwareCopyright']}
+            name={['softwareCopyright']}
             label="软著"
             style={{ flex: 1 }}
             valuePropName="fileList"
@@ -629,13 +706,12 @@ function BizInfo() {
               IOC([
                 Format({
                   valuePropName: 'fileList',
-
                   g: str2fileList,
                 }),
               ]),
             )(
               <CustomUpload maxCount={1}>
-                {!(getFieldValue(['business', 'softwareCopyright'])?.length >= 1) && (
+                {!(getFieldValue(['softwareCopyright'])?.length >= 1) && (
                   <Button icon={<UploadOutlined />}>上传文件</Button>
                 )}
               </CustomUpload>,
@@ -644,59 +720,199 @@ function BizInfo() {
         )}
       </Item>
 
-      <Item name={['business', 'idAuthFilingCode']} label="实名认证备案识别码">
+      <Item name={['idAuthFilingCode']} label="实名认证备案识别码">
         <Input placeholder="输入内容" />
       </Item>
     </>
   );
 }
 
-function UpdateRecord({ env }: { env: ENV }) {
-  function rollback() {
+function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'] }) {
+  const client = useQueryClient();
+
+  const classify = useQuery<{ data: { id: number; name: string }[] }>(
+    ['game-mgt-classify-list'],
+    () => classifyServices('list')({ data: {} }),
+    { refetchOnWindowFocus: false },
+  );
+
+  const classifyMap = classify?.data?.data?.reduce(
+    (acc, cur: any) => acc.set(`${cur.id}`, cur.name),
+    new Map(),
+  );
+
+  function rollback(row: Record<Extract<keyof Row, 'id' | 'gameNum'>, any>) {
     return () => {
       return Modal.confirm({
         title: '请进行二次确认',
         content: `测试库的游戏将回退到此版本信息（包含apk包+游戏全部信息内容）`,
-        onOk: () => {},
+        onOk: () =>
+          services('rollback', { data: row, throwErr: true, notify: true }, env).then(() =>
+            client.invalidateQueries(['game-mgt-editor']),
+          ),
       });
     };
   }
-  return (
-    <Timeline>
-      {Array(20)
-        .fill(Object.create(null))
-        .map((_, key) => (
-          <TItem key={key}>
-            <Space direction="vertical">
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text strong>2. 基础信息</Text>
-                {env === 'test' && (
-                  <Button
-                    size="small"
-                    style={{ color: primaryColor, borderColor: primaryColor }}
-                    onClick={rollback()}
-                  >
-                    回退到此版本
-                  </Button>
-                )}
-              </div>
-              <Descriptions
-                column={1}
+
+  interface DiffCol<T> {
+    name: Key | Key[];
+    label: ReactNode;
+    format?: (value?: any, record?: T) => any;
+  }
+
+  const columns: DiffCol<Row>[] = [
+    { name: 'gameName', label: '游戏名称' },
+    { name: 'briefIntroduction', label: '一句话介绍' },
+    { name: 'detailedIntroduction', label: '详细介绍' },
+    { name: 'gameIcon', label: '游戏Icon', format: (src) => <Image width="60px" src={src} /> },
+    {
+      name: 'dynamicPicture',
+      label: '游戏动态图',
+      format: (src) => <Image width="60px" src={src} />,
+    },
+    {
+      name: 'gamePicture',
+      label: '游戏截图',
+      format: (srcs: string[]) =>
+        srcs?.map?.((src: string) => <Image width="60px" src={src} key={src} />),
+    },
+    {
+      name: ['gameVideoList', 0, 'url'],
+      label: '游戏视频',
+      format: (src: string) => (
+        <video width="200px" src={src} controls>
+          你的浏览器不支持此视频 <a href={src}>视频链接</a>
+        </video>
+      ),
+    },
+    {
+      name: ['gameVideoList', 0, 'img'],
+      label: '视频封面图',
+      format: (src: string) => <Image width="60px" src={src} />,
+    },
+    { name: 'score', label: '游戏评分' },
+    { name: 'thirdGameClassify', label: '第三方游戏分类' },
+    {
+      name: 'gameClassifyId',
+      label: 'APP中游戏分类',
+      format: (strs) =>
+        str2arr(strs)
+          ?.map((str: string) => classifyMap?.get(str) ?? '未知')
+          ?.join(','),
+    },
+    { name: 'apk', label: '游戏apk', format: getFileNameInPath },
+    { name: 'insideVersion', label: '内部版本号' },
+    { name: 'externalVersion', label: '外部版本号' },
+    { name: 'md5', label: 'MD5' },
+    { name: 'gameBit', label: '游戏位数' },
+    {
+      name: 'installType',
+      label: '安装方式',
+      format: (v: number) => INSTALL_TYPE.get(v) ?? '未知',
+    },
+  ];
+
+  function itemRender(row: Record<keyof Row, ReactNode>) {
+    return (
+      <>
+        {columns?.reduce((acc: ReactNode[], { name, label }, idx) => {
+          const v = getIn(row, name);
+          return v
+            ? acc.concat(
+                <DItem key={idx} label={label}>
+                  {v}
+                </DItem>,
+              )
+            : acc;
+        }, [])}
+      </>
+    );
+  }
+
+  function rowRender(row: Record<keyof Row, ReactNode | any>, idx: number) {
+    const { operator, ctime, id, gameNum } = row ?? {};
+    return (
+      <TItem key={idx}>
+        <Space direction="vertical">
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Text strong>
+              {ctime} {operator ?? '系统'} 进行了同步
+            </Text>
+            {env === 'test' && (
+              // && idx !== 0
+              <Button
                 size="small"
-                labelStyle={{ minWidth: '80px' }}
-                style={{ backgroundColor: '#fafafa', padding: '12px' }}
+                style={{ color: primaryColor, borderColor: primaryColor }}
+                onClick={rollback({ id, gameNum })}
               >
-                <DItem>
-                  <Tag color="success">更新内容</Tag>
-                </DItem>
-                <DItem label="内部版本号"> 信息2</DItem>
-                <DItem label="外部版本号"> 信息2</DItem>
-                <DItem label="MD5"> 信息2</DItem>
-                <DItem label="游戏位数"> 信息2</DItem>
-              </Descriptions>
-            </Space>
-          </TItem>
-        ))}
-    </Timeline>
-  );
+                回退到此版本
+              </Button>
+            )}
+          </div>
+          <Descriptions
+            column={1}
+            size="small"
+            labelStyle={{ minWidth: '80px' }}
+            style={{ backgroundColor: '#fafafa', padding: '12px' }}
+          >
+            <DItem>
+              <Tag color="success">更新内容</Tag>
+            </DItem>
+            {itemRender(row)}
+          </Descriptions>
+        </Space>
+      </TItem>
+    );
+  }
+
+  // 以guest为主，保留master不同的
+  function diff(master: Row, guest: Row): Record<any, ReactNode> {
+    return columns.reduce((acc, { name, format }, idx) => {
+      const [pre, next] = [getIn(master, name), getIn(guest, name)];
+      let dom: ReactNode;
+      // 相同显示
+      if (`${pre}` !== `${next}`) {
+        if ((pre ?? true) === true) {
+          // delete
+          dom = (
+            <Text delete key={idx}>
+              {format ? format(next, guest) : next}
+            </Text>
+          );
+        } else {
+          // update
+          dom = <Fragment key={idx}>{format ? format(pre, master) : pre}</Fragment>;
+        }
+
+        setTo(acc, name, dom);
+      }
+      return acc;
+    }, {});
+  }
+
+  function diffRender() {
+    const sort = [...value];
+    // .reverse();
+    const child: ReactNode[] = [];
+
+    for (let i = 0; i < sort?.length; i++) {
+      const [young, old] = [sort[i], sort[i + 1]];
+      child.push(
+        rowRender(
+          {
+            ...diff(young, old),
+            operator: young?.operator,
+            ctime: young?.ctime,
+            gameNum: young?.gameNum,
+            id: young?.id,
+          } as any,
+          i,
+        ),
+      );
+    }
+
+    return child;
+  }
+
+  return <Timeline>{diffRender()}</Timeline>;
 }

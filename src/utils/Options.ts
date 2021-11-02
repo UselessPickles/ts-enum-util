@@ -3,11 +3,11 @@ export type MapLike<K = any, V = any> = Map<K, V> | Record<any, V>;
 export class Options {
   private m = new Map<any, any>();
 
-  constructor(m: MapLike) {
+  constructor(m?: MapLike) {
     this.m = this.convertMap(m);
   }
 
-  private convertMap(m: MapLike) {
+  private convertMap(m?: MapLike) {
     if (m instanceof Map) {
       return new Map(m);
     } else if (typeof m === 'object') {
@@ -33,13 +33,7 @@ export class Options {
     const copy = [...this.m],
       idx = copy.findIndex(([key]) => k === key);
     return new Options(
-      new Map(
-        ([] as Array<any>).concat(
-          copy.slice(0, idx),
-          [...this.convertMap(m)],
-          copy.slice(idx),
-        ),
-      ),
+      new Map(([] as any[]).concat(copy.slice(0, idx), [...this.convertMap(m)], copy.slice(idx))),
     );
   }
 
@@ -51,7 +45,7 @@ export class Options {
     return copy;
   }
 
-  public remove(...keys: Array<any>) {
+  public remove(...keys: any[]) {
     const copy = this.copy;
     keys?.forEach((k) => copy.m.delete(k));
     return copy;
@@ -75,6 +69,6 @@ export class Options {
   }
 }
 
-export default (m: MapLike) => {
+export default (m?: MapLike) => {
   return new Options(m);
 };

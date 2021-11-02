@@ -10,12 +10,13 @@ import { IOC } from '@/decorators/hoc';
 import { compose } from '@/decorators/utils';
 
 import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
-import showCount from '@/decorators/Input/showCount';
+import showCount from '@/decorators/Input/ShowCount';
 import type { ReactElement } from 'react';
-import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Upload/Format';
+
 import FormItemView from '@/components/FormItemView';
-import { extra } from './constant';
-import { beforeUpload as beforeApkUpload } from './constant';
+import { extra } from './utils';
+import { beforeUpload as beforeApkUpload } from './utils';
+import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Format/converter';
 const { Item } = Form;
 
 export default ({
@@ -78,7 +79,7 @@ export default ({
       modalProps={{ onOk: onSubmit, ...modalProps }}
     >
       <Item
-        name={['resources', 'apk']}
+        name={['apk']}
         label="游戏apk"
         rules={[{ required: true }]}
         valuePropName="fileList"
@@ -93,43 +94,43 @@ export default ({
             }),
           ]),
         )(
-          <Upload
+          <CustomUpload
             maxCount={1}
             accept=".apk,.aab"
             beforeUpload={beforeApkUpload}
-            customRequest={async ({ onError, file }) => {
-              console.log(file);
+            // customRequest={async ({ onError, file }) => {
+            //   console.log(file);
 
-              try {
-                // const data = await RESTful.get('', {
-                //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-                //   throwErr: true,
-                // }).then((res) => res?.data);
+            //   try {
+            //     // const data = await RESTful.get('', {
+            //     //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
+            //     //   throwErr: true,
+            //     // }).then((res) => res?.data);
 
-                // if (!data) {
-                //   throw new Error('上传失败');
-                // }
+            //     // if (!data) {
+            //     //   throw new Error('上传失败');
+            //     // }
 
-                // const fd = new FormData();
-                // fd.append('file', file);
-                // fd.append('token', data?.[tokenKey]);
-                // fd.append('key', tokenKey);
+            //     // const fd = new FormData();
+            //     // fd.append('file', file);
+            //     // fd.append('token', data?.[tokenKey]);
+            //     // fd.append('key', tokenKey);
 
-                // await fetch('https://upload.qiniup.com', {
-                //   method: 'POST',
-                //   body: fd,
-                // });
+            //     // await fetch('https://upload.qiniup.com', {
+            //     //   method: 'POST',
+            //     //   body: fd,
+            //     // });
 
-                onError?.(new Error('error'));
-                // if ((Math.random() * 100) % 2) {
-                //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
-                // } else {
-                //   onError?.(new Error('error'));
-                // }
-              } catch (e: any) {
-                onError?.(e);
-              }
-            }}
+            //     onError?.(new Error('error'));
+            //     // if ((Math.random() * 100) % 2) {
+            //     //   onUploadSuccess?.(`https://image.quzhuanxiang.com/${tokenKey}`, xhr);
+            //     // } else {
+            //     //   onError?.(new Error('error'));
+            //     // }
+            //   } catch (e: any) {
+            //     onError?.(e);
+            //   }
+            // }}
             showUploadList={{
               showDownloadIcon: true,
               downloadIcon: 'download ',
@@ -140,16 +141,16 @@ export default ({
                 <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                   {origin}
                   <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
-                  <Item name={['resources', 'insideVersion']} label="内部版本号：" {...extra}>
+                  <Item name={['insideVersion']} label="内部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'externalVersion']} label="外部版本号：" {...extra}>
+                  <Item name={['externalVersion']} label="外部版本号：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'md5']} label="MD5：" {...extra}>
+                  <Item name={['md5']} label="MD5：" {...extra}>
                     <FormItemView />
                   </Item>
-                  <Item name={['resources', 'undo']} label="游戏位数：" {...extra}>
+                  <Item name={['gameBit']} label="游戏位数：" {...extra}>
                     <FormItemView />
                   </Item>
                 </Card>
@@ -157,8 +158,16 @@ export default ({
             }}
           >
             <Button icon={<UploadOutlined />}>上传apk文件</Button>
-          </Upload>,
+          </CustomUpload>,
         )}
+      </Item>
+
+      <Item name={['insideVersion']} label="内部版本号" rules={[{ required: true }]}>
+        <Input />
+      </Item>
+
+      <Item name={['packageName']} label="包名" rules={[{ required: true }]}>
+        <Input />
       </Item>
 
       <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
@@ -179,7 +188,6 @@ export default ({
               IOC([
                 Format({
                   valuePropName: 'fileList',
-
                   g: str2fileList,
                 }),
               ]),
@@ -190,7 +198,7 @@ export default ({
                 listType="picture-card"
                 beforeUpload={beforeUpload}
               >
-                {!(getFieldValue(['游戏Icon'])?.length >= 1) && (
+                {!(getFieldValue(['gameIcon'])?.length >= 1) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
                     <div style={{ marginTop: 8 }}>上传图片</div>

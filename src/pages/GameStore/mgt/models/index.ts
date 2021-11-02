@@ -1,5 +1,26 @@
 export default interface Row {
-  id: 'string';
+  id: string;
+  gameNum: string;
+  operator?: string;
+  ctime?: string;
+  versionList?: Row[];
+  gameName: string;
+  briefIntroduction: string;
+  detailedIntroduction: string;
+  gameIcon: string;
+  dynamicPicture: string;
+  gamePicture: string;
+  gameVideoList: string[];
+  gameVideoListVideo: string[];
+  score: string;
+  thirdGameClassify: string;
+  gameClassifyId: string;
+  apk: string;
+  insideVersion: string;
+  externalVersion: string;
+  md5: string;
+  gameBit: string;
+  installType: string;
 }
 
 export const TYPE = new Map([
@@ -10,9 +31,9 @@ export const TYPE = new Map([
 ]);
 
 export const PROFIT_MODE = new Map([
-  ['广告', '广告'],
-  ['内购', '内购'],
-  ['网赚', '网赚'],
+  [1, '广告'],
+  [2, '内购'],
+  [3, '网赚'],
 ]);
 
 export const INSTALL_TYPE = new Map([
