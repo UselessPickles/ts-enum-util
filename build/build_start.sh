@@ -5,7 +5,7 @@ case $1 in
     "production")
         npm run build;
         ;;
-    # *)
-    #     npm run build:dev;
-    #     ;;
+    *)
+        npm run build:dev;
+        ;;
 esac

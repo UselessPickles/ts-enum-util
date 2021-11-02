@@ -6,7 +6,6 @@ import { Redirect } from 'umi';
 import { notification } from 'antd';
 
 const Authorized: React.FC = ({ children }) => {
-  // console.log('Authorized:', children, other);
   const { checkLoginState } = UserContext.useContainer();
   if (!checkLoginState()) {
     // history.replace('/')

@@ -8,8 +8,8 @@ export default defineConfig({
   },
   routes,
   dynamicImport: {},
-  base: '/game-management-frontend',
-  publicPath: '/game-management-frontend/',
+  base: process.env.NODE_ENV == 'development' ? '/' : '/game-management-frontend',
+  publicPath: process.env.NODE_ENV == 'development' ? '/' : '/game-management-frontend/',
   theme,
   fastRefresh: {},
   // https://github.com/umijs/umi/issues/6766

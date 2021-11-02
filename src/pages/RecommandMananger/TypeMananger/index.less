@@ -38,18 +38,23 @@
   }
 }
 .gameClass {
-  p {
+  p,
+  .packageName {
     margin-bottom: 0;
     color: #999999;
     font-weight: 400;
   }
+  .gameName,
   h5 {
     color: #333333;
     font-size: 14px;
   }
   p,
-  h5 {
+  h5,
+  .gameName,
+  .packageName {
     width: 80%;
+    max-width: 160px;
     overflow: hidden;
     overflow: hidden;
     white-space: nowrap;
@@ -72,10 +77,12 @@
 .gameEdit {
   display: flex;
   width: 100%;
+  min-width: 650px;
   > div {
-    width: 47%;
+    width: 50%;
+    min-width: 310px;
     min-height: 450px;
-    margin: 0 10px;
+    margin: 0 5px;
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 4px;
   }

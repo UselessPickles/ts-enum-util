@@ -10,10 +10,12 @@ export default [
     path: '/',
     component: '@/layouts/BasicLayout',
     routes: [
-      { path: '/home', component: '@/pages/Home', wrappers: ['@/pages/Authorized'] },
-      { path: '/other', component: '@/pages/Other', wrappers: ['@/pages/Authorized'] },
+      { path: '/', redirect: '/home', exact: true },
+      { path: '/user/login', component: '@/pages/User/Login' },
       {
-        path: '/RecommandMananger',
+        path: '/',
+        component: '@/layouts/BasicLayout',
+        wrappers: ['@/pages/Authorized'],
         routes: [
           { path: '/RecommazndMananger', redirect: '/RecommandMananger/TypeMananger' },
           {
