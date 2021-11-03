@@ -46,7 +46,7 @@ import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import SelectAll from '@/decorators/Select/SelectAll';
 
-import { beforeUpload, extra } from '../constant';
+import { beforeUpload, extra } from '../utils';
 import getExt from '@/utils/file/getExt';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 

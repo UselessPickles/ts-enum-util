@@ -14,10 +14,9 @@ import showCount from '@/decorators/Input/ShowCount';
 import type { ReactElement } from 'react';
 
 import FormItemView from '@/components/FormItemView';
-import { extra } from './constant';
-import { beforeUpload as beforeApkUpload } from './constant';
+import { extra } from './utils';
+import { beforeUpload as beforeApkUpload } from './utils';
 import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Format/converter';
-import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 const { Item } = Form;
 
 export default ({
