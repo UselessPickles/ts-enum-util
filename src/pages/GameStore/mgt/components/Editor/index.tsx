@@ -96,9 +96,9 @@ export default ({
       enabled: !!id,
       refetchOnWindowFocus: false,
       onSuccess(res) {
-        const formData = prune(res?.data, isValidValue) ?? {};
+        const { versionList, ...formData } = prune(res?.data, isValidValue) ?? {};
 
-        form.setFieldsValue(formData);
+        form.setFieldsValue({ ...formData, versionList: [formData, ...versionList] });
         setModalProps((pre) => ({
           ...pre,
           title: formData?.packageName,
