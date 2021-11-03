@@ -3,6 +3,7 @@ import type { DescriptionsProps } from 'antd';
 import { Descriptions } from 'antd';
 import type { Key } from '@/utils/setTo';
 import getIn from '@/utils/getIn';
+import isValidValue from '@/utils/isValidValue';
 const { Item: DItem } = Descriptions;
 
 export interface Row<T extends Record<string, any>> {
@@ -26,7 +27,7 @@ export function DescriptionsRender<T extends Record<string, any>>({
       const v = getIn(ds, name),
         ele = format?.(v, ds) ?? v;
       if (Array.isArray(acc.get(label))) {
-        if (acc.get(label)?.[0] === undefined && v === undefined) {
+        if (!isValidValue(acc.get(label)?.[0]) && !isValidValue(v)) {
           acc.delete(label);
         } else {
           acc.get(label)?.push(ele);
@@ -37,6 +38,8 @@ export function DescriptionsRender<T extends Record<string, any>>({
     }
     return acc;
   }, new Map());
+
+  console.log(preprocess, 'preprocess');
 
   function renderChildren() {
     let children: ReactNode[] = [];
