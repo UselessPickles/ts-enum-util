@@ -148,6 +148,12 @@ export default function () {
       renderText: (src) => <Image width="60px" src={src} />,
     },
     {
+      title: '游戏名',
+      dataIndex: 'gameName',
+      width: 100,
+      hideInSearch: true,
+    },
+    {
       title: '状态',
       dataIndex: 'status',
       width: 100,

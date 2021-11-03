@@ -22,14 +22,16 @@ export const normalize: FormItemProps['normalize'] = (v) => {
 // signal file
 export const str2fileList = (value?: string): FileList =>
   typeof value === 'string'
-    ? [{ response: value, url: value, thumbUrl: value, name: getFileNameInPath(value) }]
+    ? [{ uid: value, response: value, url: value, thumbUrl: value, name: getFileNameInPath(value) }]
     : value;
 
 export const uploadEvent2str: FormItemProps['normalize'] = (value) => value?.[0]?.response ?? value;
 
 // multiple file
 export const strArr2fileList = (value?: string[]): FileList =>
-  value?.map?.((v) => (typeof v === 'string' ? { response: v, url: v, thumbUrl: v, name: v } : v));
+  value?.map?.((v) =>
+    typeof v === 'string' ? { response: v, url: v, thumbUrl: v, name: v, uid: v } : v,
+  );
 
 export const uploadEvent2strArr: FormItemProps['normalize'] = (value) =>
   value?.map((v: any) => v?.response ?? v) ?? value;
