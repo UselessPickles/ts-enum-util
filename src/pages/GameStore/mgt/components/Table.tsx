@@ -186,7 +186,7 @@ export default function () {
     },
     {
       title: '更新时间',
-      dataIndex: 'utime',
+      dataIndex: 'ctime',
       width: 100,
       hideInSearch: true,
     },
@@ -198,7 +198,7 @@ export default function () {
     },
     {
       title: '操作时间',
-      dataIndex: 'ctime',
+      dataIndex: 'utime',
       width: 100,
       hideInSearch: true,
     },
