@@ -3,5 +3,5 @@ export default interface Row {
 }
 export const STATUS = new Map([
   [1, '展示'],
-  [2, '隐藏'],
+  [0, '隐藏'],
 ]);

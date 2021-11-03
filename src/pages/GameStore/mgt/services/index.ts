@@ -1,9 +1,16 @@
-import { curry } from '@/decorators/utils';
 import type { CustomRequestConfig } from '@/utils/RESTful';
 import RESTful from '@/utils/RESTful';
 
-export type method = 'page' | 'save' | 'update' | 'get';
+const methods = ['page', 'save', 'update', 'get'];
 
-export const services = curry((method: method, opt: CustomRequestConfig, env: string) =>
-  RESTful.post(`fxx/game/${env}/${method}`, opt),
+export const services = methods.reduce(
+  (acc, method) => ({
+    ...acc,
+    [method]: (opt: CustomRequestConfig, env: string) =>
+      RESTful.post(`fxx/game/${env}/${method}`, opt),
+  }),
+  {} as Record<
+    typeof methods[number],
+    <T = any>(opt: CustomRequestConfig, env: string) => Promise<T>
+  >,
 );

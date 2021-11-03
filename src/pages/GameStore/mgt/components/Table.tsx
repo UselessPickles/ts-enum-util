@@ -79,7 +79,7 @@ export default function () {
   }
 
   function sync2line(gameNum: string) {
-    return syncServices('save', { data: { gameNum }, throwErr: true, notify: true });
+    return syncServices.save({ data: { gameNum }, throwErr: true, notify: true });
   }
 
   function syncConfirm(gameNum: string, first = true) {
@@ -97,9 +97,19 @@ export default function () {
   function syncHandler(offline: Row) {
     return async () => {
       const gameNum = offline?.gameNum;
-      const online = await syncServices('get', { data: { gameNum } }).then((res: any) => res?.data);
-      if (online) {
-        const dataSource = [online, offline];
+      const { prod, test } =
+        (await syncServices.get({ data: { gameNum } }).then((res: any) => res?.data)) ?? {};
+      if (prod) {
+        const diffProd: Record<string, any> = { _status: 'prod' },
+          diffTest: Record<string, any> = { _status: 'test' };
+
+        Object.keys({ ...prod, ...test }).forEach((key) => {
+          if (`${prod?.[key]}` !== `${test?.[key]}`) {
+            diffProd[key] = prod?.[key];
+            diffTest[key] = test?.[key];
+          }
+        });
+        const dataSource = [diffProd, diffTest];
 
         synchronizer.setData({ dataSource });
 
@@ -186,7 +196,7 @@ export default function () {
     },
     {
       title: '更新时间',
-      dataIndex: 'utime',
+      dataIndex: 'ctime',
       width: 100,
       hideInSearch: true,
     },
@@ -198,7 +208,7 @@ export default function () {
     },
     {
       title: '操作时间',
-      dataIndex: 'ctime',
+      dataIndex: 'utime',
       width: 100,
       hideInSearch: true,
     },
@@ -254,7 +264,7 @@ export default function () {
                 pageSize: params?.pageSize,
               },
             };
-            const res = await services('page', { data }, env);
+            const res = await services.page({ data }, env);
 
             return {
               data: res?.data?.total_datas || [],
