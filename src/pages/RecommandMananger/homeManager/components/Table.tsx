@@ -122,8 +122,9 @@ export default () => {
               placement="top"
               onConfirm={async () => {
                 try {
-                  await deleteGame({ data: { id } });
-                  actionRef?.current?.reload();
+                  await deleteGame({ data: { id } }).then((res) => {
+                    res?.result?.status == 1 && actionRef?.current?.reload();
+                  });
                 } catch (e) {
                   console.log(e);
                 }

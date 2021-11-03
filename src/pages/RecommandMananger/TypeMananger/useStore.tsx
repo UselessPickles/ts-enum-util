@@ -69,8 +69,6 @@ export function useModalFromSubmit() {
     setCheckedGames,
     checkedGames,
   } = useContainer();
-  const updater = useMutation((data) => updateAPI({ data }));
-  const creater = useMutation((data) => addAPI({ data }));
 
   const { confirm } = Modal;
 
@@ -91,25 +89,29 @@ export function useModalFromSubmit() {
         confirm({
           title: '确定保存吗？',
           icon: <ExclamationCircleOutlined />,
-          onOk() {
+          async onOk() {
             const { id } = editRecord;
             value.details = checkedGames?.map((item: { gameNum: any; sort: any; id: any }) => ({
               gameNum: item.gameNum,
               sort: item.sort,
               id: item.id,
             }));
-
-            let data;
+            let status;
             if (id) {
-              data = updater.mutateAsync({ ...value, id });
+              await updateAPI({ data: { ...value, id } }).then((res) => {
+                status = res?.result.status;
+              });
             } else {
-              data = creater.mutateAsync(value);
+              await addAPI({ data: { ...value } }).then((res) => {
+                status = res?.result?.status;
+              });
             }
-            if (!data) {
-              throw new Error('no body');
+            if (status == 1) {
+              onCancel();
+              actionRef.current?.reload();
+            } else {
+              throw new Error('请求失败');
             }
-            onCancel();
-            actionRef.current?.reload();
           },
           onCancel,
         });
