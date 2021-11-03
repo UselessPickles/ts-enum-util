@@ -123,7 +123,7 @@ RESTful.interceptors.request.use(
         data: {
           shandle: 0,
           handle: 0,
-          data: options.data,
+          data: options.data ?? {},
         },
       },
     };
@@ -158,9 +158,7 @@ const notifyHandler: ResponseHandler = (response, options) => {
   switch (response?.result?.status) {
     case -401:
     case 0: {
-      if (([true, 'FAIL'] as NOTIFY_TYPE[]).includes(options?.notify ?? 'FAIL')) {
-        throw new Error(response?.result?.msg ?? '网络异常');
-      }
+      throw new Error(response?.result?.msg ?? '网络异常');
       break;
     }
     default: {

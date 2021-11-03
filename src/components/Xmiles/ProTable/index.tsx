@@ -44,7 +44,7 @@ export default <T, U extends Record<string, any>>({
   }
 
   if (actionRef) {
-    ((actionRef as React.MutableRefObject<ProCoreActionType>) as any).current =
+    (actionRef as React.MutableRefObject<ProCoreActionType> as any).current =
       forwardActionRef?.current;
   }
 
@@ -124,6 +124,7 @@ export default <T, U extends Record<string, any>>({
           columns={enhanceCol(col)}
           // 分页注入， 是否应该允许重载？p
           pagination={{
+            ...props?.pagination,
             showQuickJumper: true,
             showTotal: (total, range) => `共 ${total} 条记录 第 ${range?.[0]}/${range?.[1]} 条`,
             size: 'default',
