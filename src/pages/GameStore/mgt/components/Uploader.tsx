@@ -47,8 +47,7 @@ export default ({
       onOk: async () => {
         try {
           setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-          await services(
-            'save',
+          await services.save(
             {
               data: value,
               throwErr: true,
