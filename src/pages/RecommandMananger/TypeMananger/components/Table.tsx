@@ -106,7 +106,11 @@ export default (props: any) => {
               cancelText="取消"
               placement="top"
               onConfirm={async () => {
-                await gameDelete({ data: { id } });
+                await gameDelete({ data: { id } }).then((res) => {
+                  if (res?.result?.status == 1) {
+                    actionRef.current?.reload();
+                  }
+                });
               }}
             >
               <Button type="link">删除</Button>
