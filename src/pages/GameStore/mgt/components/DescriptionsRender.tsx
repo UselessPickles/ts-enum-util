@@ -39,8 +39,6 @@ export function DescriptionsRender<T extends Record<string, any>>({
     return acc;
   }, new Map());
 
-  console.log(preprocess, 'preprocess');
-
   function renderChildren() {
     let children: ReactNode[] = [];
     for (const [k, v] of preprocess?.entries()) {

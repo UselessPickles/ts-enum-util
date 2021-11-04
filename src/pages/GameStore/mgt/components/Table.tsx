@@ -17,10 +17,11 @@ import Uploader from './Uploader';
 import Synchronizer from './Synchronizer';
 import { useParams, useHistory } from 'react-router';
 import { compose } from '@/decorators/utils';
-import disabled from '@/decorators/ATag/disabled';
-import { STATUS, TEST_STATUS } from '../models';
+import disabled from '@/decorators/ATag/Disabled';
+import { INSTALL_TYPE_ENUM, STATUS, TEST_STATUS, TEST_STATUS_ENUM } from '../models';
 import { useQueryClient } from 'react-query';
 import styled from 'styled-components';
+import tooltip from '@/decorators/Tooltip';
 // unsaved test
 const { TabPane } = Tabs;
 
@@ -110,7 +111,6 @@ export default function () {
           }
         });
         const dataSource = [diffProd, diffTest];
-
         synchronizer.setData({ dataSource });
 
         synchronizer.setFormProps((pre) => ({
@@ -218,12 +218,25 @@ export default function () {
       width: 150,
       hideInSearch: true,
       fixed: 'right',
-      renderText: (id, record) => {
+      renderText: (id, record, idx) => {
+        const canSync =
+          record.testStatus === TEST_STATUS_ENUM.测试成功 ||
+          (record.gameSource === 'artificial' && record.installType === INSTALL_TYPE_ENUM.内部安装);
+
         return (
           <Space>
             {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
-            {env === 'test' &&
-              compose(disabled(false))(<a onClick={syncHandler(record)}>同步到线上</a>)}
+            {env === 'test' && (
+              <>
+                {compose(
+                  tooltip({
+                    visible: !canSync,
+                    title: '此游戏未通过自动化测试，请修改安装方式为“应用外安装”后可上线',
+                  }),
+                  disabled(!canSync),
+                )(<a onClick={syncHandler(record)}>同步到线上</a>)}
+              </>
+            )}
           </Space>
         );
       },
