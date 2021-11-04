@@ -566,7 +566,7 @@ function SourceInfo({ env }: { env: ENV }) {
         <Input />
       </Item>
       <Item name={['insideVersion']} label="内部版本号" rules={[{ required: true }]}>
-        <Input />
+        <InputNumber min={0} precision={0} />
       </Item>
 
       <Item dependencies={[['apk']]} noStyle>
