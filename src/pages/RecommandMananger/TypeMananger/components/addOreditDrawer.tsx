@@ -119,6 +119,7 @@ export default () => {
           </>,
         ]}
         name="sort"
+        dependencies={['name', 'showSatus']}
         rules={[
           { required: true },
           ({ getFieldValue }) => {
@@ -133,6 +134,11 @@ export default () => {
                       sort,
                     },
                     throwErr: true,
+                    notify: false,
+                  }).then((res) => {
+                    if (res?.result?.status == 0 && sort !== null) {
+                      return Promise.reject(res?.result?.msg);
+                    }
                   });
                   return Promise.resolve();
                 } catch (e) {
