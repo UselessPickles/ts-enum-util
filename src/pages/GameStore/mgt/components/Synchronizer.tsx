@@ -110,7 +110,6 @@ export default ({
       modalProps={{
         title: '同步到线上',
         okText: '确定同步',
-
         ...modalProps,
         width: 960,
       }}

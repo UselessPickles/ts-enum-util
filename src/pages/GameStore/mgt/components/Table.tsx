@@ -88,7 +88,7 @@ export default function () {
       content: `${first ? '该游戏为新游戏，线上无旧版本' : '请核实无误'}，确定同步后将上线`,
       onOk: () =>
         sync2line(gameNum).then(() => {
-          synchronizer.setModalProps({ visible: false });
+          synchronizer.setModalProps((pre) => ({ ...pre, visible: false }));
           actionRef.current?.reload();
         }),
     });
