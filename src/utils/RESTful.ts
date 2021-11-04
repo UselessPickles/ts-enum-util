@@ -159,7 +159,6 @@ const notifyHandler: ResponseHandler = (response, options) => {
     case -401:
     case 0: {
       throw new Error(response?.result?.msg ?? '网络异常');
-      break;
     }
     default: {
       if (([true, 'SUCCESS'] as NOTIFY_TYPE[]).includes(options?.notify)) {
