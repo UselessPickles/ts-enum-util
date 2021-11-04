@@ -12,7 +12,7 @@ import useModalForm from '@/hooks/useModalForm';
 import Editor from './Editor';
 
 import { compose } from '@/decorators/utils';
-import disabled from '@/decorators/ATag/disabled';
+import disabled from '@/decorators/ATag/Disabled';
 import { useQueryClient } from 'react-query';
 import { STATUS } from '../models';
 

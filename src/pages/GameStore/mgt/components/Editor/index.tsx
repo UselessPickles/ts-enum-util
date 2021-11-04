@@ -793,7 +793,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
       label: 'APP中游戏分类',
       format: (strs) =>
         str2arr(strs)
-          ?.map((str: string) => classifyMap?.get(str) ?? '未知')
+          ?.map((str: string) => classifyMap?.get(str))
           ?.join(','),
     },
     { name: 'apk', label: '游戏apk', format: getFileNameInPath },
@@ -804,7 +804,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     {
       name: 'installType',
       label: '安装方式',
-      format: (v: number) => INSTALL_TYPE.get(v) ?? '未知',
+      format: (v: number) => INSTALL_TYPE.get(v),
     },
   ];
 

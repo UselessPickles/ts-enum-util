@@ -1,4 +1,6 @@
 export default interface Row {
+  gameSource: string;
+  testStatus: TEST_STATUS_ENUM;
   id: string;
   gameNum: string;
   operator?: string;
@@ -20,7 +22,7 @@ export default interface Row {
   externalVersion: string;
   md5: string;
   gameBit: string;
-  installType: string;
+  installType: INSTALL_TYPE_ENUM;
 }
 
 export const TYPE = new Map([
@@ -45,7 +47,20 @@ export const STATUS = new Map([
   [1, '上线'],
   [2, '下线'],
 ]);
-export const TEST_STATUS = new Map([
+
+export enum INSTALL_TYPE_ENUM {
+  '内部安装' = 1,
+  '应用外安装',
+}
+
+export enum TEST_STATUS_ENUM {
+  '未开始',
+  '测试中',
+  '测试成功',
+  '测试失败',
+}
+
+export const TEST_STATUS = new Map<TEST_STATUS_ENUM, string>([
   [1, '未开始'],
   [2, '测试中'],
   [3, '测试成功'],
