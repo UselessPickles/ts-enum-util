@@ -13,6 +13,7 @@ import type { ReactElement } from 'react';
 
 import Options from '@/utils/Options';
 import { STATUS } from '../models';
+import RESTful from '@/utils/RESTful';
 const { Item } = Form;
 
 export default ({
@@ -80,8 +81,16 @@ export default ({
         rules={[
           { required: true },
           { pattern: /^([1-9]|10)$/, message: '请输入1-10区间的数字（包含1和10）' },
-          ({ getFieldsValue }) => ({
-            validator: () => services.check({ data: getFieldsValue() }),
+          ({ getFieldValue }) => ({
+            async validator(_, value) {
+              const res = await RESTful.get(
+                `fxx/game/hot/word/numOption/${getFieldValue(['id']) ?? ''}`,
+              );
+              if (!res?.data?.data?.includes(value)) {
+                return Promise.reject(new Error('该数字已经使用'));
+              }
+              return Promise.resolve();
+            },
           }),
         ]}
       >
@@ -95,7 +104,7 @@ export default ({
           { required: true },
           ({ getFieldsValue }) => ({
             validator: () =>
-              services.check({ data: getFieldsValue(), throwErr: true, notify: false }),
+              services.switchStatus({ data: getFieldsValue(), throwErr: true, notify: false }),
           }),
         ]}
       >

@@ -647,7 +647,7 @@ function BizInfo() {
       </Item>
 
       <Item name={['profitMode']} label="盈利方式">
-        {compose<ReturnType<typeof SearchSelect>>(
+        {compose<ReturnType<typeof Checkbox.Group>>(
           IOC([
             Format({
               f: arr2str,
