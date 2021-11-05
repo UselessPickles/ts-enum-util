@@ -1,7 +1,7 @@
 import type { CustomRequestConfig } from '@/utils/RESTful';
 import RESTful from '@/utils/RESTful';
 
-const methods = ['page', 'save', 'update', 'get'];
+const methods = ['page', 'save', 'update', 'get', 'rollback'] as const;
 
 export const services = methods.reduce(
   (acc, method) => ({
