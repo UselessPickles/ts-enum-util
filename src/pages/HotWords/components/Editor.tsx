@@ -12,7 +12,7 @@ import showCount from '@/decorators/Input/ShowCount';
 import type { ReactElement } from 'react';
 
 import Options from '@/utils/Options';
-import { STATUS } from '../models';
+import { STATUS, STATUS_ENUM } from '../models';
 const { Item } = Form;
 
 export default ({
@@ -80,8 +80,11 @@ export default ({
         rules={[
           { required: true },
           { pattern: /^([1-9]|10)$/, message: '请输入1-10区间的数字（包含1和10）' },
-          ({ getFieldsValue }) => ({
-            validator: () => services.check({ data: getFieldsValue() }),
+          ({ getFieldsValue, getFieldValue }) => ({
+            validator: () =>
+              getFieldValue(['showStatus']) === STATUS_ENUM.展示
+                ? services.checkSort({ data: getFieldsValue(), throwErr: true, notify: false })
+                : Promise.resolve(),
           }),
         ]}
       >
@@ -94,8 +97,10 @@ export default ({
         rules={[
           { required: true },
           ({ getFieldsValue }) => ({
-            validator: () =>
-              services.check({ data: getFieldsValue(), throwErr: true, notify: false }),
+            validator: (_, value) =>
+              value === STATUS_ENUM.展示
+                ? services.check({ data: getFieldsValue(), throwErr: true, notify: false })
+                : Promise.resolve(),
           }),
         ]}
       >

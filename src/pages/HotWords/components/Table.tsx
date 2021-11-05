@@ -1,8 +1,8 @@
 import type { XmilesCol } from '@/components/Xmiles/Col';
 import type Row from '../models';
 
-import { Space, Image, Button, Popconfirm, Modal } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Space, Button, Popconfirm, Modal } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
 
@@ -13,7 +13,7 @@ import Editor from './Editor';
 
 import { compose } from '@/decorators/utils';
 import disabled from '@/decorators/ATag/Disabled';
-import { useQueryClient } from 'react-query';
+
 import { STATUS } from '../models';
 
 // unsaved test
@@ -126,7 +126,7 @@ export default function () {
         columns={columns}
         rowKey="id"
         headerTitle={
-          <Button type="primary" icon={<UploadOutlined />} onClick={addHandler}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={addHandler}>
             新增
           </Button>
         }
