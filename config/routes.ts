@@ -38,6 +38,14 @@ export default [
             component: '@/pages/HotWords',
           },
           { path: '/lab', component: '@/pages/Lab' },
+          {
+            path: '/UserFeedback',
+            routes: [{ path: '/UserFeedback', component: '@/pages/UserFeedback' }],
+          },
+          {
+            path: '/VersionManager',
+            routes: [{ path: '/VersionManager', component: '@/pages/VersionManager' }],
+          },
         ],
       },
     ],
