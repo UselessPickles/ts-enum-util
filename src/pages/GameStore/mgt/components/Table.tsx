@@ -17,10 +17,11 @@ import Uploader from './Uploader';
 import Synchronizer from './Synchronizer';
 import { useParams, useHistory } from 'react-router';
 import { compose } from '@/decorators/utils';
-import disabled from '@/decorators/ATag/disabled';
-import { STATUS, TEST_STATUS } from '../models';
+import disabled from '@/decorators/ATag/Disabled';
+import { INSTALL_TYPE_ENUM, STATUS, TEST_STATUS, TEST_STATUS_ENUM } from '../models';
 import { useQueryClient } from 'react-query';
 import styled from 'styled-components';
+import tooltip from '@/decorators/Tooltip';
 // unsaved test
 const { TabPane } = Tabs;
 
@@ -79,7 +80,7 @@ export default function () {
   }
 
   function sync2line(gameNum: string) {
-    return syncServices('save', { data: { gameNum }, throwErr: true, notify: true });
+    return syncServices.save({ data: { gameNum }, throwErr: true, notify: true });
   }
 
   function syncConfirm(gameNum: string, first = true) {
@@ -88,7 +89,7 @@ export default function () {
       content: `${first ? '该游戏为新游戏，线上无旧版本' : '请核实无误'}，确定同步后将上线`,
       onOk: () =>
         sync2line(gameNum).then(() => {
-          synchronizer.setModalProps({ visible: false });
+          synchronizer.setModalProps((pre) => ({ ...pre, visible: false }));
           actionRef.current?.reload();
         }),
     });
@@ -97,10 +98,19 @@ export default function () {
   function syncHandler(offline: Row) {
     return async () => {
       const gameNum = offline?.gameNum;
-      const online = await syncServices('get', { data: { gameNum } }).then((res: any) => res?.data);
-      if (online) {
-        const dataSource = [online, offline];
+      const { prod, test } =
+        (await syncServices.get({ data: { gameNum } }).then((res: any) => res?.data)) ?? {};
+      if (prod) {
+        const diffProd: Record<string, any> = { _status: 'prod' },
+          diffTest: Record<string, any> = { _status: 'test' };
 
+        Object.keys({ ...prod, ...test }).forEach((key) => {
+          if (`${prod?.[key]}` !== `${test?.[key]}`) {
+            diffProd[key] = prod?.[key];
+            diffTest[key] = test?.[key];
+          }
+        });
+        const dataSource = [diffProd, diffTest];
         synchronizer.setData({ dataSource });
 
         synchronizer.setFormProps((pre) => ({
@@ -186,7 +196,7 @@ export default function () {
     },
     {
       title: '更新时间',
-      dataIndex: 'utime',
+      dataIndex: 'ctime',
       width: 100,
       hideInSearch: true,
     },
@@ -198,7 +208,7 @@ export default function () {
     },
     {
       title: '操作时间',
-      dataIndex: 'ctime',
+      dataIndex: 'utime',
       width: 100,
       hideInSearch: true,
     },
@@ -208,12 +218,25 @@ export default function () {
       width: 150,
       hideInSearch: true,
       fixed: 'right',
-      renderText: (id, record) => {
+      renderText: (id, record, idx) => {
+        const canSync =
+          record.testStatus === TEST_STATUS_ENUM.测试成功 ||
+          (record.gameSource === 'artificial' && record.installType === INSTALL_TYPE_ENUM.内部安装);
+
         return (
           <Space>
             {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
-            {env === 'test' &&
-              compose(disabled(false))(<a onClick={syncHandler(record)}>同步到线上</a>)}
+            {env === 'test' && (
+              <>
+                {compose(
+                  tooltip({
+                    visible: !canSync,
+                    title: '此游戏未通过自动化测试，请修改安装方式为“应用外安装”后可上线',
+                  }),
+                  disabled(!canSync),
+                )(<a onClick={syncHandler(record)}>同步到线上</a>)}
+              </>
+            )}
           </Space>
         );
       },
@@ -254,7 +277,7 @@ export default function () {
                 pageSize: params?.pageSize,
               },
             };
-            const res = await services('page', { data }, env);
+            const res = await services.page({ data }, env);
 
             return {
               data: res?.data?.total_datas || [],

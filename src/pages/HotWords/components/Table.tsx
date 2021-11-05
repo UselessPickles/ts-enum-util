@@ -1,7 +1,7 @@
 import type { XmilesCol } from '@/components/Xmiles/Col';
 import type Row from '../models';
 
-import { Space, Image, Button } from 'antd';
+import { Space, Image, Button, Popconfirm, Modal } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
@@ -12,7 +12,7 @@ import useModalForm from '@/hooks/useModalForm';
 import Editor from './Editor';
 
 import { compose } from '@/decorators/utils';
-import disabled from '@/decorators/ATag/disabled';
+import disabled from '@/decorators/ATag/Disabled';
 import { useQueryClient } from 'react-query';
 import { STATUS } from '../models';
 
@@ -23,25 +23,43 @@ export default function () {
 
   const editor = useModalForm();
 
-  function addHandler() {
-    editor.setModalProps((pre) => ({
-      ...pre,
-      visible: true,
-    }));
+  async function addHandler() {
+    try {
+      await services.check({ notify: false, throwErr: true });
+      editor.setModalProps((pre) => ({
+        ...pre,
+        visible: true,
+        title: '新增',
+      }));
+    } catch {
+      Modal.error({
+        title: '提示',
+        content: '最多可展示10个热词，目前展示数量已达到10个； 无法新增',
+      });
+    }
   }
 
-  function editHandler(id: Row['id']) {
+  function editHandler(row: Row) {
     return () => {
       editor.setModalProps((pre) => ({
         ...pre,
         visible: true,
+        title: '编辑',
       }));
-      editor.setData({ id });
+      editor?.form?.setFieldsValue?.(row);
+    };
+  }
+
+  function removeHandler(id: Row['id']) {
+    return async () => {
+      await services.delete({ data: { id } });
+      await onSuccess();
     };
   }
 
   function onSuccess() {
     tableReload();
+    editor?.form?.resetFields?.();
   }
 
   function tableReload() {
@@ -51,15 +69,21 @@ export default function () {
   const columns: XmilesCol<Row>[] = [
     {
       title: '搜索热词',
-      dataIndex: '搜索热词',
+      dataIndex: 'word',
       width: 100,
     },
     {
       title: '展示状态',
-      dataIndex: '展示状态',
+      dataIndex: 'showStatus',
       width: 100,
       hideInSearch: true,
       valueEnum: STATUS,
+    },
+    {
+      title: '展示位置',
+      dataIndex: 'sort',
+      width: 100,
+      hideInSearch: true,
     },
     {
       title: '操作人',
@@ -69,7 +93,7 @@ export default function () {
     },
     {
       title: '操作时间',
-      dataIndex: 'ctime',
+      dataIndex: 'utime',
       width: 100,
       hideInSearch: true,
     },
@@ -79,11 +103,13 @@ export default function () {
       width: 150,
       hideInSearch: true,
       fixed: 'right',
-      renderText: (id) => {
+      renderText: (id, row) => {
         return (
           <Space>
-            {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
-            {compose(disabled(false))(<a onClick={() => {}}>删除</a>)}
+            {compose(disabled(false))(<a onClick={editHandler(row)}>编辑</a>)}
+            <Popconfirm onConfirm={removeHandler(id)} title="确定删除吗？">
+              {compose(disabled(false))(<a>删除</a>)}
+            </Popconfirm>
           </Space>
         );
       },
@@ -105,17 +131,16 @@ export default function () {
           </Button>
         }
         options={false}
+        pagination={{ pageSize: 10 }}
         request={async (params) => {
           const data = {
             ...params,
-            ustartTime: params?.utime?.[0]?.format('YYYY-MM-DD hh:mm:ss'),
-            uendTime: params?.utime?.[1]?.format('YYYY-MM-DD hh:mm:ss'),
             page: {
               pageNo: params?.current,
               pageSize: params?.pageSize,
             },
           };
-          const res = await services('page', { data });
+          const res = await services.page({ data });
 
           return {
             data: res?.data?.total_datas || [],

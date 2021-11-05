@@ -1,5 +1,5 @@
 import type { InputProps, UploadProps } from 'antd';
-import { Form, message, Button, Upload, Card, Divider, Input, Modal } from 'antd';
+import { Form, message, Button, Upload, Card, Divider, Input, Modal, InputNumber } from 'antd';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
@@ -47,8 +47,7 @@ export default ({
       onOk: async () => {
         try {
           setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-          await services(
-            'save',
+          await services.save(
             {
               data: value,
               throwErr: true,
@@ -163,7 +162,7 @@ export default ({
       </Item>
 
       <Item name={['insideVersion']} label="内部版本号" rules={[{ required: true }]}>
-        <Input />
+        <InputNumber min={0} precision={0} />
       </Item>
 
       <Item name={['packageName']} label="包名" rules={[{ required: true }]}>

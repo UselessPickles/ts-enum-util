@@ -89,29 +89,25 @@ export default ({
   onSuccess?: (...args: any) => void;
 }) => {
   const { id, env } = data;
-  const detail = useQuery(
-    ['game-mgt-editor', data.id],
-    () => services('get', { data: { id } }, env),
-    {
-      enabled: !!id,
-      refetchOnWindowFocus: false,
-      onSuccess(res) {
-        const formData = prune(res?.data, isValidValue) ?? {};
+  const detail = useQuery(['game-mgt-editor', data.id], () => services.get({ data: { id } }, env), {
+    enabled: !!id,
+    refetchOnWindowFocus: false,
+    onSuccess(res) {
+      const formData = prune(res?.data, isValidValue) ?? {};
 
-        form.setFieldsValue(formData);
-        setModalProps((pre) => ({
-          ...pre,
-          title: formData?.packageName,
-          confirmLoading: undefined,
-        }));
-      },
+      form.setFieldsValue(formData);
+      setModalProps((pre) => ({
+        ...pre,
+        title: formData?.packageName,
+        confirmLoading: undefined,
+      }));
     },
-  );
+  });
 
   async function onSubmit() {
     try {
       const value = await form?.validateFields();
-      const { versionList, ...format } = prune(value, isValidValue);
+      const format = prune(value, isValidValue);
 
       Modal.confirm({
         title: '请进行二次确认',
@@ -119,10 +115,10 @@ export default ({
         onOk: async () => {
           try {
             setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-            await services(
-              'update',
+            await services.update(
               {
-                data: format,
+                // 拼给后端
+                data: { ...detail?.data?.data, ...format, versionList: undefined },
                 throwErr: true,
               },
               env,
@@ -221,7 +217,7 @@ export default ({
 function GameInfo() {
   const classify = useQuery<{ data: { id: number; name: string }[] }>(
     ['game-mgt-classify-list'],
-    () => classifyServices('list')({ data: {} }),
+    () => classifyServices.list(),
     { refetchOnWindowFocus: false },
   );
 
@@ -448,7 +444,13 @@ function GameInfo() {
       </div>
 
       <Item name="score" label="游戏评分">
-        <InputNumber placeholder="输入内容" min={0} max={10} style={{ width: '100%' }} />
+        <InputNumber
+          placeholder="输入内容"
+          min={0}
+          max={10}
+          precision={1}
+          style={{ width: '100%' }}
+        />
       </Item>
 
       <Item>
@@ -570,7 +572,7 @@ function SourceInfo({ env }: { env: ENV }) {
         <Input />
       </Item>
       <Item name={['insideVersion']} label="内部版本号" rules={[{ required: true }]}>
-        <Input />
+        <InputNumber min={0} precision={0} />
       </Item>
 
       <Item dependencies={[['apk']]} noStyle>
@@ -732,7 +734,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
 
   const classify = useQuery<{ data: { id: number; name: string }[] }>(
     ['game-mgt-classify-list'],
-    () => classifyServices('list')({ data: {} }),
+    () => classifyServices.list(),
     { refetchOnWindowFocus: false },
   );
 
@@ -747,9 +749,9 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
         title: '请进行二次确认',
         content: `测试库的游戏将回退到此版本信息（包含apk包+游戏全部信息内容）`,
         onOk: () =>
-          services('rollback', { data: row, throwErr: true, notify: true }, env).then(() =>
-            client.invalidateQueries(['game-mgt-editor']),
-          ),
+          services
+            .rollback({ data: row, throwErr: true, notify: true }, env)
+            .then(() => client.invalidateQueries(['game-mgt-editor'])),
       });
     };
   }
@@ -797,7 +799,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
       label: 'APP中游戏分类',
       format: (strs) =>
         str2arr(strs)
-          ?.map((str: string) => classifyMap?.get(str) ?? '未知')
+          ?.map((str: string) => classifyMap?.get(str))
           ?.join(','),
     },
     { name: 'apk', label: '游戏apk', format: getFileNameInPath },
@@ -808,7 +810,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     {
       name: 'installType',
       label: '安装方式',
-      format: (v: number) => INSTALL_TYPE.get(v) ?? '未知',
+      format: (v: number) => INSTALL_TYPE.get(v),
     },
   ];
 

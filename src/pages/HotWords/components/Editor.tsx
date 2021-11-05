@@ -16,7 +16,6 @@ import { STATUS } from '../models';
 const { Item } = Form;
 
 export default ({
-  data,
   formProps,
   modalProps,
   setModalProps,
@@ -30,18 +29,21 @@ export default ({
 
     Modal.confirm({
       title: '请进行二次确认',
-      content: '上传的游戏将进入自动化测试，测试完成可同步到线上',
+      content: '确定保存热词吗？',
       onOk: async () => {
         try {
           setModalProps((pre) => ({ ...pre, confirmLoading: true }));
-          await services(
-            'save',
-            {
+          if (value.id) {
+            await services.update({
               data: value,
               throwErr: true,
-            },
-            data.env,
-          );
+            });
+          } else {
+            await services.save({
+              data: value,
+              throwErr: true,
+            });
+          }
           await onSuccess?.();
           setModalProps((pre) => ({ ...pre, visible: false }));
         } catch (e: any) {
@@ -60,15 +62,43 @@ export default ({
     <ModalForm
       formProps={{
         onFinish: onSubmit,
+        initialValues: { showStatus: 1 },
         ...formProps,
       }}
       modalProps={{ onOk: onSubmit, ...modalProps }}
     >
-      <Item name="热词名称" label="热词名称" rules={[{ required: true }]}>
+      <Item name="id" label="id" hidden>
+        <Input disabled />
+      </Item>
+      <Item name="word" label="热词名称" rules={[{ required: true }]}>
         {compose<ReactElement<InputProps>>(IOC([showCount]))(<Input maxLength={20} />)}
       </Item>
 
-      <Item name="展示状态" label="展示状态" rules={[{ required: true }]}>
+      <Item
+        name="sort"
+        label="展示位置"
+        rules={[
+          { required: true },
+          { pattern: /^([1-9]|10)$/, message: '请输入1-10区间的数字（包含1和10）' },
+          ({ getFieldsValue }) => ({
+            validator: () => services.check({ data: getFieldsValue() }),
+          }),
+        ]}
+      >
+        {compose<ReactElement<InputProps>>(IOC([showCount]))(<Input maxLength={2} />)}
+      </Item>
+
+      <Item
+        name="showStatus"
+        label="展示状态"
+        rules={[
+          { required: true },
+          ({ getFieldsValue }) => ({
+            validator: () =>
+              services.check({ data: getFieldsValue(), throwErr: true, notify: false }),
+          }),
+        ]}
+      >
         <Radio.Group optionType="button" options={Options(STATUS).toOpt} />
       </Item>
     </ModalForm>

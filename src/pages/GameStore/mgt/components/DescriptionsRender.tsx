@@ -1,12 +1,15 @@
 import type { ReactNode } from 'react';
 import type { DescriptionsProps } from 'antd';
 import { Descriptions } from 'antd';
+import type { Key } from '@/utils/setTo';
+import getIn from '@/utils/getIn';
+import isValidValue from '@/utils/isValidValue';
 const { Item: DItem } = Descriptions;
 
 export interface Row<T extends Record<string, any>> {
-  field: string;
-  title: string;
-  render?: (text: any, record: T) => ReactNode;
+  name: Key | Key[];
+  label: string;
+  format?: (text: any, record: T) => ReactNode;
 }
 export interface DescriptionsRenderProps<T> extends DescriptionsProps {
   rows: Row<T>[];
@@ -20,15 +23,19 @@ export function DescriptionsRender<T extends Record<string, any>>({
   ...descriptionsProps
 }: DescriptionsRenderProps<T>) {
   const preprocess = dataSource.reduce((acc: Map<string, ReactNode[]>, ds) => {
-    rows.forEach(({ field, title, render }) => {
-      const v = ds[field],
-        ele = render?.(v, ds) ?? v;
-      if (Array.isArray(acc.get(title))) {
-        acc.get(title)?.push(ele);
+    for (const { name, label, format } of rows) {
+      const v = getIn(ds, name),
+        ele = format?.(v, ds) ?? v;
+      if (Array.isArray(acc.get(label))) {
+        if (!isValidValue(acc.get(label)?.[0]) && !isValidValue(v)) {
+          acc.delete(label);
+        } else {
+          acc.get(label)?.push(ele);
+        }
       } else {
-        acc.set(title, [ele]);
+        acc.set(label, [ele]);
       }
-    });
+    }
     return acc;
   }, new Map());
 
