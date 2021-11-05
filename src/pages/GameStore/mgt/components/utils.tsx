@@ -16,3 +16,23 @@ export const beforeUpload: UploadProps['beforeUpload'] = () => {
     });
   });
 };
+
+export const fileUploadChecked: Exclude<FormItemProps['rules'], undefined> = [
+  {
+    validator(_, value) {
+      if (value?.some?.((v: any) => v?.status === 'error')) {
+        return Promise.reject(value?.[0]?.error);
+      }
+      return Promise.resolve();
+    },
+  },
+  {
+    validator(_, value) {
+      if (value?.some?.((v: any) => v?.status === 'uploading')) {
+        return Promise.reject(new Error('请耐心等待上传完成'));
+      }
+      return Promise.resolve();
+    },
+    validateTrigger: 'onSubmit',
+  },
+];

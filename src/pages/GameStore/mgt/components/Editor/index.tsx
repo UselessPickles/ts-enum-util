@@ -46,10 +46,11 @@ import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import SelectAll from '@/decorators/Select/SelectAll';
 
-import { beforeUpload, extra } from '../utils';
+import { beforeUpload, extra, fileUploadChecked } from '../utils';
 import getExt from '@/utils/file/getExt';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
-
+import { useEffect, useRef } from 'react';
+import Interval from '@/utils/Interval';
 import {
   getValueFromEvent,
   uploadEvent2str,
@@ -69,6 +70,8 @@ import setTo from '@/utils/setTo';
 import getFileNameInPath from '@/utils/file/getFileNameInPath';
 import Mask from '@/components/Mask';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+import OSS from 'ali-oss';
+import RESTful from '@/utils/RESTful';
 
 const { 'primary-color': primaryColor } = theme;
 
@@ -247,7 +250,7 @@ function GameInfo() {
               <Item
                 name="gameIcon"
                 label="游戏Icon"
-                rules={[{ required: true }]}
+                rules={[{ required: true }, ...fileUploadChecked]}
                 style={{ flex: 1 }}
                 valuePropName="fileList"
                 getValueFromEvent={getValueFromEvent}
@@ -284,6 +287,7 @@ function GameInfo() {
               valuePropName="fileList"
               getValueFromEvent={getValueFromEvent}
               normalize={uploadEvent2str}
+              rules={[...fileUploadChecked]}
             >
               {compose<ReturnType<typeof CustomUpload>>(
                 IOC([
@@ -312,7 +316,7 @@ function GameInfo() {
           <Item
             name="gamePictureList"
             label="游戏截图"
-            rules={[{ required: true }]}
+            rules={[{ required: true }, ...fileUploadChecked]}
             style={{ flex: 1 }}
             valuePropName="fileList"
             getValueFromEvent={getValueFromEvent}
@@ -353,6 +357,7 @@ function GameInfo() {
                 valuePropName="fileList"
                 getValueFromEvent={getValueFromEvent}
                 normalize={uploadEvent2str}
+                rules={[...fileUploadChecked]}
               >
                 {compose<ReturnType<typeof CustomUpload>>(
                   IOC([
@@ -418,6 +423,7 @@ function GameInfo() {
                 valuePropName="fileList"
                 getValueFromEvent={getValueFromEvent}
                 normalize={uploadEvent2str}
+                rules={[...fileUploadChecked]}
               >
                 {compose<ReturnType<typeof CustomUpload>>(
                   IOC([
@@ -476,103 +482,145 @@ function GameInfo() {
 
 // 资源信息
 function SourceInfo({ env }: { env: ENV }) {
+  const inv = useRef(new Interval(1000));
+
+  useEffect(() => {
+    return () => {
+      inv.current.stop();
+    };
+  }, []);
+
   return (
     <>
-      <Item
-        name={['apk']}
-        label="游戏apk"
-        valuePropName="fileList"
-        getValueFromEvent={getValueFromEvent}
-        normalize={uploadEvent2str}
-      >
-        {compose<ReturnType<typeof CustomUpload>>(
-          IOC([
-            Format({
-              valuePropName: 'fileList',
-              g: str2fileList,
-            }),
-          ]),
-        )(
-          <CustomUpload
-            disabled={env === 'prod'}
-            maxCount={1}
-            accept=".apk,.aab"
-            beforeUpload={beforeUpload}
-            // customRequest={async ({ onSuccess, onError, file }) => {
-            //   try {
-            //     // const data = await RESTful.get('', {
-            //     //   fullUrl: `/intelligent-manager/api/material/getQiniuToken?fileNameList=${tokenKey}`,
-            //     //   throwErr: true,
-            //     // }).then((res) => res?.data);
-
-            //     // if (!data) {
-            //     //   throw new Error('上传失败');
-            //     // }
-
-            //     // const fd = new FormData();
-            //     // fd.append('file', file);
-            //     // fd.append('token', data?.[tokenKey]);
-            //     // fd.append('key', tokenKey);
-
-            //     // await fetch('https://upload.qiniup.com', {
-            //     //   method: 'POST',
-            //     //   body: fd,
-            //     // });
-
-            //     const xhr = new XMLHttpRequest();
-
-            //     if ((Math.random() * 100) % 2) {
-            //       onSuccess?.(`https://image.quzhuanxiang.com/${123}.aab`, xhr);
-            //     } else {
-            //       onError?.(new Error('error'));
-            //     }
-            //   } catch (e: any) {
-            //     onError?.(e);
-            //   }
-            // }}
-            showUploadList={{
-              showDownloadIcon: false,
-              showRemoveIcon: false,
-            }}
-            itemRender={(origin, file) => {
-              return (
-                <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    {origin}
-                    <Button icon={<DownloadOutlined />} onClick={() => window.open(file?.url)}>
-                      下载{getExt(file?.name ?? '')}文件
-                    </Button>
-                  </div>
-                  <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
-
-                  <Item name={['insideVersion']} label="内部版本号：" {...extra}>
-                    <FormItemView />
-                  </Item>
-                  <Item name={['externalVersion']} label="外部版本号：" {...extra}>
-                    <FormItemView />
-                  </Item>
-                  <Item name={['md5']} label="MD5：" {...extra}>
-                    <FormItemView />
-                  </Item>
-                  <Item name={['gameBit']} label="游戏位数：" {...extra}>
-                    <FormItemView />
-                  </Item>
-                </Card>
-              );
-            }}
+      <Item noStyle dependencies={[['apk']]}>
+        {({ setFieldsValue }) => (
+          <Item
+            name={['apk']}
+            label="游戏apk"
+            valuePropName="fileList"
+            getValueFromEvent={getValueFromEvent}
+            normalize={uploadEvent2str}
+            rules={[...fileUploadChecked]}
           >
-            <Button icon={<UploadOutlined />} disabled={env === 'prod'}>
-              上传apk文件
-            </Button>
-          </CustomUpload>,
-        )}
-      </Item>
+            {compose<ReturnType<typeof CustomUpload>>(
+              IOC([
+                Format({
+                  valuePropName: 'fileList',
+                  g: str2fileList,
+                }),
+              ]),
+            )(
+              <Upload
+                disabled={env === 'prod'}
+                maxCount={1}
+                accept=".apk,.aab"
+                beforeUpload={beforeUpload}
+                customRequest={async ({
+                  onSuccess: onUploadSuccess,
+                  onError,
+                  onProgress,
+                  file,
+                }) => {
+                  const upSpd = 566;
+                  const apkSize = (file as any)?.size;
+                  const estimate = apkSize / 1024 / upSpd;
 
-      <Item name={['packageName']} label="包名" rules={[{ required: true }]}>
-        <Input />
-      </Item>
-      <Item name={['insideVersion']} label="内部版本号" rules={[{ required: true }]}>
-        <InputNumber min={0} precision={0} />
+                  let progress = 0;
+
+                  inv.current.onPoll = () => {
+                    if (progress < 60) {
+                      progress += 100 / estimate;
+                    } else {
+                      progress += (100 - progress) / (Math.random() * 10);
+                    }
+                    onProgress?.({ percent: progress } as any);
+                  };
+
+                  inv.current.run();
+
+                  try {
+                    const credentials =
+                      (await RESTful.post('fxx/game/credentials', {
+                        method: 'POST',
+                        throwErr: true,
+                        notify: false,
+                      }).then((res) => res?.data)) ?? {};
+
+                    if (!credentials) {
+                      throw new Error('授权失败');
+                    }
+
+                    const { domain } = credentials;
+
+                    const f: any = file;
+                    const client = new OSS({
+                      ...credentials,
+                      endpoint: 'oss-cn-shanghai.aliyuncs.com',
+                      stsToken: credentials?.securityToken,
+                      timeout: 0,
+                    });
+                    const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
+                    const res = await client.put(path, file);
+
+                    if (res?.res?.status !== 200) {
+                      throw new Error('上传失败');
+                    }
+
+                    const xhr = new XMLHttpRequest();
+                    const uri = `${domain}${path}`;
+
+                    const parse = await RESTful.post('fxx/game/test/apk/parser', {
+                      data: { apk: uri },
+                      throwErr: true,
+                      notify: false,
+                    });
+
+                    setFieldsValue({ apkSize, ...(parse?.data ?? {}) });
+                    onUploadSuccess!(uri, xhr);
+                  } catch (e: any) {
+                    onError!(e);
+                  } finally {
+                    inv.current.stop();
+                  }
+                }}
+                showUploadList={{
+                  showDownloadIcon: false,
+                  showRemoveIcon: false,
+                }}
+                itemRender={(origin, file) => {
+                  return (
+                    <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        {origin}
+                        <Button icon={<DownloadOutlined />} onClick={() => window.open(file?.url)}>
+                          下载{getExt(file?.name ?? '')}文件
+                        </Button>
+                      </div>
+                      <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
+
+                      <Item name={['insideVersion']} label="内部版本号：" {...extra}>
+                        <FormItemView />
+                      </Item>
+                      <Item name={['externalVersion']} label="外部版本号：" {...extra}>
+                        <FormItemView />
+                      </Item>
+                      <Item name={['md5']} label="MD5：" {...extra}>
+                        <FormItemView />
+                      </Item>
+                      <Item name={['gameBit']} label="游戏位数：" {...extra}>
+                        <FormItemView />
+                      </Item>
+                    </Card>
+                  );
+                }}
+              >
+                <Button icon={<UploadOutlined />} disabled={env === 'prod'}>
+                  上传apk文件
+                </Button>
+              </Upload>,
+            )}
+          </Item>
+        )}
       </Item>
 
       <Item dependencies={[['apk']]} noStyle>
@@ -673,6 +721,7 @@ function BizInfo() {
             valuePropName="fileList"
             getValueFromEvent={getValueFromEvent}
             normalize={uploadEvent2str}
+            rules={[...fileUploadChecked]}
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
@@ -703,6 +752,7 @@ function BizInfo() {
             valuePropName="fileList"
             getValueFromEvent={getValueFromEvent}
             normalize={uploadEvent2str}
+            rules={[...fileUploadChecked]}
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
