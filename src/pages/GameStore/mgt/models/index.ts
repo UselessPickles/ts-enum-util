@@ -33,9 +33,9 @@ export const TYPE = new Map([
 ]);
 
 export const PROFIT_MODE = new Map([
-  [1, '广告'],
-  [2, '内购'],
-  [3, '网赚'],
+  ['1', '广告'],
+  ['2', '内购'],
+  ['3', '网赚'],
 ]);
 
 export const INSTALL_TYPE = new Map([

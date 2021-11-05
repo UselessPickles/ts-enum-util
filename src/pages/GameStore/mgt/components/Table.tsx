@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 import type { TabsProps } from 'antd';
 import type { XmilesCol } from '@/components/Xmiles/Col';
 import type Row from '../models';
@@ -22,6 +23,7 @@ import { INSTALL_TYPE_ENUM, STATUS, TEST_STATUS, TEST_STATUS_ENUM } from '../mod
 import { useQueryClient } from 'react-query';
 import styled from 'styled-components';
 import tooltip from '@/decorators/Tooltip';
+
 // unsaved test
 const { TabPane } = Tabs;
 
@@ -47,6 +49,10 @@ export default function () {
   const synchronizer = useModalForm();
 
   const { env } = useParams<{ env: 'test' | 'prod' }>();
+  useEffect(() => {
+    actionRef?.current?.reload();
+  }, [env, actionRef]);
+
   const envBehaviorMap = new Map<string, ReactNode>([
     ['prod', '线上游戏列表'],
     [
@@ -218,7 +224,7 @@ export default function () {
       width: 150,
       hideInSearch: true,
       fixed: 'right',
-      renderText: (id, record, idx) => {
+      renderText: (id, record) => {
         const canSync =
           record.testStatus === TEST_STATUS_ENUM.测试成功 ||
           (record.gameSource === 'artificial' &&
@@ -246,7 +252,6 @@ export default function () {
 
   const onTabClick: TabsProps['onTabClick'] = (key) => {
     history.replace(key);
-    tableReload();
   };
 
   return (
