@@ -5,16 +5,30 @@ import { ExclamationCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { ProColumns } from '@ant-design/pro-table';
 import { useContainer } from '../useStore';
 import styles from '../index.less';
+import { list } from '../serivces';
+import RESTful from '@/utils/RESTful';
+import { useState, useEffect } from 'react';
 
 export default () => {
-  const { actionRef, setModalProps } = useContainer();
-  function offline() {
+  const { actionRef, setModalProps } = useContainer(),
+    [versionOption, setVersionOption] = useState<any>();
+  function offline(id: any) {
     Modal.confirm({
       title: '提示',
       icon: <ExclamationCircleOutlined />,
       content:
         '已发布的APP更新包下线后，未更新至此版本的用户不再受到更新提示，已更新至此版本的用户不受影响。',
-      onOk() {},
+      onOk() {
+        RESTful.post('fxx/game/version/switchStatus', {
+          data: {
+            id,
+          },
+        }).then((res) => {
+          if (res?.result?.status == 1) {
+            actionRef?.current?.reload();
+          }
+        });
+      },
       onCancel() {},
     });
   }
@@ -26,6 +40,20 @@ export default () => {
     });
   }
 
+  async function queryVerion() {
+    await RESTful.get('fxx/game/version/option').then((res) => {
+      const options = res?.data?.reduce((acc, cur) => {
+        acc[cur] = cur;
+        return acc;
+      }, {});
+      setVersionOption(options);
+    });
+  }
+
+  useEffect(() => {
+    queryVerion();
+  }, [actionRef]);
+
   const defaultTableProps: ProColumns<any> = {
     hideInSearch: true,
     align: 'left',
@@ -34,9 +62,10 @@ export default () => {
   const columns: XmilesCol[] = [
     {
       title: '版本号',
-      dataIndex: 'version',
+      dataIndex: 'appVersionCode',
       width: 100,
       align: 'center',
+      valueEnum: versionOption,
       render: (text, record, index) => {
         const isNew = record?.status == 1 && index == 0;
         return isNew ? (
@@ -51,19 +80,19 @@ export default () => {
     },
     {
       title: '更新方式',
-      dataIndex: 'updateWay',
+      dataIndex: 'updateType',
       width: 100,
       ...defaultTableProps,
-      valueEnum: { 0: '非强制更新', 1: '强制更新' },
+      valueEnum: { 2: '非强制更新', 1: '强制更新' },
       align: 'center',
     },
     {
       title: '更新内容',
-      dataIndex: 'updateContent',
+      dataIndex: 'content',
       ...defaultTableProps,
       width: 250,
       render: (text) => {
-        return <div style={{ whiteSpace: 'pre-line' }}>{text}</div>;
+        return <div style={{ whiteSpace: 'pre-line', maxWidth: 400 }}>{text}</div>;
       },
     },
     {
@@ -95,7 +124,7 @@ export default () => {
       render: (_, record) => {
         const isPublished = record?.status == 1;
         return isPublished ? (
-          <Button type="link" onClick={offline} style={{ padding: 0 }}>
+          <Button type="link" onClick={() => offline(record?.id)} style={{ padding: 0 }}>
             下线
           </Button>
         ) : (
@@ -117,28 +146,19 @@ export default () => {
         </Button>
       }
       request={async (params) => {
-        // const data = {
-        //   ...params,
-        //   page: {
-        //     pageNo: params.current,
-        //     pageSize: params.pageSize,
-        //   },
-        // };
-        // const res = await list({ data });
+        const data = {
+          ...params,
+          page: {
+            pageNo: params.current,
+            pageSize: params.pageSize,
+          },
+        };
+        const res = await list({ data });
         return {
-          data: [
-            { id: 1, version: 'v1.1', updateWay: 0, updateContent: '1.ddd', status: 1 },
-            {
-              id: 2,
-              version: 'v0.2',
-              updateWay: 1,
-              updateContent: '1.内容1\n2.内容2\n3.内容3',
-              status: 1,
-            },
-          ],
+          data: res?.data?.total_datas || [],
           page: params?.current || 1,
           success: true,
-          total: 0,
+          total: res?.data?.total_count || 0,
         };
       }}
     />

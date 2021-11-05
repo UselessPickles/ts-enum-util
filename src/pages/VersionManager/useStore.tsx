@@ -3,15 +3,15 @@ import { ModalProps } from 'antd/lib/modal';
 import { ProCoreActionType } from '@ant-design/pro-utils';
 import { FormInstance } from 'antd/lib/form';
 import { Form, Modal } from 'antd';
-import { useMutation } from 'react-query';
-import RESTful from '@/utils/RESTful';
 import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined';
+import { upload } from './serivces';
 
 export function useStore() {
-  const actionRef = useRef<ProCoreActionType | undefined>();
-  const formRef = useRef<FormInstance | undefined>();
-  const [modalFormRef] = Form.useForm();
-  const [modalProps, setModalProps] = useState<ModalProps>({});
+  const actionRef = useRef<ProCoreActionType | undefined>(),
+    formRef = useRef<FormInstance | undefined>(),
+    [modalFormRef] = Form.useForm(),
+    [modalProps, setModalProps] = useState<ModalProps>({}),
+    [warning, setWarning] = useState<string>();
 
   return {
     actionRef,
@@ -19,12 +19,13 @@ export function useStore() {
     modalProps,
     setModalProps,
     modalFormRef,
+    warning,
+    setWarning,
   };
 }
 
 export const Context = createContext<ReturnType<typeof useStore> | null>(null);
 
-// useContext语法糖, 用于绕过ts检测
 export function useContainer() {
   const value = useContext(Context);
   if (value === null) {
@@ -40,38 +41,36 @@ export default {
 };
 
 export function useModalFromSubmit() {
-  const { modalFormRef, setModalProps, actionRef } = useContainer();
+  const { modalFormRef, setModalProps, actionRef, setWarning } = useContainer();
 
   function submitor() {
     return modalFormRef.validateFields().then((value) => {
-      value.file = value?.uploadApk?.[0];
-      console.log('requestData', value);
+      value.status = 1;
+      value.appVersion = Number(value?.appVersionCode?.replace(/(^0.|\.)/g, '') ?? 0);
       const { updateWay } = value;
+      console.log('queryData', value);
       Modal.confirm({
         title: '提示',
         icon: <ExclamationCircleOutlined />,
         content: `此版本将做为最新版本，并${
           updateWay == 0 ? '提示' : '强制'
         }用户更新，是否确定发布？`,
-        onOk() {
-          useMutation(
-            (data: { [key: string]: any }) =>
-              RESTful.post('', {
-                data,
-              }),
-            {
-              onSuccess: () => {
-                actionRef.current?.reload();
-                setModalProps({
-                  visible: false,
-                });
-              },
-            },
-          );
+        async onOk() {
+          await upload({ data: { ...value } }).then((res) => {
+            if (res?.result?.status == 1) {
+              actionRef.current?.reload();
+              setModalProps({
+                visible: false,
+              });
+              modalFormRef.resetFields();
+              setWarning(undefined);
+            }
+          });
         },
+        onCancel() {},
       });
     });
   }
 
-  return { submitor }; //addOrUpdater
+  return { submitor };
 }
