@@ -189,6 +189,9 @@ export default ({
                     <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                       {origin}
                       <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
+                      <Item name={['packageName']} label="包名:" {...extra}>
+                        <FormItemView />
+                      </Item>
                       <Item name={['insideVersion']} label="内部版本号：" {...extra}>
                         <FormItemView />
                       </Item>
@@ -200,9 +203,6 @@ export default ({
                       </Item>
                       <Item name={['gameBit']} label="游戏位数：" {...extra}>
                         <FormItemView />
-                      </Item>
-                      <Item name={['packageName']} label="包名" hidden>
-                        <Input disabled />
                       </Item>
 
                       <Item name={['apkSize']} label="apkSize" hidden>
