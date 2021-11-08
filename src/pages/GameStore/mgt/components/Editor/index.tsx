@@ -610,6 +610,13 @@ function SourceInfo({ env }: { env: ENV }) {
                       <Item name={['gameBit']} label="游戏位数：" {...extra}>
                         <FormItemView />
                       </Item>
+                      <Item name={['packageName']} label="包名" hidden>
+                        <Input disabled />
+                      </Item>
+
+                      <Item name={['apkSize']} label="apkSize" hidden>
+                        <Input disabled />
+                      </Item>
                     </Card>
                   );
                 }}

@@ -201,6 +201,13 @@ export default ({
                       <Item name={['gameBit']} label="游戏位数：" {...extra}>
                         <FormItemView />
                       </Item>
+                      <Item name={['packageName']} label="包名" hidden>
+                        <Input disabled />
+                      </Item>
+
+                      <Item name={['apkSize']} label="apkSize" hidden>
+                        <Input disabled />
+                      </Item>
                     </Card>
                   );
                 }}
@@ -210,10 +217,6 @@ export default ({
             )}
           </Item>
         )}
-      </Item>
-
-      <Item name={['apkSize']} label="apkSize" hidden>
-        <Input disabled />
       </Item>
 
       <Item name="gameName" label="游戏名称" rules={[{ required: true }]}>
