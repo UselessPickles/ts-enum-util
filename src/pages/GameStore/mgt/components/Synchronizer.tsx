@@ -62,7 +62,7 @@ export default ({
       format: (src) => src && <Image width="60px" src={src} />,
     },
     {
-      name: 'gamePicture',
+      name: 'gamePictureList',
       label: '游戏截图',
       format: (srcs: string[]) =>
         srcs?.map?.((src: string) => <Image width="60px" src={src} key={src} />),
