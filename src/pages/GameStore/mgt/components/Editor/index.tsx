@@ -1,4 +1,4 @@
-import type { DatePickerProps } from 'antd';
+import type { DatePickerProps, UploadProps } from 'antd';
 import {
   Form,
   message,
@@ -72,6 +72,17 @@ import Mask from '@/components/Mask';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import OSS from 'ali-oss';
 import RESTful from '@/utils/RESTful';
+
+const beforeUploadHOF: (params: { size: number; msg?: string }) => UploadProps['beforeUpload'] =
+  ({ size, msg }) =>
+  (file) => {
+    const outOfRange = file.size / 1024 > size;
+    if (outOfRange) {
+      message.warning(msg ?? `文件必须小于${size}k`);
+      return Upload.LIST_IGNORE;
+    }
+    return !outOfRange;
+  };
 
 const { 'primary-color': primaryColor } = theme;
 
@@ -264,7 +275,12 @@ function GameInfo() {
                     }),
                   ]),
                 )(
-                  <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
+                  <CustomUpload
+                    maxCount={1}
+                    accept=".jpg,.png"
+                    listType="picture-card"
+                    beforeUpload={beforeUploadHOF({ size: 200 })}
+                  >
                     {!(getFieldValue(['gameIcon'])?.length >= 1) && (
                       <div>
                         <PlusOutlined style={{ fontSize: '18px' }} />
@@ -311,6 +327,7 @@ function GameInfo() {
           )}
         </Item>
       </div>
+      <Text type="secondary">icon和动态图建议上传尺寸492*492px，jpg、png格式</Text>
       <Item dependencies={[['gamePictureList']]} noStyle>
         {({ getFieldValue }) => (
           <Item
@@ -321,7 +338,7 @@ function GameInfo() {
             valuePropName="fileList"
             getValueFromEvent={getValueFromEvent}
             normalize={uploadEvent2strArr}
-            extra="为App更好的展示效果，请上传至少三张游戏截图"
+            extra="为App更好的展示效果，请上传至少三张游戏截图，建议上传尺寸702*396px，jpg、png格式"
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([

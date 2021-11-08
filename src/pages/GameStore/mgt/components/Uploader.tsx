@@ -42,9 +42,9 @@ export default ({
   }, []);
 
   const beforeUpload: UploadProps['beforeUpload'] = (file) => {
-    const outOfRange = file.size / 1024 > 100;
+    const outOfRange = file.size / 1024 > 200;
     if (outOfRange) {
-      message.warning('图片必须小于100k');
+      message.warning('图片必须小于200k');
       return Upload.LIST_IGNORE;
     }
     return !outOfRange;
@@ -231,7 +231,7 @@ export default ({
             valuePropName="fileList"
             getValueFromEvent={getValueFromEvent}
             normalize={uploadEvent2str}
-            extra="jpg、png格式，建议尺寸xx*xx px，不超过100k"
+            extra="jpg、png格式，建议尺寸492*492 px，不超过200k"
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
