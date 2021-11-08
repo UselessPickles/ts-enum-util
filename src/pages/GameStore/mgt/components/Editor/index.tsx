@@ -314,7 +314,12 @@ function GameInfo() {
                   }),
                 ]),
               )(
-                <CustomUpload maxCount={1} accept=".gif" listType="picture-card">
+                <CustomUpload
+                  maxCount={1}
+                  accept=".gif"
+                  listType="picture-card"
+                  beforeUpload={beforeUploadHOF({ size: 2 * 1024 })}
+                >
                   {!(getFieldValue(['dynamicPicture'])?.length >= 1) && (
                     <div>
                       <PlusOutlined style={{ fontSize: '18px' }} />
@@ -327,7 +332,9 @@ function GameInfo() {
           )}
         </Item>
       </div>
-      <Text type="secondary">icon和动态图建议上传尺寸492*492px，jpg、png格式</Text>
+      <Text type="secondary">
+        icon和动态图建议上传尺寸492*492px，icon支持200K以内jpg、png格式；动态图支持支持2M以内的gif格式
+      </Text>
       <Item dependencies={[['gamePictureList']]} noStyle>
         {({ getFieldValue }) => (
           <Item
@@ -338,7 +345,7 @@ function GameInfo() {
             valuePropName="fileList"
             getValueFromEvent={getValueFromEvent}
             normalize={uploadEvent2strArr}
-            extra="为App更好的展示效果，请上传至少三张游戏截图，建议上传尺寸702*396px，jpg、png格式"
+            extra="为App更好的展示效果，请上传至少三张游戏截图，建议上传尺寸702*396px，支持500K以内jpg、png格式"
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
@@ -349,7 +356,13 @@ function GameInfo() {
                 }),
               ]),
             )(
-              <CustomUpload maxCount={5} accept=".jpg,.png" listType="picture-card" multiple>
+              <CustomUpload
+                maxCount={5}
+                accept=".jpg,.png"
+                listType="picture-card"
+                multiple
+                beforeUpload={beforeUploadHOF({ size: 500 })}
+              >
                 {!(getFieldValue(['gamePictureList'])?.length >= 5) && (
                   <div>
                     <PlusOutlined style={{ fontSize: '18px' }} />
@@ -375,6 +388,7 @@ function GameInfo() {
                 getValueFromEvent={getValueFromEvent}
                 normalize={uploadEvent2str}
                 rules={[...fileUploadChecked]}
+                extra="支持全视频格式，500M以内"
               >
                 {compose<ReturnType<typeof CustomUpload>>(
                   IOC([
@@ -388,6 +402,7 @@ function GameInfo() {
                     maxCount={1}
                     accept="video/*"
                     listType="picture-card"
+                    beforeUpload={beforeUploadHOF({ size: 500 * 1024 })}
                     itemRender={(origin, file, ___, actions) => {
                       return file?.status === 'uploading' ? (
                         origin
@@ -441,6 +456,7 @@ function GameInfo() {
                 getValueFromEvent={getValueFromEvent}
                 normalize={uploadEvent2str}
                 rules={[...fileUploadChecked]}
+                extra="建议尺寸1080*606px，jpg、png格式，500k以内"
               >
                 {compose<ReturnType<typeof CustomUpload>>(
                   IOC([
@@ -451,7 +467,12 @@ function GameInfo() {
                     }),
                   ]),
                 )(
-                  <CustomUpload maxCount={1} accept=".jpg,.png" listType="picture-card">
+                  <CustomUpload
+                    maxCount={1}
+                    accept=".jpg,.png"
+                    listType="picture-card"
+                    beforeUpload={beforeUploadHOF({ size: 500 })}
+                  >
                     {!(getFieldValue(['gameVideoList', 0, 'img'])?.length >= 1) && (
                       <div>
                         <PlusOutlined style={{ fontSize: '18px' }} />
