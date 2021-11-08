@@ -4,7 +4,7 @@ import { useContainer, useModalFromSubmit } from '../useStore';
 import { UploadOutlined } from '@ant-design/icons';
 import { check } from '../serivces';
 import CustomUpload from '@/components/CustomUpload';
-import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Upload/Format';
+import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/Format/converter';
 import { compose } from '@/decorators/utils';
 import { IOC } from '@/decorators/hoc';
 import Format from '@/decorators/Format';
