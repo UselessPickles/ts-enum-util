@@ -109,7 +109,7 @@ export default ({
     onSuccess(res) {
       const formData = prune(res?.data, isValidValue) ?? {};
 
-      form.setFieldsValue(formData);
+      form.setFieldsValue({ ...formData, gameNameView: formData?.gameName });
       setModalProps((pre) => ({
         ...pre,
         title: formData?.packageName,
@@ -614,17 +614,20 @@ function SourceInfo({ env }: { env: ENV }) {
                     });
 
                     const apkRes = parse?.data ?? {};
-                    const { packageName, insideVersion } = apkRes;
+                    const { gameName, ...restApkRes } = apkRes;
+                    const prePackageName = getFieldValue(['packageName']);
+                    const preInsideVersion = getFieldValue(['insideVersion']);
+                    setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
 
-                    if (packageName && packageName !== getFieldValue(['packageName'])) {
+                    const { packageName, insideVersion } = apkRes;
+                    if (packageName && packageName !== prePackageName) {
                       throw new Error('包名不一致');
                     }
 
-                    if (insideVersion && +insideVersion <= getFieldValue(['insideVersion'])) {
+                    if (insideVersion && +insideVersion <= preInsideVersion) {
                       throw new Error('此游戏已存在且非新版本，无法上传');
                     }
 
-                    setFieldsValue({ apkSize, ...apkRes });
                     onUploadSuccess!(uri, xhr);
                   } catch (e: any) {
                     onError!(e);
@@ -646,6 +649,10 @@ function SourceInfo({ env }: { env: ENV }) {
                         </Button>
                       </div>
                       <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
+                      <Item name={['gameNameView']} label="游戏名称:" {...extra}>
+                        <FormItemView />
+                      </Item>
+
                       <Item name={['packageName']} label="包名:" {...extra}>
                         <FormItemView />
                       </Item>
