@@ -171,7 +171,20 @@ export default ({
                       notify: false,
                     });
 
-                    setFieldsValue({ apkSize, ...(parse?.data ?? {}) });
+                    const apkRes = parse?.data ?? {};
+                    const { gameName, ...restApkRes } = apkRes;
+
+                    setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
+
+                    // const { packageName, insideVersion, } = apkRes;
+                    // if (packageName && packageName !== getFieldValue(['packageName'])) {
+                    //   throw new Error('包名不一致');
+                    // }
+
+                    // if (insideVersion && +insideVersion <= getFieldValue(['insideVersion'])) {
+                    //   throw new Error('此游戏已存在且非新版本，无法上传');
+                    // }
+
                     onUploadSuccess!(uri, xhr);
                   } catch (e: any) {
                     onError!(e);
@@ -189,6 +202,9 @@ export default ({
                     <Card style={{ marginTop: '4px', backgroundColor: '#fafafa' }} size="small">
                       {origin}
                       <Divider style={{ margin: '12px 0', backgroundColor: '#fafafa' }} />
+                      <Item name={['gameNameView']} label="游戏名称:" {...extra}>
+                        <FormItemView />
+                      </Item>
                       <Item name={['packageName']} label="包名:" {...extra}>
                         <FormItemView />
                       </Item>
