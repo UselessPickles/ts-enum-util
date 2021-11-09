@@ -531,7 +531,7 @@ function SourceInfo({ env }: { env: ENV }) {
   return (
     <>
       <Item noStyle dependencies={[['apk']]}>
-        {({ setFieldsValue }) => (
+        {({ setFieldsValue, getFieldValue }) => (
           <Item
             name={['apk']}
             label="游戏apk"
@@ -613,7 +613,18 @@ function SourceInfo({ env }: { env: ENV }) {
                       notify: false,
                     });
 
-                    setFieldsValue({ apkSize, ...(parse?.data ?? {}) });
+                    const apkRes = parse?.data ?? {};
+                    const { packageName, insideVersion } = apkRes;
+
+                    if (packageName && packageName !== getFieldValue(['packageName'])) {
+                      throw new Error('包名不一致');
+                    }
+
+                    if (insideVersion && +insideVersion <= getFieldValue(['insideVersion'])) {
+                      throw new Error('此游戏已存在且非新版本，无法上传');
+                    }
+
+                    setFieldsValue({ apkSize, ...apkRes });
                     onUploadSuccess!(uri, xhr);
                   } catch (e: any) {
                     onError!(e);
