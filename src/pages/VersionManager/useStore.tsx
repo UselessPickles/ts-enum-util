@@ -47,13 +47,13 @@ export function useModalFromSubmit() {
     return modalFormRef.validateFields().then((value) => {
       value.status = 1;
       value.appVersion = Number(value?.appVersionCode?.replace(/(^0.|\.)/g, '') ?? 0);
-      const { updateWay } = value;
+      const { updateType } = value;
       console.log('queryData', value);
       Modal.confirm({
         title: '提示',
         icon: <ExclamationCircleOutlined />,
         content: `此版本将做为最新版本，并${
-          updateWay == 0 ? '提示' : '强制'
+          updateType == 2 ? '提示' : '强制'
         }用户更新，是否确定发布？`,
         async onOk() {
           await upload({ data: { ...value } }).then((res) => {

@@ -17,18 +17,16 @@ export default () => {
     hideInSearch: true,
     align: 'left',
   };
-  const [categoryList, setCategoryList] = useState<any>();
+  const [feedbackTypeList, setFeedbackTypeList] = useState<any>();
 
   async function queryCategory() {
     try {
-      const data =
-        (await RESTful.post('fxx/game/classify/list', { data: {} }).then((res) => res?.data)) ?? {};
-      const category = data?.reduce((acc, cur) => {
-        acc[cur.id] = cur.name;
+      const data = (await RESTful.get('fxx/game/feedback/option').then((res) => res?.data)) ?? {};
+      const list = data?.reduce((acc, cur) => {
+        acc[cur] = cur;
         return acc;
       }, {});
-      console.log('category', category);
-      setCategoryList(category);
+      setFeedbackTypeList(list);
     } catch (e) {
       console.log(e);
     }
@@ -39,16 +37,21 @@ export default () => {
   }, []);
 
   async function handleDownload() {
+    const { feedbackType, content, utime } = formRef.current?.getFieldsValue();
     moment.locale('zh-cn');
     const downTime = moment().format('YYYY年MM月DD日 HH时MM分ss秒');
-    console.log('time', downTime);
-    const res = await request('', {
+    const res = await request('fxx/game/feedback/exportExcel', {
       method: 'POST',
       responseType: 'arrayBuffer',
       headers: {
         Accept: 'application/vnd.ms-excel,*/*',
       },
-      data: {},
+      data: {
+        startDate: utime?.[0]?.format('YYYY/MM/DD hh:mm:ss'),
+        endDate: utime?.[1]?.format('YYYY/MM/DD hh:mm:ss'),
+        feedbackType,
+        content,
+      },
     });
     download(res, '用户反馈' + downTime + '.xlsx', 'application/vnd.ms-excel');
   }
@@ -56,35 +59,39 @@ export default () => {
   const columns: XmilesCol[] = [
     {
       title: '问题分类',
-      dataIndex: 'PCategory',
+      dataIndex: 'feedbackType',
+      valueEnum: feedbackTypeList,
       ...defaultTableProps,
+      hideInSearch: false,
+      width: 180,
     },
     {
       title: '反馈内容',
-      dataIndex: 'feedbackContent',
+      dataIndex: 'content',
       ...defaultTableProps,
       hideInSearch: false,
-    },
-    {
-      title: '游戏分类',
-      dataIndex: 'gameCategory',
-      hideInTable: true,
-      valueEnum: categoryList,
+      width: 300,
+      renderText: (text) => {
+        return <div style={{ maxWidth: '500px' }}>{text}</div>;
+      },
     },
     {
       title: '用户ID',
       dataIndex: 'userId',
       ...defaultTableProps,
+      width: 120,
     },
     {
       title: '用户名',
       dataIndex: 'userName',
       ...defaultTableProps,
+      width: 120,
     },
     {
       title: '所属游戏',
       dataIndex: 'packageOrGameName',
       ...defaultTableProps,
+      width: 120,
       render: (_, record) => {
         const gameORapp = record?.packageName ? true : false;
         return gameORapp ? record.gameName + ' ' + record.packageName : 'APP';
@@ -92,12 +99,13 @@ export default () => {
     },
     {
       title: '反馈时间',
-      dataIndex: 'time',
+      dataIndex: 'utime',
       ...defaultTableProps,
+      width: 200,
     },
     {
       title: '反馈时间',
-      dataIndex: 'times',
+      dataIndex: 'utime',
       hideInTable: true,
       valueType: 'dateRange',
       formItemProps: {
@@ -124,19 +132,23 @@ export default () => {
         </Button>
       }
       request={async (params) => {
-        // const data = {
-        //   ...params,
-        //   page: {
-        //     pageNo: params.current,
-        //     pageSize: params.pageSize,
-        //   },
-        // };
-        // const res = await list({ data });
+        const utime = formRef.current?.getFieldValue('utime');
+        const data = {
+          ...params,
+          page: {
+            pageNo: params.current,
+            pageSize: params.pageSize,
+          },
+          startDate: utime?.[0]?.format('YYYY/MM/DD hh:mm:ss'),
+          endDate: utime?.[1]?.format('YYYY/MM/DD hh:mm:ss'),
+          utime: undefined,
+        };
+        const res = await RESTful.post('fxx/game/feedback/page', { data });
         return {
-          data: [{ id: 1, PCategory: '问题1', feedbackContent: '123456' }],
+          data: res?.data?.total_datas || [],
           page: params?.current || 1,
           success: true,
-          total: 0,
+          total: res?.data?.total_count || 0,
         };
       }}
     />

@@ -8,6 +8,7 @@ import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/F
 import { compose } from '@/decorators/utils';
 import { IOC } from '@/decorators/hoc';
 import Format from '@/decorators/Format';
+import isValidValue from '@/utils/isValidValue';
 
 const { Item } = Form,
   { TextArea } = Input;
@@ -72,20 +73,26 @@ export default () => {
               ({}) => {
                 return {
                   warningOnly: true,
-                  async validator(_, appVersionCode) {
+                  async validator(_: any, appVersionCode: string) {
                     const reg = /[^\d^\.]+/g;
                     if (reg.test(appVersionCode)) {
                       return Promise.reject('输入格式错误,只能输入数字和小数点');
                     }
-                    const result = await check({
-                      data: {
-                        appVersion: appVersionCode.replace(/(^0.|\.)/g, ''),
-                      },
-                      throwErr: true,
-                      notify: false,
-                    }).then((res) => res?.result);
-                    console.log('result', result);
-                    setWarning(result?.status === 0 ? result?.msg : undefined);
+                    try {
+                      const result = await check({
+                        data: {
+                          appVersion: appVersionCode?.replace(/(^0.|\.)/g, ''),
+                        },
+                        throwErr: true,
+                        notify: false,
+                      }).then((res) => res?.result);
+                      setWarning(result?.status == 1 ? undefined : result?.msg);
+                    } catch (e) {
+                      setWarning(
+                        isValidValue(appVersionCode) ? e?.message ?? undefined : undefined,
+                      );
+                      console.log(e);
+                    }
                   },
                 };
               },
