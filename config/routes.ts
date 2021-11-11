@@ -33,6 +33,7 @@ export default [
               { path: '/gameStore/mgt/:env', component: '@/pages/GameStore/mgt' },
             ],
           },
+          { path: '/lab', component: '@/pages/Lab' },
           {
             path: '/hot-words',
             component: '@/pages/HotWords',
