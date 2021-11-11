@@ -139,8 +139,8 @@ export default () => {
             pageNo: params.current,
             pageSize: params.pageSize,
           },
-          startDate: utime?.[0]?.format('YYYY/MM/DD hh:mm:ss'),
-          endDate: utime?.[1]?.format('YYYY/MM/DD hh:mm:ss'),
+          startDate: utime?.[0]?.format('YYYY-MM-DD 00:00:00'),
+          endDate: utime?.[1]?.format('YYYY-MM-DD 23:59:59'),
           utime: undefined,
         };
         const res = await RESTful.post('fxx/game/feedback/page', { data });
