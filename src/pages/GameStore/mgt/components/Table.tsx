@@ -235,13 +235,14 @@ export default function () {
             {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
             {env === 'test' && (
               <>
-                {compose(
+                <a onClick={syncHandler(record)}>同步到线上</a>
+                {/* {compose(
                   tooltip({
                     visible: !canSync,
                     title: '此游戏未通过自动化测试，请修改安装方式为“应用外安装”后可上线',
                   }),
                   disabled(!canSync),
-                )(<a onClick={syncHandler(record)}>同步到线上</a>)}
+                )(<a onClick={syncHandler(record)}>同步到线上</a>)} */}
               </>
             )}
           </Space>
