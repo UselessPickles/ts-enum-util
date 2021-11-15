@@ -1,7 +1,7 @@
 import type { XmilesCol } from '@/components/Xmiles/Col';
 import type Row from '../models';
 
-import { Space, Popconfirm, Switch } from 'antd';
+import { Button, Space, Popconfirm, Switch } from 'antd';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
 
@@ -9,6 +9,7 @@ import { services } from '../services';
 import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import useModalForm from '@/hooks/useModalForm';
 import Editor from './Editor';
+import Ball from './Ball';
 import { compose } from '@/decorators/utils';
 import disabled from '@/decorators/ATag/Disabled';
 import { STATUS, STATUS_ENUM } from '../models';
@@ -38,14 +39,15 @@ export default function () {
     },
   });
 
-  function editHandler(id: Row['id']) {
-    return () => {
-      editor.setModalProps((pre) => ({
-        ...pre,
-        visible: true,
-      }));
-      editor.setData({ id });
-    };
+  const ball = useModalForm({
+    modalProps: { title: '小圆球任务', width: 900 },
+  });
+
+  function editHandler() {
+    editor.setModalProps((pre) => ({
+      ...pre,
+      visible: true,
+    }));
   }
 
   function onSuccess() {
@@ -93,7 +95,7 @@ export default function () {
       width: 150,
       fixed: 'right',
       renderText: (id) => {
-        return <Space>{compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}</Space>;
+        return <Space>{compose(disabled(false))(<a>编辑</a>)}</Space>;
       },
     },
   ];
@@ -101,13 +103,18 @@ export default function () {
   return (
     <>
       <Editor {...editor} onSuccess={onSuccess} />
+      <Ball {...ball} onSuccess={onSuccess} />
 
       <XmilesTable
         actionRef={actionRef}
         formRef={formRef}
         columns={columns}
         rowKey="id"
-        headerTitle="金币规则限制"
+        headerTitle={
+          <Button onClick={editHandler} type="primary">
+            金币规则限制
+          </Button>
+        }
         options={false}
         request={async (params) => {
           const data = {

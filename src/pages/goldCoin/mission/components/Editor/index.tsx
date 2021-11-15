@@ -22,7 +22,7 @@ export default ({
 }: ReturnType<typeof useModalForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { id, env } = data;
+  const { id } = data;
   const detail = useQuery(['game-mgt-editor', data.id], () => services.get({ data: { id } }), {
     enabled: !!id,
     refetchOnWindowFocus: false,
@@ -73,7 +73,6 @@ export default ({
       }}
       modalProps={{
         onOk: onSubmit,
-        visible: true,
         ...modalProps,
       }}
     >
