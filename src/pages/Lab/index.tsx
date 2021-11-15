@@ -1,42 +1,80 @@
-import { useRef } from 'react';
-import { Upload } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
-import Mask from '@/components/Mask';
+import React, { useState } from 'react';
+import { Table, Input, InputNumber, Popconfirm, Form, Typography } from 'antd';
+const originData = [];
 
-export default () => {
-  const ref = useRef<HTMLVideoElement>(null);
+for (let i = 0; i < 100; i++) {
+  originData.push({
+    key: i.toString(),
+    name: `Edrward ${i}`,
+    age: 32,
+    address: `London Park no. ${i}`,
+  });
+}
 
-  const children = (
-    <EyeOutlined
-      style={{ fontSize: '2.5em', filter: 'invert(100%)' }}
-      onClick={(e) => e.stopPropagation()}
-    />
-  );
+const EditableTable = () => {
+  const [form] = Form.useForm();
+
+  const columns = [
+    {
+      title: 'name',
+      dataIndex: 'name',
+      width: '25%',
+      // editable: true,
+    },
+    {
+      title: 'age',
+      dataIndex: 'age',
+      width: '15%',
+      editable: true,
+    },
+    {
+      title: 'address',
+      dataIndex: 'address',
+      width: '40%',
+      editable: true,
+    },
+    {
+      title: 'operation',
+      dataIndex: 'operation',
+    },
+  ];
+
   return (
-    <div>
-      <Upload>
-        <Mask toolbarProps={{ children }}>
-          <video preload="metadata" width={600} ref={ref}>
-            <source
-              src="https://game-566.oss-cn-shanghai.aliyuncs.com/head/1635151946678.mp4"
-              type="video/mp4"
-            />
-            lab
-          </video>
-          <button
-            onClick={() => {
-              if (ref?.current?.paused || ref?.current?.ended) {
-                ref?.current?.play();
-              } else {
-                ref?.current?.pause();
-              }
-            }}
-          >
-            {ref?.current?.paused || ref?.current?.ended ? 'play' : 'pause'}
-          </button>
-        </Mask>
-      </Upload>
-    </div>
+    <Form form={form}>
+      <Table
+        components={{
+          // table: (props, ...args) => {
+          //   console.log('table', props, ...args)
+          //   return <table  >
+          //     {/* {props?.children?.[0]} */}
+          //     {/* {props?.children?.[2]} */}
+          //     {props?.children?.[1]}
+          //     {props?.children?.[3]}
+          //   </table>
+          // },
+          body: {
+            wrapper: (props) => {
+              console.log('body, wrapper', props);
+              return <tbody className={props?.className}>{props?.children}</tbody>;
+            },
+            // row: (props, ...args) => {
+            // console.log('body, row', props, ...args)
+            // return <tr {...props} />
+            // },
+            // // cell: (props, ...args) => {
+            // // console.log('body, cell', props, ...args)
+            // // return <td {...props} />
+            // // },
+          },
+        }}
+        bordered
+        dataSource={originData}
+        columns={columns}
+        rowClassName="editable-row"
+        pagination={false}
+      />
+    </Form>
   );
-  // poster="https://game-566.oss-cn-shanghai.aliyuncs.com///rc-upload-1635473398413-35-20210428183351_896_161960603189615.png"
 };
+
+export default EditableTable;
