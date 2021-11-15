@@ -134,8 +134,15 @@ export default ({
             <Item name={'用户提现金额占广告行为LTV收益的比例'} wrapperCol={{ offset: 6 }}>
               {compose(
                 Render((origin) => (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {`<=`}
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}
+                  >
+                    <span
+                      style={{
+                        position: 'absolute',
+                        transform: 'translate(calc(-100% - 8px), 0%)',
+                      }}
+                    >{`<=`}</span>
                     {origin}%
                   </div>
                 )),
