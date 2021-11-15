@@ -174,7 +174,6 @@ export default function () {
       dataIndex: 'status',
       width: 100,
       valueEnum: STATUS,
-      hideInSearch: true,
     },
     {
       title: '自动化测试状态',
@@ -192,7 +191,6 @@ export default function () {
       title: '游戏来源',
       dataIndex: 'gameSource',
       width: 100,
-      hideInSearch: true,
     },
     {
       title: '更新时间',
