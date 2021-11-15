@@ -3,14 +3,14 @@ import {
   message,
   Input,
   Modal,
-  Switch,
-  Space,
   InputNumber,
-  Divider,
-  Button,
   Tabs,
   Tooltip,
+  Popconfirm,
+  Typography,
 } from 'antd';
+
+import { MinusCircleOutlined } from '@ant-design/icons';
 
 import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
@@ -21,17 +21,19 @@ import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import { compose } from '@/decorators/utils';
 import Render from '@/decorators/Common/Render';
-import { DnDForm, DnDFormColumn } from '@/components/DnDForm';
-import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+import type { DnDFormColumn } from '@/components/DnDForm';
+import { DnDForm } from '@/components/DnDForm';
+import disabled from '@/decorators/ATag/Disabled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import { RuleRender } from 'antd/lib/form';
+import type { RuleRender } from 'antd/lib/form';
 import { USER_TYPE } from '../../models';
 import Options from '@/utils/Options';
 
 const { Item } = Form;
 
 const { TabPane } = Tabs;
+const { Link } = Typography;
 
 const FormItemExtra = styled(Item)`
   .ant-form-item-extra {
@@ -117,8 +119,19 @@ export default ({
     {
       title: '排序',
       canDrag: true,
+      span: 0.5,
       render({ field }) {
-        return <Item key={field.key}>{field.name + 1}</Item>;
+        return (
+          <Item
+            style={{
+              cursor: 'pointer',
+              textAlign: 'center',
+            }}
+            key={field.key}
+          >
+            {field.name + 1}
+          </Item>
+        );
       },
     },
     {
@@ -146,7 +159,7 @@ export default ({
                 name={field.name === 0 ? undefined : [field.name - 1, 'ecpmCoinMax']}
                 initialValue={0}
               >
-                <Input
+                <InputNumber
                   style={{ width: '100%' }}
                   placeholder="请输入"
                   disabled
@@ -173,8 +186,9 @@ export default ({
                 ]}
                 dependencies={[['ecpmCoinConfigs', field.name - 1, 'ecpmCoinMax'], ['digitsCount']]}
               >
-                <Input style={{ width: '100%' }} placeholder="请输入" />
+                <InputNumber style={{ width: '100%' }} placeholder="请输入" />
               </FormItemExtra>
+              <Item>分</Item>
             </div>
           </Item>
         );
@@ -183,7 +197,57 @@ export default ({
     {
       title: '每xx秒下发金币',
       render({ field }) {
-        return <Item key={field.key} fieldKey={field.fieldKey}></Item>;
+        return (
+          <Item key={field.key} fieldKey={field.fieldKey}>
+            {compose(
+              Render((origin) => (
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>{origin}秒</div>
+              )),
+            )(<InputNumber style={{ width: '100%' }} />)}
+          </Item>
+        );
+      },
+    },
+    {
+      title: '下发金币code',
+      render({ field }) {
+        return (
+          <Item key={field.key} fieldKey={field.fieldKey}>
+            <InputNumber style={{ width: '100%' }} />
+          </Item>
+        );
+      },
+    },
+    {
+      title: '下发金币数量',
+      render({ field }) {
+        return (
+          <Item key={field.key} fieldKey={field.fieldKey}>
+            <InputNumber style={{ width: '100%' }} />
+          </Item>
+        );
+      },
+    },
+    {
+      title: '操作',
+      span: 0.5,
+      render({ field, operation }) {
+        return (
+          <Item style={{ textAlign: 'center' }}>
+            <Popconfirm
+              placement="topRight"
+              title="该操作不可逆，请谨慎操作！"
+              onConfirm={() => operation.remove(field.name)}
+              disabled={field?.name === 0}
+            >
+              {compose(disabled(field?.name === 0))(
+                <Link type="danger">
+                  <MinusCircleOutlined /> 删除
+                </Link>,
+              )}
+            </Popconfirm>
+          </Item>
+        );
       },
     },
   ];
