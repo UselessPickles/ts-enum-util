@@ -117,7 +117,7 @@ export default ({
 
   const columns: DnDFormColumn[] = [
     {
-      title: '排序',
+      title: '天数',
       canDrag: true,
       span: 0.5,
       render({ field }) {
@@ -129,85 +129,12 @@ export default ({
             }}
             key={field.key}
           >
-            {field.name + 1}
+            第{field.name + 1}天
           </Item>
         );
       },
     },
-    {
-      title: (
-        <Tooltip
-          title="
-                默认从0开始，区间起始框代表第x分钟01秒开始，即xx分01秒，区间结束框代表第x分钟00秒，即xx分00秒，例如设置1-2分钟，表示1分01秒开始，到2分00秒结束"
-          key="1"
-        >
-          设置分钟区间 <QuestionCircleOutlined />
-        </Tooltip>
-      ),
-      span: 2,
-      render({ field }) {
-        return (
-          <Item key={field.key} fieldKey={field.fieldKey} noStyle>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: 4,
-              }}
-            >
-              <Item
-                name={field.name === 0 ? undefined : [field.name - 1, 'ecpmCoinMax']}
-                initialValue={0}
-              >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  placeholder="请输入"
-                  disabled
-                  value={field.name === 0 ? 0 : undefined}
-                />
-              </Item>
-              <Item> - </Item>
-              <FormItemExtra
-                name={[field.name, 'ecpmCoinMax']}
-                rules={[
-                  { required: true, message: '该项不能为空' },
-                  ({ getFieldValue }) => ({
-                    validator: async (_, value) => {
-                      if (
-                        (getFieldValue(['ecpmCoinConfigs', field?.name - 1, 'ecpmCoinMax']) ?? 0) >=
-                        +value
-                      ) {
-                        return Promise.reject(new Error('右值需大于左值'));
-                      }
-                      return Promise.resolve();
-                    },
-                  }),
-                  valiadNumber,
-                ]}
-                dependencies={[['ecpmCoinConfigs', field.name - 1, 'ecpmCoinMax'], ['digitsCount']]}
-              >
-                <InputNumber style={{ width: '100%' }} placeholder="请输入" />
-              </FormItemExtra>
-              <Item>分</Item>
-            </div>
-          </Item>
-        );
-      },
-    },
-    {
-      title: '每xx秒下发金币',
-      render({ field }) {
-        return (
-          <Item key={field.key} fieldKey={field.fieldKey}>
-            {compose(
-              Render((origin) => (
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>{origin}秒</div>
-              )),
-            )(<InputNumber style={{ width: '100%' }} />)}
-          </Item>
-        );
-      },
-    },
+
     {
       title: '下发金币code',
       render({ field }) {
@@ -228,28 +155,6 @@ export default ({
         );
       },
     },
-    {
-      title: '操作',
-      span: 0.5,
-      render({ field, operation }) {
-        return (
-          <Item style={{ textAlign: 'center' }}>
-            <Popconfirm
-              placement="topRight"
-              title="该操作不可逆，请谨慎操作！"
-              onConfirm={() => operation.remove(field.name)}
-              disabled={field?.name === 0}
-            >
-              {compose(disabled(field?.name === 0))(
-                <Link type="danger">
-                  <MinusCircleOutlined /> 删除
-                </Link>,
-              )}
-            </Popconfirm>
-          </Item>
-        );
-      },
-    },
   ];
 
   return (
@@ -260,6 +165,7 @@ export default ({
       }}
       modalProps={{
         onOk: onSubmit,
+        visible: true,
         ...modalProps,
       }}
     >
@@ -267,21 +173,16 @@ export default ({
         <Input />
       </Item>
 
-      <Item name="用户类型">
-        <Tabs type="card">
-          {Options(USER_TYPE).toOpt?.map(({ value, label }) => (
-            <TabPane tab={label} key={value} />
-          ))}
-        </Tabs>
-      </Item>
-
-      <DnDForm name="ecpmCoinConfigs" columns={columns} formListProps={{ initialValue: [{}] }}>
-        {({ title, body, operation }) => {
+      <DnDForm
+        name="ecpmCoinConfigs"
+        columns={columns}
+        formListProps={{ initialValue: Array(7).fill({}) }}
+      >
+        {({ title, body }) => {
           return (
             <>
               {title}
               {body}
-              <a onClick={() => operation.add()}>+ 添加区间</a>
             </>
           );
         }}

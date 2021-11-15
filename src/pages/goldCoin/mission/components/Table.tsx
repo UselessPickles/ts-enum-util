@@ -10,6 +10,7 @@ import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import useModalForm from '@/hooks/useModalForm';
 import Editor from './Editor';
 import Ball from './Ball';
+import SignIn from './SignIn';
 import { compose } from '@/decorators/utils';
 import disabled from '@/decorators/ATag/Disabled';
 import { STATUS, STATUS_ENUM } from '../models';
@@ -41,6 +42,10 @@ export default function () {
 
   const ball = useModalForm({
     modalProps: { title: '小圆球任务', width: 900 },
+  });
+
+  const signIn = useModalForm({
+    modalProps: { title: '签到任务' },
   });
 
   function editHandler() {
@@ -104,6 +109,7 @@ export default function () {
     <>
       <Editor {...editor} onSuccess={onSuccess} />
       <Ball {...ball} onSuccess={onSuccess} />
+      <SignIn {...signIn} onSuccess={onSuccess} />
 
       <XmilesTable
         actionRef={actionRef}
