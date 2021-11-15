@@ -35,10 +35,7 @@ export default [
           },
           {
             path: '/goldCoin',
-            routes: [
-              { path: '/goldCoin/mission/', redirect: '/goldCoin/mission/mgt/new' },
-              { path: '/goldCoin/mission/:env', component: '@/pages/goldCoin/mission' },
-            ],
+            routes: [{ path: '/goldCoin/mission', component: '@/pages/goldCoin/mission' }],
           },
           { path: '/lab', component: '@/pages/Lab' },
           {
