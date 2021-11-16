@@ -18,6 +18,7 @@ import Play from './Play';
 import Boot from './Boot';
 import RedPacket from './RedPacket';
 import VisDetail from './VisDetail';
+import useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
 
 const fakeDataSource = Array(6)
   ?.fill(undefined)
@@ -30,7 +31,8 @@ const fakeDataSource = Array(6)
 export default function () {
   const { actionRef, formRef } = useProTable();
 
-  const editor = useModalForm();
+  const editor = useDrawerForm();
+  console.log('editor', editor);
 
   const missions = {
     ball: useModalForm(),
@@ -60,7 +62,7 @@ export default function () {
   }
 
   function editHandler() {
-    editor.setModalProps((pre) => ({
+    editor.setDrawerProps((pre) => ({
       ...pre,
       visible: true,
     }));
