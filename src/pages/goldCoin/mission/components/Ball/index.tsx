@@ -12,8 +12,9 @@ import {
 
 import { MinusCircleOutlined } from '@ant-design/icons';
 
-import ModalForm from '@/components/ModalForm';
-import type useModalForm from '@/hooks/useModalForm';
+import DrawerForm from '@/components/DrawerForm@latest';
+
+import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
 import { services } from '../../services';
 
 import { useQuery } from 'react-query';
@@ -64,12 +65,12 @@ const valiadNumber: RuleRender = ({ getFieldValue }) => ({
 
 export default ({
   formProps,
-  modalProps,
-  setModalProps,
+  drawerProps,
+  setDrawerProps,
   onSuccess,
   form,
   data = {},
-}: ReturnType<typeof useModalForm> & {
+}: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
   const { id } = data;
@@ -94,21 +95,21 @@ export default ({
         content: '确定保存游戏内容吗？再次确定保存成功',
         onOk: async () => {
           try {
-            setModalProps((pre) => ({ ...pre, confirmLoading: true }));
+            setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.update({
               // 拼给后端
               data: { ...detail?.data?.data, ...format, versionList: undefined },
               throwErr: true,
             });
             await onSuccess?.();
-            setModalProps((pre) => ({ ...pre, visible: false }));
+            setDrawerProps((pre) => ({ ...pre, visible: false }));
           } catch (e: any) {
             if (e?.message) {
               message.error(e?.message);
             }
             throw e;
           } finally {
-            setModalProps((pre) => ({ ...pre, confirmLoading: false }));
+            setDrawerProps((pre) => ({ ...pre, confirmLoading: false }));
           }
         },
       });
@@ -253,13 +254,13 @@ export default ({
   ];
 
   return (
-    <ModalForm
+    <DrawerForm
       formProps={{
         ...formProps,
         onFinish: onSubmit,
       }}
-      modalProps={{
-        ...modalProps,
+      drawerProps={{
+        ...drawerProps,
         onOk: onSubmit,
         title: '小圆球任务',
         width: 900,
@@ -288,6 +289,6 @@ export default ({
           );
         }}
       </DnDForm>
-    </ModalForm>
+    </DrawerForm>
   );
 };

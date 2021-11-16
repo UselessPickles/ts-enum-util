@@ -7,7 +7,6 @@ import XmilesTable from '@/components/Xmiles/ProTable';
 
 import { services } from '../services';
 import useProTable from '@/components/Xmiles/ProTable/useProTable';
-import useModalForm from '@/hooks/useModalForm';
 import Editor from './Editor';
 import Ball from './Ball';
 import SignIn from './SignIn';
@@ -32,15 +31,14 @@ export default function () {
   const { actionRef, formRef } = useProTable();
 
   const editor = useDrawerForm();
-  console.log('editor', editor);
 
   const missions = {
-    ball: useModalForm(),
-    signIn: useModalForm(),
-    play: useModalForm(),
-    boot: useModalForm(),
-    visDetail: useModalForm(),
-    redPacket: useModalForm(),
+    ball: useDrawerForm(),
+    signIn: useDrawerForm(),
+    play: useDrawerForm(),
+    boot: useDrawerForm(),
+    visDetail: useDrawerForm(),
+    redPacket: useDrawerForm(),
   };
 
   function missionEditHandler(id: Row['id']) {
@@ -54,7 +52,7 @@ export default function () {
         'redPacket',
       ]?.[+id];
 
-      missions?.[handle]?.setModalProps?.((pre) => ({
+      missions?.[handle]?.setDrawerProps?.((pre) => ({
         ...pre,
         visible: true,
       }));

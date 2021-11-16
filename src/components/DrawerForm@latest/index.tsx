@@ -18,13 +18,13 @@ export interface CustomDrawerProps extends DrawerProps {
   onOk?: (...args: any[]) => void;
 }
 
-export function CustomDrawer(props: CustomDrawerProps) {
+export function CustomDrawer({ onOk, ...props }: CustomDrawerProps) {
   return (
     <Drawer
       footer={
         <Space>
           <Button onClick={props?.onClose as any}>取消</Button>
-          <Button type="primary" onClick={props?.onOk}>
+          <Button type="primary" onClick={onOk}>
             确定
           </Button>
         </Space>
