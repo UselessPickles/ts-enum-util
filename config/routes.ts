@@ -36,6 +36,13 @@ export default [
               { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
             ],
           },
+          {
+            path: '/goldCoin',
+            routes: [
+              { path: '/goldCoin', redirect: '/goldCoin/blacklist' },
+              { path: '/goldCoin/blacklist', component: '@/pages/goldCoin/blacklist' },
+            ],
+          },
           { path: '/lab', component: '@/pages/lab' },
         ],
       },

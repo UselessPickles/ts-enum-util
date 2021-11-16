@@ -15,7 +15,7 @@ import { getmd5 } from '@/utils/utils';
 export default function Login() {
   const { logIn } = UserContext.useContainer();
   const onFinish = ({ username, password }) => {
-    logIn(username, getmd5(password));
+    logIn(username, password);
   };
   return (
     <div className={styles.content}>
