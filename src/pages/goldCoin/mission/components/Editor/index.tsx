@@ -68,12 +68,22 @@ export default ({
   return (
     <ModalForm
       formProps={{
-        onFinish: onSubmit,
         ...formProps,
+        onFinish: onSubmit,
+        layout: 'horizontal',
+        labelCol: {
+          span: 6,
+          style: {
+            whiteSpace: 'normal',
+          },
+        },
+        wrapperCol: { span: 18 },
       }}
       modalProps={{
-        onOk: onSubmit,
         ...modalProps,
+        onOk: onSubmit,
+        title: '金币规则配置',
+        width: 760,
       }}
     >
       <Item name={'id'} hidden>

@@ -29,11 +29,12 @@ import styled from 'styled-components';
 import type { RuleRender } from 'antd/lib/form';
 import { USER_TYPE } from '../../models';
 import Options from '@/utils/Options';
+import FormItemView from '@/components/FormItemView';
 
 const { Item } = Form;
 
 const { TabPane } = Tabs;
-const { Link } = Typography;
+const { Link, Text } = Typography;
 
 const FormItemExtra = styled(Item)`
   .ant-form-item-extra {
@@ -115,78 +116,35 @@ export default ({
     } catch (e: any) {}
   }
 
-  const columns: DnDFormColumn[] = [
-    {
-      title: '天数',
-      canDrag: true,
-      span: 0.5,
-      render({ field }) {
-        return (
-          <Item
-            style={{
-              cursor: 'move',
-              textAlign: 'center',
-            }}
-            key={field.key}
-          >
-            第{field.name + 1}天
-          </Item>
-        );
-      },
-    },
-
-    {
-      title: '下发金币code',
-      render({ field }) {
-        return (
-          <Item key={field.key} fieldKey={field.fieldKey}>
-            <InputNumber style={{ width: '100%' }} />
-          </Item>
-        );
-      },
-    },
-    {
-      title: '下发金币数量',
-      render({ field }) {
-        return (
-          <Item key={field.key} fieldKey={field.fieldKey}>
-            <InputNumber style={{ width: '100%' }} />
-          </Item>
-        );
-      },
-    },
-  ];
-
   return (
     <ModalForm
       formProps={{
         ...formProps,
+        layout: 'horizontal',
+        labelCol: { span: 6 },
+        wrapperCol: { span: 18 },
         onFinish: onSubmit,
       }}
       modalProps={{
         ...modalProps,
+
+        title: '新人红包',
         onOk: onSubmit,
-        title: '签到任务',
       }}
     >
+      <Item>
+        <Text type="secondary">每个用户最多获得1次，第一次进入我的页面，即下发金币</Text>
+      </Item>
+
       <Item name={'id'} hidden>
         <Input />
       </Item>
-
-      <DnDForm
-        name="ecpmCoinConfigs"
-        columns={columns}
-        formListProps={{ initialValue: Array(7).fill({}) }}
-      >
-        {({ title, body }) => {
-          return (
-            <>
-              {title}
-              {body}
-            </>
-          );
-        }}
-      </DnDForm>
+      <Item name={'下发金币code'} label={'下发金币code'} rules={[{ required: true }]}>
+        <InputNumber style={{ width: '100%' }} />
+      </Item>
+      <Item name={'下发金币数量'} label={'下发金币数量'}>
+        <FormItemView />
+      </Item>
     </ModalForm>
   );
 };

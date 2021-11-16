@@ -124,7 +124,7 @@ export default ({
         return (
           <Item
             style={{
-              cursor: 'pointer',
+              cursor: 'move',
               textAlign: 'center',
             }}
             key={field.key}
@@ -255,12 +255,14 @@ export default ({
   return (
     <ModalForm
       formProps={{
-        onFinish: onSubmit,
         ...formProps,
+        onFinish: onSubmit,
       }}
       modalProps={{
-        onOk: onSubmit,
         ...modalProps,
+        onOk: onSubmit,
+        title: '小圆球任务',
+        width: 900,
       }}
     >
       <Item name={'id'} hidden>

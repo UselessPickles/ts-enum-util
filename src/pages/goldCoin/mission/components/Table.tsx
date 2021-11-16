@@ -14,6 +14,10 @@ import SignIn from './SignIn';
 import { compose } from '@/decorators/utils';
 import disabled from '@/decorators/ATag/Disabled';
 import { STATUS, STATUS_ENUM } from '../models';
+import Play from './Play';
+import Boot from './Boot';
+import RedPacket from './RedPacket';
+import VisDetail from './VisDetail';
 
 const fakeDataSource = Array(6)
   ?.fill(undefined)
@@ -26,27 +30,34 @@ const fakeDataSource = Array(6)
 export default function () {
   const { actionRef, formRef } = useProTable();
 
-  const editor = useModalForm({
-    modalProps: { title: '金币规则配置', width: 760 },
-    formProps: {
-      layout: 'horizontal',
-      labelCol: {
-        span: 6,
-        style: {
-          whiteSpace: 'normal',
-        },
-      },
-      wrapperCol: { span: 18 },
-    },
-  });
+  const editor = useModalForm();
 
-  const ball = useModalForm({
-    modalProps: { title: '小圆球任务', width: 900 },
-  });
+  const missions = {
+    ball: useModalForm(),
+    signIn: useModalForm(),
+    play: useModalForm(),
+    boot: useModalForm(),
+    visDetail: useModalForm(),
+    redPacket: useModalForm(),
+  };
 
-  const signIn = useModalForm({
-    modalProps: { title: '签到任务' },
-  });
+  function missionEditHandler(id: Row['id']) {
+    return () => {
+      const handle: keyof typeof missions = [
+        'ball',
+        'signIn',
+        'play',
+        'boot',
+        'visDetail',
+        'redPacket',
+      ]?.[+id];
+
+      missions?.[handle]?.setModalProps?.((pre) => ({
+        ...pre,
+        visible: true,
+      }));
+    };
+  }
 
   function editHandler() {
     editor.setModalProps((pre) => ({
@@ -100,7 +111,9 @@ export default function () {
       width: 150,
       fixed: 'right',
       renderText: (id) => {
-        return <Space>{compose(disabled(false))(<a>编辑</a>)}</Space>;
+        return (
+          <Space>{compose(disabled(false))(<a onClick={missionEditHandler(id)}>编辑</a>)}</Space>
+        );
       },
     },
   ];
@@ -108,8 +121,13 @@ export default function () {
   return (
     <>
       <Editor {...editor} onSuccess={onSuccess} />
-      <Ball {...ball} onSuccess={onSuccess} />
-      <SignIn {...signIn} onSuccess={onSuccess} />
+
+      <Ball {...missions?.ball} onSuccess={onSuccess} />
+      <SignIn {...missions?.signIn} onSuccess={onSuccess} />
+      <Play {...missions?.play} onSuccess={onSuccess} />
+      <Boot {...missions?.boot} onSuccess={onSuccess} />
+      <VisDetail {...missions?.visDetail} onSuccess={onSuccess} />
+      <RedPacket {...missions?.redPacket} onSuccess={onSuccess} />
 
       <XmilesTable
         actionRef={actionRef}
