@@ -23,7 +23,7 @@ function useUser() {
         const user = { id, name, username };
         localStorage.setItem('token', access_token);
         localStorage.setItem('userInfo', JSON.stringify(user));
-        history.push({ pathname: '/home' });
+        history.push({ pathname: '/gameStore/mgt' });
         setUserInfo(user);
       })
       .catch((error) => {
