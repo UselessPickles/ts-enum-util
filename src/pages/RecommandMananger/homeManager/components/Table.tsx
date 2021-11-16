@@ -5,16 +5,11 @@ import XmilesTable from '@/components/Xmiles/ProTable';
 import { XmilesCol } from '@/components/Xmiles/Col';
 import { deleteGame, list } from '../services';
 import RESTful from '@/utils/RESTful';
+import styles from '../index.less';
 
 export default () => {
-  const {
-      formRef,
-      actionRef,
-      setModalProps,
-      modalFormRef,
-      setEditRecord,
-      setSelectGame,
-    } = useContainer(),
+  const { formRef, actionRef, setModalProps, modalFormRef, setEditRecord, setSelectGame } =
+      useContainer(),
     defalutTableColumnsProps: XmilesCol<any> = {
       align: 'left',
       hideInSearch: true,
@@ -64,11 +59,11 @@ export default () => {
       dataIndex: 'gameName',
       ...defalutTableColumnsProps,
       hideInSearch: false,
+      className: styles.tdWidth,
     },
     {
       title: '状态',
       dataIndex: 'showStatus',
-      width: 120,
       ...defalutTableColumnsProps,
       align: 'center',
       render: (_, record) => {
@@ -83,25 +78,23 @@ export default () => {
     {
       title: '展示位置',
       dataIndex: 'sort',
-      width: 100,
       ...defalutTableColumnsProps,
       align: 'center',
+      className: styles.tdWidth,
     },
     {
       title: '操作人',
       dataIndex: 'operator',
-      width: 150,
       ...defalutTableColumnsProps,
     },
     {
       title: '操作时间',
       dataIndex: 'utime',
-      width: 180,
       ...defalutTableColumnsProps,
     },
     {
       title: '操作',
-      width: 120,
+      width: 160,
       ...defalutTableColumnsProps,
       fixed: 'right',
       render: (_, record) => {
