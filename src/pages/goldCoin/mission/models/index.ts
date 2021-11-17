@@ -6,12 +6,12 @@ export default interface Row {
 }
 
 export enum STATUS_ENUM {
+  '启用' = 1,
   '禁用',
-  '启用',
 }
 export const STATUS = new Map([
-  [0, '禁用'],
   [1, '启用'],
+  [2, '禁用'],
 ]);
 
 export const USER_TYPE = new Map([

@@ -5,7 +5,7 @@ import { Button, Space, Popconfirm, Switch } from 'antd';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
 
-import { services } from '../services';
+import { services } from '../services/task';
 import useProTable from '@/components/Xmiles/ProTable/useProTable';
 import Editor from './Editor';
 import Ball from './Ball';
@@ -74,12 +74,26 @@ export default function () {
     actionRef.current?.reload();
   }
 
-  function switchHandler() {}
+  function switchHandler(r: Row) {
+    return async () => {
+      try {
+        await services.update({
+          data: {
+            id: r?.id,
+            status: r?.status === STATUS_ENUM.启用 ? STATUS_ENUM.禁用 : STATUS_ENUM.启用,
+          },
+        });
+        actionRef.current?.reload();
+      } catch (e) {
+        console.warn(e);
+      }
+    };
+  }
 
   const columns: XmilesCol<Row>[] = [
     {
       title: '任务名称',
-      dataIndex: 'missionName',
+      dataIndex: 'name',
     },
     {
       title: '状态',
@@ -88,7 +102,10 @@ export default function () {
       render(_, record) {
         const validStatus = record.status === STATUS_ENUM.启用;
         return (
-          <Popconfirm title={`确定${validStatus ? '禁用' : '启用'}吗？`} onConfirm={switchHandler}>
+          <Popconfirm
+            title={`确定${validStatus ? '禁用' : '启用'}吗？`}
+            onConfirm={switchHandler(record)}
+          >
             <Switch checked={validStatus} />
           </Popconfirm>
         );
@@ -153,14 +170,10 @@ export default function () {
           const res = await services.page({ data });
 
           return {
-            // undo
-            // data: res?.data?.total_datas ?? [],
-            data: fakeDataSource,
+            data: res?.data?.total_datas ?? [],
             page: params.current ?? 1,
             success: true,
-            //undo
-            // total: res?.data?.total_count ?? 0,
-            total: fakeDataSource?.length,
+            total: res?.data?.total_count ?? 0,
           };
         }}
       />
