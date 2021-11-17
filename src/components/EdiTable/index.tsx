@@ -160,6 +160,7 @@ export function DnDCell({
   meta,
   rowRef,
   canDrag,
+  style,
   ...props
 }: {
   renderFormItem: RenderFormItem;
@@ -176,7 +177,7 @@ export function DnDCell({
   dragPreview(rowRef);
 
   return (
-    <td ref={canDrag && drag} {...props}>
+    <td ref={canDrag && drag} {...props} style={{ cursor: canDrag ? 'grab' : undefined, ...style }}>
       {renderFormItem?.({ field, fields, operation, meta }) ?? props?.children}
     </td>
   );

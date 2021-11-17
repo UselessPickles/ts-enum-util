@@ -25,7 +25,6 @@ const EditableTable = () => {
       title: 'Sort',
       dataIndex: 'sort',
       width: 30,
-      className: 'drag-visible',
       render: () => <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />,
     },
     {
