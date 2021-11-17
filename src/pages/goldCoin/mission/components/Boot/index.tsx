@@ -41,7 +41,7 @@ export default ({
 
       Modal.confirm({
         title: '请进行二次确认',
-        content: '确定保存游戏内容吗？再次确定保存成功',
+        content: '确定积分设置吗？再次确定保存成功',
         onOk: async () => {
           try {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));

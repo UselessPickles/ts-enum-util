@@ -2,18 +2,18 @@ import { Form, message, Input, Modal, Radio } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
-import { services } from '../../services/task';
+import { coinRuleList, coinRuleBatchUpdate } from '../../services/rule';
 
 import { useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
-import { compose } from '@/decorators/utils';
-import Render from '@/decorators/Common/Render';
 import Options from '@/utils/Options';
-import { IOC } from '@/decorators/hoc';
 import { positiveInteger } from '../utils';
+import ChildrenRender from '@/components/ChildrenRender';
+import ItemLabel from 'antd/lib/form/FormItemLabel';
+import React, { Fragment } from 'react';
 
-const { Item } = Form;
+const { Item, List } = Form;
 
 export default ({
   formProps,
@@ -21,55 +21,67 @@ export default ({
   setDrawerProps,
   onSuccess,
   form,
-  data = {},
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { id } = data;
-  const detail = useQuery(['game-mgt-editor', data.id], () => services.get({ data: { id } }), {
-    enabled: !!id,
+  const detail = useQuery(['coinRuleList'], () => coinRuleList(), {
     refetchOnWindowFocus: false,
-
     onSuccess(res) {
-      const formData = prune(res?.data, isValidValue) ?? {};
-      form.setFieldsValue({ ...formData });
+      const data = prune(res?.data, isValidValue) ?? {};
+      form.setFieldsValue({ data });
     },
   });
 
   const BtnMap = new Map([
     [1, '开启'],
-    [0, '关闭'],
+    [2, '关闭'],
   ]);
 
   enum BtnEnum {
+    '开启' = 1,
     '关闭',
-    '开启',
   }
+
+  const codeMap = {
+    DailyGoldLimit: { inputProps: { addonAfter: '个' } },
+    TodayGoldLimit: { inputProps: { addonAfter: '次' } },
+    WithdrawalAmountLTVRatio: {
+      labelProps: {
+        tooltip:
+          '用户每次提现，对用户提现金额与用广告行为与LTV收益进行对比，提现金额对比收益小于等于设置的范围，用户可提现，大于用户无法提现',
+      },
+      inputProps: {
+        addonBefore: '<=',
+        addonAfter: '%',
+      },
+    },
+    DailyWithdrawalTimes: {
+      inputProps: {
+        addonAfter: '次',
+      },
+    },
+  };
 
   async function onSubmit() {
     try {
       const value = await form?.validateFields();
-      console.log('value', value);
       const format = prune(value, isValidValue);
 
       Modal.confirm({
         title: '请进行二次确认',
-        content: '确定保存游戏内容吗？再次确定保存成功',
+        content: '确定积分设置吗？再次确定保存成功',
         onOk: async () => {
           try {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
-            await services.update({
+            await coinRuleBatchUpdate({
               // 拼给后端
-              data: { ...detail?.data?.data, ...format, versionList: undefined },
+              ...format,
               throwErr: true,
             });
             await onSuccess?.();
             setDrawerProps((pre) => ({ ...pre, visible: false }));
           } catch (e: any) {
-            if (e?.message) {
-              message.error(e?.message);
-            }
-            throw e;
+            console.error(e?.message);
           } finally {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: false }));
           }
@@ -86,141 +98,84 @@ export default ({
         validateMessages: {
           required: '该项不能为空',
         },
-        initialValues: {
-          '单人单日获得金币上限数量-status': BtnEnum.关闭,
-          '单人单日获得金币总上限次数-status': BtnEnum.关闭,
-          '用户提现金额占广告行为LTV收益的比例-status': BtnEnum.关闭,
-          '单人单日总提现上限次数-status': BtnEnum.关闭,
-        },
       }}
       drawerProps={{
         ...drawerProps,
+        confirmLoading: detail.isLoading,
         onOk: onSubmit,
         title: '金币规则配置',
       }}
     >
-      <Item name={'id'} hidden>
-        <Input />
-      </Item>
-      <Item name={'单人单日获得金币上限数量-status'} label="单人单日获得金币上限数量" required>
-        {compose<any>(
-          IOC([
-            Render((origin) => (
-              <div style={{ display: 'flex', width: '100%', gap: 8 }}>
-                <Item style={{ marginBottom: 0 }}>{origin}</Item>
-                <Item dependencies={[['单人单日获得金币上限数量-status']]} noStyle>
-                  {({ getFieldValue }) => {
-                    return (
-                      getFieldValue(['单人单日获得金币上限数量-status']) === BtnEnum.开启 && (
-                        <Item
-                          name={'单人单日获得金币上限数量'}
-                          rules={[
-                            { required: true },
-                            { pattern: positiveInteger, message: '仅允许正整数' },
-                          ]}
-                          style={{ marginBottom: 0, flex: 1 }}
-                        >
-                          <Input addonAfter="个" />
-                        </Item>
-                      )
-                    );
-                  }}
-                </Item>
-              </div>
-            )),
-          ]),
-        )(<Radio.Group optionType="button" options={Options(BtnMap).toOpt} />)}
-      </Item>
+      <List name="data">
+        {(fields) =>
+          fields?.map(({ name, ...field }) => (
+            <Fragment key={field.key}>
+              <Item name={[name, 'id']} fieldKey={[field.fieldKey, 'id']} hidden>
+                <Input />
+              </Item>
 
-      <Item name={'单人单日获得金币总上限次数-status'} label="单人单日获得金币总上限次数" required>
-        {compose<any>(
-          IOC([
-            Render((origin) => (
-              <div style={{ display: 'flex', width: '100%', gap: 8 }}>
-                <Item style={{ marginBottom: 0 }}>{origin}</Item>
-                <Item dependencies={[['单人单日获得金币总上限次数-status']]} noStyle>
+              <Item name={[name, 'code']} fieldKey={[field.fieldKey, 'code']} hidden>
+                <Input />
+              </Item>
+
+              <Item
+                fieldKey={[field.fieldKey, 'name']}
+                noStyle
+                dependencies={[['data', name, 'code']]}
+              >
+                {({ getFieldValue }) => (
+                  <Item name={[name, 'name']} fieldKey={[field.fieldKey, 'name']} noStyle>
+                    <ChildrenRender<any>>
+                      {({ value }) => (
+                        <ItemLabel
+                          prefixCls="ant-form"
+                          label={value}
+                          required
+                          // @ts-ignore
+                          {...codeMap?.[getFieldValue(['data', name, 'code'])]?.labelProps}
+                        />
+                      )}
+                    </ChildrenRender>
+                  </Item>
+                )}
+              </Item>
+
+              <div style={{ display: 'flex', gap: 8 }} key={field.key as React.Key}>
+                <Item name={[name, 'status']} fieldKey={[field.fieldKey, 'status']}>
+                  <Radio.Group optionType="button" options={Options(BtnMap).toOpt} />
+                </Item>
+                <Item
+                  noStyle
+                  dependencies={[
+                    ['data', name, 'code'],
+                    ['data', name, 'status'],
+                  ]}
+                >
                   {({ getFieldValue }) =>
-                    getFieldValue(['单人单日获得金币总上限次数-status']) === BtnEnum.开启 && (
+                    getFieldValue(['data', name, 'status']) === BtnEnum.开启 && (
                       <Item
-                        name={'单人单日获得金币总上限次数'}
+                        name={[name, 'value']}
+                        fieldKey={[field.fieldKey, 'value']}
+                        style={{ flex: 1 }}
                         rules={[
                           { required: true },
                           { pattern: positiveInteger, message: '仅允许正整数' },
                         ]}
-                        style={{ marginBottom: 0, flex: 1 }}
                       >
-                        <Input addonAfter="次" />
+                        <Input
+                          placeholder="0"
+                          // @ts-ignore
+                          {...codeMap?.[getFieldValue(['data', name, 'code'])]?.inputProps}
+                        />
                       </Item>
                     )
                   }
                 </Item>
               </div>
-            )),
-          ]),
-        )(<Radio.Group optionType="button" options={Options(BtnMap).toOpt} />)}
-      </Item>
-
-      <Item
-        name={'用户提现金额占广告行为LTV收益的比例-status'}
-        label="用户提现金额占广告行为LTV收益的比例"
-        tooltip="用户每次提现，对用户提现金额与用广告行为与LTV收益进行对比，提现金额对比收益小于等于设置的范围，用户可提现，大于用户无法提现"
-        required
-      >
-        {compose<any>(
-          IOC([
-            Render((origin) => (
-              <div style={{ display: 'flex', width: '100%', gap: 8 }}>
-                <Item style={{ marginBottom: 0 }}>{origin}</Item>
-                <Item dependencies={[['用户提现金额占广告行为LTV收益的比例-status']]} noStyle>
-                  {({ getFieldValue }) =>
-                    getFieldValue(['用户提现金额占广告行为LTV收益的比例-status']) ===
-                      BtnEnum.开启 && (
-                      <Item
-                        name={'用户提现金额占广告行为LTV收益的比例'}
-                        rules={[
-                          { required: true },
-                          { pattern: positiveInteger, message: '仅允许正整数' },
-                        ]}
-                        style={{ marginBottom: 0, flex: 1 }}
-                      >
-                        <Input addonBefore="<=" addonAfter="%" />
-                      </Item>
-                    )
-                  }
-                </Item>
-              </div>
-            )),
-          ]),
-        )(<Radio.Group optionType="button" options={Options(BtnMap).toOpt} />)}
-      </Item>
-
-      <Item name={'单人单日总提现上限次数-status'} label="单人单日总提现上限次数" required>
-        {compose<any>(
-          IOC([
-            Render((origin) => (
-              <div style={{ display: 'flex', width: '100%', gap: 8 }}>
-                <Item style={{ marginBottom: 0 }}>{origin}</Item>
-                <Item dependencies={[['单人单日总提现上限次数-status']]} noStyle>
-                  {({ getFieldValue }) =>
-                    getFieldValue(['单人单日总提现上限次数-status']) === BtnEnum.开启 && (
-                      <Item
-                        name={'单人单日总提现上限次数'}
-                        rules={[
-                          { required: true },
-                          { pattern: positiveInteger, message: '仅允许正整数' },
-                        ]}
-                        style={{ marginBottom: 0, flex: 1 }}
-                      >
-                        <Input addonAfter="次" />
-                      </Item>
-                    )
-                  }
-                </Item>
-              </div>
-            )),
-          ]),
-        )(<Radio.Group optionType="button" options={Options(BtnMap).toOpt} />)}
-      </Item>
+            </Fragment>
+          ))
+        }
+      </List>
     </DrawerForm>
   );
 };

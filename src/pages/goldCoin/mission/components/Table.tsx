@@ -19,43 +19,29 @@ import RedPacket from './RedPacket';
 import VisDetail from './VisDetail';
 import useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
 
-const fakeDataSource = Array(6)
-  ?.fill(undefined)
-  ?.map((_, idx) => ({
-    missionName: idx,
-    status: idx,
-    id: idx,
-  }));
-
 export default function () {
   const { actionRef, formRef } = useProTable();
 
   const editor = useDrawerForm();
 
-  const missions = {
-    ball: useDrawerForm(),
-    signIn: useDrawerForm(),
-    play: useDrawerForm(),
-    boot: useDrawerForm(),
-    visDetail: useDrawerForm(),
-    redPacket: useDrawerForm(),
-  };
+  const missions: Map<Row['code'], ReturnType<typeof useDrawerForm>> = new Map([
+    ['SmallBall', useDrawerForm()],
+    ['SignIn', useDrawerForm()],
+    ['FirstPlayGame', useDrawerForm()],
+    ['StartGame', useDrawerForm()],
+    ['BrowseGameDetails', useDrawerForm()],
+    ['NewPeopleRedEnvelopes', useDrawerForm()],
+  ]);
 
-  function missionEditHandler(id: Row['id']) {
+  function missionEditHandler(r: Row) {
     return () => {
-      const handle: keyof typeof missions = [
-        'ball',
-        'signIn',
-        'play',
-        'boot',
-        'visDetail',
-        'redPacket',
-      ]?.[+id];
-
-      missions?.[handle]?.setDrawerProps?.((pre) => ({
+      const handler = missions?.get(r.code);
+      handler?.setDrawerProps?.((pre) => ({
         ...pre,
         visible: true,
       }));
+
+      handler?.setData({ taskId: r.id });
     };
   }
 
@@ -127,9 +113,11 @@ export default function () {
       hideInSearch: true,
       width: 150,
       fixed: 'right',
-      renderText: (id) => {
+      renderText: (_, record) => {
         return (
-          <Space>{compose(disabled(false))(<a onClick={missionEditHandler(id)}>编辑</a>)}</Space>
+          <Space>
+            {compose(disabled(false))(<a onClick={missionEditHandler(record)}>编辑</a>)}
+          </Space>
         );
       },
     },
@@ -139,12 +127,30 @@ export default function () {
     <>
       <Editor {...editor} onSuccess={onSuccess} />
 
-      <Ball {...missions?.ball} onSuccess={onSuccess} />
-      <SignIn {...missions?.signIn} onSuccess={onSuccess} />
-      <Play {...missions?.play} onSuccess={onSuccess} />
-      <Boot {...missions?.boot} onSuccess={onSuccess} />
-      <VisDetail {...missions?.visDetail} onSuccess={onSuccess} />
-      <RedPacket {...missions?.redPacket} onSuccess={onSuccess} />
+      <Ball
+        {...(missions?.get('SmallBall') as ReturnType<typeof useDrawerForm>)}
+        onSuccess={onSuccess}
+      />
+      <SignIn
+        {...(missions?.get('SignIn') as ReturnType<typeof useDrawerForm>)}
+        onSuccess={onSuccess}
+      />
+      <Play
+        {...(missions?.get('FirstPlayGame') as ReturnType<typeof useDrawerForm>)}
+        onSuccess={onSuccess}
+      />
+      <Boot
+        {...(missions?.get('StartGame') as ReturnType<typeof useDrawerForm>)}
+        onSuccess={onSuccess}
+      />
+      <VisDetail
+        {...(missions?.get('BrowseGameDetails') as ReturnType<typeof useDrawerForm>)}
+        onSuccess={onSuccess}
+      />
+      <RedPacket
+        {...(missions?.get('NewPeopleRedEnvelopes') as ReturnType<typeof useDrawerForm>)}
+        onSuccess={onSuccess}
+      />
 
       <XmilesTable
         actionRef={actionRef}

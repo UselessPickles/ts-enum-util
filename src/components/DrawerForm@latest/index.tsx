@@ -16,15 +16,16 @@ export default ({ children, drawerProps, formProps }: PropsWithChildren<InitValu
 
 export interface CustomDrawerProps extends DrawerProps {
   onOk?: (...args: any[]) => void;
+  confirmLoading?: boolean;
 }
 
-export function CustomDrawer({ onOk, ...props }: CustomDrawerProps) {
+export function CustomDrawer({ onOk, confirmLoading, ...props }: CustomDrawerProps) {
   return (
     <Drawer
       footer={
         <Space>
           <Button onClick={props?.onClose as any}>取消</Button>
-          <Button type="primary" onClick={onOk}>
+          <Button type="primary" onClick={onOk} loading={confirmLoading}>
             确定
           </Button>
         </Space>

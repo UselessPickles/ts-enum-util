@@ -3,7 +3,17 @@ export default interface Row {
   id: string;
   operator?: string;
   utime?: string;
+  code?: typeof MISSION_CODE[number];
 }
+
+export const MISSION_CODE = [
+  'SmallBall',
+  'SignIn',
+  'FirstPlayGame',
+  'StartGame',
+  'BrowseGameDetails',
+  'NewPeopleRedEnvelopes',
+] as const;
 
 export enum STATUS_ENUM {
   '启用' = 1,
