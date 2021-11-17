@@ -1,100 +1,115 @@
-import { Input, Form, Typography } from 'antd';
-import type { EdiTableColumnType } from '@/components/EdiTable';
-import EdiTable from '@/components/EdiTable';
-import { MenuOutlined } from '@ant-design/icons';
-const originData: any = [];
+import type { XmilesCol } from '@/components/Xmiles/Col';
+import { Space } from 'antd';
 
-const { Item } = Form;
-const { Link } = Typography;
+import XmilesTable from '@/components/Xmiles/ProTable';
 
-for (let i = 0; i < 10; i++) {
-  originData.push({
-    key: i.toString(),
-    name: `Edrward ${i}`,
-    age: 32,
-    address: `London Park no. ${i}`,
-  });
-}
+import Table from './components/Table';
 
-const EditableTable = () => {
-  const [form] = Form.useForm();
+import useProTable from '@/components/Xmiles/ProTable/useProTable';
 
-  const columns: EdiTableColumnType<any>[] = [
+import useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
+import RESTful from '@/utils/RESTful';
+
+export default function () {
+  const { actionRef, formRef } = useProTable();
+
+  const editor = useDrawerForm();
+
+  function onSuccess() {
+    tableReload();
+  }
+
+  function tableReload() {
+    actionRef.current?.reload();
+  }
+
+  const columns: XmilesCol<any>[] = [
     {
-      canDrag: true,
-      title: 'Sort',
-      dataIndex: 'sort',
-      width: 30,
-      render: () => <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />,
+      title: '任务名称',
+      dataIndex: 'name',
     },
     {
-      title: 'name',
-      width: '25%',
-      renderFormItem: ({ field }) => {
-        return (
-          <Item {...field} name={[field?.name, 'name']}>
-            <Input />
-          </Item>
-        );
-      },
+      title: '状态',
+      dataIndex: 'status',
+      valueEnum: new Map([
+        [1, '启用'],
+        [2, '禁用'],
+      ]),
     },
     {
-      title: 'age',
-      width: '15%',
-      renderFormItem: ({ field }) => {
-        return (
-          <>
-            <Item {...field} name={[field?.name, 'age']}>
-              <Input />
-            </Item>
-          </>
-        );
-      },
+      title: '操作人',
+      dataIndex: 'operator',
+      hideInSearch: true,
     },
     {
-      title: 'address',
-      width: '40%',
-      renderFormItem: ({ field }) => {
-        return (
-          <Item {...field} name={[field?.name, 'address']}>
-            <Input />
-          </Item>
-        );
-      },
+      title: '操作时间',
+      dataIndex: 'utime',
+      hideInSearch: true,
     },
     {
-      width: '5%',
-      title: 'operation',
-      renderFormItem: ({ field, operation }) => {
-        return (
-          <Item {...field}>
-            <Link onClick={() => operation.remove(field.name)}>删除</Link>
-          </Item>
-        );
-      },
+      title: '操作',
+      dataIndex: 'id',
+      hideInSearch: true,
+      width: 150,
+      fixed: 'right',
     },
   ];
 
   return (
-    <Form form={form} initialValues={{ test: originData }} onFinish={console.log}>
-      <EdiTable formListProps={{ name: 'test' }} tableProps={{ columns, bordered: true }}>
-        {({ body, operation, fields }) => {
-          return (
-            <>
-              {body}
-              <Item>
-                <Link onClick={() => operation.add({})}> + 新增</Link>
-              </Item>
-            </>
-          );
+    <Space direction="vertical">
+      <XmilesTable
+        actionRef={actionRef}
+        formRef={formRef}
+        columns={columns}
+        rowKey="id"
+        options={false}
+        request={async (params) => {
+          const data = {
+            ...params,
+            ustartTime: params?.utime?.[0]?.format('YYYY-MM-DD hh:mm:ss'),
+            uendTime: params?.utime?.[1]?.format('YYYY-MM-DD hh:mm:ss'),
+            page: {
+              pageNo: params?.current,
+              pageSize: params?.pageSize,
+            },
+          };
+          const res = await RESTful.post(`fxx/game/coin/task/page`, { data });
+
+          return {
+            data: res?.data?.total_datas ?? [],
+            page: params.current ?? 1,
+            success: true,
+            total: res?.data?.total_count ?? 0,
+          };
         }}
-      </EdiTable>
+      />
 
-      <Item hidden>
-        <button html-type="submit" />
-      </Item>
-    </Form>
+      <Table
+        actionRef={actionRef}
+        formRef={formRef}
+        columns={columns}
+        rowKey="id"
+        options={false}
+        request={async (params) => {
+          const data = {
+            ...params,
+            ustartTime: params?.utime?.[0]?.format('YYYY-MM-DD hh:mm:ss'),
+            uendTime: params?.utime?.[1]?.format('YYYY-MM-DD hh:mm:ss'),
+            page: {
+              pageNo: params?.current,
+              pageSize: params?.pageSize,
+            },
+          };
+          const res = await RESTful.post(`fxx/game/coin/task/page`, { data });
+
+          return {
+            data: res?.data?.total_datas ?? [],
+            page: params.current ?? 1,
+            success: true,
+            total: res?.data?.total_count ?? 0,
+          };
+        }}
+      />
+    </Space>
   );
-};
-
-export default EditableTable;
+}
