@@ -2,13 +2,14 @@ import { Form, message, Input, Modal, Alert } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
-import { services } from '../../services/task';
+import { services } from '../../services/taskDetail';
 
 import { useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import { positiveInteger } from '../utils';
 import SearchSelect from '@/components/SearchSelect';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 
 const { Item } = Form;
 
@@ -22,16 +23,19 @@ export default ({
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { id } = data;
-  const detail = useQuery(['game-mgt-editor', data.id], () => services.get({ data: { id } }), {
-    enabled: !!id,
-    refetchOnWindowFocus: false,
-
-    onSuccess(res) {
-      const formData = prune(res?.data, isValidValue) ?? {};
-      form.setFieldsValue({ ...formData });
+  const { taskId } = data;
+  const detail = useQuery(
+    ['coin/task/detail/list', taskId],
+    () => services.list({ data: { taskId } }),
+    {
+      enabled: !!taskId,
+      refetchOnWindowFocus: false,
+      onSuccess(res) {
+        const formData = prune(res?.data, isValidValue) ?? {};
+        form.setFieldsValue({ data: formData });
+      },
     },
-  });
+  );
 
   async function onSubmit() {
     try {
@@ -45,18 +49,15 @@ export default ({
         onOk: async () => {
           try {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
-            await services.update({
+            await services.saveOrUpdate({
               // 拼给后端
-              data: { ...detail?.data?.data, ...format, versionList: undefined },
+              data: { ...format },
               throwErr: true,
             });
             await onSuccess?.();
             setDrawerProps((pre) => ({ ...pre, visible: false }));
           } catch (e: any) {
-            if (e?.message) {
-              message.error(e?.message);
-            }
-            throw e;
+            console.error(e?.message);
           } finally {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: false }));
           }
@@ -96,16 +97,39 @@ export default ({
         <Input />
       </Item>
       <Item
-        name={'浏览游戏详情数量'}
+        name={['data', 0, 'commonCondition', 'condition']}
         label={'浏览游戏详情数量'}
         rules={[{ required: true }, { pattern: positiveInteger, message: '仅允许正整数' }]}
       >
         <Input style={{ width: '100%' }} addonAfter="个" placeholder="0" />
       </Item>
-      <Item name={'下发金币code'} label={'下发金币code'} rules={[{ required: true }]}>
-        <SearchSelect style={{ width: '100%' }} placeholder="请选择中台规则code" />
+      <Item shouldUpdate={shouldUpdateManyHOF([['data', 0, 'coinRuleId']])} noStyle>
+        {({ getFieldValue, setFields }) => (
+          <Item name={['data', 0, 'coinRuleId']} label="下发金币code" rules={[{ required: true }]}>
+            <Input
+              style={{ width: '100%' }}
+              onBlur={async () => {
+                try {
+                  const coinRuleId = getFieldValue(['data', 0, 'coinRuleId']);
+                  const coin = await services['coin/parser']({ data: { coinRuleId } });
+                  console.log(coin);
+                  setFields([
+                    {
+                      name: ['data', 0, 'coinRuleNum'],
+                      value: coin?.data?.minCoin,
+                    },
+                  ]);
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+              placeholder="请填写中台的积分规则ID"
+            />
+          </Item>
+        )}
       </Item>
-      <Item name={'下发金币数量'} label={'下发金币数量'}>
+
+      <Item name={['data', 0, 'coinRuleNum']} label={'下发金币数量'}>
         <Input disabled placeholder="根据下发金币code解析" />
       </Item>
     </DrawerForm>

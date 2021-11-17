@@ -1,9 +1,10 @@
-import React, { ReactNode, useState } from 'react';
-import type { TableColumnsType, TableProps, FormListProps } from 'antd';
-import { Table, Input, InputNumber, Popconfirm, Form, Typography } from 'antd';
-const originData = [];
+import { Input, Form, Typography } from 'antd';
+import type { EdiTableColumnType } from '@/components/EdiTable';
+import EdiTable from '@/components/EdiTable';
+import { MenuOutlined } from '@ant-design/icons';
+const originData: any = [];
 
-const { List, Item } = Form;
+const { Item } = Form;
 const { Link } = Typography;
 
 for (let i = 0; i < 10; i++) {
@@ -18,11 +19,18 @@ for (let i = 0; i < 10; i++) {
 const EditableTable = () => {
   const [form] = Form.useForm();
 
-  const columns: TableColumnsType<any> = [
+  const columns: EdiTableColumnType<any>[] = [
+    {
+      canDrag: true,
+      title: 'Sort',
+      dataIndex: 'sort',
+      width: 30,
+      render: () => <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />,
+    },
     {
       title: 'name',
       width: '25%',
-      renderFormItem: ({ field, fields, operation, meta }) => {
+      renderFormItem: ({ field }) => {
         return (
           <Item {...field} name={[field?.name, 'name']}>
             <Input />
@@ -33,7 +41,7 @@ const EditableTable = () => {
     {
       title: 'age',
       width: '15%',
-      renderFormItem: ({ field, fields, operation, meta }) => {
+      renderFormItem: ({ field }) => {
         return (
           <>
             <Item {...field} name={[field?.name, 'age']}>
@@ -46,7 +54,7 @@ const EditableTable = () => {
     {
       title: 'address',
       width: '40%',
-      renderFormItem: ({ field, fields, operation, meta }) => {
+      renderFormItem: ({ field }) => {
         return (
           <Item {...field} name={[field?.name, 'address']}>
             <Input />
@@ -55,76 +63,32 @@ const EditableTable = () => {
       },
     },
     {
+      width: '5%',
       title: 'operation',
-      renderFormItem: ({ field, fields, operation, meta }) => {
+      renderFormItem: ({ field, operation }) => {
         return (
-          <Item {...field} name={[field?.name, 'operation']} rules={[{ required: true }]}>
-            <Input />
+          <Item {...field}>
+            <Link onClick={() => operation.remove(field.name)}>删除</Link>
           </Item>
         );
       },
     },
-  ].map((col) => ({
-    ...col,
-    onCell: (_, idx) => {
-      return {
-        title: col?.title,
-        fieldName: idx,
-        renderFormItem: col?.renderFormItem,
-      };
-    },
-  }));
+  ];
 
   return (
     <Form form={form} initialValues={{ test: originData }} onFinish={console.log}>
-      <List name={'test'}>
-        {(fields, operation, meta) => {
+      <EdiTable formListProps={{ name: 'test' }} tableProps={{ columns, bordered: true }}>
+        {({ body, operation, fields }) => {
           return (
             <>
-              <Item noStyle dependencies={[['test']]}>
-                {({ getFieldValue }) => (
-                  <Table
-                    bordered
-                    components={{
-                      body: {
-                        cell: ({ renderFormItem, ...props }) => {
-                          console.log('cell', props);
-                          return (
-                            <td {...props}>
-                              {renderFormItem?.({
-                                field: fields?.[props?.fieldName],
-                                fields,
-                                operation,
-                                meta,
-                              }) ?? props?.children}
-                            </td>
-                          );
-                        },
-                      },
-                    }}
-                    dataSource={getFieldValue(['test'])}
-                    columns={columns}
-                    rowClassName="editable-row"
-                    pagination={false}
-                  />
-                )}
+              {body}
+              <Item>
+                <Link onClick={() => operation.add({})}> + 新增</Link>
               </Item>
-
-              <Link
-                onClick={() =>
-                  operation.add({
-                    key:
-                      fields?.reduce((max, field) => (max > field?.name ? max : field?.name), 0) +
-                      1,
-                  })
-                }
-              >
-                + add
-              </Link>
             </>
           );
         }}
-      </List>
+      </EdiTable>
 
       <Item hidden>
         <button html-type="submit" />

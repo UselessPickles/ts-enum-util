@@ -1,5 +1,4 @@
-import { Form, message, Input, Modal, Tabs, Tooltip, Popconfirm, Button, Typography } from 'antd';
-
+import { Form, Input, Modal, Tabs, Tooltip, Popconfirm, Button, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import DrawerForm from '@/components/DrawerForm@latest';
@@ -10,23 +9,21 @@ import { services } from '../../services/taskDetail';
 import { useMutation, useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
-import { compose } from '@/decorators/utils';
-import Render from '@/decorators/Common/Render';
-import type { DnDFormColumn } from '@/components/DnDForm';
-import { DnDForm } from '@/components/DnDForm';
-import disabled from '@/decorators/ATag/Disabled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import type { RuleRender } from 'antd/lib/form';
 import { USER_TYPE } from '../../models';
 import Options from '@/utils/Options';
 import styles from './index.less';
 import ChildrenRender from '@/components/ChildrenRender';
+import type { EdiTableColumnType } from '@/components/EdiTable';
+import EdiTable from '@/components/EdiTable';
+import { positiveInteger } from '../utils';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 
 const { Item } = Form;
 
 const { TabPane } = Tabs;
-const { Link } = Typography;
+const { Link, Text } = Typography;
 
 const FormItemExtra = styled(Item)`
   .ant-form-item-extra {
@@ -35,25 +32,6 @@ const FormItemExtra = styled(Item)`
     white-space: nowrap;
   }
 `;
-
-const valiadNumber: RuleRender = ({ getFieldValue }) => ({
-  validator: (_, value) => {
-    const digitsCount: number = getFieldValue('digitsCount') ?? 0;
-
-    if (Number.isNaN(+value)) {
-      return Promise.reject(new Error('只能是数字'));
-    }
-
-    if (+value < 0) {
-      return Promise.reject(new Error('必须是正数'));
-    }
-    if ((value?.split?.('.')?.[1]?.length ?? 0) > digitsCount) {
-      return Promise.reject(new Error(`最多支持${digitsCount}位小数`));
-    }
-
-    return Promise.resolve();
-  },
-});
 
 export default ({
   formProps,
@@ -66,15 +44,18 @@ export default ({
   onSuccess?: (...args: any) => void;
 }) => {
   const { taskId } = data;
-  const detail = useQuery(['game-mgt-editor', data.id], () => services.list({ data: { taskId } }), {
-    enabled: !!taskId,
-    refetchOnWindowFocus: false,
-
-    onSuccess(res) {
-      const formData = prune(res?.data, isValidValue) ?? {};
-      form.setFieldsValue({ ...formData });
+  const detail = useQuery(
+    ['coin/task/detail/list', taskId],
+    () => services.list({ data: { taskId } }),
+    {
+      enabled: !!taskId,
+      refetchOnWindowFocus: false,
+      onSuccess(res) {
+        const formData = prune(res?.data, isValidValue) ?? {};
+        form.setFieldsValue({ data: formData });
+      },
     },
-  });
+  );
 
   const remover = useMutation((id) => services.delete({ data: id }));
 
@@ -92,16 +73,13 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: { ...detail?.data?.data, ...format, versionList: undefined },
+              data: { ...format },
               throwErr: true,
             });
             await onSuccess?.();
             setDrawerProps((pre) => ({ ...pre, visible: false }));
           } catch (e: any) {
-            if (e?.message) {
-              message.error(e?.message);
-            }
-            throw e;
+            console.error(e?.message);
           } finally {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: false }));
           }
@@ -110,14 +88,14 @@ export default ({
     } catch (e: any) {}
   }
 
-  const columns: DnDFormColumn[] = [
+  const columns: EdiTableColumnType<any>[] = [
     {
       title: '排序',
       canDrag: true,
-      span: 0.5,
-      render({ field }) {
+      width: 75,
+      renderFormItem({ field }) {
         return (
-          <Item style={{ cursor: 'move' }} key={field.key}>
+          <Item style={{ cursor: 'move' }} key={field.key} fieldKey={[field.fieldKey, 'sort']}>
             {field.name + 1}
           </Item>
         );
@@ -132,10 +110,9 @@ export default ({
           分钟区间 <QuestionCircleOutlined />
         </Tooltip>
       ),
-      span: 2,
-      render({ field }) {
+      renderFormItem({ field }) {
         return (
-          <Item key={field.key} fieldKey={field.fieldKey} noStyle>
+          <Item key={field.key} fieldKey={[field.fieldKey, 'ballCondition', 'endRange']} noStyle>
             <div
               style={{
                 display: 'flex',
@@ -144,7 +121,7 @@ export default ({
               }}
             >
               <Item
-                name={field.name === 0 ? undefined : [field.name - 1, 'ecpmCoinMax']}
+                name={field.name === 0 ? undefined : [field.name - 1, 'ballCondition', 'endRange']}
                 initialValue={0}
               >
                 <Input
@@ -156,13 +133,13 @@ export default ({
               </Item>
               <Item> - </Item>
               <FormItemExtra
-                name={[field.name, 'ecpmCoinMax']}
+                name={[field.name, 'ballCondition', 'endRange']}
                 rules={[
                   { required: true, message: '该项不能为空' },
                   ({ getFieldValue }) => ({
                     validator: async (_, value) => {
                       if (
-                        (getFieldValue(['ecpmCoinConfigs', field?.name - 1, 'ecpmCoinMax']) ?? 0) >=
+                        (getFieldValue(['ballCondition', field?.name - 1, 'endRange']) ?? 0) >=
                         +value
                       ) {
                         return Promise.reject(new Error('右值需大于左值'));
@@ -170,9 +147,9 @@ export default ({
                       return Promise.resolve();
                     },
                   }),
-                  valiadNumber,
+                  { pattern: positiveInteger, message: '仅允许正整数' },
                 ]}
-                dependencies={[['ecpmCoinConfigs', field.name - 1, 'ecpmCoinMax'], ['digitsCount']]}
+                dependencies={[['ballCondition', field.name - 1, 'endRange'], ['digitsCount']]}
               >
                 <Input style={{ width: '100%' }} placeholder="0" addonAfter="分" />
               </FormItemExtra>
@@ -183,9 +160,14 @@ export default ({
     },
     {
       title: '每xx秒下发金币',
-      render({ field }) {
+      renderFormItem({ field }) {
         return (
-          <Item key={field.key} fieldKey={field.fieldKey}>
+          <Item
+            key={field.key}
+            fieldKey={[field.fieldKey, 'ballCondition', 'perSecond']}
+            name={[field?.name, 'ballCondition', 'perSecond']}
+            rules={[{ required: true }, { pattern: positiveInteger, message: '仅允许正整数' }]}
+          >
             <Input style={{ width: '100%' }} placeholder="0" addonAfter="秒" />
           </Item>
         );
@@ -193,31 +175,62 @@ export default ({
     },
     {
       title: '下发金币code',
-      render({ field }) {
+      renderFormItem({ field }) {
         return (
-          <Item key={field.key} fieldKey={field.fieldKey}>
-            <Input style={{ width: '100%' }} />
+          <Item shouldUpdate={shouldUpdateManyHOF([['data', field.name, 'coinRuleId']])} noStyle>
+            {({ getFieldValue, setFields }) => (
+              <Item
+                key={field.key}
+                fieldKey={[field.fieldKey, 'coinRuleId']}
+                name={[field.name, 'coinRuleId']}
+                rules={[{ required: true }]}
+              >
+                <Input
+                  style={{ width: '100%' }}
+                  onBlur={async () => {
+                    try {
+                      const coinRuleId = getFieldValue(['data', field?.name, 'coinRuleId']);
+                      const coin = await services['coin/parser']({ data: { coinRuleId } });
+                      console.log(coin);
+                      setFields([
+                        {
+                          name: ['data', field?.name, 'coinRuleNum'],
+                          value: coin?.data?.minCoin,
+                        },
+                      ]);
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  placeholder="请填写中台的积分规则ID"
+                />
+              </Item>
+            )}
           </Item>
         );
       },
     },
     {
       title: '下发金币数量',
-      render({ field }) {
-        return (
-          <Item key={field.key} fieldKey={field.fieldKey}>
-            <Input style={{ width: '100%' }} />
-          </Item>
-        );
+      width: 150,
+      dataIndex: 'coinRuleNum',
+      render: (text) => {
+        return <Text type="secondary">{text ?? '根据填写积分规则ID解析'}</Text>;
       },
     },
     {
       title: '操作',
-      span: 0.125,
-      render({ field, operation }) {
+      width: 75,
+      align: 'center',
+      renderFormItem({ field, operation }) {
         const { name, ...restField } = field;
         return (
-          <Item {...restField} name={[name, 'id']} wrapperCol={{ style: { alignItems: 'center' } }}>
+          <Item
+            {...restField}
+            fieldKey={[field.fieldKey, 'id']}
+            name={[name, 'id']}
+            wrapperCol={{ style: { alignItems: 'center' } }}
+          >
             <ChildrenRender<any>>
               {({ value }) => (
                 <Popconfirm
@@ -268,21 +281,21 @@ export default ({
         width: 1000,
       }}
     >
-      <Item name={'id'} hidden>
-        <Input />
-      </Item>
-
-      <DnDForm name="ecpmCoinConfigs" columns={columns} formListProps={{ initialValue: [{}] }}>
-        {({ title, body, operation }) => {
+      <EdiTable
+        tableProps={{ columns, style: { border: '1px solid #E8EAEC' } }}
+        formListProps={{
+          name: 'data',
+        }}
+      >
+        {({ body, operation, fields }) => {
           return (
             <>
-              {title}
               {body}
 
               <Button
                 ghost
                 type="primary"
-                onClick={() => operation.add()}
+                onClick={() => operation.add({ key: fields?.length })}
                 icon={<PlusOutlined />}
                 style={{ marginTop: '16px' }}
               >
@@ -291,7 +304,7 @@ export default ({
             </>
           );
         }}
-      </DnDForm>
+      </EdiTable>
     </DrawerForm>
   );
 };
