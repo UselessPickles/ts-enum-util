@@ -77,7 +77,7 @@ const EditableTable = () => {
 
   return (
     <Form form={form} initialValues={{ test: originData }} onFinish={console.log}>
-      <EdiTable formListProps={{ name: 'test' }} tableProps={{ columns }}>
+      <EdiTable formListProps={{ name: 'test' }} tableProps={{ columns, bordered: true }}>
         {({ body, operation }) => {
           return (
             <>

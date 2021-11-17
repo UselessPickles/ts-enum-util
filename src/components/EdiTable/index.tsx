@@ -44,6 +44,7 @@ export default <RecordType extends Record<string, any> = any>({
   children,
 }: EdiTableProps<RecordType>) => {
   const name = formListProps?.name;
+
   const { columns, ...restTableProps } = tableProps;
 
   return (
@@ -116,30 +117,33 @@ export function DnDRow({
   [key: string]: any;
 } & RenderFormItemParams) {
   const rowRef = useRef(null);
-  const [{ isOver, dropClassName }, drop] = useDrop<any, any, any>({
-    accept: name,
-    collect: (monitor) => {
-      const { index: dragIndex } = monitor.getItem<any>() || {};
-      if (dragIndex === field.name) {
-        return {};
-      }
-      return {
-        isOver: monitor.isOver(),
-        dropClassName: dragIndex < field.name ? 'drop-over-downward' : 'drop-over-upward',
-      };
+
+  const [{ isOver, dropClassName }, drop] = useDrop<any, any, any>(
+    {
+      accept: name ?? 'default',
+      collect: (monitor) => {
+        const { index: dragIndex } = monitor.getItem<any>() || {};
+        if (dragIndex === field?.name) {
+          return {};
+        }
+        return {
+          isOver: monitor.isOver(),
+          dropClassName: dragIndex < field?.name ? 'drop-over-downward' : 'drop-over-upward',
+        };
+      },
+      drop: (item) => {
+        operation.move(item.index, field?.name);
+      },
     },
-    drop: (item) => {
-      operation.move(item.index, field.name);
-    },
-  });
+    [name, field.name],
+  );
 
   drop(rowRef);
-
   return (
     <tr
       ref={rowRef}
       className={`${className} ${isOver ? styles?.[dropClassName] : ''}`}
-      children={children?.map((child: any) => ({
+      children={children?.map?.((child: any) => ({
         ...child,
         props: {
           ...child?.props,
@@ -166,13 +170,16 @@ export function DnDCell({
   renderFormItem: RenderFormItem;
   [key: string]: any;
 } & RenderFormItemParams) {
-  const [, drag, dragPreview] = useDrag({
-    type: name,
-    item: { index: field.name },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
+  const [, drag, dragPreview] = useDrag(
+    {
+      type: name ?? 'default',
+      item: { index: field?.name },
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
+    },
+    [name, field.name],
+  );
 
   dragPreview(rowRef);
 
