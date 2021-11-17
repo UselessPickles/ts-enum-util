@@ -11,7 +11,7 @@ import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import { USER_TYPE } from '../../models';
+import { REWARD_TYPE_ENUM, USER_TYPE } from '../../models';
 import Options from '@/utils/Options';
 import styles from './index.less';
 import ChildrenRender from '@/components/ChildrenRender';
@@ -190,12 +190,20 @@ export default ({
                   onBlur={async () => {
                     try {
                       const coinRuleId = getFieldValue(['data', field?.name, 'coinRuleId']);
-                      const coin = await services['coin/parser']({ data: { coinRuleId } });
-                      console.log(coin);
+                      const { maxCoin, minCoin, rewardType } =
+                        (
+                          await services['coin/parser']({
+                            data: { coinRuleId },
+                          })
+                        )?.data ?? {};
+                      const text =
+                        rewardType === REWARD_TYPE_ENUM.固定数额
+                          ? minCoin
+                          : `${minCoin} ~ ${maxCoin}`;
                       setFields([
                         {
                           name: ['data', field?.name, 'coinRuleNum'],
-                          value: coin?.data?.minCoin,
+                          value: text,
                         },
                       ]);
                     } catch (e) {

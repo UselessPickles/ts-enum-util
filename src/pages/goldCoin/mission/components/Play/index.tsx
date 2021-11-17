@@ -10,6 +10,7 @@ import prune from '@/utils/prune';
 import { positiveInteger } from '../utils';
 import SearchSelect from '@/components/SearchSelect';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+import { REWARD_TYPE_ENUM } from '../../models';
 
 const { Item } = Form;
 
@@ -112,12 +113,18 @@ export default ({
               onBlur={async () => {
                 try {
                   const coinRuleId = getFieldValue(['data', 0, 'coinRuleId']);
-                  const coin = await services['coin/parser']({ data: { coinRuleId } });
-                  console.log(coin);
+                  const { maxCoin, minCoin, rewardType } =
+                    (
+                      await services['coin/parser']({
+                        data: { coinRuleId },
+                      })
+                    )?.data ?? {};
+                  const text =
+                    rewardType === REWARD_TYPE_ENUM.固定数额 ? minCoin : `${minCoin} ~ ${maxCoin}`;
                   setFields([
                     {
                       name: ['data', 0, 'coinRuleNum'],
-                      value: coin?.data?.minCoin,
+                      value: text,
                     },
                   ]);
                 } catch (e) {

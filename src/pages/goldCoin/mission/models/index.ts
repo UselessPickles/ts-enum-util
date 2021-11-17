@@ -33,3 +33,8 @@ export enum USER_TYPE_ENUM {
   '新用户' = '2',
   '老用户' = '3',
 }
+
+export enum REWARD_TYPE_ENUM {
+  '固定数额' = 1,
+  '随机数额',
+}
