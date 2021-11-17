@@ -265,7 +265,14 @@ export default ({
             <>
               {title}
               {body}
-              <Button ghost type="primary" onClick={() => operation.add()} icon={<PlusOutlined />}>
+
+              <Button
+                ghost
+                type="primary"
+                onClick={() => operation.add()}
+                icon={<PlusOutlined />}
+                style={{ marginTop: '16px' }}
+              >
                 添加条件
               </Button>
             </>

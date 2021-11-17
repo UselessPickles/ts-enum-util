@@ -9,6 +9,14 @@ import type { FormListFieldData, FormListOperation, FormListProps } from 'antd/e
 
 import { InfoCircleOutlined } from '@ant-design/icons';
 
+import styled from 'styled-components';
+
+const ItemWrap = styled.div`
+  .ant-form-item {
+    margin-bottom: 0;
+  }
+`;
+
 export interface DnDFormColumn {
   title: ReactNode;
   render: (args: { field: FormListFieldData; idx: number } & FormListChildren) => ReactNode;
@@ -93,7 +101,6 @@ export function DnDForm({
             style={{
               margin: 'unset',
               minHeight: 36,
-              marginBottom: 18,
               fontWeight: 500,
               textAlign: 'left',
               background: '#F1F4F9',
@@ -191,7 +198,14 @@ function DraggableItem({
   return (
     <GridTitle
       ref={(node) => dragPreview(dropItem(node))}
-      style={{ opacity, margin: 'unset', ...rowStyle }}
+      style={{
+        opacity,
+        margin: 'unset',
+        padding: '16px 0',
+        border: '1px solid #E8EAEC',
+        borderTop: 'unset',
+        ...rowStyle,
+      }}
       cols={cols}
       key={key}
       {...rowProps}
@@ -199,7 +213,9 @@ function DraggableItem({
       {columns?.map((col) => {
         const { render, canDrag } = col;
 
-        const child = render({ field, idx: field.name, fields, operation, meta });
+        const child = (
+          <ItemWrap>{render({ field, idx: field.name, fields, operation, meta })}</ItemWrap>
+        );
 
         if (canDrag) {
           return (
