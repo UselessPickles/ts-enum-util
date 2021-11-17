@@ -18,9 +18,25 @@ import Boot from './Boot';
 import RedPacket from './RedPacket';
 import VisDetail from './VisDetail';
 import useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
+import { useMutation } from 'react-query';
 
 export default function () {
   const { actionRef, formRef } = useProTable();
+
+  const switcher = useMutation(
+    (r: Row) =>
+      services.update({
+        data: {
+          id: r?.id,
+          status: r?.status === STATUS_ENUM.启用 ? STATUS_ENUM.禁用 : STATUS_ENUM.启用,
+        },
+      }),
+    {
+      onSuccess() {
+        actionRef.current?.reload();
+      },
+    },
+  );
 
   const editor = useDrawerForm();
 
@@ -63,13 +79,7 @@ export default function () {
   function switchHandler(r: Row) {
     return async () => {
       try {
-        await services.update({
-          data: {
-            id: r?.id,
-            status: r?.status === STATUS_ENUM.启用 ? STATUS_ENUM.禁用 : STATUS_ENUM.启用,
-          },
-        });
-        actionRef.current?.reload();
+        await switcher.mutateAsync(r);
       } catch (e) {
         console.warn(e);
       }
