@@ -21,6 +21,7 @@ const EditableTable = () => {
 
   const columns: EdiTableColumnType<any>[] = [
     {
+      canDrag: true,
       title: 'Sort',
       dataIndex: 'sort',
       width: 30,

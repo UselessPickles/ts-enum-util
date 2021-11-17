@@ -1,4 +1,5 @@
-import { ReactNode, useRef } from 'react';
+import type { ReactNode } from 'react';
+import { useRef } from 'react';
 import type { TableProps } from 'antd';
 import { Table, Form } from 'antd';
 import type { FormListProps } from 'antd/lib/form/FormList';
@@ -21,6 +22,7 @@ export type RenderFormItem = (params: RenderFormItemParams) => ReactNode;
 
 export interface EdiTableColumnType<P> extends ColumnType<P> {
   renderFormItem?: RenderFormItem;
+  canDrag?: boolean;
 }
 export interface EdiTableProps<RecordType> {
   formListProps: Omit<FormListProps, 'children'>;
@@ -48,10 +50,11 @@ export default <RecordType extends Record<string, any> = any>({
     <div className={styles.editable}>
       <List {...formListProps}>
         {(fields, operation, meta) => {
-          const injectColumns: any = columns?.map?.(({ renderFormItem, ...column }) => ({
+          const injectColumns: any = columns?.map?.(({ renderFormItem, canDrag, ...column }) => ({
             ...column,
             onCell: (_: any, idx: any) => ({
               name,
+              canDrag,
               renderFormItem,
               field: fields[idx],
               fields,
@@ -112,7 +115,7 @@ export function DnDRow({
   renderFormItem: RenderFormItem;
   [key: string]: any;
 } & RenderFormItemParams) {
-  const ref = useRef(null);
+  const rowRef = useRef(null);
   const [{ isOver, dropClassName }, drop] = useDrop<any, any, any>({
     accept: name,
     collect: (monitor) => {
@@ -130,17 +133,17 @@ export function DnDRow({
     },
   });
 
-  drop(ref);
+  drop(rowRef);
 
   return (
     <tr
-      ref={ref}
+      ref={rowRef}
       className={`${className} ${isOver ? styles?.[dropClassName] : ''}`}
       children={children?.map((child: any) => ({
         ...child,
         props: {
           ...child?.props,
-          additionalProps: { ...child?.props?.additionalProps, rowRef: ref },
+          additionalProps: { ...child?.props?.additionalProps, rowRef },
         },
       }))}
       {...props}
@@ -156,6 +159,7 @@ export function DnDCell({
   operation,
   meta,
   rowRef,
+  canDrag,
   ...props
 }: {
   renderFormItem: RenderFormItem;
@@ -172,7 +176,7 @@ export function DnDCell({
   dragPreview(rowRef);
 
   return (
-    <td ref={(node) => drag(node)} {...props}>
+    <td ref={canDrag && drag} {...props}>
       {renderFormItem?.({ field, fields, operation, meta }) ?? props?.children}
     </td>
   );
