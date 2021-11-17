@@ -132,7 +132,7 @@ export default ({
             await services.update(
               {
                 // 拼给后端
-                data: { ...detail?.data?.data, ...format, versionList: undefined },
+                data: { ...format },
                 throwErr: true,
               },
               env,
@@ -140,10 +140,7 @@ export default ({
             await onSuccess?.();
             setModalProps((pre) => ({ ...pre, visible: false }));
           } catch (e: any) {
-            if (e?.message) {
-              message.error(e?.message);
-            }
-            throw e;
+            console.error(e?.message);
           } finally {
             setModalProps((pre) => ({ ...pre, confirmLoading: false }));
           }

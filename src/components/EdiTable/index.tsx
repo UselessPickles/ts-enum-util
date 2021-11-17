@@ -7,6 +7,7 @@ import type { ColumnType } from 'antd/lib/table';
 import { useDrag, useDrop } from 'react-dnd';
 
 import styles from './index.less';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 
 type FormListChildrenParams = Parameters<FormListProps['children']>;
 interface FormListChildrenParamsInterface {
@@ -66,7 +67,7 @@ export default <RecordType extends Record<string, any> = any>({
 
           const body = (
             <>
-              <Item noStyle dependencies={[name]}>
+              <Item noStyle shouldUpdate={shouldUpdateManyHOF([name])}>
                 {({ getFieldValue }) => (
                   <Table
                     onRow={(_, idx) =>
@@ -135,7 +136,7 @@ export function DnDRow({
         operation.move(item.index, field?.name);
       },
     },
-    [name, field.name],
+    [name, field?.name],
   );
 
   drop(rowRef);
@@ -178,7 +179,7 @@ export function DnDCell({
         isDragging: monitor.isDragging(),
       }),
     },
-    [name, field.name],
+    [name, field?.name],
   );
 
   dragPreview(rowRef);

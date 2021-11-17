@@ -78,12 +78,12 @@ const EditableTable = () => {
   return (
     <Form form={form} initialValues={{ test: originData }} onFinish={console.log}>
       <EdiTable formListProps={{ name: 'test' }} tableProps={{ columns, bordered: true }}>
-        {({ body, operation }) => {
+        {({ body, operation, fields }) => {
           return (
             <>
               {body}
               <Item>
-                <Link onClick={() => operation.add()}> + 新增</Link>
+                <Link onClick={() => operation.add({ key: fields?.length })}> + 新增</Link>
               </Item>
             </>
           );
