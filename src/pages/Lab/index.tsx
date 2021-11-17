@@ -83,7 +83,7 @@ const EditableTable = () => {
             <>
               {body}
               <Item>
-                <Link onClick={() => operation.add({ key: fields?.length })}> + 新增</Link>
+                <Link onClick={() => operation.add({})}> + 新增</Link>
               </Item>
             </>
           );

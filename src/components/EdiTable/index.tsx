@@ -51,7 +51,13 @@ export default <RecordType extends Record<string, any> = any>({
   return (
     <div className={styles.editable}>
       <List {...formListProps}>
-        {(fields, operation, meta) => {
+        {(fields, originOperation, meta) => {
+          const operation = {
+            ...originOperation,
+            add: (...rows: Parameters<FormListChildrenParams[1]['add']>) =>
+              originOperation?.add({ key: fields?.length, ...rows[0] }, rows[1]),
+          };
+
           const injectColumns: any = columns?.map?.(({ renderFormItem, canDrag, ...column }) => ({
             ...column,
             onCell: (_: any, idx: any) => ({
