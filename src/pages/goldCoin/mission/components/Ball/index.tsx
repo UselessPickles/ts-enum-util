@@ -5,9 +5,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import DrawerForm from '@/components/DrawerForm@latest';
 
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
-import { services } from '../../services/task';
+import { services } from '../../services/taskDetail';
 
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import { compose } from '@/decorators/utils';
@@ -21,6 +21,7 @@ import type { RuleRender } from 'antd/lib/form';
 import { USER_TYPE } from '../../models';
 import Options from '@/utils/Options';
 import styles from './index.less';
+import ChildrenRender from '@/components/ChildrenRender';
 
 const { Item } = Form;
 
@@ -64,9 +65,9 @@ export default ({
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { id } = data;
-  const detail = useQuery(['game-mgt-editor', data.id], () => services.get({ data: { id } }), {
-    enabled: !!id,
+  const { taskId } = data;
+  const detail = useQuery(['game-mgt-editor', data.id], () => services.list({ data: { taskId } }), {
+    enabled: !!taskId,
     refetchOnWindowFocus: false,
 
     onSuccess(res) {
@@ -74,6 +75,8 @@ export default ({
       form.setFieldsValue({ ...formData });
     },
   });
+
+  const remover = useMutation((id) => services.delete({ data: id }));
 
   async function onSubmit() {
     try {
@@ -87,7 +90,7 @@ export default ({
         onOk: async () => {
           try {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
-            await services.update({
+            await services.saveOrUpdate({
               // 拼给后端
               data: { ...detail?.data?.data, ...format, versionList: undefined },
               throwErr: true,
@@ -212,16 +215,26 @@ export default ({
       title: '操作',
       span: 0.125,
       render({ field, operation }) {
+        const { name, ...restField } = field;
         return (
-          <Item>
-            <Popconfirm
-              placement="topRight"
-              title="该操作不可逆，请谨慎操作！"
-              onConfirm={() => operation.remove(field.name)}
-              disabled={field?.name === 0}
-            >
-              {compose(disabled(field?.name === 0))(<Link>删除</Link>)}
-            </Popconfirm>
+          <Item {...restField} name={[name, 'id']} wrapperCol={{ style: { alignItems: 'center' } }}>
+            <ChildrenRender<any>>
+              {({ value }) => (
+                <Popconfirm
+                  placement="topRight"
+                  title="该操作不可逆，请谨慎操作！"
+                  onConfirm={() => {
+                    if (value !== undefined) {
+                      remover.mutate(value);
+                    }
+                    operation?.remove(field?.name);
+                  }}
+                  disabled={field?.name === 0}
+                >
+                  <Link disabled={field?.name === 0}>删除</Link>
+                </Popconfirm>
+              )}
+            </ChildrenRender>
           </Item>
         );
       },
@@ -242,7 +255,7 @@ export default ({
           <>
             小圆球任务
             <Form form={formProps?.form} component={false}>
-              <Item name="tab" valuePropName="activeKey" style={{ position: 'absolute' }}>
+              <Item name="userType" valuePropName="activeKey" style={{ position: 'absolute' }}>
                 <Tabs>
                   {Options(USER_TYPE).toOpt?.map((opt) => (
                     <TabPane tab={opt.label} key={opt.value} />

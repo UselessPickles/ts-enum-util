@@ -25,11 +25,11 @@ export const STATUS = new Map([
 ]);
 
 export const USER_TYPE = new Map([
-  ['0', '新用户'],
-  ['1', '老用户'],
+  ['2', '新用户'],
+  ['3', '老用户'],
 ]);
 
 export enum USER_TYPE_ENUM {
-  '新用户',
-  '老用户',
+  '新用户' = '2',
+  '老用户' = '3',
 }
