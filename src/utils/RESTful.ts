@@ -135,13 +135,13 @@ const authHandler: ResponseHandler = (response) => {
   switch (response?.result?.status) {
     case -402: {
       // 删除sessionStorage会触发重新登录
-      // localStorage.clear();
-      // history.replace({
-      //   pathname: '/user/login',
-      //   query: {
-      //     authRedirectFrom: location.pathname + location.search,
-      //   },
-      // });
+      localStorage.clear();
+      history.replace({
+        pathname: '/user/login',
+        query: {
+          authRedirectFrom: location.pathname + location.search,
+        },
+      });
       try {
         if (window !== window?.top) {
           window?.parent?.location?.reload();

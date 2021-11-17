@@ -1,16 +1,6 @@
-import {
-  Form,
-  message,
-  Input,
-  Modal,
-  InputNumber,
-  Tabs,
-  Tooltip,
-  Popconfirm,
-  Typography,
-} from 'antd';
+import { Form, message, Input, Modal, Tabs, Tooltip, Popconfirm, Button, Typography } from 'antd';
 
-import { MinusCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 
@@ -30,6 +20,7 @@ import styled from 'styled-components';
 import type { RuleRender } from 'antd/lib/form';
 import { USER_TYPE } from '../../models';
 import Options from '@/utils/Options';
+import styles from './index.less';
 
 const { Item } = Form;
 
@@ -123,13 +114,7 @@ export default ({
       span: 0.5,
       render({ field }) {
         return (
-          <Item
-            style={{
-              cursor: 'move',
-              textAlign: 'center',
-            }}
-            key={field.key}
-          >
+          <Item style={{ cursor: 'move' }} key={field.key}>
             {field.name + 1}
           </Item>
         );
@@ -138,11 +123,10 @@ export default ({
     {
       title: (
         <Tooltip
-          title="
-                默认从0开始，区间起始框代表第x分钟01秒开始，即xx分01秒，区间结束框代表第x分钟00秒，即xx分00秒，例如设置1-2分钟，表示1分01秒开始，到2分00秒结束"
+          title="默认从0开始，区间起始框代表第x分钟01秒开始，即xx分01秒，区间结束框代表第x分钟00秒，即xx分00秒，例如设置1-2分钟，表示1分01秒开始，到2分00秒结束"
           key="1"
         >
-          设置分钟区间 <QuestionCircleOutlined />
+          分钟区间 <QuestionCircleOutlined />
         </Tooltip>
       ),
       span: 2,
@@ -160,7 +144,7 @@ export default ({
                 name={field.name === 0 ? undefined : [field.name - 1, 'ecpmCoinMax']}
                 initialValue={0}
               >
-                <InputNumber
+                <Input
                   style={{ width: '100%' }}
                   placeholder="请输入"
                   disabled
@@ -187,9 +171,8 @@ export default ({
                 ]}
                 dependencies={[['ecpmCoinConfigs', field.name - 1, 'ecpmCoinMax'], ['digitsCount']]}
               >
-                <InputNumber style={{ width: '100%' }} placeholder="请输入" />
+                <Input style={{ width: '100%' }} placeholder="0" addonAfter="分" />
               </FormItemExtra>
-              <Item>分</Item>
             </div>
           </Item>
         );
@@ -200,11 +183,7 @@ export default ({
       render({ field }) {
         return (
           <Item key={field.key} fieldKey={field.fieldKey}>
-            {compose(
-              Render((origin) => (
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>{origin}秒</div>
-              )),
-            )(<InputNumber style={{ width: '100%' }} />)}
+            <Input style={{ width: '100%' }} placeholder="0" addonAfter="秒" />
           </Item>
         );
       },
@@ -214,7 +193,7 @@ export default ({
       render({ field }) {
         return (
           <Item key={field.key} fieldKey={field.fieldKey}>
-            <InputNumber style={{ width: '100%' }} />
+            <Input style={{ width: '100%' }} />
           </Item>
         );
       },
@@ -224,28 +203,24 @@ export default ({
       render({ field }) {
         return (
           <Item key={field.key} fieldKey={field.fieldKey}>
-            <InputNumber style={{ width: '100%' }} />
+            <Input style={{ width: '100%' }} />
           </Item>
         );
       },
     },
     {
       title: '操作',
-      span: 0.5,
+      span: 0.125,
       render({ field, operation }) {
         return (
-          <Item style={{ textAlign: 'center' }}>
+          <Item>
             <Popconfirm
               placement="topRight"
               title="该操作不可逆，请谨慎操作！"
               onConfirm={() => operation.remove(field.name)}
               disabled={field?.name === 0}
             >
-              {compose(disabled(field?.name === 0))(
-                <Link type="danger">
-                  <MinusCircleOutlined /> 删除
-                </Link>,
-              )}
+              {compose(disabled(field?.name === 0))(<Link>删除</Link>)}
             </Popconfirm>
           </Item>
         );
@@ -262,20 +237,26 @@ export default ({
       drawerProps={{
         ...drawerProps,
         onOk: onSubmit,
-        title: '小圆球任务',
-        width: 900,
+        className: styles['modal-title-height'],
+        title: (
+          <>
+            小圆球任务
+            <Form form={formProps?.form} component={false}>
+              <Item name="tab" valuePropName="activeKey" style={{ position: 'absolute' }}>
+                <Tabs>
+                  {Options(USER_TYPE).toOpt?.map((opt) => (
+                    <TabPane tab={opt.label} key={opt.value} />
+                  ))}
+                </Tabs>
+              </Item>
+            </Form>
+          </>
+        ),
+        width: 1000,
       }}
     >
       <Item name={'id'} hidden>
         <Input />
-      </Item>
-
-      <Item name="用户类型">
-        <Tabs type="card">
-          {Options(USER_TYPE).toOpt?.map(({ value, label }) => (
-            <TabPane tab={label} key={value} />
-          ))}
-        </Tabs>
       </Item>
 
       <DnDForm name="ecpmCoinConfigs" columns={columns} formListProps={{ initialValue: [{}] }}>
@@ -284,7 +265,9 @@ export default ({
             <>
               {title}
               {body}
-              <a onClick={() => operation.add()}>+ 添加区间</a>
+              <Button ghost type="primary" onClick={() => operation.add()} icon={<PlusOutlined />}>
+                添加条件
+              </Button>
             </>
           );
         }}

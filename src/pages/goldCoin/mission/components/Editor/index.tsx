@@ -1,4 +1,4 @@
-import { Form, message, Input, Modal, Switch, div, InputNumber, Radio } from 'antd';
+import { Form, message, Input, Modal, Radio } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
@@ -11,6 +11,7 @@ import { compose } from '@/decorators/utils';
 import Render from '@/decorators/Common/Render';
 import Options from '@/utils/Options';
 import { IOC } from '@/decorators/hoc';
+import { positiveInteger } from '../utils';
 
 const { Item } = Form;
 
@@ -44,7 +45,6 @@ export default ({
     '关闭',
     '开启',
   }
-  const positiveInteger = /^[0-9]+$/;
 
   async function onSubmit() {
     try {

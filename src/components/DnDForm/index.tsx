@@ -93,10 +93,10 @@ export function DnDForm({
             style={{
               margin: 'unset',
               minHeight: 36,
-              background: '#eee',
               marginBottom: 18,
               fontWeight: 500,
-              textAlign: 'center',
+              textAlign: 'left',
+              background: '#F1F4F9',
               ...titleStyle,
             }}
             {...titleRowProps}

@@ -1,16 +1,4 @@
-import {
-  Form,
-  message,
-  Input,
-  Modal,
-  InputNumber,
-  Tabs,
-  Tooltip,
-  Popconfirm,
-  Typography,
-} from 'antd';
-
-import { MinusCircleOutlined } from '@ant-design/icons';
+import { Form, message, Input, Modal, Alert } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
@@ -19,49 +7,10 @@ import { services } from '../../services';
 import { useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
-import { compose } from '@/decorators/utils';
-import Render from '@/decorators/Common/Render';
-import type { DnDFormColumn } from '@/components/DnDForm';
-import { DnDForm } from '@/components/DnDForm';
-import disabled from '@/decorators/ATag/Disabled';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
-import type { RuleRender } from 'antd/lib/form';
-import { USER_TYPE } from '../../models';
-import Options from '@/utils/Options';
-import FormItemView from '@/components/FormItemView';
+import { positiveInteger } from '../utils';
+import SearchSelect from '@/components/SearchSelect';
 
 const { Item } = Form;
-
-const { TabPane } = Tabs;
-const { Link, Text } = Typography;
-
-const FormItemExtra = styled(Item)`
-  .ant-form-item-extra {
-    position: absolute;
-    bottom: -24px;
-    white-space: nowrap;
-  }
-`;
-
-const valiadNumber: RuleRender = ({ getFieldValue }) => ({
-  validator: (_, value) => {
-    const digitsCount: number = getFieldValue('digitsCount') ?? 0;
-
-    if (Number.isNaN(+value)) {
-      return Promise.reject(new Error('只能是数字'));
-    }
-
-    if (+value < 0) {
-      return Promise.reject(new Error('必须是正数'));
-    }
-    if ((value?.split?.('.')?.[1]?.length ?? 0) > digitsCount) {
-      return Promise.reject(new Error(`最多支持${digitsCount}位小数`));
-    }
-
-    return Promise.resolve();
-  },
-});
 
 export default ({
   formProps,
@@ -120,36 +69,44 @@ export default ({
     <DrawerForm
       formProps={{
         ...formProps,
-        layout: 'horizontal',
-        labelCol: { span: 6 },
-        wrapperCol: { span: 18 },
         onFinish: onSubmit,
+        style: { marginTop: '34px' },
       }}
       drawerProps={{
         ...drawerProps,
-        title: '首次玩游戏',
+        title: (
+          <>
+            首次玩游戏
+            <Alert
+              style={{
+                position: 'absolute',
+                transform: 'translate(0%, 50%)',
+                width: '100%',
+                left: '0',
+              }}
+              banner
+              message="每个用户最多获得1次，玩游戏数量达标，即下发金币"
+            />
+          </>
+        ),
         onOk: onSubmit,
       }}
     >
-      <Item>
-        <Text type="secondary"> 每个用户最多获得1次，玩游戏数量达标，即下发金币 </Text>
-      </Item>
-
       <Item name={'id'} hidden>
         <Input />
       </Item>
-      <Item name={'玩游戏数量'} label={'玩游戏数量'} rules={[{ required: true }]}>
-        {compose(
-          Render((origin) => (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{origin} 个</div>
-          )),
-        )(<InputNumber style={{ width: '100%' }} />)}
+      <Item
+        name={'玩游戏数量'}
+        label={'玩游戏数量'}
+        rules={[{ required: true }, { pattern: positiveInteger, message: '仅允许正整数' }]}
+      >
+        <Input style={{ width: '100%' }} addonAfter="个" placeholder="0" />
       </Item>
       <Item name={'下发金币code'} label={'下发金币code'} rules={[{ required: true }]}>
-        <InputNumber style={{ width: '100%' }} />
+        <SearchSelect style={{ width: '100%' }} placeholder="请选择中台规则code" />
       </Item>
       <Item name={'下发金币数量'} label={'下发金币数量'}>
-        <FormItemView />
+        <Input disabled placeholder="根据下发金币code解析" />
       </Item>
     </DrawerForm>
   );

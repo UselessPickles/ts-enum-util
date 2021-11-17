@@ -119,22 +119,15 @@ export default ({
     {
       title: '天数',
       canDrag: true,
-      span: 0.5,
+      span: 0.25,
       render({ field }) {
         return (
-          <Item
-            style={{
-              cursor: 'move',
-              textAlign: 'center',
-            }}
-            key={field.key}
-          >
+          <Item style={{ cursor: 'move' }} key={field.key}>
             第{field.name + 1}天
           </Item>
         );
       },
     },
-
     {
       title: '下发金币code',
       render({ field }) {
