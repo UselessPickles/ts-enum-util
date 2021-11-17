@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
 import type { TableProps } from 'antd';
 import { Table, Form } from 'antd';
 import type { FormListProps } from 'antd/lib/form/FormList';
 import type { ColumnType } from 'antd/lib/table';
+import { useDrag, useDrop } from 'react-dnd';
 
 import styles from './index.less';
 
@@ -13,9 +14,10 @@ interface FormListChildrenParamsInterface {
   meta: FormListChildrenParams[2];
 }
 
-export type RenderFormItem = (
-  params: { field: FormListChildrenParams[0][number] } & FormListChildrenParamsInterface,
-) => ReactNode;
+export interface RenderFormItemParams extends FormListChildrenParamsInterface {
+  field: FormListChildrenParams[0][number];
+}
+export type RenderFormItem = (params: RenderFormItemParams) => ReactNode;
 
 export interface EdiTableColumnType<P> extends ColumnType<P> {
   renderFormItem?: RenderFormItem;
@@ -41,42 +43,41 @@ export default <RecordType extends Record<string, any> = any>({
 }: EdiTableProps<RecordType>) => {
   const name = formListProps?.name;
   const { columns, ...restTableProps } = tableProps;
-  const injectColumns: any = columns?.map?.(({ renderFormItem, ...column }) => ({
-    ...column,
-    onCell: (_: any, idx: any) => ({
-      renderFormItem,
-      fieldName: idx,
-    }),
-  }));
 
   return (
     <div className={styles.editable}>
       <List {...formListProps}>
         {(fields, operation, meta) => {
+          const injectColumns: any = columns?.map?.(({ renderFormItem, ...column }) => ({
+            ...column,
+            onCell: (_: any, idx: any) => ({
+              name,
+              renderFormItem,
+              field: fields[idx],
+              fields,
+              operation,
+              meta,
+            }),
+          }));
+
           const body = (
             <>
               <Item noStyle dependencies={[name]}>
                 {({ getFieldValue }) => (
                   <Table
+                    onRow={(_, idx) =>
+                      ({
+                        name,
+                        field: fields?.[idx as number],
+                        fields,
+                        operation,
+                        meta,
+                      } as any)
+                    }
                     components={{
                       body: {
-                        cell: ({
-                          renderFormItem,
-                          fieldName,
-                          ...props
-                        }: {
-                          renderFormItem: RenderFormItem;
-                          [key: string]: any;
-                        }) => (
-                          <td {...props}>
-                            {renderFormItem?.({
-                              field: fields?.[fieldName],
-                              fields,
-                              operation,
-                              meta,
-                            }) ?? props?.children}
-                          </td>
-                        ),
+                        cell: DnDCell,
+                        row: DnDRow,
                       },
                     }}
                     dataSource={getFieldValue(name)}
@@ -96,3 +97,83 @@ export default <RecordType extends Record<string, any> = any>({
     </div>
   );
 };
+
+export function DnDRow({
+  name,
+  renderFormItem,
+  field,
+  fields,
+  operation,
+  meta,
+  className,
+  children,
+  ...props
+}: {
+  renderFormItem: RenderFormItem;
+  [key: string]: any;
+} & RenderFormItemParams) {
+  const ref = useRef(null);
+  const [{ isOver, dropClassName }, drop] = useDrop<any, any, any>({
+    accept: name,
+    collect: (monitor) => {
+      const { index: dragIndex } = monitor.getItem<any>() || {};
+      if (dragIndex === field.name) {
+        return {};
+      }
+      return {
+        isOver: monitor.isOver(),
+        dropClassName: dragIndex < field.name ? 'drop-over-downward' : 'drop-over-upward',
+      };
+    },
+    drop: (item) => {
+      operation.move(item.index, field.name);
+    },
+  });
+
+  drop(ref);
+
+  return (
+    <tr
+      ref={ref}
+      className={`${className} ${isOver ? styles?.[dropClassName] : ''}`}
+      children={children?.map((child: any) => ({
+        ...child,
+        props: {
+          ...child?.props,
+          additionalProps: { ...child?.props?.additionalProps, rowRef: ref },
+        },
+      }))}
+      {...props}
+    />
+  );
+}
+
+export function DnDCell({
+  name,
+  renderFormItem,
+  field,
+  fields,
+  operation,
+  meta,
+  rowRef,
+  ...props
+}: {
+  renderFormItem: RenderFormItem;
+  [key: string]: any;
+} & RenderFormItemParams) {
+  const [, drag, dragPreview] = useDrag({
+    type: name,
+    item: { index: field.name },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  dragPreview(rowRef);
+
+  return (
+    <td ref={(node) => drag(node)} {...props}>
+      {renderFormItem?.({ field, fields, operation, meta }) ?? props?.children}
+    </td>
+  );
+}
