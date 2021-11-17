@@ -2,7 +2,7 @@ import { Form, message, Input, Modal, Alert } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
-import { services } from '../../services/task';
+import { services } from '../../services/taskDetail';
 
 import { useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
@@ -22,16 +22,19 @@ export default ({
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { id } = data;
-  const detail = useQuery(['game-mgt-editor', data.id], () => services.get({ data: { id } }), {
-    enabled: !!id,
-    refetchOnWindowFocus: false,
-
-    onSuccess(res) {
-      const formData = prune(res?.data, isValidValue) ?? {};
-      form.setFieldsValue({ ...formData });
+  const { taskId } = data;
+  const detail = useQuery(
+    ['coin/task/detail/list', taskId],
+    () => services.list({ data: { taskId } }),
+    {
+      enabled: !!taskId,
+      refetchOnWindowFocus: false,
+      onSuccess(res) {
+        const formData = prune(res?.data, isValidValue) ?? {};
+        form.setFieldsValue({ data: formData });
+      },
     },
-  });
+  );
 
   async function onSubmit() {
     try {
@@ -45,7 +48,7 @@ export default ({
         onOk: async () => {
           try {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
-            await services.update({
+            await services.saveOrUpdate({
               // 拼给后端
               data: { ...format },
               throwErr: true,

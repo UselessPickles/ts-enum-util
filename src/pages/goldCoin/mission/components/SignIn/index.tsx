@@ -1,66 +1,19 @@
-import {
-  Form,
-  message,
-  Input,
-  Modal,
-  InputNumber,
-  Tabs,
-  Tooltip,
-  Popconfirm,
-  Typography,
-} from 'antd';
-
-import { MinusCircleOutlined } from '@ant-design/icons';
+import { Form, Input, Modal, Typography } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
-import { services } from '../../services/task';
+import { services } from '../../services/taskDetail';
 
 import { useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
-import { compose } from '@/decorators/utils';
-import Render from '@/decorators/Common/Render';
-import type { DnDFormColumn } from '@/components/DnDForm';
-import { DnDForm } from '@/components/DnDForm';
-import disabled from '@/decorators/ATag/Disabled';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
-import type { RuleRender } from 'antd/lib/form';
-import { USER_TYPE } from '../../models';
-import Options from '@/utils/Options';
+import type { EdiTableColumnType } from '@/components/EdiTable';
+import EdiTable from '@/components/EdiTable';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 
 const { Item } = Form;
 
-const { TabPane } = Tabs;
-const { Link } = Typography;
-
-const FormItemExtra = styled(Item)`
-  .ant-form-item-extra {
-    position: absolute;
-    bottom: -24px;
-    white-space: nowrap;
-  }
-`;
-
-const valiadNumber: RuleRender = ({ getFieldValue }) => ({
-  validator: (_, value) => {
-    const digitsCount: number = getFieldValue('digitsCount') ?? 0;
-
-    if (Number.isNaN(+value)) {
-      return Promise.reject(new Error('只能是数字'));
-    }
-
-    if (+value < 0) {
-      return Promise.reject(new Error('必须是正数'));
-    }
-    if ((value?.split?.('.')?.[1]?.length ?? 0) > digitsCount) {
-      return Promise.reject(new Error(`最多支持${digitsCount}位小数`));
-    }
-
-    return Promise.resolve();
-  },
-});
+const { Text } = Typography;
 
 export default ({
   formProps,
@@ -72,16 +25,19 @@ export default ({
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { id } = data;
-  const detail = useQuery(['game-mgt-editor', data.id], () => services.get({ data: { id } }), {
-    enabled: !!id,
-    refetchOnWindowFocus: false,
-
-    onSuccess(res) {
-      const formData = prune(res?.data, isValidValue) ?? {};
-      form.setFieldsValue({ ...formData });
+  const { taskId } = data;
+  const detail = useQuery(
+    ['coin/task/detail/list', taskId],
+    () => services.list({ data: { taskId } }),
+    {
+      enabled: !!taskId,
+      refetchOnWindowFocus: false,
+      onSuccess(res) {
+        const formData = prune(res?.data, isValidValue) ?? {};
+        form.setFieldsValue({ data: formData });
+      },
     },
-  });
+  );
 
   async function onSubmit() {
     try {
@@ -95,7 +51,7 @@ export default ({
         onOk: async () => {
           try {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
-            await services.update({
+            await services.saveOrUpdate({
               // 拼给后端
               data: { ...format },
               throwErr: true,
@@ -112,12 +68,11 @@ export default ({
     } catch (e: any) {}
   }
 
-  const columns: DnDFormColumn[] = [
+  const columns: EdiTableColumnType<any>[] = [
     {
       title: '天数',
       canDrag: true,
-      span: 0.25,
-      render({ field }) {
+      renderFormItem({ field }) {
         return (
           <Item style={{ cursor: 'move' }} key={field.key}>
             第{field.name + 1}天
@@ -127,22 +82,45 @@ export default ({
     },
     {
       title: '下发金币code',
-      render({ field }) {
+      renderFormItem({ field }) {
         return (
-          <Item key={field.key} fieldKey={field.fieldKey}>
-            <InputNumber style={{ width: '100%' }} />
+          <Item shouldUpdate={shouldUpdateManyHOF([['data', field.name, 'coinRuleId']])}>
+            {({ getFieldValue, setFields }) => (
+              <Item
+                key={field.key}
+                fieldKey={[field.fieldKey, 'coinRuleId']}
+                name={[field.name, 'coinRuleId']}
+              >
+                <Input
+                  style={{ width: '100%' }}
+                  onBlur={async () => {
+                    try {
+                      const coinRuleId = getFieldValue(['data', field?.name, 'coinRuleId']);
+                      const coin = await services['coin/parser']({ data: { coinRuleId } });
+                      console.log(coin);
+                      setFields([
+                        {
+                          name: ['data', field?.name, 'coinRuleNum'],
+                          value: coin?.data?.minCoin,
+                        },
+                      ]);
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  placeholder="请填写中台的积分规则ID"
+                />
+              </Item>
+            )}
           </Item>
         );
       },
     },
     {
       title: '下发金币数量',
-      render({ field }) {
-        return (
-          <Item key={field.key} fieldKey={field.fieldKey}>
-            <InputNumber style={{ width: '100%' }} />
-          </Item>
-        );
+      dataIndex: 'coinRuleNum',
+      render: (text) => {
+        return <Text type="secondary">{text ?? '根据填写积分规则ID解析'}</Text>;
       },
     },
   ];
@@ -163,20 +141,13 @@ export default ({
         <Input />
       </Item>
 
-      <DnDForm
-        name="ecpmCoinConfigs"
-        columns={columns}
-        formListProps={{ initialValue: Array(7).fill({}) }}
-      >
-        {({ title, body }) => {
-          return (
-            <>
-              {title}
-              {body}
-            </>
-          );
+      <EdiTable
+        tableProps={{ columns, style: { border: '1px solid #E8EAEC' } }}
+        formListProps={{
+          name: 'data',
+          initialValue: Array(7).fill({}),
         }}
-      </DnDForm>
+      />
     </DrawerForm>
   );
 };

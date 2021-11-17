@@ -18,6 +18,7 @@ import ChildrenRender from '@/components/ChildrenRender';
 import type { EdiTableColumnType } from '@/components/EdiTable';
 import EdiTable from '@/components/EdiTable';
 import { positiveInteger } from '../utils';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 
 const { Item } = Form;
 
@@ -85,24 +86,6 @@ export default ({
         },
       });
     } catch (e: any) {}
-  }
-
-  function coinRuleIdRewrite(name: number) {
-    return async () => {
-      try {
-        const coinRuleId = form.getFieldValue(['data', name, 'coinRuleId']);
-        const coin = await services['coin/parser']({ data: { coinRuleId } });
-        console.log(coin);
-        form.setFields([
-          {
-            name: ['data', name, 'coinRuleNum'],
-            value: coin?.data?.minCoin,
-          },
-        ]);
-      } catch (e) {
-        console.error(e);
-      }
-    };
   }
 
   const columns: EdiTableColumnType<any>[] = [
@@ -194,16 +177,34 @@ export default ({
       title: '下发金币code',
       renderFormItem({ field }) {
         return (
-          <Item
-            key={field.key}
-            fieldKey={[field.fieldKey, 'coinRuleId']}
-            name={[field.name, 'coinRuleId']}
-          >
-            <Input
-              style={{ width: '100%' }}
-              onBlur={coinRuleIdRewrite(field.name)}
-              placeholder="请填写中台的积分规则ID"
-            />
+          <Item shouldUpdate={shouldUpdateManyHOF([['data', field.name, 'coinRuleId']])}>
+            {({ getFieldValue, setFields }) => (
+              <Item
+                key={field.key}
+                fieldKey={[field.fieldKey, 'coinRuleId']}
+                name={[field.name, 'coinRuleId']}
+              >
+                <Input
+                  style={{ width: '100%' }}
+                  onBlur={async () => {
+                    try {
+                      const coinRuleId = getFieldValue(['data', field?.name, 'coinRuleId']);
+                      const coin = await services['coin/parser']({ data: { coinRuleId } });
+                      console.log(coin);
+                      setFields([
+                        {
+                          name: ['data', field?.name, 'coinRuleNum'],
+                          value: coin?.data?.minCoin,
+                        },
+                      ]);
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  placeholder="请填写中台的积分规则ID"
+                />
+              </Item>
+            )}
           </Item>
         );
       },
