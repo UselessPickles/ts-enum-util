@@ -177,12 +177,13 @@ export default ({
       title: '下发金币code',
       renderFormItem({ field }) {
         return (
-          <Item shouldUpdate={shouldUpdateManyHOF([['data', field.name, 'coinRuleId']])}>
+          <Item shouldUpdate={shouldUpdateManyHOF([['data', field.name, 'coinRuleId']])} noStyle>
             {({ getFieldValue, setFields }) => (
               <Item
                 key={field.key}
                 fieldKey={[field.fieldKey, 'coinRuleId']}
                 name={[field.name, 'coinRuleId']}
+                rules={[{ required: true }]}
               >
                 <Input
                   style={{ width: '100%' }}

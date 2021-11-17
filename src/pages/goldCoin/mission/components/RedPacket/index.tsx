@@ -9,6 +9,7 @@ import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import { positiveInteger } from '../utils';
 import SearchSelect from '@/components/SearchSelect';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 
 const { Item } = Form;
 
@@ -95,10 +96,33 @@ export default ({
       <Item name={'id'} hidden>
         <Input />
       </Item>
-      <Item name={'下发金币code'} label={'下发金币code'} rules={[{ required: true }]}>
-        <SearchSelect style={{ width: '100%' }} placeholder="请选择中台规则code" />
+      <Item shouldUpdate={shouldUpdateManyHOF([['data', 0, 'coinRuleId']])} noStyle>
+        {({ getFieldValue, setFields }) => (
+          <Item name={['data', 0, 'coinRuleId']} label="下发金币code" rules={[{ required: true }]}>
+            <Input
+              style={{ width: '100%' }}
+              onBlur={async () => {
+                try {
+                  const coinRuleId = getFieldValue(['data', 0, 'coinRuleId']);
+                  const coin = await services['coin/parser']({ data: { coinRuleId } });
+                  console.log(coin);
+                  setFields([
+                    {
+                      name: ['data', 0, 'coinRuleNum'],
+                      value: coin?.data?.minCoin,
+                    },
+                  ]);
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+              placeholder="请填写中台的积分规则ID"
+            />
+          </Item>
+        )}
       </Item>
-      <Item name={'下发金币数量'} label={'下发金币数量'}>
+
+      <Item name={['data', 0, 'coinRuleNum']} label={'下发金币数量'}>
         <Input disabled placeholder="根据下发金币code解析" />
       </Item>
     </DrawerForm>
