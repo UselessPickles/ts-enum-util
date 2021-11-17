@@ -33,6 +33,10 @@ export default [
               { path: '/gameStore/mgt/:env', component: '@/pages/GameStore/mgt' },
             ],
           },
+          {
+            path: '/goldCoin',
+            routes: [{ path: '/goldCoin/mission', component: '@/pages/goldCoin/mission' }],
+          },
           { path: '/lab', component: '@/pages/Lab' },
           {
             path: '/hot-words',

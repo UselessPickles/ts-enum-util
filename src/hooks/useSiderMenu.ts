@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { notification } from 'antd';
 
 function useSiderMenu() {
-  const [menu, setMenu] = useState([]);
+  const [menu = [], setMenu] = useState([]);
   useEffect(() => {
     if (menu.length == 0) {
       queryMenu()

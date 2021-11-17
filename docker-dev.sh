@@ -2,6 +2,7 @@
 
 set -e
 
-CNAME=${CNAME-`date +%s`} 
+bn=`git symbolic-ref --short HEAD`
+bn2=`echo $bn | cut -d '/' -f 2`
 
-docker compose -f docker-compose.yml -p $CNAME up -d
+CNAME=${bn2} BRANCH=${bn} docker-compose -f docker-compose.yml -p ${bn2} up -d 

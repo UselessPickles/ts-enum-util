@@ -83,7 +83,7 @@ export default <T, U extends Record<string, any>>({
   }
 
   function enhanceCol(cols?: XmilesCol[]) {
-    return cols?.map((c) => ({ ...c, render: columnEmptyTextHOF(c) }));
+    return cols?.map((c) => ({ ...c, width: c?.width ?? 100, render: columnEmptyTextHOF(c) }));
   }
 
   return (

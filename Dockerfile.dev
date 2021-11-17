@@ -7,9 +7,8 @@ RUN mkdir -p /home/node/app && \
 
 WORKDIR /home/node/app
 
-COPY ./package.json .
-RUN yarn cache clean --all && \
-    yarn
+COPY package.json package-lock.json yarn.lock ./
+RUN yarn --frozen-lockfile --registry=http://registry.npmmirror.com
 
 COPY . .
 

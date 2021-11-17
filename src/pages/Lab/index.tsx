@@ -1,42 +1,136 @@
-import { useRef } from 'react';
-import { Upload } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
-import Mask from '@/components/Mask';
+import React, { ReactNode, useState } from 'react';
+import type { TableColumnsType, TableProps, FormListProps } from 'antd';
+import { Table, Input, InputNumber, Popconfirm, Form, Typography } from 'antd';
+const originData = [];
 
-export default () => {
-  const ref = useRef<HTMLVideoElement>(null);
+const { List, Item } = Form;
+const { Link } = Typography;
 
-  const children = (
-    <EyeOutlined
-      style={{ fontSize: '2.5em', filter: 'invert(100%)' }}
-      onClick={(e) => e.stopPropagation()}
-    />
-  );
+for (let i = 0; i < 10; i++) {
+  originData.push({
+    key: i.toString(),
+    name: `Edrward ${i}`,
+    age: 32,
+    address: `London Park no. ${i}`,
+  });
+}
+
+const EditableTable = () => {
+  const [form] = Form.useForm();
+
+  const columns: TableColumnsType<any> = [
+    {
+      title: 'name',
+      width: '25%',
+      renderFormItem: ({ field, fields, operation, meta }) => {
+        return (
+          <Item {...field} name={[field?.name, 'name']}>
+            <Input />
+          </Item>
+        );
+      },
+    },
+    {
+      title: 'age',
+      width: '15%',
+      renderFormItem: ({ field, fields, operation, meta }) => {
+        return (
+          <>
+            <Item {...field} name={[field?.name, 'age']}>
+              <Input />
+            </Item>
+          </>
+        );
+      },
+    },
+    {
+      title: 'address',
+      width: '40%',
+      renderFormItem: ({ field, fields, operation, meta }) => {
+        return (
+          <Item {...field} name={[field?.name, 'address']}>
+            <Input />
+          </Item>
+        );
+      },
+    },
+    {
+      title: 'operation',
+      renderFormItem: ({ field, fields, operation, meta }) => {
+        return (
+          <Item {...field} name={[field?.name, 'operation']} rules={[{ required: true }]}>
+            <Input />
+          </Item>
+        );
+      },
+    },
+  ].map((col) => ({
+    ...col,
+    onCell: (_, idx) => {
+      return {
+        title: col?.title,
+        fieldName: idx,
+        renderFormItem: col?.renderFormItem,
+      };
+    },
+  }));
+
   return (
-    <div>
-      <Upload>
-        <Mask toolbarProps={{ children }}>
-          <video preload="metadata" width={600} ref={ref}>
-            <source
-              src="https://game-566.oss-cn-shanghai.aliyuncs.com/head/1635151946678.mp4"
-              type="video/mp4"
-            />
-            lab
-          </video>
-          <button
-            onClick={() => {
-              if (ref?.current?.paused || ref?.current?.ended) {
-                ref?.current?.play();
-              } else {
-                ref?.current?.pause();
-              }
-            }}
-          >
-            {ref?.current?.paused || ref?.current?.ended ? 'play' : 'pause'}
-          </button>
-        </Mask>
-      </Upload>
-    </div>
+    <Form form={form} initialValues={{ test: originData }} onFinish={console.log}>
+      <List name={'test'}>
+        {(fields, operation, meta) => {
+          return (
+            <>
+              <Item noStyle dependencies={[['test']]}>
+                {({ getFieldValue }) => (
+                  <Table
+                    bordered
+                    components={{
+                      body: {
+                        cell: ({ renderFormItem, ...props }) => {
+                          console.log('cell', props);
+                          return (
+                            <td {...props}>
+                              {renderFormItem?.({
+                                field: fields?.[props?.fieldName],
+                                fields,
+                                operation,
+                                meta,
+                              }) ?? props?.children}
+                            </td>
+                          );
+                        },
+                      },
+                    }}
+                    dataSource={getFieldValue(['test'])}
+                    columns={columns}
+                    rowClassName="editable-row"
+                    pagination={false}
+                  />
+                )}
+              </Item>
+
+              <Link
+                onClick={() =>
+                  operation.add({
+                    key:
+                      fields?.reduce((max, field) => (max > field?.name ? max : field?.name), 0) +
+                      1,
+                  })
+                }
+              >
+                + add
+              </Link>
+            </>
+          );
+        }}
+      </List>
+
+      <Item hidden>
+        <button html-type="submit" />
+      </Item>
+    </Form>
   );
-  // poster="https://game-566.oss-cn-shanghai.aliyuncs.com///rc-upload-1635473398413-35-20210428183351_896_161960603189615.png"
 };
+
+export default EditableTable;
