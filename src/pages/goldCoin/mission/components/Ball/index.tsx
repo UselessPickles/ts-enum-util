@@ -95,7 +95,6 @@ export default ({
               throwErr: true,
             });
             await fn?.();
-            setDrawerProps((pre) => ({ ...pre, visible: false }));
           } finally {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: false }));
           }
@@ -106,7 +105,6 @@ export default ({
 
   function onTabChange(key: string) {
     if (isEdit) {
-      console.log('isEdit', isEdit);
       Modal.confirm({
         title: '提示',
         content: '检测到有修改内容，切换tab之前先保存，未保存刚编辑内容不会生效',
@@ -170,8 +168,8 @@ export default ({
                   ({ getFieldValue }) => ({
                     validator: async (_, value) => {
                       if (
-                        (getFieldValue(['ballCondition', field?.name - 1, 'endRange']) ?? 0) >=
-                        +value
+                        (+getFieldValue(['data', field?.name - 1, 'ballCondition', 'endRange']) ??
+                          0) >= +value
                       ) {
                         return Promise.reject(new Error('右值需大于左值'));
                       }
@@ -317,14 +315,19 @@ export default ({
   ];
 
   function onFieldsChange() {
-    setData((pre: any) => ({ pre, isEdit: true }));
+    setData((pre: any) => ({ ...pre, isEdit: true }));
+  }
+
+  async function defaultSuccess() {
+    await onSuccess?.();
+    setDrawerProps((pre) => ({ ...pre, visible: false }));
   }
 
   return (
     <DrawerForm
       formProps={{
         ...formProps,
-        onFinish: onSubmit(onSuccess),
+        onFinish: onSubmit(defaultSuccess),
         initialValues: {
           userType: USER_TYPE_ENUM.新用户,
         },
@@ -336,7 +339,7 @@ export default ({
       drawerProps={{
         ...drawerProps,
         confirmLoading: detail.isFetching,
-        onOk: onSubmit(onSuccess),
+        onOk: onSubmit(defaultSuccess),
         className: styles['modal-title-height'],
         title: (
           <>
@@ -368,7 +371,7 @@ export default ({
               <Button
                 ghost
                 type="primary"
-                onClick={() => operation.add({ taskId, userType })}
+                onClick={() => operation.add({ taskId, userType, code: 'SmallBall' })}
                 icon={<PlusOutlined />}
                 style={{ marginTop: '16px' }}
               >
