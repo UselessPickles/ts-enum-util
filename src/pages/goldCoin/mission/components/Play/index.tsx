@@ -1,4 +1,4 @@
-import { Form, message, Input, Modal, Alert } from 'antd';
+import { Form, Input, Modal, Alert } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
@@ -8,9 +8,9 @@ import { useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import { positiveInteger } from '../utils';
-import SearchSelect from '@/components/SearchSelect';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import { REWARD_TYPE_ENUM } from '../../models';
+import FormItemView from '@/components/FormItemView';
 
 const { Item } = Form;
 
@@ -32,7 +32,7 @@ export default ({
       enabled: !!taskId,
       refetchOnWindowFocus: false,
       onSuccess(res) {
-        const formData = prune(res?.data, isValidValue) ?? {};
+        const formData = prune(res?.data, isValidValue);
         form.setFieldsValue({ data: formData });
       },
     },
@@ -52,7 +52,7 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: { ...format },
+              data: format?.data,
               throwErr: true,
             });
             await onSuccess?.();
@@ -76,6 +76,7 @@ export default ({
       }}
       drawerProps={{
         ...drawerProps,
+        confirmLoading: detail.isFetching,
         title: (
           <>
             首次玩游戏
@@ -112,19 +113,19 @@ export default ({
               style={{ width: '100%' }}
               onBlur={async () => {
                 try {
-                  const coinRuleId = getFieldValue(['data', 0, 'coinRuleId']);
-                  const { maxCoin, minCoin, rewardType } =
+                  const pre = getFieldValue(['data', 0]);
+                  const coinParse =
                     (
                       await services['coin/parser']({
-                        data: { coinRuleId },
+                        data: { coinRuleId: pre?.coinRuleId },
                       })
                     )?.data ?? {};
-                  const text =
-                    rewardType === REWARD_TYPE_ENUM.固定数额 ? minCoin : `${minCoin} ~ ${maxCoin}`;
+
+                  console.log('rewrite', pre, coinParse);
                   setFields([
                     {
-                      name: ['data', 0, 'coinRuleNum'],
-                      value: text,
+                      name: ['data', 0],
+                      value: { ...pre, ...coinParse },
                     },
                   ]);
                 } catch (e) {
@@ -137,8 +138,28 @@ export default ({
         )}
       </Item>
 
-      <Item name={['data', 0, 'coinRuleNum']} label={'下发金币数量'}>
-        <Input disabled placeholder="根据下发金币code解析" />
+      <Item label={'下发金币数量'} shouldUpdate={shouldUpdateManyHOF([['data', 0]])}>
+        {({ getFieldValue }) => (
+          <div style={{ display: 'flex' }}>
+            {getFieldValue(['data', 0, 'minCoin']) ? (
+              <Item name={['data', 0, 'minCoin']}>
+                <FormItemView />
+              </Item>
+            ) : (
+              <Input disabled placeholder="根据填写积分规则ID解析" />
+            )}
+            {getFieldValue(['data', 0, 'rewardType']) === REWARD_TYPE_ENUM.随机数额 && (
+              <>
+                ~
+                {getFieldValue(['data', 0, 'maxCoin']) && (
+                  <Item name={[0, 'maxCoin']}>
+                    <FormItemView />
+                  </Item>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </Item>
     </DrawerForm>
   );

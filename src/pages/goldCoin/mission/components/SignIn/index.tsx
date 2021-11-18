@@ -35,7 +35,7 @@ export default ({
       enabled: !!taskId,
       refetchOnWindowFocus: false,
       onSuccess(res) {
-        const formData = prune(res?.data, isValidValue) ?? {};
+        const formData = prune(res?.data, isValidValue);
         form.setFieldsValue({ data: formData });
       },
     },
@@ -167,6 +167,7 @@ export default ({
       }}
       drawerProps={{
         ...drawerProps,
+        confirmLoading: detail.isFetching,
         onOk: onSubmit,
         title: '签到任务',
       }}

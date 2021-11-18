@@ -18,7 +18,7 @@ import ChildrenRender from '@/components/ChildrenRender';
 import type { EdiTableColumnType } from '@/components/EdiTable';
 import EdiTable from '@/components/EdiTable';
 import { positiveInteger } from '../utils';
-import shouldUpdateHOF, { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import setTo from '@/utils/setTo';
 import FormItemView from '@/components/FormItemView';
 
@@ -54,7 +54,7 @@ export default ({
       enabled: !!taskId,
       refetchOnWindowFocus: false,
       onSuccess(res) {
-        const formData = prune(res?.data, isValidValue) ?? {};
+        const formData = prune(res?.data, isValidValue);
         const group = formData?.reduce(
           (acc: Map<USER_TYPE_ENUM, any[]>, cur: any) => {
             acc.get(`${cur?.userType}` as USER_TYPE_ENUM)?.push?.(cur);
@@ -335,6 +335,7 @@ export default ({
       }}
       drawerProps={{
         ...drawerProps,
+        confirmLoading: detail.isFetching,
         onOk: onSubmit(onSuccess),
         className: styles['modal-title-height'],
         title: (
