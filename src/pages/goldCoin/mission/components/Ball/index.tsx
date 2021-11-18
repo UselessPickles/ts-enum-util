@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Tabs, Tooltip, Popconfirm, Button, Typography } from 'antd';
+import { Form, Input, Modal, Tabs, Tooltip, Popconfirm, Button, Typography, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import DrawerForm from '@/components/DrawerForm@latest';
@@ -11,7 +11,7 @@ import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import { USER_TYPE } from '../../models';
+import { REWARD_TYPE_ENUM, USER_TYPE, USER_TYPE_ENUM } from '../../models';
 import Options from '@/utils/Options';
 import styles from './index.less';
 import ChildrenRender from '@/components/ChildrenRender';
@@ -19,6 +19,8 @@ import type { EdiTableColumnType } from '@/components/EdiTable';
 import EdiTable from '@/components/EdiTable';
 import { positiveInteger } from '../utils';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+import setTo from '@/utils/setTo';
+import FormItemView from '@/components/FormItemView';
 
 const { Item } = Form;
 
@@ -40,27 +42,39 @@ export default ({
   onSuccess,
   form,
   data = {},
+  setData,
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { taskId } = data;
+  const { taskId, code, userType = USER_TYPE_ENUM.新用户, isEdit } = data;
   const detail = useQuery(
-    ['coin/task/detail/list', taskId],
+    ['coin/task/detail/list', taskId, userType],
     () => services.list({ data: { taskId } }),
     {
       enabled: !!taskId,
       refetchOnWindowFocus: false,
       onSuccess(res) {
-        const formData = prune(res?.data, isValidValue) ?? {};
-        form.setFieldsValue({ data: formData });
+        const formData = prune(res?.data, isValidValue);
+        const group = formData?.reduce(
+          (acc: Map<USER_TYPE_ENUM, any[]>, cur: any) => {
+            acc.get(`${cur?.userType}` as USER_TYPE_ENUM)?.push?.(cur);
+            return acc;
+          },
+          new Map([
+            [USER_TYPE_ENUM.新用户, []],
+            [USER_TYPE_ENUM.老用户, []],
+          ]),
+        );
+
+        form.setFieldsValue({ data: group?.get?.(userType) });
       },
     },
   );
 
-  const remover = useMutation((id) => services.delete({ data: id }));
+  const remover = useMutation((id) => services.delete({ data: { id } }));
 
-  async function onSubmit() {
-    try {
+  function onSubmit(fn?: () => void) {
+    return async () => {
       const value = await form?.validateFields();
       console.log('value', value);
       const format = prune(value, isValidValue);
@@ -73,19 +87,34 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: { ...format },
+              data: format?.data?.map((d: any, idx: number, arr: { endRange: any }[]) => {
+                const temp: any = { ...d };
+                setTo(temp, ['ballCondition', 'startRange'], arr[idx - 1]?.endRange ?? 0);
+                return temp;
+              }),
               throwErr: true,
             });
-            await onSuccess?.();
-            setDrawerProps((pre) => ({ ...pre, visible: false }));
-          } catch (e: any) {
-            console.error(e?.message);
+            await fn?.();
           } finally {
             setDrawerProps((pre) => ({ ...pre, confirmLoading: false }));
           }
         },
       });
-    } catch (e: any) {}
+    };
+  }
+
+  function onTabChange(key: string) {
+    if (isEdit) {
+      Modal.confirm({
+        title: '提示',
+        content: '检测到有修改内容，切换tab之前先保存，未保存刚编辑内容不会生效',
+        okText: '保存',
+        cancelText: '不保存',
+        onOk: onSubmit(() => setData((pre: any) => ({ ...pre, userType: key, isEdit: false }))),
+      });
+    } else {
+      setData((pre: any) => ({ ...pre, userType: key }));
+    }
   }
 
   const columns: EdiTableColumnType<any>[] = [
@@ -139,8 +168,8 @@ export default ({
                   ({ getFieldValue }) => ({
                     validator: async (_, value) => {
                       if (
-                        (getFieldValue(['ballCondition', field?.name - 1, 'endRange']) ?? 0) >=
-                        +value
+                        (+getFieldValue(['data', field?.name - 1, 'ballCondition', 'endRange']) ??
+                          0) >= +value
                       ) {
                         return Promise.reject(new Error('右值需大于左值'));
                       }
@@ -189,13 +218,18 @@ export default ({
                   style={{ width: '100%' }}
                   onBlur={async () => {
                     try {
-                      const coinRuleId = getFieldValue(['data', field?.name, 'coinRuleId']);
-                      const coin = await services['coin/parser']({ data: { coinRuleId } });
-                      console.log(coin);
+                      const pre = getFieldValue(['data', field?.name]);
+                      const coinParse =
+                        (
+                          await services['coin/parser']({
+                            data: { coinRuleId: pre?.coinRuleId },
+                          })
+                        )?.data ?? {};
+
                       setFields([
                         {
-                          name: ['data', field?.name, 'coinRuleNum'],
-                          value: coin?.data?.minCoin,
+                          name: ['data', field?.name],
+                          value: { ...pre, ...coinParse },
                         },
                       ]);
                     } catch (e) {
@@ -213,10 +247,36 @@ export default ({
     {
       title: '下发金币数量',
       width: 150,
-      dataIndex: 'coinRuleNum',
-      render: (text) => {
-        return <Text type="secondary">{text ?? '根据填写积分规则ID解析'}</Text>;
-      },
+      renderFormItem: ({ field }) => (
+        <Item
+          fieldKey={field.fieldKey}
+          key={field.key}
+          noStyle
+          shouldUpdate={shouldUpdateManyHOF([['data', field.name]])}
+        >
+          {({ getFieldValue }) => (
+            <Space>
+              {getFieldValue(['data', field.name, 'minCoin']) ? (
+                <Item name={[field.name, 'minCoin']}>
+                  <FormItemView />
+                </Item>
+              ) : (
+                <Text type="secondary">根据填写积分规则ID解析</Text>
+              )}
+              {getFieldValue(['data', field.name, 'rewardType']) === REWARD_TYPE_ENUM.随机数额 && (
+                <>
+                  ~
+                  {getFieldValue(['data', field.name, 'maxCoin']) && (
+                    <Item name={[field.name, 'maxCoin']}>
+                      <FormItemView />
+                    </Item>
+                  )}
+                </>
+              )}
+            </Space>
+          )}
+        </Item>
+      ),
     },
     {
       title: '操作',
@@ -254,40 +314,56 @@ export default ({
     },
   ];
 
+  function onFieldsChange() {
+    setData((pre: any) => ({ ...pre, isEdit: true }));
+  }
+
+  async function defaultSuccess() {
+    await onSuccess?.();
+    setDrawerProps((pre) => ({ ...pre, visible: false }));
+  }
+
   return (
     <DrawerForm
       formProps={{
         ...formProps,
-        onFinish: onSubmit,
+        onFinish: onSubmit(defaultSuccess),
+        initialValues: {
+          userType: USER_TYPE_ENUM.新用户,
+        },
+        validateMessages: {
+          required: '该字段不能为空',
+        },
+        onFieldsChange,
       }}
       drawerProps={{
         ...drawerProps,
-        onOk: onSubmit,
+        confirmLoading: detail.isFetching,
+        onOk: onSubmit(defaultSuccess),
         className: styles['modal-title-height'],
         title: (
           <>
             小圆球任务
-            <Form form={formProps?.form} component={false}>
-              <Item name="userType" valuePropName="activeKey" style={{ position: 'absolute' }}>
-                <Tabs>
-                  {Options(USER_TYPE).toOpt?.map((opt) => (
-                    <TabPane tab={opt.label} key={opt.value} />
-                  ))}
-                </Tabs>
-              </Item>
-            </Form>
+            <Tabs onChange={onTabChange} activeKey={userType}>
+              {Options(USER_TYPE).toOpt?.map((opt) => (
+                <TabPane tab={opt.label} key={opt.value} />
+              ))}
+            </Tabs>
           </>
         ),
         width: 1000,
       }}
     >
       <EdiTable
-        tableProps={{ columns, style: { border: '1px solid #E8EAEC' } }}
+        tableProps={{
+          columns,
+          style: { border: '1px solid #E8EAEC' },
+        }}
         formListProps={{
           name: 'data',
         }}
       >
-        {({ body, operation, fields }) => {
+        {({ body, operation }) => {
           return (
             <>
               {body}
@@ -295,7 +371,7 @@ export default ({
               <Button
                 ghost
                 type="primary"
-                onClick={() => operation.add({ key: fields?.length })}
+                onClick={() => operation.add({ taskId, userType, code })}
                 icon={<PlusOutlined />}
                 style={{ marginTop: '16px' }}
               >

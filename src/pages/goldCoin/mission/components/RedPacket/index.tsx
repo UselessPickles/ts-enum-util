@@ -1,4 +1,4 @@
-import { Form, message, Input, Modal, Alert } from 'antd';
+import { Form, Input, Modal, Alert } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
@@ -7,10 +7,10 @@ import { services } from '../../services/taskDetail';
 import { useQuery } from 'react-query';
 import isValidValue from '@/utils/isValidValue';
 import prune from '@/utils/prune';
-import { positiveInteger } from '../utils';
-import SearchSelect from '@/components/SearchSelect';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
-
+import FormItemView from '@/components/FormItemView';
+import { REWARD_TYPE_ENUM } from '../../models';
+import compStyle from '../index.less';
 const { Item } = Form;
 
 export default ({
@@ -23,7 +23,7 @@ export default ({
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { taskId } = data;
+  const { taskId, code } = data;
   const detail = useQuery(
     ['coin/task/detail/list', taskId],
     () => services.list({ data: { taskId } }),
@@ -31,7 +31,7 @@ export default ({
       enabled: !!taskId,
       refetchOnWindowFocus: false,
       onSuccess(res) {
-        const formData = prune(res?.data, isValidValue) ?? {};
+        const formData = prune(res?.data, isValidValue);
         form.setFieldsValue({ data: formData });
       },
     },
@@ -51,7 +51,7 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: { ...format },
+              data: format?.data?.map((d: any) => ({ ...d, taskId, code })),
               throwErr: true,
             });
             await onSuccess?.();
@@ -75,6 +75,7 @@ export default ({
       }}
       drawerProps={{
         ...drawerProps,
+        confirmLoading: detail.isFetching,
         title: (
           <>
             新人红包
@@ -93,9 +94,6 @@ export default ({
         onOk: onSubmit,
       }}
     >
-      <Item name={'id'} hidden>
-        <Input />
-      </Item>
       <Item shouldUpdate={shouldUpdateManyHOF([['data', 0, 'coinRuleId']])} noStyle>
         {({ getFieldValue, setFields }) => (
           <Item name={['data', 0, 'coinRuleId']} label="下发金币code" rules={[{ required: true }]}>
@@ -103,13 +101,19 @@ export default ({
               style={{ width: '100%' }}
               onBlur={async () => {
                 try {
-                  const coinRuleId = getFieldValue(['data', 0, 'coinRuleId']);
-                  const coin = await services['coin/parser']({ data: { coinRuleId } });
-                  console.log(coin);
+                  const pre = getFieldValue(['data', 0]);
+                  const coinParse =
+                    (
+                      await services['coin/parser']({
+                        data: { coinRuleId: pre?.coinRuleId },
+                      })
+                    )?.data ?? {};
+
+                  console.log('rewrite', pre, coinParse);
                   setFields([
                     {
-                      name: ['data', 0, 'coinRuleNum'],
-                      value: coin?.data?.minCoin,
+                      name: ['data', 0],
+                      value: { ...pre, ...coinParse },
                     },
                   ]);
                 } catch (e) {
@@ -122,8 +126,28 @@ export default ({
         )}
       </Item>
 
-      <Item name={['data', 0, 'coinRuleNum']} label={'下发金币数量'}>
-        <Input disabled placeholder="根据下发金币code解析" />
+      <Item label={'下发金币数量'} shouldUpdate={shouldUpdateManyHOF([['data', 0]])}>
+        {({ getFieldValue }) => (
+          <div className={compStyle['coin-view']}>
+            {getFieldValue(['data', 0, 'minCoin']) ? (
+              <Item name={['data', 0, 'minCoin']}>
+                <FormItemView />
+              </Item>
+            ) : (
+              '根据填写积分规则ID解析'
+            )}
+            {getFieldValue(['data', 0, 'rewardType']) === REWARD_TYPE_ENUM.随机数额 && (
+              <>
+                ~
+                {getFieldValue(['data', 0, 'maxCoin']) && (
+                  <Item name={['data', 0, 'maxCoin']}>
+                    <FormItemView />
+                  </Item>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </Item>
     </DrawerForm>
   );

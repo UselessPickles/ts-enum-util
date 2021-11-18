@@ -1,4 +1,4 @@
-import { Form, message, Input, Modal, Radio } from 'antd';
+import { Form, Input, Modal, Radio } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
@@ -101,7 +101,7 @@ export default ({
       }}
       drawerProps={{
         ...drawerProps,
-        confirmLoading: detail.isLoading,
+        confirmLoading: detail.isFetching,
         onOk: onSubmit,
         title: '金币规则配置',
       }}

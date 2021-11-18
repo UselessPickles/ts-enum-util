@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Typography } from 'antd';
+import { Space, Form, Input, Modal, Typography } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
@@ -10,6 +10,8 @@ import prune from '@/utils/prune';
 import type { EdiTableColumnType } from '@/components/EdiTable';
 import EdiTable from '@/components/EdiTable';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+import { REWARD_TYPE_ENUM } from '../../models';
+import FormItemView from '@/components/FormItemView';
 
 const { Item } = Form;
 
@@ -25,7 +27,7 @@ export default ({
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { taskId } = data;
+  const { taskId, code } = data;
   const detail = useQuery(
     ['coin/task/detail/list', taskId],
     () => services.list({ data: { taskId } }),
@@ -33,7 +35,7 @@ export default ({
       enabled: !!taskId,
       refetchOnWindowFocus: false,
       onSuccess(res) {
-        const formData = prune(res?.data, isValidValue) ?? {};
+        const formData = prune(res?.data, isValidValue);
         form.setFieldsValue({ data: formData });
       },
     },
@@ -53,7 +55,7 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: { ...format },
+              data: format?.data?.map((d: any) => ({ ...d, taskId, code })),
               throwErr: true,
             });
             await onSuccess?.();
@@ -96,13 +98,18 @@ export default ({
                   style={{ width: '100%' }}
                   onBlur={async () => {
                     try {
-                      const coinRuleId = getFieldValue(['data', field?.name, 'coinRuleId']);
-                      const coin = await services['coin/parser']({ data: { coinRuleId } });
-                      console.log(coin);
+                      const pre = getFieldValue(['data', field?.name]);
+                      const coinParse =
+                        (
+                          await services['coin/parser']({
+                            data: { coinRuleId: pre?.coinRuleId },
+                          })
+                        )?.data ?? {};
+
                       setFields([
                         {
-                          name: ['data', field?.name, 'coinRuleNum'],
-                          value: coin?.data?.minCoin,
+                          name: ['data', field?.name],
+                          value: { ...pre, ...coinParse },
                         },
                       ]);
                     } catch (e) {
@@ -119,10 +126,36 @@ export default ({
     },
     {
       title: '下发金币数量',
-      dataIndex: 'coinRuleNum',
-      render: (text) => {
-        return <Text type="secondary">{text ?? '根据填写积分规则ID解析'}</Text>;
-      },
+      renderFormItem: ({ field }) => (
+        <Item
+          fieldKey={field.fieldKey}
+          key={field.key}
+          noStyle
+          shouldUpdate={shouldUpdateManyHOF([['data', field.name]])}
+        >
+          {({ getFieldValue }) => (
+            <Space>
+              {getFieldValue(['data', field.name, 'minCoin']) ? (
+                <Item name={[field.name, 'minCoin']}>
+                  <FormItemView />
+                </Item>
+              ) : (
+                <Text type="secondary">根据填写积分规则ID解析</Text>
+              )}
+              {getFieldValue(['data', field.name, 'rewardType']) === REWARD_TYPE_ENUM.随机数额 && (
+                <>
+                  ~
+                  {getFieldValue(['data', field.name, 'maxCoin']) && (
+                    <Item name={[field.name, 'maxCoin']}>
+                      <FormItemView />
+                    </Item>
+                  )}
+                </>
+              )}
+            </Space>
+          )}
+        </Item>
+      ),
     },
   ];
 
@@ -134,14 +167,11 @@ export default ({
       }}
       drawerProps={{
         ...drawerProps,
+        confirmLoading: detail.isFetching,
         onOk: onSubmit,
         title: '签到任务',
       }}
     >
-      <Item name={'id'} hidden>
-        <Input />
-      </Item>
-
       <EdiTable
         tableProps={{ columns, style: { border: '1px solid #E8EAEC' } }}
         formListProps={{
