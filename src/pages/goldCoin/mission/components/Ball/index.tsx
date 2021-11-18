@@ -46,7 +46,7 @@ export default ({
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { taskId, userType = USER_TYPE_ENUM.新用户, isEdit } = data;
+  const { taskId, code, userType = USER_TYPE_ENUM.新用户, isEdit } = data;
   const detail = useQuery(
     ['coin/task/detail/list', taskId, userType],
     () => services.list({ data: { taskId } }),
@@ -371,7 +371,7 @@ export default ({
               <Button
                 ghost
                 type="primary"
-                onClick={() => operation.add({ taskId, userType, code: 'SmallBall' })}
+                onClick={() => operation.add({ taskId, userType, code })}
                 icon={<PlusOutlined />}
                 style={{ marginTop: '16px' }}
               >

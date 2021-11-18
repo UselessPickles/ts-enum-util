@@ -57,7 +57,7 @@ export default function () {
         visible: true,
       }));
 
-      handler?.setData({ taskId: r.id });
+      handler?.setData({ taskId: r.id, code: r.code });
     };
   }
 

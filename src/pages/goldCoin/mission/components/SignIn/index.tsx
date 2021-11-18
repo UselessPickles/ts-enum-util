@@ -27,7 +27,7 @@ export default ({
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { taskId } = data;
+  const { taskId, code } = data;
   const detail = useQuery(
     ['coin/task/detail/list', taskId],
     () => services.list({ data: { taskId } }),
@@ -55,7 +55,7 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: format?.data,
+              data: format?.data?.map((d: any) => ({ ...d, taskId, code })),
               throwErr: true,
             });
             await onSuccess?.();
@@ -172,10 +172,6 @@ export default ({
         title: '签到任务',
       }}
     >
-      <Item name={'id'} hidden>
-        <Input />
-      </Item>
-
       <EdiTable
         tableProps={{ columns, style: { border: '1px solid #E8EAEC' } }}
         formListProps={{

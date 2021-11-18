@@ -10,7 +10,7 @@ import prune from '@/utils/prune';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import FormItemView from '@/components/FormItemView';
 import { REWARD_TYPE_ENUM } from '../../models';
-
+import compStyle from '../index.less';
 const { Item } = Form;
 
 export default ({
@@ -23,7 +23,7 @@ export default ({
 }: ReturnType<typeof useDrawerForm> & {
   onSuccess?: (...args: any) => void;
 }) => {
-  const { taskId } = data;
+  const { taskId, code } = data;
   const detail = useQuery(
     ['coin/task/detail/list', taskId],
     () => services.list({ data: { taskId } }),
@@ -51,7 +51,7 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: format?.data,
+              data: format?.data?.map((d: any) => ({ ...d, taskId, code })),
               throwErr: true,
             });
             await onSuccess?.();
@@ -94,9 +94,6 @@ export default ({
         onOk: onSubmit,
       }}
     >
-      <Item name={'id'} hidden>
-        <Input />
-      </Item>
       <Item shouldUpdate={shouldUpdateManyHOF([['data', 0, 'coinRuleId']])} noStyle>
         {({ getFieldValue, setFields }) => (
           <Item name={['data', 0, 'coinRuleId']} label="下发金币code" rules={[{ required: true }]}>
@@ -131,19 +128,19 @@ export default ({
 
       <Item label={'下发金币数量'} shouldUpdate={shouldUpdateManyHOF([['data', 0]])}>
         {({ getFieldValue }) => (
-          <div style={{ display: 'flex' }}>
+          <div className={compStyle['coin-view']}>
             {getFieldValue(['data', 0, 'minCoin']) ? (
               <Item name={['data', 0, 'minCoin']}>
                 <FormItemView />
               </Item>
             ) : (
-              <Input disabled placeholder="根据填写积分规则ID解析" />
+              '根据填写积分规则ID解析'
             )}
             {getFieldValue(['data', 0, 'rewardType']) === REWARD_TYPE_ENUM.随机数额 && (
               <>
                 ~
                 {getFieldValue(['data', 0, 'maxCoin']) && (
-                  <Item name={[0, 'maxCoin']}>
+                  <Item name={['data', 0, 'maxCoin']}>
                     <FormItemView />
                   </Item>
                 )}
