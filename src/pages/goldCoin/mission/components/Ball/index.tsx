@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Tabs, Tooltip, Popconfirm, Button, Typography } from 'antd';
+import { Form, Input, Modal, Tabs, Tooltip, Popconfirm, Button, Typography, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import DrawerForm from '@/components/DrawerForm@latest';
@@ -18,8 +18,9 @@ import ChildrenRender from '@/components/ChildrenRender';
 import type { EdiTableColumnType } from '@/components/EdiTable';
 import EdiTable from '@/components/EdiTable';
 import { positiveInteger } from '../utils';
-import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
+import shouldUpdateHOF, { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import setTo from '@/utils/setTo';
+import FormItemView from '@/components/FormItemView';
 
 const { Item } = Form;
 
@@ -219,21 +220,18 @@ export default ({
                   style={{ width: '100%' }}
                   onBlur={async () => {
                     try {
-                      const coinRuleId = getFieldValue(['data', field?.name, 'coinRuleId']);
-                      const { maxCoin, minCoin, rewardType } =
+                      const pre = getFieldValue(['data', field?.name]);
+                      const coinParse =
                         (
                           await services['coin/parser']({
-                            data: { coinRuleId },
+                            data: { coinRuleId: pre?.coinRuleId },
                           })
                         )?.data ?? {};
-                      const text =
-                        rewardType === REWARD_TYPE_ENUM.固定数额
-                          ? minCoin
-                          : `${minCoin} ~ ${maxCoin}`;
+
                       setFields([
                         {
-                          name: ['data', field?.name, 'coinRuleNum'],
-                          value: text,
+                          name: ['data', field?.name],
+                          value: { ...pre, ...coinParse },
                         },
                       ]);
                     } catch (e) {
@@ -251,10 +249,36 @@ export default ({
     {
       title: '下发金币数量',
       width: 150,
-      dataIndex: 'coinRuleNum',
-      render: (text) => {
-        return <Text type="secondary">{text ?? '根据填写积分规则ID解析'}</Text>;
-      },
+      renderFormItem: ({ field }) => (
+        <Item
+          fieldKey={field.fieldKey}
+          key={field.key}
+          noStyle
+          shouldUpdate={shouldUpdateManyHOF([['data', field.name]])}
+        >
+          {({ getFieldValue }) => (
+            <Space>
+              {getFieldValue(['data', field.name, 'minCoin']) ? (
+                <Item name={[field.name, 'minCoin']}>
+                  <FormItemView />
+                </Item>
+              ) : (
+                <Text type="secondary">根据填写积分规则ID解析</Text>
+              )}
+              {getFieldValue(['data', field.name, 'rewardType']) === REWARD_TYPE_ENUM.随机数额 && (
+                <>
+                  ~
+                  {getFieldValue(['data', field.name, 'maxCoin']) && (
+                    <Item name={[field.name, 'maxCoin']}>
+                      <FormItemView />
+                    </Item>
+                  )}
+                </>
+              )}
+            </Space>
+          )}
+        </Item>
+      ),
     },
     {
       title: '操作',
@@ -312,7 +336,6 @@ export default ({
       drawerProps={{
         ...drawerProps,
         onOk: onSubmit(onSuccess),
-        visible: true,
         className: styles['modal-title-height'],
         title: (
           <>
@@ -328,7 +351,10 @@ export default ({
       }}
     >
       <EdiTable
-        tableProps={{ columns, style: { border: '1px solid #E8EAEC' } }}
+        tableProps={{
+          columns,
+          style: { border: '1px solid #E8EAEC' },
+        }}
         formListProps={{
           name: 'data',
         }}
