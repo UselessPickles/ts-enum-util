@@ -1,11 +1,11 @@
 import { XmilesCol } from '@/components/Xmiles/Col';
 import XmilesTable from '@/components/Xmiles/ProTable';
 import RESTful from '@/utils/RESTful';
-import { Button } from 'antd';
+import { Button, Popconfirm } from 'antd';
 import { useContainer } from './useStore';
 
 export default () => {
-  const { formRef, setModalProps } = useContainer();
+  const { formRef, setModalProps, actionRef } = useContainer();
 
   function addList() {
     setModalProps({
@@ -13,52 +13,64 @@ export default () => {
       visible: true,
     });
   }
-  async function unseal(record: any) {
-    await RESTful.post('', {
-      data: {},
-    });
-  }
 
   const columns: XmilesCol[] = [
     {
       title: '封禁类型',
-      name: 'type',
+      dataIndex: 'type',
       valueEnum: {
-        userID: '用户ID',
-        deviceId: '设备ID',
+        1: '用户ID',
+        2: '设备ID',
       },
     },
     {
       title: '封禁用户ID/设备ID',
-      name: 'ID',
+      dataIndex: 'value',
     },
     {
       title: '封禁形式',
-      name: 'form',
+      dataIndex: 'banType',
       valueEnum: {
-        0: '手动封禁',
-        1: '系统监测封禁',
+        1: '手动封禁',
+        2: '系统监测封禁',
       },
     },
     {
       title: '操作人',
-      name: 'operator',
+      dataIndex: 'operator',
       hideInSearch: true,
     },
     {
       title: '操作时间',
-      name: 'utime',
+      dataIndex: 'utime',
       hideInSearch: true,
     },
     {
       title: '操作',
-      name: 'opera',
+      dataIndex: 'opera',
       hideInSearch: true,
       render: (_: any, record: any) => {
-        return (
-          <Button type="link" onClick={unseal(record)} style={{ padding: 0 }}>
-            解封
-          </Button>
+        const isReset = record?.status == 1;
+        return isReset ? (
+          <Popconfirm
+            title="解封用户可以正常提现，确定吗？"
+            onConfirm={async () => {
+              await RESTful.post('fxx/game/blacklist/update', {
+                data: {
+                  id: record?.id,
+                  status: 2,
+                },
+              }).then((res) => {
+                res?.result?.status == 1 && actionRef?.current?.reload();
+              });
+            }}
+          >
+            <Button type="link" style={{ padding: 0 }}>
+              解封
+            </Button>
+          </Popconfirm>
+        ) : (
+          '-'
         );
       },
     },
@@ -66,14 +78,18 @@ export default () => {
 
   return (
     <XmilesTable
+      actionRef={actionRef}
+      formProps={{ labelCol: { offset: 1, span: 8 }, wrapperCol: { span: 15 } }}
       form={formRef}
       columns={columns}
+      rowKey="id"
       headerTitle={
         <Button onClick={addList} type="primary">
           新增黑名单
         </Button>
       }
-      request={async (params) => {
+      request={async (params: any) => {
+        console.log('params', params);
         const data = {
           ...params,
           page: {
@@ -81,18 +97,12 @@ export default () => {
             pageSize: params.pageSize,
           },
         };
-        // const res = await list({ data });
-        // return {
-        //   data: res?.data?.total_datas || [],
-        //   page: params?.current || 1,
-        //   success: true,
-        //   total: res?.data?.total_count || 0,
-        // };
+        const res = await RESTful.post('fxx/game/blacklist/page', { data });
         return {
-          data: [{}],
-          page: 1,
+          data: res?.data?.total_datas || [],
+          page: params?.current || 1,
           success: true,
-          total: 1,
+          total: res?.data?.total_count || 0,
         };
       }}
     />

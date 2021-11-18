@@ -7,7 +7,7 @@ const { Item } = Form,
   { confirm } = Modal;
 
 export default () => {
-  const { modalProps, modalFormRef, setModalProps } = useContainer();
+  const { modalProps, modalFormRef, setModalProps, actionRef } = useContainer();
   async function onSubmit() {
     const value = await modalFormRef.validateFields();
     if (value.deviceId || value.userID) {
@@ -16,14 +16,24 @@ export default () => {
         icon: <ExclamationCircleOutlined />,
         content: `封禁后不再下发金币、无法提现，确定吗？`,
         async onOk() {
+          let data: any[] = [];
+          const userId = {
+              banType: 1,
+              type: 1,
+              value: value.userID,
+            },
+            deviceId = {
+              banType: 1,
+              type: 2,
+              value: value.deviceId,
+            };
+          value.userID && data?.unshift(userId);
+          value.deviceId && data?.unshift(deviceId);
           try {
-            await RESTful.post('', {
-              data: {},
-            }).then((res) => {
+            await RESTful.post('fxx/game/blacklist/batch/save', { data }).then((res) => {
               if (res?.result?.status == 1) {
-                setModalProps({
-                  visible: false,
-                });
+                onCancel();
+                actionRef?.current?.reload();
               }
             });
           } catch (e) {
