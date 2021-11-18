@@ -71,7 +71,7 @@ export default ({
     },
   );
 
-  const remover = useMutation((id) => services.delete({ data: id }));
+  const remover = useMutation((id) => services.delete({ data: { id } }));
 
   function onSubmit(fn?: () => void) {
     return async () => {
