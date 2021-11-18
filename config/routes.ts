@@ -35,7 +35,11 @@ export default [
           },
           {
             path: '/goldCoin',
-            routes: [{ path: '/goldCoin/mission', component: '@/pages/goldCoin/mission' }],
+            routes: [
+              { path: '/goldCoin', redirect: '/goldCoin/mission' },
+              { path: '/goldCoin/blacklist', component: '@/pages/goldCoin/blacklist' },
+              { path: '/goldCoin/mission', component: '@/pages/goldCoin/mission' },
+            ],
           },
           { path: '/lab', component: '@/pages/Lab' },
           {
