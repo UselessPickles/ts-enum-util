@@ -19,7 +19,7 @@ import Synchronizer from './Synchronizer';
 import { useParams, useHistory } from 'react-router';
 import { compose } from '@/decorators/utils';
 import disabled from '@/decorators/ATag/Disabled';
-import { INSTALL_TYPE_ENUM, STATUS, TEST_STATUS, TEST_STATUS_ENUM } from '../models';
+import { INSTALL_TYPE_ENUM, SHOW_STATUS, STATUS, TEST_STATUS, TEST_STATUS_ENUM } from '../models';
 import { useQueryClient } from 'react-query';
 import styled from 'styled-components';
 import tooltip from '@/decorators/Tooltip';
@@ -191,6 +191,13 @@ export default function () {
       title: '游戏来源',
       dataIndex: 'gameSource',
       width: 100,
+    },
+    {
+      title: 'isShow',
+      dataIndex: '在首页展示',
+      width: 100,
+      hideInSearch: true,
+      valueEnum: SHOW_STATUS,
     },
     {
       title: '更新时间',

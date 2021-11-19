@@ -28,7 +28,14 @@ import { services as classifyServices } from '../../services/classify';
 import Options from '@/utils/Options';
 import type { ENV } from '../../models';
 import type Row from '../../models';
-import { PROFIT_MODE, INSTALL_TYPE, STATUS, TYPE } from '../../models';
+import {
+  PROFIT_MODE,
+  INSTALL_TYPE,
+  STATUS,
+  TYPE,
+  SHOW_STATUS,
+  SHOW_STATUS_ENUM,
+} from '../../models';
 import SearchSelect from '@/components/SearchSelect';
 import FormItemView from '@/components/FormItemView';
 import CustomUpload from '@/components/CustomUpload';
@@ -494,6 +501,16 @@ function GameInfo() {
         />
       </Item>
 
+      <Item
+        name="isShow"
+        label="在首页展示"
+        initialValue={SHOW_STATUS_ENUM.不显示}
+        extra="选“展示”表示此游戏有在首页随机展示的几率，选“不显示”在首页不展示"
+        rules={[{ required: true }]}
+      >
+        <Radio.Group optionType="button" options={Options(SHOW_STATUS).toOpt} />
+      </Item>
+
       <Item>
         <Text strong>2. 基础信息</Text>
       </Item>
@@ -903,6 +920,11 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
       format: (src: string) => <Image width="60px" src={src} />,
     },
     { name: 'score', label: '游戏评分' },
+    {
+      name: 'isShow',
+      label: '在首页展示',
+      format: (v: number) => SHOW_STATUS.get(v),
+    },
     { name: 'thirdGameClassify', label: '第三方游戏分类' },
     {
       name: 'gameClassifyId',

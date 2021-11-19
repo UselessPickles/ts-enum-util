@@ -48,6 +48,16 @@ export const STATUS = new Map([
   [2, '下线'],
 ]);
 
+export const SHOW_STATUS = new Map([
+  [1, '显示'],
+  [0, '不显示'],
+]);
+
+export enum SHOW_STATUS_ENUM {
+  '不显示',
+  '显示',
+}
+
 export enum INSTALL_TYPE_ENUM {
   '内部安装' = 1,
   '应用外安装',

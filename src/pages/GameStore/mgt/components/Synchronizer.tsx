@@ -4,7 +4,7 @@ import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
 import type { Row } from './DescriptionsRender';
 import { DescriptionsRender } from './DescriptionsRender';
-import { INSTALL_TYPE, STATUS } from '../models';
+import { INSTALL_TYPE, SHOW_STATUS } from '../models';
 import { str2arr } from '@/decorators/Format/converter';
 import getFileNameInPath from '@/utils/file/getFileNameInPath';
 import { services as classifyServices } from '../services/classify';
@@ -83,6 +83,11 @@ export default ({
       format: (src: string) => src && <Image width="60px" src={src} />,
     },
     { name: 'score', label: '游戏评分' },
+    {
+      name: 'isShow',
+      label: '在首页展示',
+      format: (v: number) => SHOW_STATUS.get(v),
+    },
     { name: 'thirdGameClassify', label: '第三方游戏分类' },
     {
       name: 'gameClassifyId',
