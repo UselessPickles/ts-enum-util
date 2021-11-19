@@ -161,7 +161,7 @@ export default ({
         name={['data', 0, 'minCoin']}
         rules={[{ required: true }, { pattern: positiveInteger, message: '仅允许正整数' }]}
       >
-        <Input />
+        <Input placeholder="0" />
       </Item>
     </DrawerForm>
   );

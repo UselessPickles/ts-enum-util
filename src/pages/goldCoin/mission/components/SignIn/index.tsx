@@ -12,6 +12,7 @@ import EdiTable from '@/components/EdiTable';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import { REWARD_TYPE_ENUM } from '../../models';
 import FormItemView from '@/components/FormItemView';
+import { positiveInteger } from '../utils';
 
 const { Item } = Form;
 
@@ -123,6 +124,19 @@ export default ({
           </Item>
         );
       },
+    },
+    {
+      title: '下发金币数量',
+      renderFormItem: ({ field }) => (
+        <Item
+          fieldKey={[field.fieldKey, 'minCoin']}
+          key={field.key}
+          name={[field.name, 'minCoin']}
+          rules={[{ required: true }, { pattern: positiveInteger, message: '仅允许正整数' }]}
+        >
+          <Input placeholder="0" />
+        </Item>
+      ),
     },
     // {
     //   title: '下发金币数量',
