@@ -31,6 +31,7 @@ export default <T, U extends Record<string, any>>({
   form,
   request,
   manualRequest,
+  formProps,
   ...props
 }: XmilesTableProps<T, U>) => {
   const visCount = useRef(1);
@@ -90,7 +91,7 @@ export default <T, U extends Record<string, any>>({
     <Space>
       <XmilesSearch
         columns={col}
-        formProps={{ onFinish: reload, onReset: reload, ...form, form: innerform }}
+        formProps={{ onFinish: reload, onReset: reload, ...form, form: innerform, ...formProps }}
       />
 
       <div
