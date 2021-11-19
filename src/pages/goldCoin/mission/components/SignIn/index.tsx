@@ -96,26 +96,26 @@ export default ({
               >
                 <Input
                   style={{ width: '100%' }}
-                  onBlur={async () => {
-                    try {
-                      const pre = getFieldValue(['data', field?.name]);
-                      const coinParse =
-                        (
-                          await services['coin/parser']({
-                            data: { coinRuleId: pre?.coinRuleId },
-                          })
-                        )?.data ?? {};
+                  // onBlur={async () => {
+                  //   try {
+                  //     const pre = getFieldValue(['data', field?.name]);
+                  //     const coinParse =
+                  //       (
+                  //         await services['coin/parser']({
+                  //           data: { coinRuleId: pre?.coinRuleId },
+                  //         })
+                  //       )?.data ?? {};
 
-                      setFields([
-                        {
-                          name: ['data', field?.name],
-                          value: { ...pre, ...coinParse },
-                        },
-                      ]);
-                    } catch (e) {
-                      console.error(e);
-                    }
-                  }}
+                  //     setFields([
+                  //       {
+                  //         name: ['data', field?.name],
+                  //         value: { ...pre, ...coinParse },
+                  //       },
+                  //     ]);
+                  //   } catch (e) {
+                  //     console.error(e);
+                  //   }
+                  // }}
                   placeholder="请填写中台的积分规则ID"
                 />
               </Item>
@@ -124,39 +124,39 @@ export default ({
         );
       },
     },
-    {
-      title: '下发金币数量',
-      renderFormItem: ({ field }) => (
-        <Item
-          fieldKey={field.fieldKey}
-          key={field.key}
-          noStyle
-          shouldUpdate={shouldUpdateManyHOF([['data', field.name]])}
-        >
-          {({ getFieldValue }) => (
-            <Space>
-              {getFieldValue(['data', field.name, 'minCoin']) ? (
-                <Item name={[field.name, 'minCoin']}>
-                  <FormItemView />
-                </Item>
-              ) : (
-                <Text type="secondary">根据填写积分规则ID解析</Text>
-              )}
-              {getFieldValue(['data', field.name, 'rewardType']) === REWARD_TYPE_ENUM.随机数额 && (
-                <>
-                  ~
-                  {getFieldValue(['data', field.name, 'maxCoin']) && (
-                    <Item name={[field.name, 'maxCoin']}>
-                      <FormItemView />
-                    </Item>
-                  )}
-                </>
-              )}
-            </Space>
-          )}
-        </Item>
-      ),
-    },
+    // {
+    //   title: '下发金币数量',
+    //   renderFormItem: ({ field }) => (
+    //     <Item
+    //       fieldKey={field.fieldKey}
+    //       key={field.key}
+    //       noStyle
+    //       shouldUpdate={shouldUpdateManyHOF([['data', field.name]])}
+    //     >
+    //       {({ getFieldValue }) => (
+    //         <Space>
+    //           {getFieldValue(['data', field.name, 'minCoin']) ? (
+    //             <Item name={[field.name, 'minCoin']}>
+    //               <FormItemView />
+    //             </Item>
+    //           ) : (
+    //             <Text type="secondary">根据填写积分规则ID解析</Text>
+    //           )}
+    //           {getFieldValue(['data', field.name, 'rewardType']) === REWARD_TYPE_ENUM.随机数额 && (
+    //             <>
+    //               ~
+    //               {getFieldValue(['data', field.name, 'maxCoin']) && (
+    //                 <Item name={[field.name, 'maxCoin']}>
+    //                   <FormItemView />
+    //                 </Item>
+    //               )}
+    //             </>
+    //           )}
+    //         </Space>
+    //       )}
+    //     </Item>
+    //   ),
+    // },
   ];
 
   return (
