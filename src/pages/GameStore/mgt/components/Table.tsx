@@ -195,8 +195,8 @@ export default function () {
       hideInSearch: true,
     },
     {
-      title: 'isShow',
-      dataIndex: '在首页展示',
+      title: '在首页展示',
+      dataIndex: 'isShow',
       width: 100,
       hideInSearch: true,
       valueEnum: SHOW_STATUS,
