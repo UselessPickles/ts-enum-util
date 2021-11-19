@@ -99,34 +99,33 @@ export default ({
           <Item name={['data', 0, 'coinRuleId']} label="下发金币code" rules={[{ required: true }]}>
             <Input
               style={{ width: '100%' }}
-              onBlur={async () => {
-                try {
-                  const pre = getFieldValue(['data', 0]);
-                  const coinParse =
-                    (
-                      await services['coin/parser']({
-                        data: { coinRuleId: pre?.coinRuleId },
-                      })
-                    )?.data ?? {};
+              // onBlur={async () => {
+              //   try {
+              //     const pre = getFieldValue(['data', 0]);
+              //     const coinParse =
+              //       (
+              //         await services['coin/parser']({
+              //           data: { coinRuleId: pre?.coinRuleId },
+              //         })
+              //       )?.data ?? {};
 
-                  console.log('rewrite', pre, coinParse);
-                  setFields([
-                    {
-                      name: ['data', 0],
-                      value: { ...pre, ...coinParse },
-                    },
-                  ]);
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
+              //     setFields([
+              //       {
+              //         name: ['data', 0],
+              //         value: { ...pre, ...coinParse },
+              //       },
+              //     ]);
+              //   } catch (e) {
+              //     console.error(e);
+              //   }
+              // }}
               placeholder="请填写中台的积分规则ID"
             />
           </Item>
         )}
       </Item>
 
-      <Item label={'下发金币数量'} shouldUpdate={shouldUpdateManyHOF([['data', 0]])}>
+      {/* <Item label={'下发金币数量'} shouldUpdate={shouldUpdateManyHOF([['data', 0]])}>
         {({ getFieldValue }) => (
           <div className={compStyle['coin-view']}>
             {getFieldValue(['data', 0, 'minCoin']) ? (
@@ -148,7 +147,7 @@ export default ({
             )}
           </div>
         )}
-      </Item>
+      </Item> */}
     </DrawerForm>
   );
 };
