@@ -211,6 +211,15 @@ export default ({
               <Item name={'id'} hidden>
                 <Input />
               </Item>
+              <Item name={'gameNum'} hidden>
+                <Input />
+              </Item>
+              <Item name={'gameAutoTestId'} hidden>
+                <Input />
+              </Item>
+              <Item name={'gameSource'} hidden>
+                <Input />
+              </Item>
               <Item noStyle hidden={t !== '游戏资料'}>
                 <GameInfo />
               </Item>
