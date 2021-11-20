@@ -90,6 +90,9 @@ export default ({
     } catch (e: any) {}
   }
 
+  function onClose() {
+    setDrawerProps((pre) => ({ ...pre, visible: false }));
+  }
   return (
     <DrawerForm
       formProps={{
@@ -101,6 +104,7 @@ export default ({
       }}
       drawerProps={{
         ...drawerProps,
+        onClose,
         confirmLoading: detail.isFetching,
         onOk: onSubmit,
         title: '金币规则配置',
