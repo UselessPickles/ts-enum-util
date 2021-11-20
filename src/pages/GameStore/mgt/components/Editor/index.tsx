@@ -595,7 +595,10 @@ function SourceInfo({ env }: { env: ENV }) {
                       ...credentials,
                       endpoint: 'oss-cn-shanghai.aliyuncs.com',
                       stsToken: credentials?.securityToken,
-                      timeout: 0,
+                      // 不超时
+                      timeout: 60 * 60 * 1000,
+                      // 不刷新token
+                      refreshSTSTokenInterval: 60 * 60 * 1000,
                     });
                     const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
                     const res = await client.put(path, file);

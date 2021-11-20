@@ -53,9 +53,9 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
             endpoint: 'oss-cn-shanghai.aliyuncs.com',
             stsToken: data?.securityToken,
             // 不超时
-            timeout: 0,
+            timeout: 60 * 60 * 1000,
             // 不刷新token
-            refreshSTSTokenInterval: 0,
+            refreshSTSTokenInterval: 60 * 60 * 1000,
           });
           const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
           const res = await client.put(path, file);
