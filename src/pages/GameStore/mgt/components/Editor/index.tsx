@@ -57,7 +57,7 @@ import { beforeUpload, extra, fileUploadChecked } from '../utils';
 import getExt from '@/utils/file/getExt';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useEffect, useRef } from 'react';
-import Interval from '@/utils/Interval';
+
 import {
   getValueFromEvent,
   uploadEvent2str,
@@ -125,6 +125,20 @@ export default ({
     },
   });
 
+  const client = useRef<OSS>();
+
+  useEffect(() => {
+    return () => {
+      client?.current?.cancel?.();
+    };
+  }, [client]);
+
+  function close() {
+    setModalProps((pre) => ({ ...pre, visible: false }));
+    form.resetFields();
+    client?.current?.cancel?.();
+  }
+
   async function onSubmit() {
     try {
       const value = await form?.validateFields();
@@ -187,6 +201,7 @@ export default ({
         className: styles['modal-title-height'],
         confirmLoading: detail?.isFetched,
         ...modalProps,
+        onCancel: close,
         title: (
           <>
             {modalProps?.title}
@@ -224,7 +239,7 @@ export default ({
                 <GameInfo />
               </Item>
               <Item noStyle hidden={t !== '资源信息'}>
-                <SourceInfo env={env} />
+                <SourceInfo env={env} client={client} />
               </Item>
               <Item noStyle hidden={t !== '商务信息'}>
                 <BizInfo />
@@ -542,15 +557,13 @@ function GameInfo() {
 }
 
 // 资源信息
-function SourceInfo({ env }: { env: ENV }) {
-  const inv = useRef(new Interval(1000));
-
-  useEffect(() => {
-    return () => {
-      inv.current.stop();
-    };
-  }, []);
-
+function SourceInfo({
+  env,
+  client,
+}: {
+  env: ENV;
+  client: React.MutableRefObject<OSS | undefined>;
+}) {
   return (
     <>
       <Item noStyle dependencies={[['apk']]}>
@@ -582,22 +595,7 @@ function SourceInfo({ env }: { env: ENV }) {
                   onProgress,
                   file,
                 }) => {
-                  const upSpd = 566;
                   const apkSize = (file as any)?.size;
-                  const estimate = apkSize / 1024 / upSpd;
-
-                  let progress = 0;
-
-                  inv.current.onPoll = () => {
-                    if (progress < 60) {
-                      progress += 100 / estimate;
-                    } else {
-                      progress += (100 - progress) / (Math.random() * 10);
-                    }
-                    onProgress?.({ percent: progress } as any);
-                  };
-
-                  inv.current.run();
 
                   try {
                     const credentials =
@@ -608,13 +606,15 @@ function SourceInfo({ env }: { env: ENV }) {
                       }).then((res) => res?.data)) ?? {};
 
                     if (!credentials) {
-                      throw new Error('授权失败');
+                      const e = new Error('授权失败');
+                      onError?.(e);
+                      throw e;
                     }
 
                     const { domain } = credentials;
 
                     const f: any = file;
-                    const client = new OSS({
+                    client.current = new OSS({
                       ...credentials,
                       endpoint: 'oss-cn-shanghai.aliyuncs.com',
                       stsToken: credentials?.securityToken,
@@ -624,10 +624,24 @@ function SourceInfo({ env }: { env: ENV }) {
                       refreshSTSTokenInterval: 60 * 60 * 1000,
                     });
                     const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
-                    const res = await client.put(path, file);
+
+                    // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
+                    // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
+                    const res = await client?.current?.multipartUpload(path, file, {
+                      progress: function (p) {
+                        // checkpoint参数用于记录上传进度，断点续传上传时将记录的checkpoint参数传入即可。浏览器重启后无法直接继续上传，您需要手动触发上传操作。
+                        onProgress?.({ percent: p * 100 } as any);
+                      },
+                      // parallel: 4,
+                      // 设置分片大小。默认值为1 MB，最小值为100 KB。
+                      // partSize: 1024 * 1024,
+                      // mime: 'text/plain',
+                    });
 
                     if (res?.res?.status !== 200) {
-                      throw new Error('上传失败');
+                      const e = new Error('上传失败');
+                      onError?.(e);
+                      throw e;
                     }
 
                     const xhr = new XMLHttpRequest();
@@ -647,18 +661,20 @@ function SourceInfo({ env }: { env: ENV }) {
 
                     const { packageName, insideVersion } = apkRes;
                     if (packageName && packageName !== prePackageName) {
-                      throw new Error('包名不一致');
+                      const e = new Error('包名不一致');
+                      onError?.(e);
+                      throw e;
                     }
 
                     if (insideVersion && +insideVersion <= preInsideVersion) {
-                      throw new Error('此游戏已存在且非新版本，无法上传');
+                      const e = new Error('此游戏已存在且非新版本，无法上传');
+                      onError?.(e);
+                      throw e;
                     }
 
                     onUploadSuccess!(uri, xhr);
                   } catch (e: any) {
-                    onError!(e);
-                  } finally {
-                    inv.current.stop();
+                    console.error(e);
                   }
                 }}
                 showUploadList={{
