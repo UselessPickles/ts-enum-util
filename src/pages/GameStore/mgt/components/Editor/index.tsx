@@ -49,7 +49,7 @@ import SelectAll from '@/decorators/Select/SelectAll';
 import { beforeUpload, extra, fileUploadChecked } from '../utils';
 import getExt from '@/utils/file/getExt';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 import {
   getValueFromEvent,
@@ -120,15 +120,7 @@ export default ({
 
   const client = useRef<OSS>();
 
-  useEffect(() => {
-    return () => {
-      client?.current?.cancel?.();
-    };
-  }, [client]);
-
-  function close() {
-    setModalProps((pre) => ({ ...pre, visible: false }));
-    form.resetFields();
+  function afterClose() {
     client?.current?.cancel?.();
   }
 
@@ -196,8 +188,8 @@ export default ({
         onOk: onSubmit,
         className: styles['modal-title-height'],
         confirmLoading: detail?.isFetched,
+        afterClose,
         ...modalProps,
-        onCancel: close,
         title: (
           <>
             {modalProps?.title}
