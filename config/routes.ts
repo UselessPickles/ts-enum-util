@@ -37,6 +37,10 @@ export default [
             ],
           },
           { path: '/lab', component: '@/pages/lab' },
+          {
+            path: '/autoTesting',
+            routes: [{ path: '/autoTesting', component: '@/pages/autoTesting' }],
+          },
         ],
       },
     ],
