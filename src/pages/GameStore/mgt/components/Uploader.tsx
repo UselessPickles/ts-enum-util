@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useRef } from 'react';
 import type { InputProps, UploadProps } from 'antd';
 import { Form, message, Button, Upload, Card, Divider, Input, Modal } from 'antd';
 
@@ -34,12 +34,6 @@ export default ({
 }) => {
   const client = useRef<OSS>();
 
-  useLayoutEffect(() => {
-    return () => {
-      client?.current?.cancel?.();
-    };
-  }, [client]);
-
   const beforeUpload: UploadProps['beforeUpload'] = (file) => {
     const outOfRange = file.size / 1024 > 200;
     if (outOfRange) {
@@ -48,12 +42,6 @@ export default ({
     }
     return !outOfRange;
   };
-
-  function close() {
-    setModalProps((pre) => ({ ...pre, visible: false }));
-    form.resetFields();
-    client?.current?.cancel?.();
-  }
 
   async function onSubmit() {
     const value = await form?.validateFields();
@@ -84,6 +72,9 @@ export default ({
       },
     });
   }
+  function afterClose() {
+    client?.current?.cancel?.();
+  }
 
   return (
     <ModalForm
@@ -94,7 +85,7 @@ export default ({
       modalProps={{
         onOk: onSubmit,
         ...modalProps,
-        onCancel: close,
+        afterClose,
       }}
     >
       <Item noStyle dependencies={[['apk']]}>
