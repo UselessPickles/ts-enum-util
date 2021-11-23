@@ -41,7 +41,6 @@ export default [
               { path: '/goldCoin/mission', component: '@/pages/goldCoin/mission' },
             ],
           },
-          { path: '/lab', component: '@/pages/Lab' },
           {
             path: '/hot-words',
             component: '@/pages/HotWords',
@@ -54,6 +53,10 @@ export default [
           {
             path: '/VersionManager',
             routes: [{ path: '/VersionManager', component: '@/pages/VersionManager' }],
+          },
+          {
+            path: '/autoTesting',
+            routes: [{ path: '/autoTesting', component: '@/pages/autoTesting' }],
           },
         ],
       },
