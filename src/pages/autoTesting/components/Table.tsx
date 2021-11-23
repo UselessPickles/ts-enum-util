@@ -135,6 +135,7 @@ export default () => {
       render: (_: any, record: any) => {
         return (
           <PriorityInput
+            style={{ width: 60 }}
             min={0}
             max={100}
             stringMode={false}

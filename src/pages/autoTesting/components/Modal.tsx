@@ -63,11 +63,11 @@ export default () => {
   return (
     <Modal footer={null} width={800} onCancel={onClose} {...modalProps}>
       <div style={{ display: 'flex' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ marginBottom: 20 }}>机型：{detailList?.length == 0 && '未开始测试'}</span>
+        <div className={styles.titleDiv} style={{ width: detailList?.length == 0 ? '25%' : '10%' }}>
+          <span style={{ marginBottom: 17 }}>机型：{detailList?.length == 0 && '未开始测试'}</span>
           <span>画面截图：{detailList?.length == 0 && '未开始测试'}</span>
         </div>
-        <AutoTabs>
+        <AutoTabs style={{ width: '90%' }}>
           {detailList?.map((item: any, index: any) => {
             return (
               <TabPane
@@ -81,7 +81,7 @@ export default () => {
                 <Image.PreviewGroup>
                   {item?.gameScreenshot?.map((item: any, index: any) => {
                     return (
-                      <div className={styles.ImgDiv}>
+                      <div className={styles.ImgDiv} key={index}>
                         <FileDoneOutlined className={styles.icon} hidden={item?.status == 1} />
                         <Image
                           src={item?.url}
