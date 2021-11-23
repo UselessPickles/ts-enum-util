@@ -89,7 +89,7 @@ export default () => {
                           width={200}
                           style={{ paddingRight: '10px' }}
                         />
-                        <div className={styles.ImgName}>{item?.name}</div>
+                        <div className={styles.ImgName}>{item?.name || '页面'}</div>
                       </div>
                     );
                   })}

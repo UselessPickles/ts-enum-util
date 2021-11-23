@@ -218,7 +218,6 @@ export default () => {
       fixed: 'right',
       width: 90,
       render: (_, record) => {
-        const { id } = record;
         return (
           <Button type="link" style={{ padding: 0 }} onClick={() => detailHandler(record)}>
             查看详情
@@ -251,7 +250,7 @@ export default () => {
           },
           [timeStart]: timePick?.[0].format('YYYY-MM-DD'),
           [timeEnd]: timePick?.[1].format('YYYY-MM-DD'),
-          timeType: undefined,
+          timeType: timeType == 'ctime' ? 1 : timeType == 'testTime' ? 2 : 3,
           timePick: undefined,
         };
         const res = await list({ data });
