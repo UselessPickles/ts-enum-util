@@ -151,6 +151,12 @@ export default function () {
       hideInTable: true,
     },
     {
+      title: 'ID',
+      dataIndex: 'id',
+      width: 100,
+      hideInSearch: true,
+    },
+    {
       title: '包名',
       dataIndex: 'packageName',
       width: 100,

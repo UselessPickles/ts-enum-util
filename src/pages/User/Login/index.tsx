@@ -2,14 +2,7 @@ import styles from './index.less';
 import { Button } from 'antd';
 import UserContext from '@/hooks/useUser';
 import { Form, Input, notification } from 'antd';
-import {
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  LockOutlined,
-} from '@ant-design/icons';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
 export default function Login() {
   const { logIn } = UserContext.useContainer();
