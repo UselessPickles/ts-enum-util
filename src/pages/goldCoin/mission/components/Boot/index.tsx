@@ -75,7 +75,7 @@ export default ({
         ...formProps,
         onFinish: onSubmit,
         style: { marginTop: '34px' },
-        initialValues: { data: [{ coinRuleId: '233' }] },
+        initialValues: { data: [{}] },
       }}
       drawerProps={{
         ...drawerProps,
@@ -164,6 +164,9 @@ export default ({
         name={['data', 0, 'minCoin']}
         rules={[{ required: true }, { pattern: positiveInteger, message: '仅允许正整数' }]}
       >
+        <Input placeholder="0" />
+      </Item>
+      <Item label={'下发金币数量'} name={['data', 0, 'id']} hidden>
         <Input placeholder="0" />
       </Item>
     </DrawerForm>

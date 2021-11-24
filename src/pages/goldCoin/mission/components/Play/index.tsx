@@ -166,6 +166,12 @@ export default ({
       >
         <Input placeholder="0" />
       </Item>
+      <Item label={'下发金币数量'} name={['data', 0, 'id']} hidden>
+        <Input placeholder="0" />
+      </Item>
+      <Item label={'下发金币数量'} name={['data', 0, 'id']} hidden>
+        <Input placeholder="0" />
+      </Item>
     </DrawerForm>
   );
 };
