@@ -32,11 +32,11 @@ export default ({
       enabled: !!taskId,
       refetchOnWindowFocus: false,
       onSuccess(res) {
-        const formData = prune(res?.data, isValidValue);
-        const sorted = formData?.sort(
-          (a, b) => a?.commonCondition?.condition - b?.commonCondition?.condition,
+        const sorted = res?.data?.sort(
+          (a: any, b: any) => a?.commonCondition?.condition - b?.commonCondition?.condition,
         );
-        form.setFieldsValue({ data: sorted });
+
+        form.setFieldsValue(prune({ data: sorted }, isValidValue));
       },
     },
   );
@@ -45,7 +45,10 @@ export default ({
     try {
       const value = await form?.validateFields();
       const format = prune(value, isValidValue);
-      // const sorted =format?.map(f => ({...f, commonCondition: {condition: idx}}))
+      const sorted = format?.map((f: any, idx: number) => ({
+        ...f,
+        commonCondition: { condition: idx + 1 },
+      }));
 
       Modal.confirm({
         title: '请进行二次确认',
@@ -55,7 +58,7 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: format?.data?.map((d: any) => ({ ...d, taskId, code })),
+              data: sorted?.data?.map((d: any) => ({ ...d, taskId, code })),
               throwErr: true,
             });
             await onSuccess?.();
@@ -172,6 +175,7 @@ export default ({
     <DrawerForm
       formProps={{
         ...formProps,
+        initialValues: { data: Array(7).fill(Object.create({})) },
         onFinish: onSubmit,
       }}
       drawerProps={{
