@@ -288,8 +288,8 @@ export default function () {
           request={async (params) => {
             const data = {
               ...params,
-              ustartTime: params?.utime?.[0]?.format('YYYY-MM-DD hh:mm:ss'),
-              uendTime: params?.utime?.[1]?.format('YYYY-MM-DD hh:mm:ss'),
+              ustartTime: params?.utime?.[0]?.format('YYYY-MM-DD HH:mm:ss'),
+              uendTime: params?.utime?.[1]?.format('YYYY-MM-DD HH:mm:ss'),
               page: {
                 pageNo: params?.current,
                 pageSize: params?.pageSize,
