@@ -87,11 +87,18 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: format?.data?.map((d: any, idx: number, arr: { endRange: any }[]) => {
-                const temp: any = { ...d };
-                setTo(temp, ['ballCondition', 'startRange'], arr[idx - 1]?.endRange ?? 0);
-                return temp;
-              }),
+              data: format?.data?.map(
+                (d: any, idx: number, arr: { ballCondition: { endRange: any } }[]) => {
+                  const temp: any = { ...d };
+
+                  setTo(
+                    temp,
+                    ['ballCondition', 'startRange'],
+                    arr[idx - 1]?.ballCondition?.endRange ?? 0,
+                  );
+                  return temp;
+                },
+              ),
               throwErr: true,
             });
             await fn?.();
