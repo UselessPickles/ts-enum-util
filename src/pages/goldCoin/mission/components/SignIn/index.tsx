@@ -45,10 +45,6 @@ export default ({
     try {
       const value = await form?.validateFields();
       const format = prune(value, isValidValue);
-      const sorted = format?.map((f: any, idx: number) => ({
-        ...f,
-        commonCondition: { condition: idx + 1 },
-      }));
 
       Modal.confirm({
         title: '请进行二次确认',
@@ -58,7 +54,12 @@ export default ({
             setDrawerProps((pre) => ({ ...pre, confirmLoading: true }));
             await services.saveOrUpdate({
               // 拼给后端
-              data: sorted?.data?.map((d: any) => ({ ...d, taskId, code })),
+              data: format?.data?.map?.((d: any, idx: number) => ({
+                ...d,
+                taskId,
+                code,
+                commonCondition: { condition: idx + 1 },
+              })),
               throwErr: true,
             });
             await onSuccess?.();
@@ -70,7 +71,9 @@ export default ({
           }
         },
       });
-    } catch (e: any) {}
+    } catch (e: any) {
+      console.error(e);
+    }
   }
 
   const columns: EdiTableColumnType<any>[] = [
@@ -175,6 +178,9 @@ export default ({
     <DrawerForm
       formProps={{
         ...formProps,
+        validateMessages: {
+          required: '该字段必填',
+        },
         initialValues: { data: Array(7).fill(Object.create({})) },
         onFinish: onSubmit,
       }}
