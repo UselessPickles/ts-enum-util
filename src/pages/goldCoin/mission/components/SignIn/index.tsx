@@ -1,4 +1,4 @@
-import { Space, Form, Input, Modal, Typography } from 'antd';
+import { Form, Input, Modal } from 'antd';
 
 import DrawerForm from '@/components/DrawerForm@latest';
 import type useDrawerForm from '@/components/DrawerForm@latest/useDrawerForm';
@@ -10,13 +10,9 @@ import prune from '@/utils/prune';
 import type { EdiTableColumnType } from '@/components/EdiTable';
 import EdiTable from '@/components/EdiTable';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
-import { REWARD_TYPE_ENUM } from '../../models';
-import FormItemView from '@/components/FormItemView';
 import { positiveInteger } from '../utils';
 
 const { Item } = Form;
-
-const { Text } = Typography;
 
 export default ({
   formProps,
@@ -37,7 +33,10 @@ export default ({
       refetchOnWindowFocus: false,
       onSuccess(res) {
         const formData = prune(res?.data, isValidValue);
-        form.setFieldsValue({ data: formData });
+        const sorted = formData?.sort(
+          (a, b) => a?.commonCondition?.condition - b?.commonCondition?.condition,
+        );
+        form.setFieldsValue({ data: sorted });
       },
     },
   );
@@ -45,8 +44,8 @@ export default ({
   async function onSubmit() {
     try {
       const value = await form?.validateFields();
-      console.log('value', value);
       const format = prune(value, isValidValue);
+      // const sorted =format?.map(f => ({...f, commonCondition: {condition: idx}}))
 
       Modal.confirm({
         title: '请进行二次确认',
@@ -74,13 +73,9 @@ export default ({
   const columns: EdiTableColumnType<any>[] = [
     {
       title: '天数',
-      canDrag: true,
+      // canDrag: true,
       renderFormItem({ field }) {
-        return (
-          <Item style={{ cursor: 'move' }} key={field.key}>
-            第{field.name + 1}天
-          </Item>
-        );
+        return <Item key={field.key}>第{field.name + 1}天</Item>;
       },
     },
     {
