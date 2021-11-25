@@ -145,7 +145,7 @@ export default function () {
 
   const columns: XmilesCol<Row>[] = [
     {
-      title: '包名/游戏名',
+      title: '包名/游戏名/ID',
       dataIndex: 'packageOrGameName',
       width: 100,
       hideInTable: true,
