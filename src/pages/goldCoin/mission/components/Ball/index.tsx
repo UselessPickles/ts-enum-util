@@ -127,11 +127,11 @@ export default ({
   const columns: EdiTableColumnType<any>[] = [
     {
       title: '排序',
-      canDrag: true,
+      // canDrag: true,
       width: 75,
       renderFormItem({ field }) {
         return (
-          <Item style={{ cursor: 'move' }} key={field.key} fieldKey={[field.fieldKey, 'sort']}>
+          <Item key={field.key} fieldKey={[field.fieldKey, 'sort']}>
             {field.name + 1}
           </Item>
         );
