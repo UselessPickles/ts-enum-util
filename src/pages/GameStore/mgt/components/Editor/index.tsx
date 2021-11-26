@@ -456,7 +456,7 @@ function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> 
                     const parseReq = await fetch(`${uri}?x-oss-process=image/info`),
                       parse = await parseReq.json(),
                       imgStruct = {
-                        format: Format,
+                        format: parse?.Format.value,
                         height: parse?.ImageHeight?.value,
                         img: uri,
                         size: parse?.FileSize?.value,
