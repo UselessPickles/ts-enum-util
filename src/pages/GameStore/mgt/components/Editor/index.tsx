@@ -228,7 +228,7 @@ export default ({
                 <Input />
               </Item>
               <Item noStyle hidden={t !== '游戏资料'}>
-                <GameInfo />
+                <GameInfo client={client} />
               </Item>
               <Item noStyle hidden={t !== '资源信息'}>
                 <SourceInfo env={env} client={client} />
@@ -248,7 +248,7 @@ export default ({
 };
 
 // 游戏资料
-function GameInfo() {
+function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> }) {
   const classify = useQuery<{ data: { id: number; name: string }[] }>(
     ['game-mgt-classify-list'],
     () => classifyServices.list(),
@@ -259,6 +259,22 @@ function GameInfo() {
     (acc, cur: any) => acc.set(`${cur.id}`, cur.name),
     new Map(),
   );
+
+  const gamePictureListAdaptor = {
+    I: (files: { img: string }[]) =>
+      files?.map?.((f) =>
+        f?.img
+          ? {
+              response: f,
+              url: f?.img,
+              thumbUrl: f?.img,
+              name: f?.img,
+              uid: f?.img,
+            }
+          : f,
+      ),
+    O: (reps: { response: any }[]) => reps?.map?.((v) => v?.response ?? v) ?? reps,
+  };
 
   return (
     <>
@@ -364,24 +380,94 @@ function GameInfo() {
             style={{ flex: 1 }}
             valuePropName="fileList"
             getValueFromEvent={getValueFromEvent}
-            normalize={uploadEvent2strArr}
+            normalize={gamePictureListAdaptor.O}
             extra="为App更好的展示效果，请上传至少三张游戏截图，建议上传尺寸702*396px，支持500K以内jpg、png格式"
           >
             {compose<ReturnType<typeof CustomUpload>>(
               IOC([
                 Format({
                   valuePropName: 'fileList',
-
-                  g: strArr2fileList,
+                  g: gamePictureListAdaptor.I,
                 }),
               ]),
             )(
-              <CustomUpload
+              <Upload
                 maxCount={5}
                 accept=".jpg,.png"
                 listType="picture-card"
                 multiple
                 beforeUpload={beforeUploadHOF({ size: 500 })}
+                customRequest={async ({
+                  onSuccess: onUploadSuccess,
+                  onError,
+                  onProgress,
+                  file,
+                }) => {
+                  try {
+                    const credentials =
+                      (await RESTful.post('fxx/game/credentials', {
+                        method: 'POST',
+                        throwErr: true,
+                        notify: false,
+                      }).then((res) => res?.data)) ?? {};
+
+                    if (!credentials) {
+                      const e = new Error('授权失败');
+                      onError?.(e);
+                      throw e;
+                    }
+
+                    const { domain } = credentials;
+
+                    const f: any = file;
+                    client.current = new OSS({
+                      ...credentials,
+                      endpoint: 'oss-cn-shanghai.aliyuncs.com',
+                      stsToken: credentials?.securityToken,
+                      // 不超时
+                      timeout: 60 * 60 * 1000,
+                      // 不刷新token
+                      refreshSTSTokenInterval: 60 * 60 * 1000,
+                    });
+                    const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
+
+                    // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
+                    // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
+                    const res = await client?.current?.multipartUpload(path, file, {
+                      progress: function (p) {
+                        // checkpoint参数用于记录上传进度，断点续传上传时将记录的checkpoint参数传入即可。浏览器重启后无法直接继续上传，您需要手动触发上传操作。
+                        onProgress?.({ percent: p * 100 } as any);
+                      },
+                      // parallel: 4,
+                      // 设置分片大小。默认值为1 MB，最小值为100 KB。
+                      // partSize: 1024 * 1024,
+                      // mime: 'text/plain',
+                    });
+
+                    if (res?.res?.status !== 200) {
+                      const e = new Error('上传失败');
+                      onError?.(e);
+                      throw e;
+                    }
+
+                    const xhr = new XMLHttpRequest();
+                    const uri = `${domain}${path}`;
+
+                    const parseReq = await fetch(`${uri}?x-oss-process=image/info`),
+                      parse = await parseReq.json(),
+                      imgStruct = {
+                        format: Format,
+                        height: parse?.ImageHeight?.value,
+                        img: uri,
+                        size: parse?.FileSize?.value,
+                        width: parse?.ImageWidth?.value,
+                      };
+
+                    onUploadSuccess!(imgStruct, xhr);
+                  } catch (e: any) {
+                    console.error(e);
+                  }
+                }}
               >
                 {!(getFieldValue(['gamePictureList'])?.length >= 5) && (
                   <div>
@@ -389,7 +475,7 @@ function GameInfo() {
                     <div style={{ marginTop: 8 }}>上传图片</div>
                   </div>
                 )}
-              </CustomUpload>,
+              </Upload>,
             )}
           </Item>
         )}
@@ -922,8 +1008,8 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     {
       name: 'gamePictureList',
       label: '游戏截图',
-      format: (srcs: string[]) =>
-        srcs?.map?.((src: string) => <Image width="60px" src={src} key={src} />),
+      format: (srcs: { img: string }[]) =>
+        srcs?.map?.((src) => <Image width="60px" src={src?.img} key={src?.img} />),
     },
     {
       name: ['gameVideoList', 0, 'url'],
