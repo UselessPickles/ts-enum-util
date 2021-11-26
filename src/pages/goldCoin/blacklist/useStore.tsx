@@ -7,12 +7,10 @@ import { Form } from 'antd';
 // 共享 hooks
 export function useStore() {
   const actionRef = useRef<ProCoreActionType | undefined>();
-  const formRef = useRef<FormInstance | undefined>();
   const [modalFormRef] = Form.useForm(),
     [modalProps, setModalProps] = useState<ModalProps>({});
   return {
     actionRef,
-    formRef,
     modalProps,
     setModalProps,
     modalFormRef,
