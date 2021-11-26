@@ -38,14 +38,12 @@ export default (props: any) => {
       title: '类别名称',
       dataIndex: 'name',
       ...defalutTableColumnsProps,
-      width: 250,
       hideInSearch: false,
     },
     {
       title: '状态',
       dataIndex: 'showStatus',
       ...defalutTableColumnsProps,
-      width: 130,
       valueEnum: { 1: '展示', 0: '隐藏' },
       hideInSearch: false,
       align: 'center',
@@ -61,23 +59,21 @@ export default (props: any) => {
     {
       title: '游戏数量',
       dataIndex: 'gameCount',
-      width: 130,
       ...defalutTableColumnsProps,
       align: 'center',
+      className: styles.tdWidth,
     },
     {
       title: '排序',
       dataIndex: 'sort',
       ...defalutTableColumnsProps,
-      width: 130,
       sorter: (a, b) => a.sort - b.sort,
+      className: styles.tdWidth,
     },
     {
       title: '操作人',
       dataIndex: 'operator',
       ...defalutTableColumnsProps,
-      width: 130,
-      // align: 'center',
     },
     {
       title: '操作时间',
@@ -93,6 +89,7 @@ export default (props: any) => {
       title: '操作',
       ...defalutTableColumnsProps,
       fixed: 'right',
+      width: 160,
       render: (_, record) => {
         const { id } = record;
         return (
@@ -106,7 +103,11 @@ export default (props: any) => {
               cancelText="取消"
               placement="top"
               onConfirm={async () => {
-                await gameDelete({ data: { id } });
+                await gameDelete({ data: { id } }).then((res) => {
+                  if (res?.result?.status == 1) {
+                    actionRef.current?.reload();
+                  }
+                });
               }}
             >
               <Button type="link">删除</Button>
@@ -119,6 +120,7 @@ export default (props: any) => {
 
   return (
     <XmilesTable
+      rowKey={'id'}
       actionRef={actionRef}
       formRef={formRef}
       columns={tableColumns}

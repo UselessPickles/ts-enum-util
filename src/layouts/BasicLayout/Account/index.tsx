@@ -25,12 +25,14 @@ const Account: React.FC = () => {
 
   return (
     <div className={styles.account}>
-      <div />
-      <Avatar className={styles.avatar}>{name ? name[0] : ''}</Avatar>
+      <div className={styles.gap} />
       <Dropdown overlay={downMenu}>
-        <span className={styles.name}>{name}</span>
+        <span className={styles.name}>
+          <Avatar className={styles.avatar}>{name ? name[0] : ''}</Avatar>
+          {name}
+          <DownOutlined />
+        </span>
       </Dropdown>
-      <DownOutlined />
     </div>
   );
 };

@@ -7,11 +7,11 @@ RUN mkdir -p /home/node/app && \
 
 WORKDIR /home/node/app
 
-COPY ./package.json .
-RUN npm install
+COPY package.json package-lock.json yarn.lock ./
+RUN yarn --frozen-lockfile --registry=http://registry.npmmirror.com
 
 COPY . .
 
 ENV BRANCH = "master"
 
-CMD ["sh", "-c", "git fetch && git checkout $BRANCH && git pull && npm install && node"]
+CMD ["sh", "-c", "git fetch && git checkout $BRANCH -f && git pull --ff-only && yarn && node"]

@@ -17,7 +17,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
 
   return (
     <Upload
-      customRequest={async ({ onSuccess, onError, onProgress, file, action }) => {
+      customRequest={async ({ onSuccess, onError, onProgress, file }) => {
         const upSpd = 50;
         const estimate = (file as any)?.size / 1024 / upSpd;
 
@@ -36,7 +36,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
 
         try {
           const data =
-            (await RESTful.post('scenead/overseas/game/credentials', {
+            (await RESTful.post('fxx/game/credentials', {
               method: 'POST',
               throwErr: true,
             }).then((res) => res?.data)) ?? {};
@@ -45,11 +45,19 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
             throw new Error('授权失败');
           }
 
-          const { cndDomain } = data;
+          const { domain } = data;
 
           const f: any = file;
-          const client = new OSS({ ...data, stsToken: data?.securityToken });
-          const path = `${action}/${f?.uid}-${f?.name}`;
+          const client = new OSS({
+            ...data,
+            endpoint: 'oss-cn-shanghai.aliyuncs.com',
+            stsToken: data?.securityToken,
+            // 不超时
+            timeout: 60 * 60 * 1000,
+            // 不刷新token
+            refreshSTSTokenInterval: 60 * 60 * 1000,
+          });
+          const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
           const res = await client.put(path, file);
 
           if (res?.res?.status !== 200) {
@@ -57,7 +65,7 @@ export default (props: React.PropsWithChildren<UploadProps>) => {
           }
 
           const xhr = new XMLHttpRequest();
-          onSuccess!(`${cndDomain}/${path}`, xhr);
+          onSuccess!(`${domain}${path}`, xhr);
         } catch (e: any) {
           onError!(e);
         } finally {

@@ -6,8 +6,8 @@ export default ({ children, modalProps, formProps }: PropsWithChildren<InitValue
   <Modal {...modalProps}>
     <Form {...formProps}>
       {children}
-      <Form.Item noStyle>
-        <button html-type="submit" style={{ visibility: 'hidden' }} />
+      <Form.Item hidden>
+        <button html-type="submit" />
       </Form.Item>
     </Form>
   </Modal>

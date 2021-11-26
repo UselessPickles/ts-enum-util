@@ -4,10 +4,7 @@ export default [
     component: '@/layouts/GlobalLayout',
     routes: [
       { path: '/', redirect: '/home', exact: true },
-      {
-        path: '/user',
-        routes: [{ path: '/user/login', component: '@/pages/User/Login' }],
-      },
+      { path: '/user/login', component: '@/pages/User/Login' },
       {
         path: '/',
         component: '@/layouts/BasicLayout',
@@ -33,10 +30,34 @@ export default [
             path: '/gameStore/mgt',
             routes: [
               { path: '/gameStore/mgt/', redirect: '/gameStore/mgt/test' },
-              { path: '/gameStore/mgt/:env', component: '@/pages/gameStore/mgt' },
+              { path: '/gameStore/mgt/:env', component: '@/pages/GameStore/mgt' },
             ],
           },
-          { path: '/lab', component: '@/pages/lab' },
+          {
+            path: '/goldCoin',
+            routes: [
+              { path: '/goldCoin', redirect: '/goldCoin/mission' },
+              { path: '/goldCoin/blacklist', component: '@/pages/goldCoin/blacklist' },
+              { path: '/goldCoin/mission', component: '@/pages/goldCoin/mission' },
+            ],
+          },
+          {
+            path: '/hot-words',
+            component: '@/pages/HotWords',
+          },
+          { path: '/lab', component: '@/pages/Lab' },
+          {
+            path: '/UserFeedback',
+            routes: [{ path: '/UserFeedback', component: '@/pages/UserFeedback' }],
+          },
+          {
+            path: '/VersionManager',
+            routes: [{ path: '/VersionManager', component: '@/pages/VersionManager' }],
+          },
+          {
+            path: '/autoTesting',
+            routes: [{ path: '/autoTesting', component: '@/pages/autoTesting' }],
+          },
         ],
       },
     ],
