@@ -64,8 +64,8 @@ export default ({
     {
       name: 'gamePictureList',
       label: '游戏截图',
-      format: (srcs: string[]) =>
-        srcs?.map?.((src: string) => <Image width="60px" src={src} key={src} />),
+      format: (srcs: { img: string }[]) =>
+        srcs?.map?.((src) => <Image width="60px" src={src?.img} key={src?.img} />),
     },
     {
       name: ['gameVideoList', 0, 'url'],
