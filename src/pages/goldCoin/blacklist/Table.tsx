@@ -5,7 +5,7 @@ import { Button, Popconfirm } from 'antd';
 import { useContainer } from './useStore';
 
 export default () => {
-  const { formRef, setModalProps, actionRef } = useContainer();
+  const { setModalProps, actionRef } = useContainer();
 
   function addList() {
     setModalProps({
@@ -79,8 +79,7 @@ export default () => {
   return (
     <XmilesTable
       actionRef={actionRef}
-      formProps={{ labelCol: { offset: 1, span: 8 }, wrapperCol: { span: 15 } }}
-      form={formRef}
+      form={{ labelCol: { offset: 1, span: 8 }, wrapperCol: { span: 15 } }}
       columns={columns}
       rowKey="id"
       headerTitle={
