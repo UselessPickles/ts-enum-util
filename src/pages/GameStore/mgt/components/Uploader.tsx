@@ -61,6 +61,7 @@ export default ({
           );
           await onSuccess?.();
           setModalProps((pre) => ({ ...pre, visible: false }));
+          form.resetFields();
         } catch (e: any) {
           if (e?.message) {
             message.error(e?.message);
