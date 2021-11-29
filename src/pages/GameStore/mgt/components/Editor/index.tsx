@@ -58,12 +58,13 @@ import getExt from '@/utils/file/getExt';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useRef } from 'react';
 
+import BraftEditor from '@/components/Xmiles/BraftEditor';
+import type { EditorState } from 'braft-editor';
+
 import {
   getValueFromEvent,
   uploadEvent2str,
   str2fileList,
-  uploadEvent2strArr,
-  strArr2fileList,
   arr2str,
   str2arr,
   moment2str,
@@ -249,6 +250,8 @@ export default ({
 
 // 游戏资料
 function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> }) {
+  const editorState = useRef<EditorState>(null);
+
   const classify = useQuery<{ data: { id: number; name: string }[] }>(
     ['game-mgt-classify-list'],
     () => classifyServices.list(),
@@ -287,8 +290,75 @@ function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> 
       <Item name="briefIntroduction" label="一句话介绍" rules={[{ required: true }]}>
         <Input placeholder="输入内容" />
       </Item>
-      <Item name="detailedIntroduction" label="详细介绍" rules={[{ required: true }]}>
-        <Input.TextArea placeholder="输入内容" rows={5} />
+      <Item
+        name="detailedIntroduction"
+        label="详细介绍"
+        rules={[
+          { required: true },
+          {
+            validator(_, es?: EditorState) {
+              if (es && es?.isEmpty?.()) {
+                return Promise.reject(new Error('该值不能为空'));
+              }
+              return Promise.resolve();
+            },
+          },
+        ]}
+      >
+        {compose<ReturnType<typeof BraftEditor>>(
+          IOC([
+            Format({
+              f: (es?: EditorState) => {
+                editorState.current = es;
+                return es?.isEmpty?.() ? undefined : es?.toHTML?.();
+              },
+              g: (text?: string) => {
+                if (!editorState.current && text) {
+                  editorState.current = BraftEditor.createEditorState(text);
+                }
+                return editorState.current;
+              },
+            }),
+          ]),
+        )(
+          <BraftEditor
+            controls={[
+              'undo',
+              'redo',
+              'separator',
+              'font-size',
+              'line-height',
+              'letter-spacing',
+              'separator',
+              'text-color',
+              'bold',
+              'italic',
+              'underline',
+              'strike-through',
+              'separator',
+              'superscript',
+              'subscript',
+              'remove-styles',
+              'emoji',
+              'separator',
+              'text-indent',
+              'text-align',
+              'separator',
+              'headings',
+              'list-ul',
+              'list-ol',
+              'blockquote',
+              'code',
+              'separator',
+              'link',
+              'separator',
+              'hr',
+              // 'separator','media',
+              'separator',
+              'clear',
+            ]}
+          />,
+        )}
       </Item>
       <div style={{ display: 'flex' }}>
         <Item dependencies={[['gameIcon']]} noStyle>
@@ -998,7 +1068,11 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
   const columns: DiffCol<Row>[] = [
     { name: 'gameName', label: '游戏名称' },
     { name: 'briefIntroduction', label: '一句话介绍' },
-    { name: 'detailedIntroduction', label: '详细介绍' },
+    {
+      name: 'detailedIntroduction',
+      label: '详细介绍',
+      format: (src) => <div dangerouslySetInnerHTML={{ __html: src }} />,
+    },
     { name: 'gameIcon', label: '游戏Icon', format: (src) => <Image width="60px" src={src} /> },
     {
       name: 'dynamicPicture',

@@ -50,7 +50,11 @@ export default ({
 
     { name: 'gameName', label: '游戏名称' },
     { name: 'briefIntroduction', label: '一句话介绍' },
-    { name: 'detailedIntroduction', label: '详细介绍' },
+    {
+      name: 'detailedIntroduction',
+      label: '详细介绍',
+      format: (src) => <div dangerouslySetInnerHTML={{ __html: src }} />,
+    },
     {
       name: 'gameIcon',
       label: '游戏Icon',
