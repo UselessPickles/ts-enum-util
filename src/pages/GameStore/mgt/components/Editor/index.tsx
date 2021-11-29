@@ -356,7 +356,7 @@ function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> 
           />,
         )}
       </Item>
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
         <Item dependencies={[['gameIcon']]} noStyle>
           {({ getFieldValue }) => {
             return (
@@ -433,10 +433,10 @@ function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> 
             </Item>
           )}
         </Item>
+        <Text type="secondary" style={{ flexBasis: '100%', margin: '-25px 0 24px' }}>
+          icon和动态图建议上传尺寸492*492px，icon支持200K以内jpg、png格式；动态图支持支持2M以内的gif格式
+        </Text>
       </div>
-      <Text type="secondary">
-        icon和动态图建议上传尺寸492*492px，icon支持200K以内jpg、png格式；动态图支持支持2M以内的gif格式
-      </Text>
       <Item dependencies={[['gamePictureList']]} noStyle>
         {({ getFieldValue }) => (
           <Item
