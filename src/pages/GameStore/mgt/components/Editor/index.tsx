@@ -153,6 +153,7 @@ export default ({
             );
             await onSuccess?.();
             setModalProps((pre) => ({ ...pre, visible: false }));
+            form.resetFields();
           } catch (e: any) {
             console.error(e?.message);
           } finally {
