@@ -26,6 +26,7 @@
     "@ant-design/pro-table": "^2.56.2",
     "ali-oss": "^6.16.0",
     "braft-editor": "^2.3.9",
+    "cross-env": "^7.0.3",
     "react": "17.x",
     "react-dnd": "^14.0.4",
     "react-dnd-html5-backend": "^14.0.2",
@@ -33,6 +34,7 @@
     "react-query": "^3.27.0",
     "styled-components": "^5.3.1",
     "umi": "^3.5.20",
+    "@umijs/preset-react": "1.x",
     "unstated-next": "^1.1.0"
   },
   "devDependencies": {
@@ -42,9 +44,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/styled-components": "^5.1.15",
     "@umijs/fabric": "^2.8.1",
-    "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.5.20",
-    "cross-env": "^7.0.3",
     "lint-staged": "^10.0.7",
     "prettier": "^2.2.0",
     "typescript": "^4.1.2",
