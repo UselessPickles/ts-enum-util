@@ -6,7 +6,7 @@ export default {
       APP_API_BASE_URL: 'https://it.yingzhongshare.com',
       APP_API_SECURITY: '/yingzhong-security',
       APP_API_SECURITY_URL: 'https://it.yingzhongshare.com',
-      APP_API_SUBSYSTEMID: 479,
+      APP_API_SUBSYSTEMID: 981,
       NODE_ENV: 'production',
     },
   },
