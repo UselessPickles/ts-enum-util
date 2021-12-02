@@ -40,7 +40,7 @@ case $1 in
         curl "https://cs.console.aliyun.com/hook/trigger?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVzdGVySWQiOiJjOTk2MmNkZDNiNjc0NGQ0N2EwNTE0ZWY4YTIyNjEyODMiLCJpZCI6IjE1ODcyNCJ9.TJW4ZAobyljjfCrUe2XuZJ7Z_P64GpaaT_kjiy_pDkJTIqNFU3BassUW6XDzXd5v-wYzT3qoYWdpfA0tftPjTcQuPidcg2JhcGWFBJJSzL1C6L7h4y2HGVqzXvYzT2rkXCTQWiXDHjEaGXzd42dHHCt3uxneNZ3f5pLQsmrnF7Y"
     ;;
     "production")
-        echo "需要 curl"
+        curl "https://cs.console.aliyun.com/hook/trigger?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVzdGVySWQiOiJjNTFjODcxZWE1OTNiNGRjODhiYzVlMTg3NDQ0MWE5ZTMiLCJpZCI6IjE2NTc1NSJ9.FMaqwJOnokOnxsD1hovf2ib_YZG2ZXzuhG-ngOcn_D90RiEO1Ih9RDLVaBmwPpKaoaeE_gh1RMkarTRt5Bl0QJSNz2HnH4FTIzmlFWFXG7th1FrTvyzwtpASiob7WgrGfBqI5fx1uQRA5sW6z7Q6j4lA38cxzBTT2Zgs4-iDE2Q"
     ;;
     *)
         curl "https://cs.console.aliyun.com/hook/trigger?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVzdGVySWQiOiJjOGMxMDcwNWYxN2EwNGMwNjhiNTRjMWFkMDAzMGY1ZTYiLCJpZCI6IjE1ODk1MiJ9.rJFBqsJxDVIIG_UMwgwmIv-AUvAN9vif-BNP9Eb7Fof9RhXiVBpfq8GX-CjEQdg7Gr0Kci2Ztl_BQoG07iypeoHMk3CYy-ow3ZFJ1eeuVy_v6mhRokTmyqC3x0c3aLS8SCzJJ8bic6_55duGs8FJH2dsiYaa24bPUp4NKDIkxzs"
