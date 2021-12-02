@@ -25,6 +25,7 @@
     "@ant-design/pro-layout": "^6.5.0",
     "@ant-design/pro-table": "^2.56.2",
     "ali-oss": "^6.16.0",
+    "braft-editor": "^2.3.9",
     "cross-env": "^7.0.3",
     "react": "17.x",
     "react-dnd": "^14.0.4",

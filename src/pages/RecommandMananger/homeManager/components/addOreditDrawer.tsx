@@ -105,7 +105,6 @@ export default () => {
       formProps={{
         layout: 'vertical',
         form: modalFormRef,
-        className: styles.editForm,
         initialValues: { showStatus: 1 },
       }}
     >

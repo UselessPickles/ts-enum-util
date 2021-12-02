@@ -10,7 +10,7 @@ export default ({
 }: PropsWithChildren<any>) => (
   <Drawer
     placement="right"
-    width={600}
+    width={800}
     footer={[
       <div key="DrawerFooter">
         <Button onClick={onCancel} style={{ marginRight: '10px' }}>
