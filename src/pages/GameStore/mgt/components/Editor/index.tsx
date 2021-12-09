@@ -684,6 +684,9 @@ function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> 
         <Radio.Group optionType="button" options={Options(SHOW_STATUS).toOpt} />
       </Item>
 
+      <Item name="searchKeyword" label="搜索关键字">
+        <Input placeholder="关键词可搜索到此游戏，多个关键词用,(英文逗号)隔开" />
+      </Item>
       <Item>
         <Text strong>2. 基础信息</Text>
       </Item>
@@ -1125,6 +1128,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
       label: '安装方式',
       format: (v: number) => INSTALL_TYPE.get(v),
     },
+    { name: 'searchKeyword', label: '搜索关键字' },
   ];
 
   function itemRender(row: Record<keyof Row, ReactNode>) {
