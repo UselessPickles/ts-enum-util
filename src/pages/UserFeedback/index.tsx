@@ -1,3 +1,3 @@
-import FeedbackTable from './Table';
+import FeedbackTable from './TableModal';
 
 export default FeedbackTable;
