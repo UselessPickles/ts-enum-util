@@ -111,6 +111,7 @@ export default ({
       label: '安装方式',
       format: (v: number) => INSTALL_TYPE.get(v),
     },
+    { name: 'searchKeyword', label: '搜索关键字' },
   ];
 
   return (
