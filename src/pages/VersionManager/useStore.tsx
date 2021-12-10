@@ -48,7 +48,6 @@ export function useModalFromSubmit() {
       value.status = 1;
       value.appVersion = Number(value?.appVersionCode?.replace(/(^0.|\.)/g, '') ?? 0);
       const { updateType } = value;
-      console.log('queryData', value);
       Modal.confirm({
         title: '提示',
         icon: <ExclamationCircleOutlined />,
