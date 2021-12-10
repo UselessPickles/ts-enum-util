@@ -222,6 +222,18 @@ export default () => {
         <Item label="qq群反馈信息" name="qqGroup">
           <Input />
         </Item>
+        <Item noStyle dependencies={['qqGroup']}>
+          {({ getFieldValue }) => {
+            const qqGroup = getFieldValue('qqGroup');
+            return (
+              qqGroup && (
+                <Item label="qq群key" name="qqKey" rules={[{ required: true }]}>
+                  <Input />
+                </Item>
+              )
+            );
+          }}
+        </Item>
         <Item dependencies={[['wechatGroupPicture']]} noStyle>
           {({ getFieldValue }) => (
             <Item
