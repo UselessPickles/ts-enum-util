@@ -73,7 +73,9 @@ export default () => {
       (await RESTful.post('fxx/game/user/feedback/setting/list', { data: {} }).finally(() =>
         setLoading(false),
       )) ?? {};
-    configList?.data && modalFormRef?.setFieldsValue(configList?.data?.[0]);
+    const configListData = configList?.data?.[0];
+    if (configListData?.wechatGroupPicture == '') configListData.wechatGroupPicture = [];
+    configListData && modalFormRef?.setFieldsValue(configListData);
     setModalProps({
       title: '反馈信息配置',
       visible: true,
@@ -89,13 +91,16 @@ export default () => {
 
   function submitor() {
     return modalFormRef?.validateFields().then((value) => {
+      if (value.qqGroup == '') value.qqKey = '';
+      if (Array.isArray(value.wechatGroupPicture) && value.wechatGroupPicture?.length == 0)
+        value.wechatGroupPicture = '';
       Modal.confirm({
         title: '提示',
         icon: <ExclamationCircleOutlined />,
         content: '确认保存吗？二次确认后，保存成功，app相应更新数据',
         async onOk() {
           await RESTful.post('fxx/game/user/feedback/setting/saveOrUpdate', {
-            data: { ...value },
+            data: { ...(value ?? { qqGroup: '', wechatGroupPicture: '', qqKey: '' }) },
           }).then((res) => {
             if (res?.result?.status == 1) {
               Cancel();
