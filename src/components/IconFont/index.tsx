@@ -1,4 +1,4 @@
-import { createFromIconfontCN } from '@ant-design/icons/lib/index';
+import { createFromIconfontCN } from '@ant-design/icons';
 const IconFont = createFromIconfontCN({
   scriptUrl: [
     '//at.alicdn.com/t/font_1469482_ilsuu9hvoo.js',
