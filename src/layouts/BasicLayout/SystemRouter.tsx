@@ -47,6 +47,8 @@ const SystemRouter = () => {
     'resource-manager': 'zywgl',
     'game-management-front': '566Icon',
     'game-management-frontend': '566Icon',
+    productionfont: 'prdgl',
+    'commercial-delivery-manage-front': 'hwtf',
     '566gam': '566Icon',
     default: 'default',
   };
