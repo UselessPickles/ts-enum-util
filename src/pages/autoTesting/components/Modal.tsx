@@ -53,7 +53,10 @@ export default () => {
         RESTful.post('fxx/game/auto/test/detail/reviewStatus', {
           data: { gameAutoTestId: editRecord?.id, status },
         }).then((res) => {
-          res?.result?.status == 1 && onClose() && actionRef?.current?.reload();
+          if (res?.result?.status == 1) {
+            onClose();
+            actionRef?.current?.reload();
+          }
         });
       },
       onCancel: () => {},
@@ -102,14 +105,14 @@ export default () => {
       <div className={styles.submitButton}>
         <Space>
           <Button
-            onClick={() => statusSubmit(2)}
+            onClick={() => statusSubmit(3)}
             disabled={!editRecord?.onOff ? true : !(editRecord?.reviewStatus == 1)}
           >
             审核不通过
           </Button>
           <Button
             type="primary"
-            onClick={() => statusSubmit(1)}
+            onClick={() => statusSubmit(2)}
             disabled={!editRecord?.onOff ? true : editRecord?.reviewStatus == 2}
           >
             审核通过
