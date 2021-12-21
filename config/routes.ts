@@ -58,6 +58,10 @@ export default [
             path: '/autoTesting',
             routes: [{ path: '/autoTesting', component: '@/pages/autoTesting' }],
           },
+          {
+            path: '/gameDataReport',
+            routes: [{ path: '/gameDataReport', component: '@/pages/gameDataReport' }],
+          },
         ],
       },
     ],
