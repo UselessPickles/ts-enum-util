@@ -48,12 +48,12 @@ export default () => {
       visible: true,
       title: '查看详情',
     });
-    setEditRecord({ id: record?.id, onOff: true, reviewStatus: record?.reviewStatus });
+    setEditRecord({ id: record?.id, onOff: false, reviewStatus: record?.reviewStatus });
   }
 
   useEffect(() => {
     RESTful.post('fxx/game/auto/test/reviewOnOff', {
-      data: { onOff: true },
+      data: { onOff: false },
     });
   }, []);
 
@@ -241,7 +241,7 @@ export default () => {
       bordered={false}
       loading={loading}
       rowKey="id"
-      headerTitle={`当前模式：人工审核通过 -> 游戏测试库`}
+      headerTitle={`当前模式：自动化测试通过 -> 游戏测试库`}
       request={async (params: any) => {
         setLoading(true);
         const timeType = formRef?.current?.getFieldValue('timeType'),
