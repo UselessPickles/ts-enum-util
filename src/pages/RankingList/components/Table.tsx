@@ -116,7 +116,7 @@ export default () => {
               更换游戏
             </Button>
             <Popconfirm
-              title="确定删除吗"
+              title="移入黑名单，此游戏不再出现在排行榜"
               okText="确定"
               cancelText="取消"
               placement="top"

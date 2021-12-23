@@ -17,10 +17,7 @@ export function useStore() {
     [editRecord, setEditRecord] = useState<{ [key: string]: any }>({}),
     [modalFormRef] = Form.useForm(),
     [modalProps, setModalProps] = useState<ModalProps>({}),
-    [inputSelect, setInputSelect] = useState<string>(),
-    [page, setPage] = useState<any>(1),
-    [selectGame, setSelectGame] = useState<any>([]),
-    [loading, setLoading] = useState<boolean>(false);
+    [selectGame, setSelectGame] = useState<any>([]);
   const [drawerProps, setDrawerProps] = useState<CustomDrawerProps>({
     width: 800,
     placement: 'right',
@@ -34,12 +31,6 @@ export function useStore() {
     modalProps,
     setModalProps,
     modalFormRef,
-    setLoading,
-    loading,
-    inputSelect,
-    setInputSelect,
-    page,
-    setPage,
     selectGame,
     setSelectGame,
     drawerProps,
@@ -62,37 +53,3 @@ export default {
   useContainer,
   Context,
 };
-
-export function useModalFromSubmit() {
-  const { modalFormRef, setModalProps, actionRef } = useContainer();
-
-  function submitor() {
-    return modalFormRef.validateFields().then((value) => {
-      value.status = 1;
-      value.appVersion = Number(value?.appVersionCode?.replace(/(^0.|\.)/g, '') ?? 0);
-      const { updateType } = value;
-      Modal.confirm({
-        title: '提示',
-        icon: <ExclamationCircleOutlined />,
-        content: `此版本将做为最新版本，并${
-          updateType == 2 ? '提示' : '强制'
-        }用户更新，是否确定发布？`,
-        async onOk() {
-          // await upload({ data: { ...value } }).then((res) => {
-          //   if (res?.result?.status == 1) {
-          //     actionRef.current?.reload();
-          //     setModalProps({
-          //       visible: false,
-          //     });
-          //     modalFormRef.resetFields();
-          //     setWarning(undefined);
-          //   }
-          // });
-        },
-        onCancel() {},
-      });
-    });
-  }
-
-  return { submitor };
-}
