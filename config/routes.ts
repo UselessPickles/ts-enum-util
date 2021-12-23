@@ -58,6 +58,10 @@ export default [
             path: '/autoTesting',
             routes: [{ path: '/autoTesting', component: '@/pages/autoTesting' }],
           },
+          {
+            path: '/RankingList',
+            routes: [{ path: '/RankingList', component: '@/pages/RankingList' }],
+          },
         ],
       },
     ],
