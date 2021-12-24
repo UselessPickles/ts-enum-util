@@ -1,15 +1,17 @@
 import RESTful from '@/utils/RESTful';
 import { Select, Spin } from 'antd';
 import type { SelectProps } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styles from './index.less';
+import debounce from 'lodash/debounce';
 
 export interface GameSelectProps extends SelectProps<T> {
   editRecord?: any;
   isEdit?: boolean;
+  clearFun?: Function;
 }
 
-export default ({ editRecord, isEdit, ...props }: GameSelectProps) => {
+export default ({ editRecord, isEdit, clearFun, ...props }: GameSelectProps) => {
   const [inputSelect, setInputSelect] = useState<string>(),
     [page, setPage] = useState<any>(1),
     [dataSource, setDataSource] = useState<any>([]),
@@ -64,14 +66,23 @@ export default ({ editRecord, isEdit, ...props }: GameSelectProps) => {
     }
   };
 
+  const delayedQuery = useRef(debounce((v) => setInputSelect(v), 1000)).current;
+
   return (
     <Select
       optionLabelProp="label"
       allowClear
       loading={loading}
       showSearch
+      dropdownRender={(node) => {
+        return <Spin spinning={loading}>{node}</Spin>;
+      }}
       filterOption={false}
-      onSearch={(value) => setInputSelect(value)}
+      onSearch={(value) => delayedQuery(value)}
+      onClear={() => {
+        setInputSelect(undefined);
+        clearFun && clearFun();
+      }}
       onPopupScroll={onscroll}
       {...props}
     >
