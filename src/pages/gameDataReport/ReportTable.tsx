@@ -154,7 +154,7 @@ export default () => {
     });
     download(
       res,
-      '游戏数据报表' + moment().format('YYYY年MM月DD日 HH时MM分ss秒') + '.xlsx',
+      '游戏数据报表' + moment().format('YYYY年MM月DD日 HH时mm分ss秒') + '.xlsx',
       'application/vnd.ms-excel',
     );
   }
