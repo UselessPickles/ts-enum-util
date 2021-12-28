@@ -66,7 +66,7 @@ export default () => {
     {
       title: '游戏名称',
       dataIndex: 'gameName',
-      width: 100,
+      width: 200,
       ...defaultTableProps,
       hideInSearch: false,
       fieldProps: {
@@ -75,16 +75,21 @@ export default () => {
       render: (_, record) => {
         return (
           <Space>
-            <Image src={record?.gameIcon} width={50} />
+            <Image src={record?.gameIcon} width={40} />
             <span>{record?.gameName}</span>
           </Space>
         );
       },
     },
     {
+      title: '游戏包名',
+      dataIndex: 'packageName',
+      ...defaultTableProps,
+    },
+    {
       title: '上榜方式',
       dataIndex: 'type',
-      valueEnum: { 0: '系统推荐', 1: '人工推荐' },
+      valueEnum: { 1: '系统推荐', 2: '人工推荐' },
       ...defaultTableProps,
       hideInSearch: false,
     },
@@ -100,7 +105,7 @@ export default () => {
     },
     {
       title: '操作',
-      dataIndex: 'opertion',
+      dataIndex: 'operation',
       ...defaultTableProps,
       width: 120,
       fixed: 'right',
@@ -145,32 +150,20 @@ export default () => {
         const data = {
           ...params,
           page: {
-            pageNo: params.current,
-            pageSize: params.pageSize,
+            pageNo: params.current ?? 1,
+            pageSize: params.pageSize ?? 20,
           },
         };
-        // const res = await list({ data });
-        // return {
-        //   data: res?.data?.total_datas || [],
-        //   page: params?.current || 1,
-        //   success: true,
-        //   total: res?.data?.total_count || 0,
-        // };
+        const res = await RESTful.post('fxx/game/recommend/list/page', { data });
         return {
-          data: [
-            {
-              id: 1,
-              gameIcon: 'https://game-566.oss-cn-shanghai.aliyuncs.com/icon/1637257082668.png',
-              sort: 1,
-              gameName: '光·遇',
-              type: 1,
-              packageName: 'packageName',
-              gameNum: '7150',
-            },
-          ],
-          page: 1,
+          data:
+            res?.data?.total_datas?.map((item: any, index: any) => ({
+              sort: index + 1 + ((params.current ?? 1) - 1) * (params.pageSize ?? 20),
+              ...item,
+            })) || [],
+          page: params?.current || 1,
           success: true,
-          total: 1,
+          total: res?.data?.total_count || 0,
         };
       }}
     />
