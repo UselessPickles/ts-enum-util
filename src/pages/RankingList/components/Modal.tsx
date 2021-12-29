@@ -4,10 +4,12 @@ import { useContainer } from '../useStore';
 import styles from '../index.less';
 import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import GameSelect from '@/components/GameSelector';
-import { useState } from 'react';
+import RESTful from '@/utils/RESTful';
+import isValidValue from '@/utils/isValidValue';
 
 export default () => {
-  const { editRecord, modalProps, setModalProps, selectGame, setSelectGame } = useContainer();
+  const { editRecord, modalProps, setModalProps, selectGame, setSelectGame, actionRef } =
+    useContainer();
   const [formRef] = Form.useForm();
 
   function onCancel() {
@@ -22,7 +24,27 @@ export default () => {
       title: '提示',
       icon: <ExclamationCircleOutlined />,
       content: `确认保存吗？ 确定后对本次操作保存并更新`,
-      async onOk() {},
+      async onOk() {
+        if (!isValidValue(selectGame) && editRecord?.type == 1) {
+          actionRef?.current?.reload();
+          onCancel();
+        } else {
+          await RESTful.post('fxx/game/recommend/list/saveOrUpdate', {
+            data: {
+              gameNum: isValidValue(selectGame) ? selectGame?.[0]?.value : editRecord?.gameNum,
+              id: editRecord?.type == 2 ? editRecord?.id : undefined,
+              status: isValidValue(selectGame) ? 1 : 2,
+              type: 2,
+              sort: editRecord?.sort,
+            },
+          }).then((res) => {
+            onCancel();
+            if (res?.result?.status == 1) {
+              actionRef?.current?.reload();
+            }
+          });
+        }
+      },
       onCancel: () => {},
     });
   }
