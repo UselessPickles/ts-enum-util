@@ -6,12 +6,12 @@ import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import GameSelect from '@/components/GameSelector';
 import RESTful from '@/utils/RESTful';
 import isValidValue from '@/utils/isValidValue';
+import { useEffect, useState } from 'react';
 
 export default () => {
   const { editRecord, modalProps, setModalProps, selectGame, setSelectGame, actionRef } =
     useContainer();
   const [formRef] = Form.useForm();
-
   function onCancel() {
     formRef?.resetFields();
     setModalProps({
@@ -62,6 +62,7 @@ export default () => {
           editRecord={editRecord}
           isEdit={true}
           onSelect={(_, option) => setSelectGame([option])}
+          filterData
         />
       </Form.Item>
       <Form.Item noStyle dependencies={['gameName']}>

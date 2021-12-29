@@ -9,12 +9,14 @@ export interface GameSelectProps extends SelectProps<T> {
   editRecord?: any;
   isEdit?: boolean;
   clearFun?: Function;
+  filterData?: any;
 }
 
-export default ({ editRecord, isEdit, clearFun, ...props }: GameSelectProps) => {
+export default ({ editRecord, isEdit, clearFun, filterData, ...props }: GameSelectProps) => {
   const [inputSelect, setInputSelect] = useState<string>(),
     [page, setPage] = useState<any>(1),
     [dataSource, setDataSource] = useState<any>([]),
+    [backList, setBackList] = useState<any>(),
     [loading, setLoading] = useState<boolean>(false);
 
   const { Option } = Select;
@@ -34,11 +36,15 @@ export default ({ editRecord, isEdit, clearFun, ...props }: GameSelectProps) => 
         },
       });
       if (res) {
-        const data = res?.data?.total_datas?.filter((item: { status: number; gameNum: string }) => {
-          return (
-            item.status == 1 &&
-            (isEdit && !inputSelect ? item.gameNum !== editRecord?.gameNum : true)
-          );
+        const data = res?.data?.total_datas?.filter((item: any) => {
+          return item.status == 1 &&
+            (isEdit && !inputSelect ? item.gameNum !== editRecord?.gameNum : true) &&
+            filterData &&
+            backList?.filter((i: any) => {
+              return item.packageName == i.packageName;
+            })?.[0]
+            ? false
+            : true;
         });
         if (isEdit && page == 1) {
           setDataSource(inputSelect ? data : [editRecord]?.concat(data));
@@ -55,6 +61,20 @@ export default ({ editRecord, isEdit, clearFun, ...props }: GameSelectProps) => 
   useEffect(() => {
     queryGameList();
   }, [page, inputSelect, editRecord]);
+
+  useEffect(() => {
+    RESTful.post('fxx/game/blacklist/page', {
+      data: {
+        type: 3,
+        page: {
+          pageSize: 1000,
+          pageNo: 1,
+        },
+      },
+    }).then((res) => {
+      setBackList(res?.data.total_datas);
+    });
+  }, [editRecord]);
 
   const onscroll = (e: any) => {
     if (

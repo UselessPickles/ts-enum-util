@@ -9,7 +9,7 @@ import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
 import isValidValue from '@/utils/isValidValue';
 
 export default () => {
-  const { setDrawerProps, drawerProps, modalFormRef } = useContainer();
+  const { setDrawerProps, drawerProps, modalFormRef, actionRef } = useContainer();
   const [dataSource, setDataSource] = useState<any>(),
     [loading, setLoading] = useState<boolean>(false);
   function onClose() {
@@ -73,6 +73,7 @@ export default () => {
               }).then((res) => {
                 if (res?.result?.status == 1) {
                   queryBackList();
+                  actionRef?.current?.reload();
                 }
               });
             }}
