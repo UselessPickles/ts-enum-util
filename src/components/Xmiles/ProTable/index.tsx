@@ -22,6 +22,7 @@ const Space = styled.div`
 export interface XmilesTableProps<T, U extends Record<string, any>>
   extends Omit<ProTableProps<T, U>, 'columns'> {
   columns?: XmilesCol<T>[];
+  hiddenSearch?: boolean;
 }
 
 export default <T, U extends Record<string, any>>({
@@ -31,6 +32,7 @@ export default <T, U extends Record<string, any>>({
   form,
   request,
   manualRequest,
+  hiddenSearch,
   ...props
 }: XmilesTableProps<T, U>) => {
   const visCount = useRef(1);
@@ -88,10 +90,12 @@ export default <T, U extends Record<string, any>>({
 
   return (
     <Space>
-      <XmilesSearch
-        columns={col}
-        formProps={{ onFinish: reload, onReset: reload, ...form, form: innerform }}
-      />
+      {!hiddenSearch && (
+        <XmilesSearch
+          columns={col}
+          formProps={{ onFinish: reload, onReset: reload, ...form, form: innerform }}
+        />
+      )}
 
       <div
         ref={tableRef}

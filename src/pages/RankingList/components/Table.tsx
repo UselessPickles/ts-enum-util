@@ -149,11 +149,13 @@ export default () => {
       actionRef={actionRef}
       columns={columns}
       columnEmptyText={'-'}
+      hiddenSearch={true}
       headerTitle={
         <Button type="primary" onClick={toBackList}>
           排行榜黑名单
         </Button>
       }
+      options={false}
       request={async (params) => {
         const data = {
           ...params,
