@@ -63,7 +63,12 @@ export default () => {
         initialValue: [moment().add(-1, 'days'), moment().add(-1, 'days')],
       },
       valueType: 'dateRange',
-      fieldProps: { ranges: { ...rangesPick } },
+      fieldProps: {
+        ranges: { ...rangesPick },
+        disabledDate: (current) => {
+          return current > moment().endOf('days');
+        },
+      },
     },
     {
       title: 'ID',
