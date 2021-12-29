@@ -16,6 +16,11 @@ export const RadioOption = [
   { label: '周', value: 'week' },
   { label: '月', value: 'month' },
 ];
+export const showInTable = {
+  day: '日',
+  week: '周',
+  month: '月',
+};
 
 export default () => {
   const actionRef = useRef<ProCoreActionType | undefined>(),
@@ -48,7 +53,7 @@ export default () => {
       dataIndex: 'date',
       ...defaultTableProps,
       sorter: false,
-      width: radioDate == 'week' ? 150 : 80,
+      width: radioDate == 'day' ? 80 : 120,
       render: (_, record) => {
         return (
           record?.date ?? (record?.startDate ? `${record?.startDate}~${record?.endDate}` : '-')
@@ -122,7 +127,7 @@ export default () => {
       ...defaultTableProps,
     },
     {
-      title: '新增1日后留存',
+      title: `新增1${showInTable?.[radioDate]}后留存`,
       dataIndex: 'addOneRetain',
       ...defaultTableProps,
     },
@@ -130,9 +135,10 @@ export default () => {
       title: '新增7日后留存',
       dataIndex: 'addSevenRetain',
       ...defaultTableProps,
+      hideInTable: radioDate != 'day',
     },
     {
-      title: '活跃1日后留存',
+      title: `活跃1${showInTable?.[radioDate]}后留存`,
       dataIndex: 'activeOneRetain',
       ...defaultTableProps,
     },
@@ -140,6 +146,7 @@ export default () => {
       title: '活跃7日后留存',
       dataIndex: 'activeSevenRetain',
       ...defaultTableProps,
+      hideInTable: radioDate != 'day',
     },
     {
       title: '崩溃率',
