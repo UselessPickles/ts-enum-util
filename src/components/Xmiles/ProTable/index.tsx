@@ -38,17 +38,17 @@ export default <T, U extends Record<string, any>>({
   const visCount = useRef(1);
   const [innerform] = Form.useForm(),
     col: XmilesCol[] = columns || [],
-    tableRef = useRef(null),
-    forwardActionRef = useRef<ProCoreActionType>();
+    tableRef = useRef(innerform),
+    forwardActionRef = actionRef ?? useRef<ProCoreActionType>();
 
-  if (formRef as React.MutableRefObject<FormInstance>) {
-    (formRef as React.MutableRefObject<FormInstance>).current = innerform;
-  }
+  // if (formRef as React.MutableRefObject<FormInstance>) {
+  //   (formRef as React.MutableRefObject<FormInstance>).current = innerform;
+  // }
 
-  if (actionRef) {
-    (actionRef as React.MutableRefObject<ProCoreActionType> as any).current =
-      forwardActionRef?.current;
-  }
+  // if (actionRef) {
+  //   (actionRef as React.MutableRefObject<ProCoreActionType> as any).current =
+  //     forwardActionRef?.current;
+  // }
 
   const injectProps: ProTableProps<T, U> = {};
 

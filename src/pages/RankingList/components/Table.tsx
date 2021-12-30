@@ -5,7 +5,6 @@ import { ProColumns } from '@ant-design/pro-table';
 import { useContainer } from '../useStore';
 import styles from '../index.less';
 import RESTful from '@/utils/RESTful';
-import { useMutation } from 'react-query';
 
 export default () => {
   const { actionRef, setModalProps, setSelectGame, setEditRecord, setDrawerProps } = useContainer();
@@ -13,33 +12,6 @@ export default () => {
   function toBackList() {
     setDrawerProps((pre) => ({ ...pre, visible: true }));
   }
-  const removeToBack = useMutation(
-    async (record: any) => {
-      await RESTful.post('fxx/game/blacklist/batch/save', {
-        data: [
-          {
-            banType: 1,
-            type: 3,
-            value: record?.gameNum,
-          },
-        ],
-      });
-      RESTful.post('fxx/game/recommend/list/saveOrUpdate', {
-        data: {
-          gameNum: record?.gameNum,
-          id: record?.type == 2 ? record?.id : undefined,
-          status: 2,
-          type: 2,
-          sort: record?.sort,
-        },
-      }).then((res) => res);
-    },
-    {
-      onSuccess() {
-        actionRef?.current?.reload();
-      },
-    },
-  );
 
   function editGame(record: any) {
     setModalProps({
@@ -138,7 +110,31 @@ export default () => {
               okText="确定"
               cancelText="取消"
               placement="top"
-              onConfirm={() => removeToBack.mutate(record)}
+              onConfirm={() => {
+                RESTful.post('fxx/game/blacklist/batch/save', {
+                  data: [
+                    {
+                      banType: 1,
+                      type: 3,
+                      value: record?.gameNum,
+                    },
+                  ],
+                }).then((res) => {
+                  RESTful.post('fxx/game/recommend/list/saveOrUpdate', {
+                    data: {
+                      gameNum: record?.gameNum,
+                      id: record?.type == 2 ? record?.id : undefined,
+                      status: 2,
+                      type: 2,
+                      sort: record?.sort,
+                    },
+                  }).then((res) => {
+                    if (res?.result?.status == 1) {
+                      actionRef?.current?.reload();
+                    }
+                  });
+                });
+              }}
             >
               <Button type="link">移入黑名单</Button>
             </Popconfirm>
