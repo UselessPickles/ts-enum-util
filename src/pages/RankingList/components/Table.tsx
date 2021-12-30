@@ -24,7 +24,7 @@ export default () => {
           },
         ],
       });
-      await RESTful.post('fxx/game/recommend/list/saveOrUpdate', {
+      RESTful.post('fxx/game/recommend/list/saveOrUpdate', {
         data: {
           gameNum: record?.gameNum,
           id: record?.type == 2 ? record?.id : undefined,
@@ -32,7 +32,7 @@ export default () => {
           type: 2,
           sort: record?.sort,
         },
-      });
+      }).then((res) => res);
     },
     {
       onSuccess() {
