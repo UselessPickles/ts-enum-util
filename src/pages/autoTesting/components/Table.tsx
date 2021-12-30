@@ -12,6 +12,8 @@ const { RangePicker } = DatePicker;
 
 export default () => {
   const { formRef, actionRef, setModalProps, setEditRecord } = useContainer(),
+    [loading, setLoading] = useState<boolean>(false),
+    [testStatus, setTestStatus] = useState<any>(),
     defalutTableColumnsProps: XmilesCol<any> = {
       align: 'left',
       hideInSearch: true,
@@ -47,12 +49,14 @@ export default () => {
       visible: true,
       title: '查看详情',
     });
-    setEditRecord({ id: record?.id, onOff: true, reviewStatus: record?.reviewStatus });
+    setEditRecord({ id: record?.id, onOff: testStatus, reviewStatus: record?.reviewStatus });
   }
 
   useEffect(() => {
     RESTful.post('fxx/game/auto/test/reviewOnOff', {
-      data: { onOff: true },
+      data: {},
+    }).then((res) => {
+      setTestStatus(res?.data);
     });
   }, []);
 
@@ -145,10 +149,14 @@ export default () => {
               const input = e.target.value,
                 reg = /^[0-9]+$/;
               if (reg.test(input) && input < 100 && input > -1 && input % 1 === 0) {
+                setLoading(true);
                 await RESTful.post('fxx/game/auto/test/update', {
                   data: { id: record?.id, priority: e.target.value },
                 }).then((res) => {
-                  if (res?.result?.status == 1) actionRef?.current?.reload();
+                  if (res?.result?.status == 1) {
+                    actionRef?.current?.reload();
+                    setLoading(false);
+                  }
                 });
               } else {
                 message.error('优先级填写格式错误');
@@ -234,9 +242,13 @@ export default () => {
       columns={tableColumns}
       options={false}
       bordered={false}
+      loading={loading}
       rowKey="id"
-      headerTitle={`当前模式：人工审核通过 -> 游戏测试库`}
+      headerTitle={`当前模式：${
+        !testStatus ? '自动化测试通过 -> 游戏测试库' : '人工审核通过 -> 游戏测试库'
+      }`}
       request={async (params: any) => {
+        setLoading(true);
         const timeType = formRef?.current?.getFieldValue('timeType'),
           timePick = formRef?.current?.getFieldValue('timePick'),
           timeStart = `${timeType}Start`,
@@ -254,6 +266,7 @@ export default () => {
           timePick: undefined,
         };
         const res = await list({ data });
+        setLoading(false);
         return {
           data: res?.data?.total_datas || [],
           page: params?.current || 1,
