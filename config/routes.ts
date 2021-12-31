@@ -62,6 +62,10 @@ export default [
             path: '/RankingList',
             routes: [{ path: '/RankingList', component: '@/pages/RankingList' }],
           },
+          {
+            path: '/gameDataReport',
+            routes: [{ path: '/gameDataReport', component: '@/pages/gameDataReport' }],
+          },
         ],
       },
     ],
