@@ -178,7 +178,7 @@ export default () => {
 
   return (
     <>
-      <XmilesTable
+      <XmilesTable<any, any>
         rowKey={'id'}
         columns={columns}
         actionRef={actionRef}
@@ -194,7 +194,7 @@ export default () => {
           </Space>
         }
         request={async (params) => {
-          const utime = formRef.current?.getFieldValue('utime');
+          const utime = params.utime;
           const data = {
             ...params,
             page: {

@@ -181,7 +181,7 @@ export default () => {
     );
   }
   return (
-    <XmilesTable
+    <XmilesTable<any, any>
       rowKey="index"
       actionRef={actionRef}
       formRef={formRef}
@@ -203,6 +203,7 @@ export default () => {
           options={RadioOption}
           optionType="button"
           onChange={(e) => {
+            actionRef?.current?.setPageInfo({ current: 1, pageSize: 20 });
             setRadioDate(e.target.value);
             actionRef?.current?.reload();
           }}
@@ -216,7 +217,7 @@ export default () => {
       ]}
       request={async (params) => {
         const format = radioDate == 'month' ? 'YYYY-MM-01' : 'YYYY-MM-DD',
-          timePick = formRef?.current?.getFieldValue('time');
+          timePick = params.time;
         const data = {
           ...params,
           page: {
