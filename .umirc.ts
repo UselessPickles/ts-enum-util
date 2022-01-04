@@ -1,6 +1,7 @@
 import { defineConfig } from 'umi';
 import theme from './config/theme';
 import routes from './config/routes';
+import localENV from './umirc.local.ts';
 
 export default defineConfig({
   nodeModulesTransform: {
@@ -18,18 +19,18 @@ export default defineConfig({
   dva: false,
   proxy: {
     '/utils_service': {
-      target: 'https://marketing-dev.yingzhongshare.com',
+      target: localENV.define.PROCESS_ENV.APP_API_BASE_URL,
       changeOrigin: true,
     },
     '/commercialize-manager': {
-      target: 'https://marketing-dev.yingzhongshare.com',
+      target: localENV.define.PROCESS_ENV.APP_API_BASE_URL,
       changeOrigin: true,
       pathRewrite: {
         '/commercialize-manager': '',
       },
     },
     '/intelligent-manager': {
-      target: 'https://marketing-dev.yingzhongshare.com',
+      target: localENV.define.PROCESS_ENV.APP_API_BASE_URL,
       changeOrigin: true,
     },
   },
