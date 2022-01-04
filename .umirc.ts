@@ -1,7 +1,7 @@
 import { defineConfig } from 'umi';
 import theme from './config/theme';
 import routes from './config/routes';
-import localENV from './umirc.local.ts';
+import localENV from './.umirc.local.ts';
 
 export default defineConfig({
   nodeModulesTransform: {
