@@ -117,7 +117,7 @@ export default ({
     onSuccess(res) {
       const formData = prune(res?.data, isValidValue) ?? {};
 
-      form.setFieldsValue({ ...formData, gameNameView: formData?.gameName });
+      form.setFieldsValue({ ...formData, gameNameView: formData?.gameName, preApk: formData.apk });
       setModalProps((pre) => ({
         ...pre,
         title: formData?.packageName,
@@ -758,9 +758,7 @@ function SourceInfo({
                       }).then((res) => res?.data)) ?? {};
 
                     if (!credentials) {
-                      const e = new Error('授权失败');
-                      onError?.(e);
-                      throw e;
+                      throw new Error('授权失败');
                     }
 
                     const { domain } = credentials;
@@ -791,9 +789,7 @@ function SourceInfo({
                     });
 
                     if (res?.res?.status !== 200) {
-                      const e = new Error('上传失败');
-                      onError?.(e);
-                      throw e;
+                      throw new Error('上传失败');
                     }
 
                     const xhr = new XMLHttpRequest();
@@ -809,24 +805,44 @@ function SourceInfo({
                     const { gameName, ...restApkRes } = apkRes;
                     const prePackageName = getFieldValue(['packageName']);
                     const preInsideVersion = getFieldValue(['insideVersion']);
-                    setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
+                    const preApk = getFieldValue(['preApk']);
+
+                    console.log(preApk);
 
                     const { packageName, insideVersion } = apkRes;
                     if (packageName && packageName !== prePackageName) {
-                      const e = new Error('包名不一致');
-                      onError?.(e);
-                      throw e;
+                      throw new Error('包名不一致');
                     }
 
-                    if (insideVersion && +insideVersion <= preInsideVersion) {
-                      const e = new Error('此游戏已存在且非新版本，无法上传');
-                      onError?.(e);
-                      throw e;
+                    if (insideVersion && +insideVersion < +preInsideVersion) {
+                      throw new Error('此游戏已存在且非新版本，无法上传');
                     }
 
-                    onUploadSuccess!(uri, xhr);
+                    if (insideVersion && +insideVersion === +preInsideVersion) {
+                      // 版本一致逻辑
+
+                      Modal.confirm({
+                        title: '提示',
+                        content: (
+                          <>
+                            上传的游戏包版本号<b>等于</b>现有游戏版本号，非更新行为，将进行包的替换
+                          </>
+                        ),
+                        cancelText: '还原旧包',
+                        onOk: () => {
+                          setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
+                          onUploadSuccess!(uri, xhr);
+                        },
+                        onCancel: () => {
+                          onUploadSuccess!(preApk, xhr);
+                        },
+                      });
+                    } else {
+                      setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
+                      onUploadSuccess!(uri, xhr);
+                    }
                   } catch (e: any) {
-                    console.error(e);
+                    onError?.(e);
                   }
                 }}
                 showUploadList={{
@@ -878,6 +894,10 @@ function SourceInfo({
             )}
           </Item>
         )}
+      </Item>
+
+      <Item name={['preApk']} hidden>
+        <Input />
       </Item>
 
       <Item dependencies={[['apk']]} noStyle>
