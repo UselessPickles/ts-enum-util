@@ -128,9 +128,7 @@ export default ({
                       }).then((res) => res?.data)) ?? {};
 
                     if (!credentials) {
-                      const e = new Error('授权失败');
-                      onError?.(e);
-                      throw e;
+                      throw new Error('授权失败');
                     }
 
                     const { domain } = credentials;
@@ -161,9 +159,7 @@ export default ({
                     });
 
                     if (res?.res?.status !== 200) {
-                      const e = new Error('上传失败');
-                      onError?.(e);
-                      throw e;
+                      throw new Error('上传失败');
                     }
 
                     const xhr = new XMLHttpRequest();
@@ -180,7 +176,7 @@ export default ({
 
                     setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
 
-                    // const { packageName, insideVersion, } = apkRes;
+                    const { packageName } = apkRes;
                     // if (packageName && packageName !== getFieldValue(['packageName'])) {
                     //   throw new Error('包名不一致');
                     // }
@@ -188,10 +184,17 @@ export default ({
                     // if (insideVersion && +insideVersion <= getFieldValue(['insideVersion'])) {
                     //   throw new Error('此游戏已存在且非新版本，无法上传');
                     // }
+                    await RESTful.post('fxx/game/test/check', {
+                      data: {
+                        packageName,
+                      },
+                      throwErr: true,
+                    });
 
                     onUploadSuccess!(uri, xhr);
                   } catch (e: any) {
                     console.error(e);
+                    onError?.(e);
                   }
                 }}
                 showUploadList={{
