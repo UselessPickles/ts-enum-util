@@ -238,20 +238,22 @@ export default function () {
       renderText: (id, record) => {
         const canSync =
           record.testStatus === TEST_STATUS_ENUM.测试成功 ||
-          record.installType === INSTALL_TYPE_ENUM.应用外安装;
+          (record.gameSource === 'artificial' &&
+            record.installType === INSTALL_TYPE_ENUM.应用外安装);
 
         return (
           <Space>
             {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
             {env === 'test' && (
               <>
-                {compose(
-                  // tooltip({
-                  //   visible: !canSync,
-                  //   title: '此游戏未通过自动化测试，请修改安装方式为“应用外安装”后可上线',
-                  // }),
+                <a onClick={syncHandler(record)}>同步到线上</a>
+                {/* {compose(
+                  tooltip({
+                    visible: !canSync,
+                    title: '此游戏未通过自动化测试，请修改安装方式为“应用外安装”后可上线',
+                  }),
                   disabled(!canSync),
-                )(<a onClick={syncHandler(record)}>同步到线上</a>)}
+                )(<a onClick={syncHandler(record)}>同步到线上</a>)} */}
               </>
             )}
           </Space>
