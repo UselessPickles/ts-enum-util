@@ -64,7 +64,7 @@ export enum INSTALL_TYPE_ENUM {
 }
 
 export enum TEST_STATUS_ENUM {
-  '未开始',
+  '未开始' = 1,
   '测试中',
   '测试成功',
   '测试失败',

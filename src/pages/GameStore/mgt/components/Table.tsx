@@ -24,7 +24,6 @@ import { useQueryClient } from 'react-query';
 import styled from 'styled-components';
 import tooltip from '@/decorators/Tooltip';
 
-// unsaved test
 const { TabPane } = Tabs;
 
 const TabBackground = styled(Tabs)`
@@ -247,13 +246,13 @@ export default function () {
             {env === 'test' && (
               <>
                 <a onClick={syncHandler(record)}>同步到线上</a>
-                {/* {compose(
+                {compose(
                   tooltip({
                     visible: !canSync,
                     title: '此游戏未通过自动化测试，请修改安装方式为“应用外安装”后可上线',
                   }),
                   disabled(!canSync),
-                )(<a onClick={syncHandler(record)}>同步到线上</a>)} */}
+                )(<a onClick={syncHandler(record)}>同步到线上</a>)}
               </>
             )}
           </Space>
