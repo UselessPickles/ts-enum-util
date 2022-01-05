@@ -21,6 +21,7 @@ import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/F
 const { Item } = Form;
 import OSS from 'ali-oss';
 import RESTful from '@/utils/RESTful';
+import AppInfoParser from 'app-info-parser';
 
 export default ({
   data,
@@ -120,6 +121,25 @@ export default ({
                   const apkSize = (file as any)?.size;
 
                   try {
+                    const parser = new AppInfoParser(file),
+                      apkInfo = await parser.parse();
+
+                    setFieldsValue({
+                      apkSize,
+                      gameName: apkInfo?.application?.label?.[0],
+                      gameNameView: apkInfo?.application?.label?.[0],
+                      packageName: apkInfo?.package,
+                      insideVersion: apkInfo?.versionCode,
+                      externalVersion: apkInfo?.versionName,
+                    });
+
+                    await RESTful.post('fxx/game/test/check', {
+                      data: {
+                        packageName: apkInfo?.package,
+                      },
+                      throwErr: true,
+                    });
+
                     const credentials =
                       (await RESTful.post('fxx/game/credentials', {
                         method: 'POST',
@@ -145,6 +165,18 @@ export default ({
                     });
                     const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
 
+                    if (apkInfo?.icon) {
+                      const [, b64] = apkInfo?.icon?.split(',');
+                      const icon = Buffer.from(b64, 'base64'),
+                        iconPath = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}.png`;
+
+                      await client?.current?.multipartUpload(iconPath, icon, {});
+
+                      setFieldsValue({
+                        gameIcon: [{ response: domain + iconPath, thumbUrl: domain + iconPath }],
+                      });
+                    }
+
                     // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
                     // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
                     const res = await client?.current?.multipartUpload(path, file, {
@@ -164,32 +196,6 @@ export default ({
 
                     const xhr = new XMLHttpRequest();
                     const uri = `${domain}${path}`;
-
-                    const parse = await RESTful.post('fxx/game/test/apk/parser', {
-                      data: { apk: uri },
-                      throwErr: true,
-                      notify: false,
-                    });
-
-                    const apkRes = parse?.data ?? {};
-                    const { gameName, ...restApkRes } = apkRes;
-
-                    setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
-
-                    const { packageName } = apkRes;
-                    // if (packageName && packageName !== getFieldValue(['packageName'])) {
-                    //   throw new Error('包名不一致');
-                    // }
-
-                    // if (insideVersion && +insideVersion <= getFieldValue(['insideVersion'])) {
-                    //   throw new Error('此游戏已存在且非新版本，无法上传');
-                    // }
-                    await RESTful.post('fxx/game/test/check', {
-                      data: {
-                        packageName,
-                      },
-                      throwErr: true,
-                    });
 
                     onUploadSuccess!(uri, xhr);
                   } catch (e: any) {

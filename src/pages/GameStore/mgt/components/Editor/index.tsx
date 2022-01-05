@@ -80,6 +80,7 @@ import Mask from '@/components/Mask';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import OSS from 'ali-oss';
 import RESTful from '@/utils/RESTful';
+import AppInfoParser from 'app-info-parser';
 
 const beforeUploadHOF: (params: { size: number; msg?: string }) => UploadProps['beforeUpload'] =
   ({ size, msg }) =>
@@ -750,66 +751,24 @@ function SourceInfo({
                   const apkSize = (file as any)?.size;
 
                   try {
-                    const credentials =
-                      (await RESTful.post('fxx/game/credentials', {
-                        method: 'POST',
-                        throwErr: true,
-                        notify: false,
-                      }).then((res) => res?.data)) ?? {};
-
-                    if (!credentials) {
-                      throw new Error('授权失败');
-                    }
-
-                    const { domain } = credentials;
-
-                    const f: any = file;
-                    client.current = new OSS({
-                      ...credentials,
-                      endpoint: 'oss-cn-shanghai.aliyuncs.com',
-                      stsToken: credentials?.securityToken,
-                      // 不超时
-                      timeout: 60 * 60 * 1000,
-                      // 不刷新token
-                      refreshSTSTokenInterval: 60 * 60 * 1000,
-                    });
-                    const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
-
-                    // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
-                    // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
-                    const res = await client?.current?.multipartUpload(path, file, {
-                      progress: function (p) {
-                        // checkpoint参数用于记录上传进度，断点续传上传时将记录的checkpoint参数传入即可。浏览器重启后无法直接继续上传，您需要手动触发上传操作。
-                        onProgress?.({ percent: p * 100 } as any);
-                      },
-                      // parallel: 4,
-                      // 设置分片大小。默认值为1 MB，最小值为100 KB。
-                      // partSize: 1024 * 1024,
-                      // mime: 'text/plain',
-                    });
-
-                    if (res?.res?.status !== 200) {
-                      throw new Error('上传失败');
-                    }
-
                     const xhr = new XMLHttpRequest();
-                    const uri = `${domain}${path}`;
+                    const parser = new AppInfoParser(file),
+                      apkInfo = await parser.parse(),
+                      apkRes = {
+                        apkSize,
+                        gameName: apkInfo?.application?.label?.[0],
+                        gameNameView: apkInfo?.application?.label?.[0],
+                        packageName: apkInfo?.package,
+                        insideVersion: apkInfo?.versionCode,
+                        externalVersion: apkInfo?.versionName,
+                      };
 
-                    const parse = await RESTful.post('fxx/game/test/apk/parser', {
-                      data: { apk: uri },
-                      throwErr: true,
-                      notify: false,
-                    });
-
-                    const apkRes = parse?.data ?? {};
-                    const { gameName, ...restApkRes } = apkRes;
                     const prePackageName = getFieldValue(['packageName']);
                     const preInsideVersion = getFieldValue(['insideVersion']);
                     const preApk = getFieldValue(['preApk']);
 
-                    console.log(preApk);
-
                     const { packageName, insideVersion } = apkRes;
+
                     if (packageName && packageName !== prePackageName) {
                       throw new Error('包名不一致');
                     }
@@ -829,16 +788,62 @@ function SourceInfo({
                           </>
                         ),
                         cancelText: '还原旧包',
-                        onOk: () => {
-                          setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
-                          onUploadSuccess!(uri, xhr);
-                        },
+                        onOk: _upload,
                         onCancel: () => {
+                          client.current?.cancel?.();
                           onUploadSuccess!(preApk, xhr);
                         },
                       });
                     } else {
-                      setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
+                      await _upload();
+                    }
+
+                    async function _upload() {
+                      setFieldsValue(apkRes);
+
+                      const credentials =
+                        (await RESTful.post('fxx/game/credentials', {
+                          method: 'POST',
+                          throwErr: true,
+                          notify: false,
+                        }).then((res) => res?.data)) ?? {};
+
+                      if (!credentials) {
+                        throw new Error('授权失败');
+                      }
+
+                      const { domain } = credentials;
+
+                      const f: any = file;
+                      client.current = new OSS({
+                        ...credentials,
+                        endpoint: 'oss-cn-shanghai.aliyuncs.com',
+                        stsToken: credentials?.securityToken,
+                        // 不超时
+                        timeout: 60 * 60 * 1000,
+                        // 不刷新token
+                        refreshSTSTokenInterval: 60 * 60 * 1000,
+                      });
+                      const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
+
+                      // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
+                      // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
+                      const res = await client?.current?.multipartUpload(path, file, {
+                        progress: function (p) {
+                          // checkpoint参数用于记录上传进度，断点续传上传时将记录的checkpoint参数传入即可。浏览器重启后无法直接继续上传，您需要手动触发上传操作。
+                          onProgress?.({ percent: p * 100 } as any);
+                        },
+                        // parallel: 4,
+                        // 设置分片大小。默认值为1 MB，最小值为100 KB。
+                        // partSize: 1024 * 1024,
+                        // mime: 'text/plain',
+                      });
+
+                      if (res?.res?.status !== 200) {
+                        throw new Error('上传失败');
+                      }
+
+                      const uri = `${domain}${path}`;
                       onUploadSuccess!(uri, xhr);
                     }
                   } catch (e: any) {
