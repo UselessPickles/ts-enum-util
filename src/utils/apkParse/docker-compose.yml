@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: 566-game-managment-node-git:dev
+    container_name: 566-game-managment-${CNAME:?err}
+    stdin_open: true
+    tty: true
+    environment:
+      BRANCH: ${BRANCH:?err}
+    volumes:
+      - ~/.ssh:/root/.ssh
+    ports:
+      - ${PORT:-8005}:8000

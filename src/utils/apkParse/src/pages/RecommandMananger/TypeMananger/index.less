@@ -1,0 +1,148 @@
+.downward {
+  td {
+    border-bottom: 2px dashed #1890ff !important;
+  }
+}
+.upward {
+  td {
+    border-top: 2px dashed #1890ff !important;
+  }
+}
+.drag {
+  -webkit-user-drag: element;
+}
+.noDrag {
+  user-select: inherit;
+  -webkit-user-drag: none;
+}
+.editForm {
+  > h3 {
+    margin-bottom: 16px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+}
+.transfer {
+  .ant-transfer-customize-list .ant-transfer-list {
+    border-radius: 4px;
+  }
+  .ant-transfer-list-header {
+    background: #f1f4f9;
+  }
+  .ant-transfer-operation > Button {
+    display: none;
+  }
+}
+.gameClass {
+  p,
+  .packageName {
+    margin-bottom: 0;
+    color: #999999;
+    font-weight: 400;
+  }
+  .gameName,
+  h5 {
+    color: #333333;
+    font-size: 14px;
+  }
+  p,
+  h5,
+  .gameName,
+  .packageName {
+    width: 80%;
+    max-width: 160px;
+    overflow: hidden;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+.checkedGameTable {
+  table {
+    border-spacing: 0px 4px !important;
+  }
+  tbody > tr {
+    background: #f4f5f6;
+    border-radius: 4px;
+  }
+  tr:hover > td {
+    background: #f4f5f6 !important;
+  }
+}
+
+.gameEdit {
+  display: flex;
+  width: 100%;
+  min-width: 650px;
+  > div {
+    width: 50%;
+    min-width: 310px;
+    min-height: 450px;
+    margin: 0 5px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+  .gameHeader {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 8px 12px 9px;
+    background: #f1f4f9;
+    .headerTitle {
+      position: relative;
+      margin-right: 5%;
+      color: #333333;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 22px;
+      .scrollTip {
+        margin-left: 8px;
+        color: #999999;
+        font-size: 14px;
+      }
+      .tag {
+        position: absolute;
+        right: 0;
+        margin: 0;
+        color: grey;
+      }
+    }
+  }
+  .gameBody {
+    --scroll-bar: none;
+    height: 400px;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+.btnDefaut {
+  color: #1b73e8;
+  border: 1px solid #1b73e8;
+  border-radius: 4px;
+}
+.showGameDIV {
+  max-height: 450px;
+  margin-top: 12px;
+  padding: 2px 0;
+  overflow-y: scroll;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  .gameIndex {
+    width: 35px;
+    color: #333333;
+    font-size: 14px;
+  }
+}
+.opera {
+  button {
+    margin-right: 15px;
+    padding: 0 !important;
+  }
+}
+.tdWidth {
+  min-width: 65px;
+}

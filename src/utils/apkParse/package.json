@@ -1,0 +1,54 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "cross-env umi dev",
+    "build:test": "cross-env UMI_ENV=test umi build",
+    "build:dev": "cross-env UMI_ENV=dev umi build",
+    "build": "cross-env UMI_ENV=prod umi build",
+    "postinstall": "umi generate tmp",
+    "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
+    "test": "umi-test",
+    "test:coverage": "umi-test --coverage"
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,less,md,json}": [
+      "prettier --write"
+    ],
+    "*.ts?(x)": [
+      "prettier --parser=typescript --write"
+    ]
+  },
+  "dependencies": {
+    "@ant-design/pro-layout": "^6.5.0",
+    "@ant-design/pro-table": "^2.56.2",
+    "@umijs/preset-react": "1.x",
+    "ali-oss": "^6.16.0",
+    "app-info-parser": "^1.1.3",
+    "braft-editor": "^2.3.9",
+    "cross-env": "^7.0.3",
+    "react": "17.x",
+    "react-dnd": "^14.0.4",
+    "react-dnd-html5-backend": "^14.0.2",
+    "react-dom": "17.x",
+    "react-query": "^3.27.0",
+    "styled-components": "^5.3.1",
+    "umi": "^3.5.20",
+    "unstated-next": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/ali-oss": "^6.16.1",
+    "@types/jest": "^27.0.2",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@types/styled-components": "^5.1.15",
+    "@umijs/fabric": "^2.8.1",
+    "@umijs/test": "^3.5.20",
+    "lint-staged": "^10.0.7",
+    "prettier": "^2.2.0",
+    "typescript": "^4.1.2",
+    "yorkie": "^2.0.0"
+  }
+}
