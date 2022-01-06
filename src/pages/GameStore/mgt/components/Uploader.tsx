@@ -137,7 +137,7 @@ export default ({
                       throw new Error(`包己损坏，请核对MD5:${md5}，并尝试使用zip解压`);
                     }
 
-                    setFieldsValue({
+                    const appInfo = {
                       apkSize,
                       gameName: apkInfo?.application?.label?.[0],
                       gameNameView: apkInfo?.application?.label?.[0],
@@ -146,13 +146,16 @@ export default ({
                       externalVersion: apkInfo?.versionName,
                       md5,
                       gameBit: calcGameBit(apkInfo),
-                    });
+                    };
+
+                    setFieldsValue(appInfo);
 
                     await RESTful.post('fxx/game/test/check', {
                       data: {
                         packageName: apkInfo?.package,
                       },
                       throwErr: true,
+                      notify: false,
                     });
 
                     const credentials =
@@ -168,7 +171,6 @@ export default ({
 
                     const { domain } = credentials;
 
-                    const f: any = file;
                     client.current = new OSS({
                       ...credentials,
                       endpoint: 'oss-cn-shanghai.aliyuncs.com',
@@ -178,11 +180,11 @@ export default ({
                       // 不刷新token
                       refreshSTSTokenInterval: 60 * 60 * 1000,
                     });
-                    const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
+                    const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${appInfo.gameName}.apk`;
 
                     if (apkInfo?.iconBuffer) {
                       const icon = apkInfo?.iconBuffer,
-                        iconPath = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}.png`;
+                        iconPath = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${appInfo.gameName}.png`;
 
                       await client?.current?.multipartUpload(iconPath, icon, {});
 

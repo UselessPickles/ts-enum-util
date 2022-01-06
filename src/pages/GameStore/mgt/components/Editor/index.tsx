@@ -826,7 +826,6 @@ function SourceInfo({
 
                       const { domain } = credentials;
 
-                      const f: any = file;
                       client.current = new OSS({
                         ...credentials,
                         endpoint: 'oss-cn-shanghai.aliyuncs.com',
@@ -836,7 +835,7 @@ function SourceInfo({
                         // 不刷新token
                         refreshSTSTokenInterval: 60 * 60 * 1000,
                       });
-                      const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
+                      const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${apkRes?.gameName}.apk`;
 
                       // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
                       // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
