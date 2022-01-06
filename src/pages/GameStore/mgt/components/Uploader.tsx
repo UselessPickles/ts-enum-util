@@ -22,6 +22,10 @@ const { Item } = Form;
 import OSS from 'ali-oss';
 import RESTful from '@/utils/RESTful';
 import AppInfoParser from '@/utils/apkParse/lib';
+import getMD5 from '@/utils/file/getMD5';
+import type { GAME_BIT_ENUM } from '../models';
+import { GAME_BIT } from '../models';
+import { calcGameBit } from '../utils/calcGameBit';
 
 export default ({
   data,
@@ -121,16 +125,18 @@ export default ({
                   const apkSize = (file as any)?.size;
 
                   try {
-                    const parser = new AppInfoParser(file);
+                    const parser = new AppInfoParser(file),
+                      md5 = await getMD5(file as File);
+
                     let apkInfo: any = {};
+
                     try {
                       apkInfo = await parser.parse();
                     } catch (e) {
                       console.error(e);
-                      throw new Error('包己损坏');
+                      throw new Error(`包己损坏，请核对MD5:${md5}，并尝试使用zip解压`);
                     }
 
-                    console.log(apkInfo);
                     setFieldsValue({
                       apkSize,
                       gameName: apkInfo?.application?.label?.[0],
@@ -138,6 +144,8 @@ export default ({
                       packageName: apkInfo?.package,
                       insideVersion: apkInfo?.versionCode,
                       externalVersion: apkInfo?.versionName,
+                      md5,
+                      gameBit: calcGameBit(apkInfo),
                     });
 
                     await RESTful.post('fxx/game/test/check', {
@@ -179,7 +187,7 @@ export default ({
                       await client?.current?.multipartUpload(iconPath, icon, {});
 
                       setFieldsValue({
-                        gameIcon: [{ response: domain + iconPath, thumbUrl: domain + iconPath }],
+                        gameIcon: domain + iconPath,
                       });
                     }
 
@@ -235,7 +243,13 @@ export default ({
                         <FormItemView />
                       </Item>
                       <Item name={['gameBit']} label="游戏位数：" {...extra}>
-                        <FormItemView />
+                        {compose<any>(
+                          IOC([
+                            Format({
+                              g: (v: GAME_BIT_ENUM) => GAME_BIT.get(v),
+                            }),
+                          ]),
+                        )(<FormItemView />)}
                       </Item>
 
                       <Item name={['apkSize']} label="apkSize" hidden>

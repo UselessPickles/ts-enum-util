@@ -26,7 +26,8 @@ import type useModalForm from '@/hooks/useModalForm';
 import { services } from '../../services';
 import { services as classifyServices } from '../../services/classify';
 import Options from '@/utils/Options';
-import type { ENV } from '../../models';
+import type { ENV, GAME_BIT_ENUM } from '../../models';
+import { GAME_BIT } from '../../models';
 import type Row from '../../models';
 import {
   PROFIT_MODE,
@@ -80,7 +81,9 @@ import Mask from '@/components/Mask';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import OSS from 'ali-oss';
 import RESTful from '@/utils/RESTful';
-import AppInfoParser from 'app-info-parser';
+import AppInfoParser from '@/utils/apkParse/lib';
+import getMD5 from '@/utils/file/getMD5';
+import { calcGameBit } from '../../utils/calcGameBit';
 
 const beforeUploadHOF: (params: { size: number; msg?: string }) => UploadProps['beforeUpload'] =
   ({ size, msg }) =>
@@ -752,12 +755,13 @@ function SourceInfo({
 
                   try {
                     const xhr = new XMLHttpRequest();
-                    const parser = new AppInfoParser(file);
+                    const parser = new AppInfoParser(file),
+                      md5 = await getMD5(file as File);
                     let apkInfo: any = {};
                     try {
                       apkInfo = await parser.parse();
                     } catch (e) {
-                      throw new Error('包己损坏');
+                      throw new Error(`包己损坏，请核对MD5:${md5}，并尝试使用zip解压`);
                     }
 
                     const apkRes = {
@@ -767,6 +771,8 @@ function SourceInfo({
                       packageName: apkInfo?.package,
                       insideVersion: apkInfo?.versionCode,
                       externalVersion: apkInfo?.versionName,
+                      md5,
+                      gameBit: calcGameBit(apkInfo),
                     };
 
                     const prePackageName = getFieldValue(['packageName']);
@@ -888,7 +894,13 @@ function SourceInfo({
                         <FormItemView />
                       </Item>
                       <Item name={['gameBit']} label="游戏位数：" {...extra}>
-                        <FormItemView />
+                        {compose<any>(
+                          IOC([
+                            Format({
+                              g: (v: GAME_BIT_ENUM) => GAME_BIT.get(v),
+                            }),
+                          ]),
+                        )(<FormItemView />)}
                       </Item>
 
                       <Item name={['apkSize']} label="apkSize" hidden>
@@ -1153,7 +1165,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     { name: 'insideVersion', label: '内部版本号' },
     { name: 'externalVersion', label: '外部版本号' },
     { name: 'md5', label: 'MD5' },
-    { name: 'gameBit', label: '游戏位数' },
+    { name: 'gameBit', label: '游戏位数', format: (v) => GAME_BIT.get(v) },
     {
       name: 'installType',
       label: '安装方式',

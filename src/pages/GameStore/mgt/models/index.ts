@@ -78,3 +78,16 @@ export const TEST_STATUS = new Map<TEST_STATUS_ENUM, string>([
 ]);
 
 export type ENV = 'prod' | 'test';
+
+export const GAME_BIT = new Map([
+  [0, '未计算'],
+  [1, '32位'],
+  [2, '64位'],
+  [3, '32，64都支持'],
+]);
+export enum GAME_BIT_ENUM {
+  '未计算',
+  '32位',
+  '64位',
+  '32，64都支持',
+}

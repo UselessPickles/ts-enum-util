@@ -4,7 +4,7 @@ import ModalForm from '@/components/ModalForm';
 import type useModalForm from '@/hooks/useModalForm';
 import type { Row } from './DescriptionsRender';
 import { DescriptionsRender } from './DescriptionsRender';
-import { INSTALL_TYPE, SHOW_STATUS } from '../models';
+import { GAME_BIT, INSTALL_TYPE, SHOW_STATUS } from '../models';
 import { str2arr } from '@/decorators/Format/converter';
 import getFileNameInPath from '@/utils/file/getFileNameInPath';
 import { services as classifyServices } from '../services/classify';
@@ -105,7 +105,7 @@ export default ({
     { name: 'insideVersion', label: '内部版本号' },
     { name: 'externalVersion', label: '外部版本号' },
     { name: 'md5', label: 'MD5' },
-    { name: 'gameBit', label: '游戏位数' },
+    { name: 'gameBit', label: '游戏位数', format: (v) => GAME_BIT.get(v) },
     {
       name: 'installType',
       label: '安装方式',
