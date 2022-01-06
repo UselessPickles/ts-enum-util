@@ -21,7 +21,7 @@ import { getValueFromEvent, str2fileList, uploadEvent2str } from '@/decorators/F
 const { Item } = Form;
 import OSS from 'ali-oss';
 import RESTful from '@/utils/RESTful';
-import AppInfoParser from 'app-info-parser';
+import AppInfoParser from '@/utils/apkParse/lib';
 
 export default ({
   data,
@@ -126,11 +126,11 @@ export default ({
                     try {
                       apkInfo = await parser.parse();
                     } catch (e) {
+                      console.error(e);
                       throw new Error('包己损坏');
                     }
 
                     console.log(apkInfo);
-
                     setFieldsValue({
                       apkSize,
                       gameName: apkInfo?.application?.label?.[0],
@@ -172,9 +172,8 @@ export default ({
                     });
                     const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
 
-                    if (apkInfo?.icon) {
-                      const [, b64] = apkInfo?.icon?.split(',');
-                      const icon = Buffer.from(b64, 'base64'),
+                    if (apkInfo?.iconBuffer) {
+                      const icon = apkInfo?.iconBuffer,
                         iconPath = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}.png`;
 
                       await client?.current?.multipartUpload(iconPath, icon, {});
