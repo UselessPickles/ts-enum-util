@@ -121,8 +121,15 @@ export default ({
                   const apkSize = (file as any)?.size;
 
                   try {
-                    const parser = new AppInfoParser(file),
+                    const parser = new AppInfoParser(file);
+                    let apkInfo: any = {};
+                    try {
                       apkInfo = await parser.parse();
+                    } catch (e) {
+                      throw new Error('包己损坏');
+                    }
+
+                    console.log(apkInfo);
 
                     setFieldsValue({
                       apkSize,

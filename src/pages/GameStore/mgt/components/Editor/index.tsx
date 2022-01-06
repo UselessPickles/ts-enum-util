@@ -752,16 +752,22 @@ function SourceInfo({
 
                   try {
                     const xhr = new XMLHttpRequest();
-                    const parser = new AppInfoParser(file),
-                      apkInfo = await parser.parse(),
-                      apkRes = {
-                        apkSize,
-                        gameName: apkInfo?.application?.label?.[0],
-                        gameNameView: apkInfo?.application?.label?.[0],
-                        packageName: apkInfo?.package,
-                        insideVersion: apkInfo?.versionCode,
-                        externalVersion: apkInfo?.versionName,
-                      };
+                    const parser = new AppInfoParser(file);
+                    let apkInfo: any = {};
+                    try {
+                      apkInfo = await parser.parse();
+                    } catch (e) {
+                      throw new Error('包己损坏');
+                    }
+
+                    const apkRes = {
+                      apkSize,
+                      gameName: apkInfo?.application?.label?.[0],
+                      gameNameView: apkInfo?.application?.label?.[0],
+                      packageName: apkInfo?.package,
+                      insideVersion: apkInfo?.versionCode,
+                      externalVersion: apkInfo?.versionName,
+                    };
 
                     const prePackageName = getFieldValue(['packageName']);
                     const preInsideVersion = getFieldValue(['insideVersion']);
