@@ -29,6 +29,7 @@
     "@ant-design/pro-table": "^2.56.2",
     "@umijs/preset-react": "1.x",
     "ali-oss": "^6.16.0",
+    "app-info-parser": "^1.1.3",
     "braft-editor": "^2.3.9",
     "cross-env": "^7.0.3",
     "react": "17.x",
