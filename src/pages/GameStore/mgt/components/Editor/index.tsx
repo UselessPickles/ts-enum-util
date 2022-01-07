@@ -669,13 +669,22 @@ function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> 
       </div>
 
       <Item name="score" label="游戏评分">
-        <InputNumber
-          placeholder="输入内容"
-          min={0}
-          max={10}
-          precision={1}
-          style={{ width: '100%' }}
-        />
+        {compose<any>(
+          IOC([
+            Format({
+              f: (v: number | string) => Number(v).toFixed(2),
+              g: (v: number | string) => Number(v).toFixed(2),
+            }),
+          ]),
+        )(
+          <InputNumber
+            placeholder="输入内容"
+            min={0}
+            max={10}
+            precision={1}
+            style={{ width: '100%' }}
+          />,
+        )}
       </Item>
 
       <Item
