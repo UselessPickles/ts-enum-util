@@ -1,0 +1,58 @@
+img {
+  width: 42px;
+  border-radius: 2px;
+}
+.GameOptions {
+  display: flex;
+  align-items: center;
+}
+.GameShow {
+  display: flex;
+  gap: 25px;
+  align-items: center;
+  padding: 7px 9px;
+  font-size: 14px;
+  .title {
+    min-width: 100px;
+    font-weight: 550;
+  }
+  .packge {
+    max-width: 200px;
+  }
+  .delete {
+    margin-left: auto;
+    :hover {
+      cursor: pointer;
+    }
+  }
+}
+.Options {
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: #f4f5f6 !important;
+  }
+}
+.tdWidth {
+  min-width: 65px;
+}
+.btnSpace {
+  > div {
+    button {
+      padding: 0 !important;
+    }
+  }
+}
+:global .ant-drawer-body {
+  padding: 10px 24px !important;
+}
+.backTip {
+  margin-bottom: 15px;
+  color: #999999;
+}
+.backGameDIV {
+  height: 700px;
+  margin-top: 30px;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
