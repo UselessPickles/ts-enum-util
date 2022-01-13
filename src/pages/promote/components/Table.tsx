@@ -1,4 +1,5 @@
-import { Button, Space, Dropdown, Menu } from 'antd';
+import { Button, Space, Upload, notification } from 'antd';
+import type { UploadProps } from 'antd';
 
 import LightTablePro from '@/EDK/components/LightTablePro';
 import type { LightTableProColumnProps } from '@/EDK/components/LightTablePro';
@@ -9,6 +10,7 @@ import { list } from '../services';
 import useLightTablePro from '@/EDK/components/LightTablePro/hook/useLightTablePro';
 import useDrawerForm from '@/EDK/components/DrawerForm/useDrawerForm';
 import DrawerForm from './Form';
+import { config } from '@/utils/RESTful';
 
 export default function () {
   const { actionRef, formRef } = useLightTablePro();
@@ -36,6 +38,34 @@ export default function () {
     );
   }
 
+  const uploadProps: UploadProps = {
+    name: 'file',
+    showUploadList: false,
+    action: `${config.REQUEST_URL + config.PROJECT_NAME}/api/scenead/ad_id_config/upload`,
+    accept:
+      '.csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel',
+
+    headers: {
+      token: localStorage.getItem('token') as string,
+    },
+    onChange: ({ file }) => {
+      if (file?.status === 'done' && file?.response && file?.response?.result?.status === 1) {
+        actionRef.current?.reload?.();
+        notification.success({
+          message: '上传成功',
+          description: file.response.data,
+        });
+      }
+
+      if (file.status === 'error') {
+        notification.error({
+          message: '上传失败',
+          description: `文件${file.name}上传失败`,
+        });
+      }
+    },
+  };
+
   return (
     <>
       <DrawerForm {...DrawerFormInstance} />
@@ -49,7 +79,9 @@ export default function () {
             <Button type="primary" icon={<PlusOutlined />} onClick={addHandler}>
               新增
             </Button>
-            <Button onClick={addHandler}>批量添加</Button>
+            <Upload {...uploadProps}>
+              <Button onClick={addHandler}>批量添加</Button>
+            </Upload>
             <Button type="link" onClick={downloadTemplate}>
               下载模版
             </Button>
