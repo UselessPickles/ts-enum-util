@@ -23,6 +23,7 @@ export default interface Row {
   md5: string;
   gameBit: string;
   installType: INSTALL_TYPE_ENUM;
+  packageName: string;
 }
 
 export const TYPE = new Map([
