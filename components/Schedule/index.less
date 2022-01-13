@@ -1,0 +1,20 @@
+.table {
+  user-select: none;
+
+  table,
+  td,
+  th,
+  caption {
+    border: 1px solid #e0e0e0;
+  }
+
+  caption {
+    padding: 12px;
+    border-top: unset;
+  }
+
+  .picked {
+    background-color: lighten(@primary-color, 30%);
+    transition: background-color 0.2s ease;
+  }
+}
