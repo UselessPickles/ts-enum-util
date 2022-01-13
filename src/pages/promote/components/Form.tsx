@@ -3,6 +3,7 @@ import { Form, message, Input } from 'antd';
 import DrawerForm from '@/EDK/components/DrawerForm';
 import type useDrawerForm from '@/EDK/components/DrawerForm/useDrawerForm';
 import { add } from '../services';
+import GameSelectV2 from '@/components/GameSelectV2';
 
 const { Item } = Form;
 
@@ -42,6 +43,10 @@ export default ({
     >
       <Item label="产品" name="prdId" rules={[{ required: true }]}>
         <Input />
+      </Item>
+
+      <Item label="游戏" name="gameId" rules={[{ required: true }]}>
+        <GameSelectV2 />
       </Item>
     </DrawerForm>
   );

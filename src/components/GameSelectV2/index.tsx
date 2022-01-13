@@ -3,7 +3,7 @@ import { Space, Select, Image, Skeleton, Empty, Typography } from 'antd';
 import type { SelectProps, SpaceProps } from 'antd';
 import type { SelectValue } from 'antd/lib/select';
 
-import { useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery, useQuery } from 'react-query';
 
 import { services } from '@/pages/GameStore/mgt/services';
 import type Game from '@/pages/GameStore/mgt/models';
@@ -13,17 +13,28 @@ import type { ListProps } from 'react-virtualized';
 import { List, InfiniteLoader, AutoSizer } from 'react-virtualized';
 
 import styles from './index.less';
+import useThrottle from '@/EDK/hooks/useThrottle';
 
 const { Text } = Typography;
 
 export default function (props: SelectProps<SelectValue>) {
   const [value, setValue] = useState<SelectValue>(),
     [open, setOpen] = useState(false),
-    realValue = props?.value ?? value ?? [],
+    realValue = props?.value ?? value,
     realChange = props?.onChange ?? setValue,
-    [searchValue, setSearchValue] = useState(typeof realValue === 'string' ? realValue : void 0);
+    [searchValue, setSearchValue] = useState(typeof realValue === 'string' ? realValue : void 0),
+    setSearchValueWithThrottle = useThrottle(setSearchValue);
 
-  const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery<Response<Game>>(
+  const checkedDataSource = useQuery(
+      ['game-mgt-prod-checked', realValue],
+      () =>
+        services
+          .page({ data: { packageOrGameName: `${realValue}` } }, 'prod')
+          .then((res) => res.data),
+      { refetchOnWindowFocus: false, enabled: !!realValue },
+    ),
+    allChecked: Game[] = checkedDataSource?.data?.total_datas ?? [],
+    { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery<Response<Game>>(
       ['game-mgt-prod', searchValue],
       ({ pageParam }) =>
         services
@@ -36,7 +47,12 @@ export default function (props: SelectProps<SelectValue>) {
       },
     ),
     rowCount = data?.pages?.[0]?.total_count ?? 0,
-    dataSource = data?.pages?.reduce((acc: Game[], p) => acc.concat(p.total_datas), []) || [],
+    dataSource =
+      data?.pages?.reduce(
+        (acc: Game[], p) =>
+          acc.concat(p.total_datas?.filter((d) => !allChecked?.some((c) => c.id === d.id))),
+        allChecked,
+      ) || [],
     dataSourceOpts = dataSource?.map((d) => ({ label: d.gameName, value: d.id }));
 
   // react-window-infinite
@@ -127,8 +143,7 @@ export default function (props: SelectProps<SelectValue>) {
     <Space direction="vertical" style={{ width: '100%' }}>
       <Select<any>
         {...props}
-        searchValue={searchValue}
-        onSearch={setSearchValue}
+        onSearch={setSearchValueWithThrottle}
         showSearch
         value={realValue}
         onChange={realChange}
@@ -139,9 +154,10 @@ export default function (props: SelectProps<SelectValue>) {
         open={open}
         onDropdownVisibleChange={setOpen}
       />
-      {([] as SelectValue[]).concat(realValue)?.map((r) => (
-        <GameItem g={dataSource.find((g) => g.id === r) as Game} />
-      ))}
+      {realValue &&
+        ([] as SelectValue[])
+          .concat(realValue)
+          ?.map((r) => <GameItem g={dataSource.find((g) => +g.id === Number(r)) as Game} />)}
     </Space>
   );
 }

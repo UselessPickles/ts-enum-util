@@ -19,7 +19,7 @@ export default function () {
     DrawerFormInstance.setDrawerProps((pre) => ({
       ...pre,
       visible: true,
-      title: '新增物理位广告位',
+      title: '新建',
     }));
   }
 
@@ -29,6 +29,12 @@ export default function () {
       dataIndex: 'positionId',
     },
   ];
+
+  function downloadTemplate() {
+    window.open(
+      `https://game-566.oss-cn-shanghai.aliyuncs.com/${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/template/furan.xyz.xlsx`,
+    );
+  }
 
   return (
     <>
@@ -40,24 +46,15 @@ export default function () {
         rowKey="id"
         headerTitle={
           <Space>
-            <Dropdown
-              trigger={['click', 'hover']}
-              mouseLeaveDelay={3}
-              overlay={
-                <Menu>
-                  <Menu.Item key="物理广告位" onClick={addHandler}>
-                    物理广告位
-                  </Menu.Item>
-                </Menu>
-              }
-            >
-              <Button type="primary" icon={<PlusOutlined />}>
-                广告位
-              </Button>
-            </Dropdown>
+            <Button type="primary" icon={<PlusOutlined />} onClick={addHandler}>
+              新增
+            </Button>
+            <Button onClick={addHandler}>批量添加</Button>
+            <Button type="link" onClick={downloadTemplate}>
+              下载模版
+            </Button>
           </Space>
         }
-        // manualRequest
         queryOptions={{ refetchOnWindowFocus: false }}
         request={async (params, pagination) => {
           const data = {
