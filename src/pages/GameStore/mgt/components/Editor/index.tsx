@@ -672,8 +672,8 @@ function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> 
         {compose<any>(
           IOC([
             Format({
-              f: (v: number | string) => Number(v).toFixed(2),
-              g: (v: number | string) => Number(v).toFixed(2),
+              f: (v: number | string) => (v ? Number(v).toFixed(2) : void 0),
+              g: (v: number | string) => (v ? Number(v).toFixed(2) : void 0),
             }),
           ]),
         )(

@@ -276,8 +276,7 @@ export default function () {
       renderText: (id, record) => {
         const canSync =
           record.testStatus === TEST_STATUS_ENUM.测试成功 ||
-          (record.gameSource === 'artificial' &&
-            record.installType === INSTALL_TYPE_ENUM.应用外安装);
+          record.installType === INSTALL_TYPE_ENUM.应用外安装;
 
         return (
           <Space>
