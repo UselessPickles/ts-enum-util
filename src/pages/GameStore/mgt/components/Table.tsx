@@ -4,7 +4,7 @@ import type { TabsProps } from 'antd';
 import type { XmilesCol } from '@/components/Xmiles/Col';
 import type Row from '../models';
 
-import { Button, Space, Tabs, Image, Modal } from 'antd';
+import { Button, Space, Tabs, Image, Modal, message } from 'antd';
 
 import XmilesTable from '@/components/Xmiles/ProTable';
 import { UploadOutlined } from '@ant-design/icons';
@@ -23,8 +23,9 @@ import { INSTALL_TYPE_ENUM, SHOW_STATUS, STATUS, TEST_STATUS, TEST_STATUS_ENUM }
 import { useQueryClient } from 'react-query';
 import styled from 'styled-components';
 import tooltip from '@/decorators/Tooltip';
+import isValidValue from '@/utils/isValidValue';
+import prune from '@/utils/prune';
 
-// unsaved test
 const { TabPane } = Tabs;
 
 const TabBackground = styled(Tabs)`
@@ -101,36 +102,71 @@ export default function () {
     });
   }
 
+  async function preValidate(r: Row) {
+    const res = await services.get<{ data: Row }>({ data: { id: r.id } }, env),
+      formData = prune(res?.data, isValidValue) ?? {};
+
+    editor.form.setFieldsValue(formData);
+
+    try {
+      await editor.form.validateFields();
+    } catch (e: any) {
+      const { errorFields } = e ?? {};
+      const errMsgs = errorFields?.reduce(
+        (acc: string[], field: any) => acc.concat(field?.errors),
+        [],
+      );
+      message.error(
+        <>
+          <b>游戏包还有以下错误，请手动处理后再进行同步</b>
+          <br />
+          {errMsgs?.map((msg: string) => (
+            <>
+              {msg} <br />
+            </>
+          ))}
+        </>,
+      );
+      throw e;
+    }
+  }
+
   function syncHandler(offline: Row) {
     return async () => {
-      const gameNum = offline?.gameNum;
-      const { prod, test } =
-        (await syncServices.get({ data: { gameNum } }).then((res: any) => res?.data)) ?? {};
-      if (prod) {
-        const diffProd: Record<string, any> = { _status: 'prod' },
-          diffTest: Record<string, any> = { _status: 'test' };
+      try {
+        await preValidate(offline);
 
-        Object.keys({ ...prod, ...test }).forEach((key) => {
-          if (`${prod?.[key]}` !== `${test?.[key]}`) {
-            diffProd[key] = prod?.[key];
-            diffTest[key] = test?.[key];
-          }
-        });
-        const dataSource = [diffProd, diffTest];
-        synchronizer.setData({ dataSource });
+        const gameNum = offline?.gameNum;
+        const { prod, test } =
+          (await syncServices.get({ data: { gameNum } }).then((res: any) => res?.data)) ?? {};
+        if (prod) {
+          const diffProd: Record<string, any> = { _status: 'prod' },
+            diffTest: Record<string, any> = { _status: 'test' };
 
-        synchronizer.setFormProps((pre) => ({
-          ...pre,
-          onFinish: () => syncConfirm(gameNum, false),
-        }));
+          Object.keys({ ...prod, ...test }).forEach((key) => {
+            if (`${prod?.[key]}` !== `${test?.[key]}`) {
+              diffProd[key] = prod?.[key];
+              diffTest[key] = test?.[key];
+            }
+          });
+          const dataSource = [diffProd, diffTest];
+          synchronizer.setData({ dataSource });
 
-        synchronizer.setModalProps((pre) => ({
-          ...pre,
-          visible: true,
-          onOk: () => syncConfirm(gameNum, false),
-        }));
-      } else {
-        syncConfirm(gameNum);
+          synchronizer.setFormProps((pre) => ({
+            ...pre,
+            onFinish: () => syncConfirm(gameNum, false),
+          }));
+
+          synchronizer.setModalProps((pre) => ({
+            ...pre,
+            visible: true,
+            onOk: () => syncConfirm(gameNum, false),
+          }));
+        } else {
+          syncConfirm(gameNum);
+        }
+      } catch (e) {
+        console.error(e);
       }
     };
   }
@@ -184,8 +220,10 @@ export default function () {
     {
       title: '自动化测试状态',
       dataIndex: 'testStatus',
-      width: 100,
+      width: 120,
       valueEnum: TEST_STATUS,
+      tooltip:
+        '自动化测试状态指游戏是否通过自动化测试流程，最终的状态与自动化测试流程中是否开启人工审核开关相关',
     },
     {
       title: '版本号',
@@ -245,13 +283,13 @@ export default function () {
             {compose(disabled(false))(<a onClick={editHandler(id)}>编辑</a>)}
             {env === 'test' && (
               <>
-                <a onClick={syncHandler(record)}>同步到线上</a>
-                {/* {compose(
+                {compose(
                   tooltip({
                     visible: !canSync,
                     title: '此游戏未通过自动化测试，请修改安装方式为“应用外安装”后可上线',
                   }),
-                )(<a onClick={syncHandler(record)}>同步到线上</a>)} */}
+                  disabled(!canSync),
+                )(<a onClick={syncHandler(record)}>同步到线上</a>)}
               </>
             )}
           </Space>

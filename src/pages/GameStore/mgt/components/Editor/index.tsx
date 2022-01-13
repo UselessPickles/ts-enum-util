@@ -26,7 +26,8 @@ import type useModalForm from '@/hooks/useModalForm';
 import { services } from '../../services';
 import { services as classifyServices } from '../../services/classify';
 import Options from '@/utils/Options';
-import type { ENV } from '../../models';
+import type { ENV, GAME_BIT_ENUM } from '../../models';
+import { GAME_BIT } from '../../models';
 import type Row from '../../models';
 import {
   PROFIT_MODE,
@@ -80,6 +81,9 @@ import Mask from '@/components/Mask';
 import { shouldUpdateManyHOF } from '@/decorators/shouldUpdateHOF';
 import OSS from 'ali-oss';
 import RESTful from '@/utils/RESTful';
+import AppInfoParser from '@/utils/apkParse/lib';
+import getMD5 from '@/utils/file/getMD5';
+import { calcGameBit } from '../../utils/calcGameBit';
 
 const beforeUploadHOF: (params: { size: number; msg?: string }) => UploadProps['beforeUpload'] =
   ({ size, msg }) =>
@@ -117,7 +121,7 @@ export default ({
     onSuccess(res) {
       const formData = prune(res?.data, isValidValue) ?? {};
 
-      form.setFieldsValue({ ...formData, gameNameView: formData?.gameName });
+      form.setFieldsValue({ ...formData, gameNameView: formData?.gameName, preApk: formData.apk });
       setModalProps((pre) => ({
         ...pre,
         title: formData?.packageName,
@@ -665,13 +669,22 @@ function GameInfo({ client }: { client: React.MutableRefObject<OSS | undefined> 
       </div>
 
       <Item name="score" label="游戏评分">
-        <InputNumber
-          placeholder="输入内容"
-          min={0}
-          max={10}
-          precision={1}
-          style={{ width: '100%' }}
-        />
+        {compose<any>(
+          IOC([
+            Format({
+              f: (v: number | string) => (v ? Number(v).toFixed(2) : void 0),
+              g: (v: number | string) => (v ? Number(v).toFixed(2) : void 0),
+            }),
+          ]),
+        )(
+          <InputNumber
+            placeholder="输入内容"
+            min={0}
+            max={10}
+            precision={1}
+            style={{ width: '100%' }}
+          />,
+        )}
       </Item>
 
       <Item
@@ -750,83 +763,111 @@ function SourceInfo({
                   const apkSize = (file as any)?.size;
 
                   try {
-                    const credentials =
-                      (await RESTful.post('fxx/game/credentials', {
-                        method: 'POST',
-                        throwErr: true,
-                        notify: false,
-                      }).then((res) => res?.data)) ?? {};
-
-                    if (!credentials) {
-                      const e = new Error('授权失败');
-                      onError?.(e);
-                      throw e;
-                    }
-
-                    const { domain } = credentials;
-
-                    const f: any = file;
-                    client.current = new OSS({
-                      ...credentials,
-                      endpoint: 'oss-cn-shanghai.aliyuncs.com',
-                      stsToken: credentials?.securityToken,
-                      // 不超时
-                      timeout: 60 * 60 * 1000,
-                      // 不刷新token
-                      refreshSTSTokenInterval: 60 * 60 * 1000,
-                    });
-                    const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${f?.uid}-${f?.name}`;
-
-                    // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
-                    // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
-                    const res = await client?.current?.multipartUpload(path, file, {
-                      progress: function (p) {
-                        // checkpoint参数用于记录上传进度，断点续传上传时将记录的checkpoint参数传入即可。浏览器重启后无法直接继续上传，您需要手动触发上传操作。
-                        onProgress?.({ percent: p * 100 } as any);
-                      },
-                      // parallel: 4,
-                      // 设置分片大小。默认值为1 MB，最小值为100 KB。
-                      // partSize: 1024 * 1024,
-                      // mime: 'text/plain',
-                    });
-
-                    if (res?.res?.status !== 200) {
-                      const e = new Error('上传失败');
-                      onError?.(e);
-                      throw e;
-                    }
-
                     const xhr = new XMLHttpRequest();
-                    const uri = `${domain}${path}`;
+                    const parser = new AppInfoParser(file),
+                      md5 = await getMD5(file as File);
+                    let apkInfo: any = {};
+                    try {
+                      apkInfo = await parser.parse();
+                    } catch (e) {
+                      throw new Error(`包己损坏，请核对MD5:${md5}，并尝试使用zip解压`);
+                    }
 
-                    const parse = await RESTful.post('fxx/game/test/apk/parser', {
-                      data: { apk: uri },
-                      throwErr: true,
-                      notify: false,
-                    });
+                    const apkRes = {
+                      apkSize,
+                      gameName: apkInfo?.application?.label?.[0],
+                      gameNameView: apkInfo?.application?.label?.[0],
+                      packageName: apkInfo?.package,
+                      insideVersion: apkInfo?.versionCode,
+                      externalVersion: apkInfo?.versionName,
+                      md5,
+                      gameBit: calcGameBit(apkInfo),
+                    };
 
-                    const apkRes = parse?.data ?? {};
-                    const { gameName, ...restApkRes } = apkRes;
                     const prePackageName = getFieldValue(['packageName']);
                     const preInsideVersion = getFieldValue(['insideVersion']);
-                    setFieldsValue({ apkSize, gameNameView: gameName, ...restApkRes });
+                    const preApk = getFieldValue(['preApk']);
 
                     const { packageName, insideVersion } = apkRes;
+
                     if (packageName && packageName !== prePackageName) {
-                      const e = new Error('包名不一致');
-                      onError?.(e);
-                      throw e;
+                      throw new Error('包名不一致');
                     }
 
-                    if (insideVersion && +insideVersion <= preInsideVersion) {
-                      const e = new Error('此游戏已存在且非新版本，无法上传');
-                      onError?.(e);
-                      throw e;
+                    if (insideVersion && +insideVersion < +preInsideVersion) {
+                      throw new Error('此游戏已存在且非新版本，无法上传');
                     }
 
-                    onUploadSuccess!(uri, xhr);
+                    if (insideVersion && +insideVersion === +preInsideVersion) {
+                      // 版本一致逻辑
+
+                      Modal.confirm({
+                        title: '提示',
+                        content: (
+                          <>
+                            上传的游戏包版本号<b>等于</b>现有游戏版本号，非更新行为，将进行包的替换
+                          </>
+                        ),
+                        cancelText: '还原旧包',
+                        onOk: _upload,
+                        onCancel: () => {
+                          client.current?.cancel?.();
+                          onUploadSuccess!(preApk, xhr);
+                        },
+                      });
+                    } else {
+                      await _upload();
+                    }
+
+                    async function _upload() {
+                      setFieldsValue(apkRes);
+
+                      const credentials =
+                        (await RESTful.post('fxx/game/credentials', {
+                          method: 'POST',
+                          throwErr: true,
+                          notify: false,
+                        }).then((res) => res?.data)) ?? {};
+
+                      if (!credentials) {
+                        throw new Error('授权失败');
+                      }
+
+                      const { domain } = credentials;
+
+                      client.current = new OSS({
+                        ...credentials,
+                        endpoint: 'oss-cn-shanghai.aliyuncs.com',
+                        stsToken: credentials?.securityToken,
+                        // 不超时
+                        timeout: 60 * 60 * 1000,
+                        // 不刷新token
+                        refreshSTSTokenInterval: 60 * 60 * 1000,
+                      });
+                      const path = `${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/${apkRes?.gameName}.apk`;
+
+                      // 填写Object完整路径。Object完整路径中不能包含Bucket名称。
+                      // 您可以通过自定义文件名（例如exampleobject.txt）或目录（例如exampledir/exampleobject.txt）的形式，实现将文件上传到当前Bucket或Bucket中的指定目录。
+                      const res = await client?.current?.multipartUpload(path, file, {
+                        progress: function (p) {
+                          // checkpoint参数用于记录上传进度，断点续传上传时将记录的checkpoint参数传入即可。浏览器重启后无法直接继续上传，您需要手动触发上传操作。
+                          onProgress?.({ percent: p * 100 } as any);
+                        },
+                        // parallel: 4,
+                        // 设置分片大小。默认值为1 MB，最小值为100 KB。
+                        // partSize: 1024 * 1024,
+                        // mime: 'text/plain',
+                      });
+
+                      if (res?.res?.status !== 200) {
+                        throw new Error('上传失败');
+                      }
+
+                      const uri = `${domain}${path}`;
+                      onUploadSuccess!(uri, xhr);
+                    }
                   } catch (e: any) {
-                    console.error(e);
+                    onError?.(e);
                   }
                 }}
                 showUploadList={{
@@ -861,7 +902,13 @@ function SourceInfo({
                         <FormItemView />
                       </Item>
                       <Item name={['gameBit']} label="游戏位数：" {...extra}>
-                        <FormItemView />
+                        {compose<any>(
+                          IOC([
+                            Format({
+                              g: (v: GAME_BIT_ENUM) => GAME_BIT.get(v),
+                            }),
+                          ]),
+                        )(<FormItemView />)}
                       </Item>
 
                       <Item name={['apkSize']} label="apkSize" hidden>
@@ -878,6 +925,10 @@ function SourceInfo({
             )}
           </Item>
         )}
+      </Item>
+
+      <Item name={['preApk']} hidden>
+        <Input />
       </Item>
 
       <Item dependencies={[['apk']]} noStyle>
@@ -1122,7 +1173,7 @@ function UpdateRecord({ env, value = [] }: { env: ENV; value?: Row['versionList'
     { name: 'insideVersion', label: '内部版本号' },
     { name: 'externalVersion', label: '外部版本号' },
     { name: 'md5', label: 'MD5' },
-    { name: 'gameBit', label: '游戏位数' },
+    { name: 'gameBit', label: '游戏位数', format: (v) => GAME_BIT.get(v) },
     {
       name: 'installType',
       label: '安装方式',
