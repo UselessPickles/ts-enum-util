@@ -51,7 +51,13 @@ function useUser() {
     setUserInfo({});
     localStorage.removeItem('token');
     localStorage.removeItem('userInfo');
-    history.push({ pathname: '/user/login' });
+    try {
+      if (window.parent && window !== window.top) {
+        window.parent.location.reload();
+      }
+    } catch (error) {
+      history.push({ pathname: '/user/login' });
+    }
   };
   const checkLogStatus = () => {
     const token = localStorage.getItem('token');

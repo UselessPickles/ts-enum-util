@@ -5,6 +5,7 @@ import DrawerForm from '@/components/DrawerForm';
 import styles from '../index.less';
 import { gameList } from '@/services/gameQuery';
 import RESTful from '@/utils/RESTful';
+import GameSelector from '@/components/GameSelector';
 
 const { Item } = Form,
   { Option } = Select,
@@ -25,53 +26,7 @@ export default () => {
       inputSelect,
       setInputSelect,
     } = useContainer(),
-    { submitor, onCancel } = useModalFromSubmit(),
-    [dataSource, setDataSource] = useState<any>([]);
-
-  async function queryGameList() {
-    setLoading(true);
-    page == 1 && setDataSource([]);
-    inputSelect && setPage(1);
-    try {
-      const res = await gameList({
-        data: {
-          packageOrGameName: inputSelect,
-          page: {
-            pageNo: inputSelect ? 1 : page,
-            pageSize: inputSelect ? 1000 : 20,
-          },
-        },
-      });
-      if (res) {
-        const isEdit = modalProps?.title === '编辑';
-        const data = res?.data?.total_datas?.filter((item: { status: number; gameNum: string }) => {
-          return (
-            item.status == 1 &&
-            (isEdit && !inputSelect ? item.gameNum !== editRecord?.gameNum : true)
-          );
-        });
-        if (isEdit && page == 1) {
-          setDataSource(inputSelect ? data : [editRecord]?.concat(data));
-        } else {
-          setDataSource(inputSelect || page == 1 ? data : dataSource?.concat(data));
-        }
-        console.log('source', dataSource);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-    setLoading(false);
-  }
-
-  const onscroll = (e: any) => {
-    if (
-      dataSource?.length > 0 &&
-      !inputSelect &&
-      e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 1
-    ) {
-      setPage(page + 1);
-    }
-  };
+    { submitor, onCancel } = useModalFromSubmit();
 
   function showGameOptions(
     name: string,
@@ -91,9 +46,9 @@ export default () => {
     );
   }
 
-  useEffect(() => {
-    queryGameList();
-  }, [page, inputSelect, editRecord]);
+  function clearFun() {
+    setSelectGame([]);
+  }
 
   return (
     <DrawerForm
@@ -109,33 +64,12 @@ export default () => {
       }}
     >
       <Item label="游戏名称" name="gameNum" rules={[{ required: true }]}>
-        <Select
-          optionLabelProp="label"
-          allowClear
-          loading={loading}
-          showSearch
-          filterOption={false}
-          onSearch={(value) => setInputSelect(value)}
-          onPopupScroll={onscroll}
-          onClear={() => setSelectGame([])}
+        <GameSelector
+          editRecord={editRecord}
+          isEdit={modalProps?.title === '编辑'}
+          clearFun={clearFun}
           onSelect={(_, option) => setSelectGame([option])}
-        >
-          {dataSource?.map((item: any, index: any) => {
-            const { packageName, gameName, gameNum, gameIcon } = item ?? {};
-            return (
-              <Option
-                pname={packageName}
-                label={gameName}
-                value={gameNum}
-                icon={gameIcon}
-                className={styles.Options}
-                key={index}
-              >
-                {showGameOptions(gameName, packageName, gameNum, gameIcon, false)}
-              </Option>
-            );
-          })}
-        </Select>
+        />
       </Item>
       <Item noStyle dependencies={['gameName']}>
         {({}) => {

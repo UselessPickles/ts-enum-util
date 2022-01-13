@@ -1,14 +1,12 @@
-import ModalForm from '@/components/ModalForm';
 import RESTful from '@/utils/RESTful';
 import FileDoneOutlined from '@ant-design/icons/lib/icons/FileDoneOutlined';
-import { Form, Tabs, Image, Space, Button, Modal, Spin } from 'antd';
+import { Tabs, Image, Space, Button, Modal, Spin } from 'antd';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useContainer } from '../useStore';
 import styles from '../index.less';
 
-const { Item } = Form,
-  { TabPane } = Tabs;
+const { TabPane } = Tabs;
 
 export default () => {
   const { setModalProps, editRecord, modalProps, actionRef } = useContainer();
@@ -51,7 +49,7 @@ export default () => {
   function statusSubmit(status: any) {
     Modal.confirm({
       title: '请进行二次确认',
-      content: `${status == 1 ? '审核通过游戏将' : '游戏不会'}进入游戏测试库，确定吗？`,
+      content: `${status == 2 ? '审核通过游戏将' : '游戏不会'}进入游戏测试库，确定吗？`,
       onOk: () => {
         RESTful.post('fxx/game/auto/test/detail/reviewStatus', {
           data: { gameAutoTestId: editRecord?.id, status },
