@@ -80,7 +80,7 @@ export default function () {
               新增
             </Button>
             <Upload {...uploadProps}>
-              <Button onClick={addHandler}>批量添加</Button>
+              <Button>批量添加</Button>
             </Upload>
             <Button type="link" onClick={downloadTemplate}>
               下载模版
