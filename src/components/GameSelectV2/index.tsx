@@ -157,7 +157,9 @@ export default function (props: SelectProps<SelectValue>) {
       {realValue &&
         ([] as SelectValue[])
           .concat(realValue)
-          ?.map((r) => <GameItem g={dataSource.find((g) => +g.id === Number(r)) as Game} />)}
+          ?.map((r) => (
+            <GameItem key={`${r}`} g={dataSource.find((g) => +g.id === Number(r)) as Game} />
+          ))}
     </Space>
   );
 }
