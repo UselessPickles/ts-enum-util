@@ -40,4 +40,8 @@ export default defineConfig({
       APP_CN_NAME: '566 游戏管理平台',
     },
   },
+  externals: {
+    xlsx: 'window.XLSX',
+  },
+  scripts: ['https://unpkg.com/xlsx@0.17.5/dist/xlsx.full.min.js'],
 });

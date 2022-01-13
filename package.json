@@ -11,7 +11,10 @@
     "test:coverage": "umi-test --coverage",
     "forkApkParse": "git remote add apkParse https://github.com/NgeKaworu/app-info-parser; git subtree add -P src/utils/apkParse apkParse master",
     "pullApkParse": "git subtree pull -P src/utils/apkParse apkParse master --squash",
-    "pushApkParse": "git subtree push -P src/utils/apkParse apkParse master"
+    "pushApkParse": "git subtree push -P src/utils/apkParse apkParse master",
+    "forkEDK": "git remote add EDK http://git.yingzhongshare.com/fuRan/EDK.git; git subtree add -P src/EDK EDK master",
+    "pushEDK": "git subtree push -P src/EDK EDK master",
+    "pullEDK": "git subtree pull -P src/EDK EDK master --squash"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"
@@ -40,7 +43,8 @@
     "spark-md5": "^3.0.2",
     "styled-components": "^5.3.1",
     "umi": "^3.5.20",
-    "unstated-next": "^1.1.0"
+    "unstated-next": "^1.1.0",
+    "xlsx": "^0.17.5"
   },
   "devDependencies": {
     "@types/ali-oss": "^6.16.1",
