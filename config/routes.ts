@@ -66,6 +66,10 @@ export default [
             path: '/gameDataReport',
             routes: [{ path: '/gameDataReport', component: '@/pages/gameDataReport' }],
           },
+          {
+            path: '/promote',
+            routes: [{ path: '/promote', component: '@/pages/promote' }],
+          },
         ],
       },
     ],

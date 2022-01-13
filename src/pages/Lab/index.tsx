@@ -3,8 +3,8 @@ import GameSelectV2 from '@/components/GameSelectV2';
 const { Item } = Form;
 
 export default () => (
-  <Form>
-    <Item>
+  <Form onFinish={console.log}>
+    <Item name="gameSelectV2">
       <GameSelectV2 />
     </Item>
     <Item>

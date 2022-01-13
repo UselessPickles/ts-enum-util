@@ -108,7 +108,7 @@ export default function (props: SelectProps<SelectValue>) {
             {({ width }) => (
               <List
                 width={width}
-                height={720}
+                height={360}
                 rowCount={rowCount}
                 ref={registerChild}
                 onRowsRendered={onRowsRendered}

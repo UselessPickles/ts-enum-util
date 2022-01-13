@@ -28,9 +28,11 @@
     ]
   },
   "dependencies": {
+    "@alitajs/antd-plus": "^2.5.0",
     "@ant-design/pro-layout": "^6.5.0",
     "@ant-design/pro-table": "^2.56.2",
     "@umijs/preset-react": "1.x",
+    "@xmiles/xmiles-ui": "^0.0.31",
     "ali-oss": "^6.16.0",
     "app-info-parser": "^1.1.3",
     "braft-editor": "^2.3.9",
