@@ -1,4 +1,4 @@
-import { Button, Space, Upload, notification } from 'antd';
+import { Button, Space, Upload, notification, Typography } from 'antd';
 import type { UploadProps } from 'antd';
 
 import LightTablePro from '@/EDK/components/LightTablePro';
@@ -6,23 +6,39 @@ import type { LightTableProColumnProps } from '@/EDK/components/LightTablePro';
 import { PlusOutlined } from '@ant-design/icons';
 
 import type Row from '../models';
-import { list } from '../services';
+import { services } from '../services';
 import useLightTablePro from '@/EDK/components/LightTablePro/hook/useLightTablePro';
 import useDrawerForm from '@/EDK/components/DrawerForm/useDrawerForm';
 import DrawerForm from './Form';
 import { config } from '@/utils/RESTful';
+import { $enum } from '@/enumUtil/src';
+import { PLATFORM } from '../models';
+
+const { Link } = Typography;
 
 export default function () {
   const { actionRef, formRef } = useLightTablePro();
 
-  const DrawerFormInstance = useDrawerForm();
+  const drawerFormInstance = useDrawerForm();
 
   function addHandler() {
-    DrawerFormInstance.setDrawerProps((pre) => ({
+    drawerFormInstance.setDrawerProps((pre) => ({
       ...pre,
       visible: true,
       title: '新建',
     }));
+  }
+
+  function onEdit(r: Row) {
+    return () => {
+      drawerFormInstance.setDrawerProps((pre) => ({
+        ...pre,
+        visible: true,
+        title: '关联游戏',
+      }));
+
+      drawerFormInstance.setData({ ...r, mode: 'edit' });
+    };
   }
 
   const columns: LightTableProColumnProps<Row>[] = [
@@ -31,16 +47,43 @@ export default function () {
       dataIndex: 'popularizePlanId',
     },
     {
-      title: '推广计划ID',
-      dataIndex: 'popularizePlanId',
+      title: '推广平台',
+      dataIndex: 'platform',
+      valueEnum: $enum(PLATFORM).getMap(),
+      width: 100,
     },
     {
-      title: '推广计划ID',
-      dataIndex: 'popularizePlanId',
+      title: '推广计划名称',
+      dataIndex: 'popularizePlanName',
+      hideInSearch: true,
     },
     {
-      title: '推广计划ID',
-      dataIndex: 'popularizePlanId',
+      title: '关联游戏',
+      dataIndex: 'gameNamePkg',
+      width: 360,
+      fieldProps: { placeholder: '游戏名/包名' },
+    },
+    {
+      title: '操作人',
+      dataIndex: 'operator',
+      hideInSearch: true,
+      width: 100,
+    },
+    {
+      title: '操作时间',
+      dataIndex: 'utime',
+      valueType: 'dateTime',
+      hideInSearch: true,
+      width: 150,
+    },
+    {
+      title: '操作',
+      dataIndex: '_opt',
+      hideInSearch: true,
+      width: 100,
+      render: (_, row) => {
+        return <Link onClick={onEdit(row)}>关联游戏</Link>;
+      },
     },
   ];
 
@@ -80,8 +123,9 @@ export default function () {
 
   return (
     <>
-      <DrawerForm {...DrawerFormInstance} />
+      <DrawerForm {...drawerFormInstance} />
       <LightTablePro
+        size="small"
         actionRef={actionRef}
         formRef={formRef}
         columns={columns}
@@ -108,7 +152,7 @@ export default function () {
               page_size: pagination?.pageSize,
             },
           };
-          const res = await list({ data });
+          const res = await services.page({ data });
 
           return {
             data: res?.data?.total_datas || [],
