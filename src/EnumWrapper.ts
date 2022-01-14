@@ -1,7 +1,7 @@
 import { StringKeyOf } from "./types";
 import {
     isNonNumericKey,
-    getOwnEnumerableNonNumericKeys
+    getOwnEnumerableNonNumericKeys,
 } from "./objectKeysUtil";
 
 /**
@@ -18,7 +18,8 @@ import {
 export class EnumWrapper<
     V extends number | string = number | string,
     T extends Record<StringKeyOf<T>, V> = any
-> implements Iterable<EnumWrapper.Entry<T>>, ArrayLike<EnumWrapper.Entry<T>> {
+> implements Iterable<EnumWrapper.Entry<T>>, ArrayLike<EnumWrapper.Entry<T>>
+{
     /**
      * List of all keys for this enum, in the original defined order of the enum.
      */
@@ -118,7 +119,7 @@ export class EnumWrapper<
                 const isDone = index >= this.length;
                 const result: IteratorResult<StringKeyOf<T>> = {
                     done: isDone,
-                    value: this.keysList[index]
+                    value: this.keysList[index],
                 };
 
                 ++index;
@@ -128,7 +129,7 @@ export class EnumWrapper<
 
             [Symbol.iterator](): IterableIterator<StringKeyOf<T>> {
                 return this;
-            }
+            },
         };
     }
 
@@ -148,7 +149,7 @@ export class EnumWrapper<
                 const isDone = index >= this.length;
                 const result: IteratorResult<T[StringKeyOf<T>]> = {
                     done: isDone,
-                    value: this.valuesList[index]
+                    value: this.valuesList[index],
                 };
 
                 ++index;
@@ -158,7 +159,7 @@ export class EnumWrapper<
 
             [Symbol.iterator](): IterableIterator<T[StringKeyOf<T>]> {
                 return this;
-            }
+            },
         };
     }
 
@@ -176,7 +177,7 @@ export class EnumWrapper<
                 const result: IteratorResult<EnumWrapper.Entry<T>> = {
                     done: isDone,
                     // NOTE: defensive copy not necessary because entries are "frozen"
-                    value: this[index]
+                    value: this[index],
                 };
 
                 ++index;
@@ -186,7 +187,7 @@ export class EnumWrapper<
 
             [Symbol.iterator](): IterableIterator<EnumWrapper.Entry<T>> {
                 return this;
-            }
+            },
         };
     }
 
@@ -282,6 +283,16 @@ export class EnumWrapper<
         // Create an array from the indexed entries of "this".
         // NOTE: no need for defensive copy of each entry because all entries are "frozen".
         return Array.prototype.slice.call(this);
+    }
+
+    /**
+     * Get an map for this enum's map.
+     * Order of items in the map is based on the original defined order of the enum.
+     * @return An map of this enum's map.
+     */
+    public getMap(): Map<V, StringKeyOf<T>> {
+        // need to return a copy of this.keysByValueMap so it can be returned as Map instead of ReadonlyMap.
+        return new Map(this.keysByValueMap);
     }
 
     /**
@@ -712,9 +723,8 @@ export namespace EnumWrapper {
      * A tuple containing the key and value of a single entry in an enum.
      * @template T - Type of an enum-like object.
      */
-    export type Entry<
-        T extends Record<StringKeyOf<T>, number | string> = any
-    > = Readonly<[StringKeyOf<T>, T[StringKeyOf<T>]]>;
+    export type Entry<T extends Record<StringKeyOf<T>, number | string> = any> =
+        Readonly<[StringKeyOf<T>, T[StringKeyOf<T>]]>;
 
     /**
      * A function used in iterating all key/value entries in an enum.
@@ -746,9 +756,8 @@ export namespace EnumWrapper {
  *
  * @template T - Type of an enum-like object that contains only number values.
  */
-export type NumberEnumWrapper<
-    T extends Record<StringKeyOf<T>, number> = any
-> = EnumWrapper<number, T>;
+export type NumberEnumWrapper<T extends Record<StringKeyOf<T>, number> = any> =
+    EnumWrapper<number, T>;
 
 export namespace NumberEnumWrapper {
     /**
@@ -756,9 +765,8 @@ export namespace NumberEnumWrapper {
      *
      * @template T - Type of an enum-like object that contains only number values.
      */
-    export type Entry<
-        T extends Record<StringKeyOf<T>, number> = any
-    > = EnumWrapper.Entry<T>;
+    export type Entry<T extends Record<StringKeyOf<T>, number> = any> =
+        EnumWrapper.Entry<T>;
 
     /**
      * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains only number values.
@@ -777,9 +785,8 @@ export namespace NumberEnumWrapper {
  *
  * @template T - Type of an enum-like object that contains only string values.
  */
-export type StringEnumWrapper<
-    T extends Record<StringKeyOf<T>, string> = any
-> = EnumWrapper<string, T>;
+export type StringEnumWrapper<T extends Record<StringKeyOf<T>, string> = any> =
+    EnumWrapper<string, T>;
 
 export namespace StringEnumWrapper {
     /**
@@ -787,9 +794,8 @@ export namespace StringEnumWrapper {
      *
      * @template T - Type of an enum-like object that contains only string values.
      */
-    export type Entry<
-        T extends Record<StringKeyOf<T>, string> = any
-    > = EnumWrapper.Entry<T>;
+    export type Entry<T extends Record<StringKeyOf<T>, string> = any> =
+        EnumWrapper.Entry<T>;
 
     /**
      * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains only string values.
@@ -820,9 +826,8 @@ export namespace MixedEnumWrapper {
      *
      * @template T - Type of an enum-like object that contains a mix of number and string values.
      */
-    export type Entry<
-        T extends Record<StringKeyOf<T>, number | string> = any
-    > = EnumWrapper.Entry<T>;
+    export type Entry<T extends Record<StringKeyOf<T>, number | string> = any> =
+        EnumWrapper.Entry<T>;
 
     /**
      * Type alias for an {@link EnumWrapper.Iteratee} for any type of enum-like object that contains a mix of
