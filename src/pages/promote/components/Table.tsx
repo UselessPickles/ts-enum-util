@@ -81,6 +81,7 @@ export default function () {
       dataIndex: '_opt',
       hideInSearch: true,
       width: 100,
+      fixed: 'right',
       render: (_, row) => {
         return <Link onClick={onEdit(row)}>关联游戏</Link>;
       },
@@ -121,11 +122,16 @@ export default function () {
     },
   };
 
+  function onSuccess() {
+    actionRef.current?.reload?.();
+  }
+
   return (
     <>
-      <DrawerForm {...drawerFormInstance} />
+      <DrawerForm {...drawerFormInstance} onSuccess={onSuccess} />
       <LightTablePro
         size="small"
+        scroll={{ x: 'max-content' }}
         actionRef={actionRef}
         formRef={formRef}
         columns={columns}
