@@ -274,7 +274,13 @@ export class EnumWrapper<
         return this.valuesList.slice();
     }
 
+    /**
+     * Get an map for this enum's map.
+     * Order of items in the map is based on the original defined order of the enum.
+     * @return An map of this enum's map.
+     */
     public getMap(): Map<V, StringKeyOf<T>> {
+        // need to return a copy of this.keysByValueMap so it can be returned as Map instead of ReadonlyMap.
         return new Map(this.keysByValueMap);
     }
 
