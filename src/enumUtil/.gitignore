@@ -1,0 +1,5 @@
+node_modules/
+jest_cache/
+coverage/
+dist/
+ts-enum-util-*.tgz
