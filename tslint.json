@@ -1,0 +1,43 @@
+{
+    "extends": ["tslint:recommended", "tslint-config-prettier"],
+    "rules": {
+        "typedef": [
+            true,
+            "call-signature",
+            "parameter",
+            "property-declaration"
+        ],
+        "new-parens": true,
+        "no-var-requires": false,
+        "no-arg": true,
+        "no-conditional-assignment": true,
+        "no-console": [
+            true,
+            "debug",
+            "info",
+            "log",
+            "time",
+            "timeEnd",
+            "trace"
+        ],
+        "array-type": [true, "array"],
+        "ordered-imports": false,
+        "class-name": false,
+        "interface-name": false,
+        "no-namespace": false,
+        "no-default-export": true,
+        "no-unused-variable": true,
+        "object-literal-sort-keys": false,
+        "object-literal-shorthand": false,
+        "object-literal-key-quotes": false,
+        "max-classes-per-file": [false],
+        "triple-equals": [true, "allow-null-check"],
+        "no-empty-interface": false,
+        "no-string-literal": false,
+        "jsdoc-format": true,
+        "member-ordering": false,
+        "forin": true,
+        "no-for-in-array": true,
+        "no-invalid-template-strings": true
+    }
+}
