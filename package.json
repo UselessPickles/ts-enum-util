@@ -14,7 +14,10 @@
     "pushApkParse": "git subtree push -P src/utils/apkParse apkParse master",
     "forkEDK": "git remote add EDK http://git.yingzhongshare.com/fuRan/EDK.git; git subtree add -P src/EDK EDK master --squash",
     "pushEDK": "git subtree push -P src/EDK EDK master",
-    "pullEDK": "git subtree pull -P src/EDK EDK master --squash"
+    "pullEDK": "git subtree pull -P src/EDK EDK master --squash",
+    "forkEnumUtil": "git remote add enumUtil https://github.com/NgeKaworu/ts-enum-util.git; git subtree add -P src/enumUtil enumUtil master --squash",
+    "pushEnumUtil": "git subtree push -P src/utils/enumUtil enumUtil master",
+    "pullEnumUtil": "git subtree pull -P src/utils/enumUtil enumUtil master --squash"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

@@ -1,8 +1,12 @@
 import type { CustomRequestConfig } from '@/utils/RESTful';
 import RESTful from '@/utils/RESTful';
 
-export const list = (opt: CustomRequestConfig) =>
-  RESTful.post('scenead/new_ad_system/ad_position/group', opt);
+const methods = ['check', 'page', 'save', 'update', 'view'] as const;
 
-export const add = (opt: CustomRequestConfig) =>
-  RESTful.post('scenead/overseas/productWithdrawConfig/add', opt);
+export const services = methods.reduce(
+  (acc, method) => ({
+    ...acc,
+    [method]: (opt: CustomRequestConfig) => RESTful.post(`fxx/game/popularize/plan/${method}`, opt),
+  }),
+  {} as Record<typeof methods[number], <T = any>(opt: CustomRequestConfig) => Promise<T>>,
+);

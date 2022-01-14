@@ -27,21 +27,33 @@ export default function () {
 
   const columns: LightTableProColumnProps<Row>[] = [
     {
-      title: '广告位ID',
-      dataIndex: 'positionId',
+      title: '推广计划ID',
+      dataIndex: 'popularizePlanId',
+    },
+    {
+      title: '推广计划ID',
+      dataIndex: 'popularizePlanId',
+    },
+    {
+      title: '推广计划ID',
+      dataIndex: 'popularizePlanId',
+    },
+    {
+      title: '推广计划ID',
+      dataIndex: 'popularizePlanId',
     },
   ];
 
   function downloadTemplate() {
     window.open(
-      `https://game-566.oss-cn-shanghai.aliyuncs.com/${PROCESS_ENV.APP_NAME}/${PROCESS_ENV.NODE_ENV}/template/furan.xyz.xlsx`,
+      `https://game-566.oss-cn-shanghai.aliyuncs.com/${PROCESS_ENV.APP_NAME}/template/promote.${PROCESS_ENV.NODE_ENV}.xlsx`,
     );
   }
 
   const uploadProps: UploadProps = {
     name: 'file',
     showUploadList: false,
-    action: `${config.REQUEST_URL + config.PROJECT_NAME}/api/scenead/ad_id_config/upload`,
+    action: `${config.REQUEST_URL + config.SERVICE}/api/fxx/game/popularize/plan/import`,
     accept:
       '.csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel',
 
@@ -57,10 +69,10 @@ export default function () {
         });
       }
 
-      if (file.status === 'error') {
+      if (file.status === 'error' || file?.response?.result?.status === 0) {
         notification.error({
           message: '上传失败',
-          description: `文件${file.name}上传失败`,
+          description: file?.response?.result?.msg ?? `文件${file.name}上传失败`,
         });
       }
     },
