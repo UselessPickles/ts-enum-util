@@ -679,6 +679,21 @@ export class EnumWrapper<
             return defaultValue;
         }
     }
+
+    /**
+     * Creates an enum-like object that contains a subset of entries of the
+     * original enum.
+     * @param keys - The keys to include in the new enum-like object.
+     * @returns A new enum-like object.
+     */
+    public createEnumSubset<K extends StringKeyOf<T>>(
+        ...keys: readonly K[]
+    ): Pick<T, K> {
+        return keys.reduce<Record<string, T[K]>>((result, key) => {
+            result[key] = this.enumObj[key];
+            return result;
+        }, {}) as Pick<T, K>;
+    }
 }
 
 // HACK: Forcefully overriding the value of the [Symbol.toStringTag] property.
