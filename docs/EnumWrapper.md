@@ -70,6 +70,8 @@ Usage documentation for the `EnumWrapper` portion of `ts-enum-util`.
     -   [Lookup Value by Key](#lookup-value-by-key)
         -   [EnumWrapper.prototype.getValueOrThrow](#enumwrapperprototypegetvalueorthrow)
         -   [EnumWrapper.prototype.getValueOrDefault](#enumwrapperprototypegetvalueordefault)
+    -   [Create a new enum-like object with a subset of an enum's entries](#create-a-new-enum-like-object-with-a-subset-of-an-enums-entries)
+        -   [EnumWrapper.prototype.createEnumSubset](#enumwrapperprototypecreateenumsubset)
 
 <!-- /TOC -->
 
@@ -818,4 +820,31 @@ EnumWrapper.prototype.getValueOrDefault(
     key: string | null | undefined,
     defaultValue?: EnumType | ValueType
 ): EnumType | ValueType | undefined
+```
+
+### Create a new enum-like object with a subset of an enum's entries
+
+#### EnumWrapper.prototype.createEnumSubset
+
+Use this method to create a new well-typed [Enum-Like Object](#enum-like-object) that contains
+a subset of entries from the original enum.
+
+```ts
+EnumWrapper.prototype.createEnumSubset(
+    ...keys: readonly KeyType[]
+): EnumLike
+```
+
+Example:
+
+```ts
+enum Numbers {
+    One = 1,
+    Two = 2,
+    Three = 3,
+    Four = 4
+}
+
+const EvenNumbers = $enum(Numbers).createEnumSubset("Two", "Four");
+type EvenNumbers = typeof EvenNumbers[keyof typeof EvenNumbers];
 ```

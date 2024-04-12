@@ -531,4 +531,11 @@ describe("EnumWrapper: string enum", () => {
         );
         expect(enumWrapper.getValueOrDefault(undefined, "foo")).toBe("foo");
     });
+
+    test("createEnumSubset()", () => {
+        expect(enumWrapper.createEnumSubset("A", "C")).toEqual({
+            A: TestEnum.A,
+            C: TestEnum.C
+        });
+    });
 });

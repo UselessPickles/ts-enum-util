@@ -268,3 +268,6 @@ enumWrapper.getValueOrDefault(str, str);
 enumWrapper.getValueOrDefault(str, strOrUndefined);
 // $ExpectError
 enumWrapper.getValueOrDefault(str, num);
+
+// $ExpectType Pick<typeof TestEnum, "A" | "C">
+enumWrapper.createEnumSubset("A", "C");
